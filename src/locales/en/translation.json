@@ -1,0 +1,309 @@
+{
+  "nav": {
+    "services": "Services",
+    "about": "About",
+    "portfolio": "Portfolio",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cta": "Book a call",
+    "lang_toggle": "FR"
+  },
+  "hero": {
+    "overline": "AI SOLUTIONS FOR BUSINESSES",
+    "title_before": "",
+    "title_highlight": "AI",
+    "title_after": " applied to your business, without the complexity.",
+    "subtitle": "Custom AI application development, model integration and strategy — for SMBs that want to move fast.",
+    "cta_primary": "Book a call",
+    "cta_secondary": "View my work"
+  },
+  "comparison": {
+    "overline": "WHY 5PENNYAI",
+    "title": "Why work with 5PennyAi?",
+    "old_way": {
+      "title": "Traditional agency",
+      "items": [
+        "Months of delays before any results",
+        "High costs and opaque quotes",
+        "Team that doesn't understand your business",
+        "Generic solutions, not tailored to your needs"
+      ]
+    },
+    "new_way": {
+      "title": "With 5PennyAi",
+      "items": [
+        "Working prototype in a few weeks",
+        "Transparent pricing, adapted for SMBs",
+        "A single point of contact who understands AI and your business",
+        "Custom solutions, iterated with you"
+      ]
+    }
+  },
+  "services": {
+    "overline": "SERVICES",
+    "title": "How I can help",
+    "items": [
+      {
+        "title": "Custom AI Apps",
+        "description": "Development of intelligent applications tailored to your business processes and data."
+      },
+      {
+        "title": "AI Integration",
+        "description": "Connecting AI models (GPT, Claude, Gemini) to your existing tools and workflows."
+      },
+      {
+        "title": "Prompt Engineering",
+        "description": "Optimizing your prompts and processing chains for reliable and precise results."
+      },
+      {
+        "title": "AI Audit & Strategy",
+        "description": "Assessment of your AI opportunities and a concrete roadmap to leverage them."
+      }
+    ]
+  },
+  "benefits": {
+    "overline": "BENEFITS",
+    "title": "What you gain",
+    "items": [
+      {
+        "title": "Speed",
+        "description": "Working prototypes in weeks, not months. Rapid iterations to validate your ideas."
+      },
+      {
+        "title": "Expertise",
+        "description": "Mastery of the latest AI models and development best practices."
+      },
+      {
+        "title": "Accessibility",
+        "description": "AI solutions within reach for SMBs, without enterprise budgets or dedicated tech teams."
+      }
+    ]
+  },
+  "process": {
+    "overline": "PROCESS",
+    "title": "3 simple steps",
+    "steps": [
+      {
+        "number": "1",
+        "title": "Discovery call",
+        "description": "We discuss your needs, challenges and goals. Free, no commitment."
+      },
+      {
+        "number": "2",
+        "title": "Prototype & iterate",
+        "description": "I develop a first prototype quickly. We iterate together until it fits."
+      },
+      {
+        "number": "3",
+        "title": "Delivery & support",
+        "description": "Production deployment, documentation and ongoing support to ensure your success."
+      }
+    ]
+  },
+  "case_study": {
+    "overline": "CASE STUDY",
+    "title": "PennySEO",
+    "description": "AI-powered SEO analysis application. Automatic generation of recommendations, content auditing and position tracking.",
+    "tags": ["React", "Supabase", "Gemini AI", "Vercel"]
+  },
+  "faq": {
+    "overline": "FAQ",
+    "title": "Frequently asked questions",
+    "items": [
+      {
+        "question": "How much does it cost?",
+        "answer": "Every project is unique. After our discovery call, I'll provide a clear and detailed quote with no surprises. My rates are adapted to SMB realities."
+      },
+      {
+        "question": "What's the typical timeline?",
+        "answer": "A working prototype is usually ready in 2 to 4 weeks. The full project depends on complexity, but I always prioritize short cycles and frequent deliverables."
+      },
+      {
+        "question": "I know nothing about AI, is that a problem?",
+        "answer": "Not at all! That's exactly my role — to translate your business needs into technical solutions. You bring your business expertise, I handle the AI part."
+      },
+      {
+        "question": "What technologies do you use?",
+        "answer": "I work with the latest models (GPT, Claude, Gemini) and modern stacks (React, Node.js, Python, Supabase). I choose the best technology for each project."
+      }
+    ]
+  },
+  "cta_block": {
+    "title": "Ready to integrate AI into your business?",
+    "subtitle": "Book a free discovery call and let's discuss your project.",
+    "cta": "Book a call"
+  },
+  "booking": {
+    "overline": "BOOK",
+    "title": "Schedule your discovery call",
+    "placeholder": "The booking calendar will be integrated here."
+  },
+  "footer": {
+    "copyright": "© 2026 5PennyAi. All rights reserved.",
+    "made_with": "Made with passion in Québec, QC",
+    "tagline": "AI Solutions for businesses"
+  },
+  "seo": {
+    "home": {
+      "title": "5PennyAi — AI Solutions for SMBs",
+      "description": "Custom AI application development, model integration and strategy for SMBs. Fast prototypes, accessible pricing."
+    }
+  },
+  "services_page": {
+    "seo": {
+      "title": "Services — 5PennyAi",
+      "description": "Discover my AI services: custom apps, integration, prompt engineering, fast MVPs and strategic audits."
+    },
+    "hero": {
+      "overline": "SERVICES",
+      "title": "AI solutions tailored to every need.",
+      "subtitle": "Whether you need a fast prototype or a complete integration, I adapt to your reality."
+    },
+    "case_label": "Typical case:",
+    "items": {
+      "app": {
+        "title": "Custom AI applications",
+        "description": "Complete development of AI-powered applications. From concept to deployed product.",
+        "tags": ["SaaS", "Internal tools", "Dashboards", "Automation"],
+        "case": "PennySEO — SaaS platform for SEO analysis with AI scoring, image analysis, and automated reports. Stack React + Supabase + Gemini + Vercel."
+      },
+      "integration": {
+        "title": "AI integration into your systems",
+        "description": "Connect AI models (Gemini, Claude, OpenAI) to your existing tools and workflows. APIs, webhooks, databases.",
+        "tags": ["AI APIs", "Webhooks", "Supabase", "CRM / ERP"],
+        "case": "An SMB wants to add AI content generation to its existing CMS, or automate support ticket classification with a model."
+      },
+      "prompt": {
+        "title": "Prompt engineering & optimization",
+        "description": "Calibrate your prompts, design scoring pipelines, and optimize the quality of AI results. The detail that makes the difference between a prototype and a reliable product.",
+        "tags": ["Calibration", "Scoring", "Pipelines", "Evaluation"],
+        "case": "You have a chatbot or AI tool but the results are inconsistent. I optimize the prompts and set up a scoring system to guarantee quality."
+      },
+      "mvp": {
+        "title": "Rapid prototyping (MVP)",
+        "description": "Validate an idea quickly with a working prototype. No endless Figma mockups — code that works, delivered in 2-4 weeks.",
+        "tags": ["Proof of concept", "Validation", "Fast iteration"],
+        "case": "You have an idea for an AI product but don't know if it's feasible. I deliver a working MVP to test the market before investing further."
+      },
+      "audit": {
+        "title": "AI audit & strategy",
+        "description": "Evaluate where AI can have a concrete impact in your company. Approach recommendations, API cost estimation, model selection.",
+        "tags": ["Diagnostic", "AI Roadmap", "Cost estimation"],
+        "case": "You hear about AI everywhere but don't know where to start. I audit your processes and deliver a concrete action plan."
+      }
+    },
+    "tech": {
+      "title": "Technologies mastered",
+      "label": "TOOLKIT"
+    },
+    "counter": "5 services",
+    "intro_label": "Index",
+    "cta": {
+      "title": "Got a project in mind?",
+      "subtitle": "Let's discuss it in a free 30-minute discovery call.",
+      "button": "Book a call"
+    }
+  },
+  "about_page": {
+    "seo": {
+      "title": "About — 5PennyAi",
+      "description": "Christian Couillard, founder of 5PennyAi. 20+ years of IT experience, passionate AI developer based in Québec."
+    },
+    "hero": {
+      "overline": "ABOUT",
+      "title": "AI in service of your business.",
+      "subtitle": "Behind 5PennyAi, a passionate developer with 20+ years of IT experience."
+    },
+    "profile": {
+      "photo_placeholder": "Photo coming soon",
+      "name": "Christian Couillard",
+      "role": "Founder, 5PennyAi",
+      "location": "Québec, QC",
+      "email": "christian.couillard@5pennyai.com"
+    },
+    "story": {
+      "section1_title": "My background",
+      "section1_p1": "After more than 20 years in information technology — including several years as a functional analyst at CGI, CHU de Québec, INSPQ, and the Quebec public sector — I founded 5PennyAi to dedicate myself entirely to what I love: building concrete AI solutions.",
+      "section1_p2": "My experience in functional analysis taught me to listen to business needs before thinking about technology. Today, I combine that field-tested understanding with sharp technical expertise to develop AI applications that solve real problems.",
+      "section2_title": "Why 5PennyAi?",
+      "section2_p1": "I believe artificial intelligence shouldn't be reserved for large companies with unlimited budgets. SMBs have concrete needs — automating a process, analyzing data, improving customer experience — and deserve accessible solutions, delivered quickly, by someone who understands their reality.",
+      "section2_p2": "That's exactly what I do: turning business problems into operational AI solutions, from prototype to production."
+    },
+    "expertise": {
+      "overline": "EXPERTISE",
+      "title": "What I master",
+      "items": {
+        "fullstack": {
+          "title": "Fullstack AI development",
+          "description": "Complete architecture of AI applications: React, Node.js, Supabase, Vercel. From frontend to AI pipeline through serverless APIs."
+        },
+        "integration": {
+          "title": "Model integration",
+          "description": "Gemini, Claude, OpenAI — I work with the main AI platforms and adapt quickly to my clients' technical environments."
+        },
+        "analysis": {
+          "title": "Functional analysis",
+          "description": "20 years translating business needs into technical solutions. I understand your business before I code."
+        },
+        "data": {
+          "title": "Data science",
+          "description": "University training in computer science, bioinformatics and data science. Microsoft (AI-102, DP-100, PL-300) and Coursera (ML, generative AI) certifications."
+        }
+      }
+    },
+    "timeline": {
+      "overline": "EXPERIENCE",
+      "title": "Professional experience",
+      "items": [
+        {
+          "period": "2025 – present",
+          "role": "Founder & AI Consultant — 5PennyAi",
+          "description": "Development of PennySEO, AI consulting, prototyping intelligent applications."
+        },
+        {
+          "period": "2023 – 2025",
+          "role": "Functional Analyst — CGI",
+          "description": "Requirements analysis and functional documentation for the SEAO system."
+        },
+        {
+          "period": "2019 – 2023",
+          "role": "Functional Analyst — Quebec public sector",
+          "description": "SQI, Ministry of Justice, CHU de Québec. Financial, healthcare, and justice applications."
+        },
+        {
+          "period": "2012 – 2019",
+          "role": "Analyst-programmer — INSPQ & Université du Québec",
+          "description": "Bioinformatics application development, Oracle/C# systems, genomic data processing."
+        },
+        {
+          "period": "2002 – 2012",
+          "role": "Developer & analyst — CGI, SIQ, MRN",
+          "description": "Early career in software development and analysis in the public sector."
+        }
+      ]
+    },
+    "credentials": {
+      "overline": "EDUCATION",
+      "title": "Education & certifications",
+      "education_title": "Academic education",
+      "education": [
+        { "label": "Data Science Program — TÉLUQ", "year": "2022" },
+        { "label": "Bachelor in Bioinformatics — Université Laval", "year": "2016" },
+        { "label": "Bachelor in Computer Science — Université Laval", "year": "2003" }
+      ],
+      "certifications_title": "Professional certifications",
+      "certifications": [
+        { "label": "Generative AI with LLMs — Coursera", "year": "2025" },
+        { "label": "Machine Learning Specialization — Coursera", "year": "2024" },
+        { "label": "Microsoft AI Engineer (AI-102)", "year": "2024" },
+        { "label": "Microsoft Data Scientist (DP-100)", "year": "2024" },
+        { "label": "Microsoft Power BI (PL-300)", "year": "2024" }
+      ]
+    },
+    "cta": {
+      "title": "Let's work together",
+      "subtitle": "Book a free discovery call.",
+      "button": "Book a call"
+    }
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "nav": {
+    "services": "Services",
+    "about": "À propos",
+    "portfolio": "Portfolio",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cta": "Réserver un appel",
+    "lang_toggle": "EN"
+  },
+  "hero": {
+    "overline": "AI SOLUTIONS POUR ENTREPRISES",
+    "title_before": "L'",
+    "title_highlight": "IA",
+    "title_after": " appliquée à votre business, sans la complexité.",
+    "subtitle": "Développement d'applications AI sur mesure, intégration de modèles et stratégie — pour les PME qui veulent avancer vite.",
+    "cta_primary": "Réserver un appel",
+    "cta_secondary": "Voir mes réalisations"
+  },
+  "comparison": {
+    "overline": "POURQUOI 5PENNYAI",
+    "title": "Pourquoi travailler avec 5PennyAi?",
+    "old_way": {
+      "title": "Agence traditionnelle",
+      "items": [
+        "Délais de plusieurs mois avant le moindre résultat",
+        "Coûts élevés et devis opaques",
+        "Équipe qui ne comprend pas votre métier",
+        "Solutions génériques, pas adaptées à vos besoins"
+      ]
+    },
+    "new_way": {
+      "title": "Avec 5PennyAi",
+      "items": [
+        "Prototype fonctionnel en quelques semaines",
+        "Tarifs transparents, adaptés aux PME",
+        "Un interlocuteur unique qui comprend l'AI et votre business",
+        "Solutions sur mesure, itérées avec vous"
+      ]
+    }
+  },
+  "services": {
+    "overline": "SERVICES",
+    "title": "Comment je peux vous aider",
+    "items": [
+      {
+        "title": "Apps AI sur mesure",
+        "description": "Développement d'applications intelligentes adaptées à vos processus métier et vos données."
+      },
+      {
+        "title": "Intégration AI",
+        "description": "Connexion de modèles AI (GPT, Claude, Gemini) à vos outils et workflows existants."
+      },
+      {
+        "title": "Prompt engineering",
+        "description": "Optimisation de vos prompts et chaînes de traitement pour des résultats fiables et précis."
+      },
+      {
+        "title": "Audit & stratégie AI",
+        "description": "Évaluation de vos opportunités AI et feuille de route concrète pour les exploiter."
+      }
+    ]
+  },
+  "benefits": {
+    "overline": "AVANTAGES",
+    "title": "Ce que vous gagnez",
+    "items": [
+      {
+        "title": "Rapidité",
+        "description": "Des prototypes fonctionnels en semaines, pas en mois. Itérations rapides pour valider vos idées."
+      },
+      {
+        "title": "Expertise",
+        "description": "Maîtrise des derniers modèles AI et des meilleures pratiques de développement."
+      },
+      {
+        "title": "Accessibilité",
+        "description": "Des solutions AI à la portée des PME, sans budget enterprise ni équipe technique dédiée."
+      }
+    ]
+  },
+  "process": {
+    "overline": "PROCESSUS",
+    "title": "3 étapes simples",
+    "steps": [
+      {
+        "number": "1",
+        "title": "Appel découverte",
+        "description": "On discute de vos besoins, vos défis et vos objectifs. Gratuit, sans engagement."
+      },
+      {
+        "number": "2",
+        "title": "Prototype & itération",
+        "description": "Je développe un premier prototype rapidement. On itère ensemble jusqu'à ce que ça colle."
+      },
+      {
+        "number": "3",
+        "title": "Livraison & support",
+        "description": "Déploiement en production, documentation et support continu pour assurer votre succès."
+      }
+    ]
+  },
+  "case_study": {
+    "overline": "RÉALISATION",
+    "title": "PennySEO",
+    "description": "Application d'analyse SEO propulsée par l'intelligence artificielle. Génération automatique de recommandations, audit de contenu et suivi de positionnement.",
+    "tags": ["React", "Supabase", "Gemini AI", "Vercel"]
+  },
+  "faq": {
+    "overline": "FAQ",
+    "title": "Questions fréquentes",
+    "items": [
+      {
+        "question": "Combien ça coûte?",
+        "answer": "Chaque projet est unique. Après notre appel découverte, je vous propose un devis clair et détaillé, sans surprise. Mes tarifs sont adaptés aux réalités des PME."
+      },
+      {
+        "question": "Quel est le délai typique?",
+        "answer": "Un prototype fonctionnel est généralement prêt en 2 à 4 semaines. Le projet complet dépend de la complexité, mais je privilégie toujours des cycles courts et des livrables fréquents."
+      },
+      {
+        "question": "Je n'y connais rien en AI, c'est un problème?",
+        "answer": "Pas du tout! C'est justement mon rôle de traduire vos besoins métier en solutions techniques. Vous apportez votre expertise métier, je m'occupe de la partie AI."
+      },
+      {
+        "question": "Quelles technologies utilisez-vous?",
+        "answer": "Je travaille avec les modèles les plus récents (GPT, Claude, Gemini) et les stacks modernes (React, Node.js, Python, Supabase). Je choisis la meilleure technologie pour chaque projet."
+      }
+    ]
+  },
+  "cta_block": {
+    "title": "Prêt à intégrer l'IA dans votre business?",
+    "subtitle": "Réservez un appel découverte gratuit et discutons de votre projet.",
+    "cta": "Réserver un appel"
+  },
+  "booking": {
+    "overline": "RÉSERVER",
+    "title": "Planifiez votre appel découverte",
+    "placeholder": "Le calendrier de réservation sera intégré ici."
+  },
+  "footer": {
+    "copyright": "© 2026 5PennyAi. Tous droits réservés.",
+    "made_with": "Fait avec passion à Québec, QC",
+    "tagline": "AI Solutions pour entreprises"
+  },
+  "seo": {
+    "home": {
+      "title": "5PennyAi — Solutions AI pour PME",
+      "description": "Développement d'applications AI sur mesure, intégration de modèles et stratégie pour les PME. Prototypes rapides, tarifs accessibles."
+    }
+  },
+  "services_page": {
+    "seo": {
+      "title": "Services — 5PennyAi",
+      "description": "Découvrez mes services AI : applications sur mesure, intégration, prompt engineering, MVP rapides et audit stratégique."
+    },
+    "hero": {
+      "overline": "SERVICES",
+      "title": "Des solutions AI adaptées à chaque besoin.",
+      "subtitle": "Que vous ayez besoin d'un prototype rapide ou d'une intégration complète, je m'adapte à votre réalité."
+    },
+    "case_label": "Cas typique :",
+    "items": {
+      "app": {
+        "title": "Applications AI sur mesure",
+        "description": "Développement complet d'applications propulsées par l'intelligence artificielle. Du concept au produit déployé.",
+        "tags": ["SaaS", "Outils internes", "Dashboards", "Automatisation"],
+        "case": "PennySEO — plateforme SaaS d'analyse SEO avec scoring AI, analyse d'images, et rapports automatisés. Stack React + Supabase + Gemini + Vercel."
+      },
+      "integration": {
+        "title": "Intégration AI dans vos systèmes",
+        "description": "Connecter des modèles AI (Gemini, Claude, OpenAI) à vos outils et workflows existants. API, webhooks, bases de données.",
+        "tags": ["APIs AI", "Webhooks", "Supabase", "CRM / ERP"],
+        "case": "Une PME veut ajouter de la génération de contenu AI dans son CMS existant, ou automatiser la classification de tickets support avec un modèle."
+      },
+      "prompt": {
+        "title": "Prompt engineering & optimisation",
+        "description": "Calibrer vos prompts, concevoir des pipelines de scoring, et optimiser la qualité des résultats AI. Le détail qui fait la différence entre un prototype et un produit fiable.",
+        "tags": ["Calibration", "Scoring", "Pipelines", "Évaluation"],
+        "case": "Vous avez un chatbot ou un outil AI mais les résultats sont inconsistants. J'optimise les prompts et mets en place un système de scoring pour garantir la qualité."
+      },
+      "mvp": {
+        "title": "Prototypage rapide (MVP)",
+        "description": "Valider une idée rapidement avec un prototype fonctionnel. Pas de maquettes Figma sans fin — du code qui marche, livré en 2-4 semaines.",
+        "tags": ["Proof of concept", "Validation", "Itération rapide"],
+        "case": "Vous avez une idée de produit AI mais ne savez pas si c'est faisable. Je livre un MVP fonctionnel pour tester le marché avant d'investir davantage."
+      },
+      "audit": {
+        "title": "Audit & stratégie AI",
+        "description": "Évaluer où l'IA peut avoir un impact concret dans votre entreprise. Recommandations d'approche, estimation des coûts API, choix de modèles.",
+        "tags": ["Diagnostic", "Roadmap AI", "Estimation coûts"],
+        "case": "Vous entendez parler d'IA partout mais ne savez pas par où commencer. Je fais un audit de vos processus et vous livre un plan d'action concret."
+      }
+    },
+    "tech": {
+      "title": "Technologies maîtrisées",
+      "label": "TOOLKIT"
+    },
+    "counter": "5 offres",
+    "intro_label": "Sommaire",
+    "cta": {
+      "title": "Un projet en tête?",
+      "subtitle": "Discutons-en lors d'un appel découverte gratuit de 30 minutes.",
+      "button": "Réserver un appel"
+    }
+  },
+  "about_page": {
+    "seo": {
+      "title": "À propos — 5PennyAi",
+      "description": "Christian Couillard, fondateur de 5PennyAi. 20+ ans d'expérience en TI, développeur AI passionné basé à Québec."
+    },
+    "hero": {
+      "overline": "À PROPOS",
+      "title": "L'IA au service de votre entreprise.",
+      "subtitle": "Derrière 5PennyAi, un développeur passionné avec 20+ ans d'expérience en TI."
+    },
+    "profile": {
+      "photo_placeholder": "Photo à venir",
+      "name": "Christian Couillard",
+      "role": "Fondateur, 5PennyAi",
+      "location": "Québec, QC",
+      "email": "christian.couillard@5pennyai.com"
+    },
+    "story": {
+      "section1_title": "Mon parcours",
+      "section1_p1": "Après plus de 20 ans dans les technologies de l'information — dont plusieurs années comme analyste fonctionnel chez CGI, au CHU de Québec, à l'INSPQ et dans le secteur public québécois — j'ai fondé 5PennyAi pour me consacrer entièrement à ce qui me passionne : construire des solutions AI concrètes.",
+      "section1_p2": "Mon expérience en analyse fonctionnelle m'a appris à écouter les besoins d'affaires avant de penser technologie. Aujourd'hui, je combine cette compréhension du terrain avec une expertise technique pointue pour développer des applications AI qui résolvent de vrais problèmes.",
+      "section2_title": "Pourquoi 5PennyAi?",
+      "section2_p1": "Je crois que l'intelligence artificielle ne devrait pas être réservée aux grandes entreprises avec des budgets illimités. Les PME ont des besoins concrets — automatiser un processus, analyser des données, améliorer l'expérience client — et méritent des solutions accessibles, livrées rapidement, par quelqu'un qui comprend leur réalité.",
+      "section2_p2": "C'est exactement ce que je fais : transformer des problèmes d'affaires en solutions AI opérationnelles, du prototype à la mise en production."
+    },
+    "expertise": {
+      "overline": "EXPERTISE",
+      "title": "Ce que je maîtrise",
+      "items": {
+        "fullstack": {
+          "title": "Développement AI fullstack",
+          "description": "Architecture complète d'applications AI : React, Node.js, Supabase, Vercel. Du frontend au pipeline AI en passant par les APIs serverless."
+        },
+        "integration": {
+          "title": "Intégration de modèles",
+          "description": "Gemini, Claude, OpenAI — je travaille avec les principales plateformes AI et je m'adapte rapidement aux environnements techniques de mes clients."
+        },
+        "analysis": {
+          "title": "Analyse fonctionnelle",
+          "description": "20 ans à traduire des besoins d'affaires en solutions techniques. Je comprends votre métier avant de coder."
+        },
+        "data": {
+          "title": "Sciences des données",
+          "description": "Formation universitaire en informatique, bioinformatique et sciences des données. Certifications Microsoft (AI-102, DP-100, PL-300) et Coursera (ML, IA générative)."
+        }
+      }
+    },
+    "timeline": {
+      "overline": "PARCOURS",
+      "title": "Expérience professionnelle",
+      "items": [
+        {
+          "period": "2025 – présent",
+          "role": "Fondateur & Consultant AI — 5PennyAi",
+          "description": "Développement de PennySEO, consultation en IA, prototypage d'applications intelligentes."
+        },
+        {
+          "period": "2023 – 2025",
+          "role": "Analyste fonctionnel — CGI",
+          "description": "Analyse des besoins et documentation fonctionnelle pour le système SEAO."
+        },
+        {
+          "period": "2019 – 2023",
+          "role": "Analyste fonctionnel — Secteur public QC",
+          "description": "SQI, Ministère de la Justice, CHU de Québec. Applications financières, santé, justice."
+        },
+        {
+          "period": "2012 – 2019",
+          "role": "Analyste-programmeur — INSPQ & Université du Québec",
+          "description": "Développement d'applications bioinformatique, systèmes Oracle/C#, traitement de données génomiques."
+        },
+        {
+          "period": "2002 – 2012",
+          "role": "Développeur & analyste — CGI, SIQ, MRN",
+          "description": "Début de carrière en développement logiciel et analyse dans le secteur public."
+        }
+      ]
+    },
+    "credentials": {
+      "overline": "FORMATION",
+      "title": "Formation & certifications",
+      "education_title": "Formation académique",
+      "education": [
+        { "label": "Programme en Sciences des données — TÉLUQ", "year": "2022" },
+        { "label": "Baccalauréat en bioinformatique — Université Laval", "year": "2016" },
+        { "label": "Baccalauréat en informatique — Université Laval", "year": "2003" }
+      ],
+      "certifications_title": "Certifications professionnelles",
+      "certifications": [
+        { "label": "Generative AI with LLMs — Coursera", "year": "2025" },
+        { "label": "Machine Learning Specialization — Coursera", "year": "2024" },
+        { "label": "Microsoft AI Engineer (AI-102)", "year": "2024" },
+        { "label": "Microsoft Data Scientist (DP-100)", "year": "2024" },
+        { "label": "Microsoft Power BI (PL-300)", "year": "2024" }
+      ]
+    },
+    "cta": {
+      "title": "Travaillons ensemble",
+      "subtitle": "Réservez un appel découverte gratuit.",
+      "button": "Réserver un appel"
+    }
+  }
+}
