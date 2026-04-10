@@ -305,5 +305,148 @@
       "subtitle": "Book a free discovery call.",
       "button": "Book a call"
     }
+  },
+  "contact": {
+    "seo": {
+      "title": "Contact — 5PennyAi",
+      "description": "Let's talk about your AI project. Form, email, phone, and free discovery call."
+    },
+    "hero": {
+      "overline": "CONTACT",
+      "title": "Let's talk about your project.",
+      "subtitle": "A question, an idea, a project? Book a call or send me a message."
+    },
+    "form": {
+      "name": "Name",
+      "name_placeholder": "Your name",
+      "email": "Email",
+      "email_placeholder": "you@company.com",
+      "subject": "Subject",
+      "subjects": {
+        "app": "Custom AI application",
+        "integration": "AI integration",
+        "prompt": "Prompt engineering",
+        "mvp": "Rapid prototyping (MVP)",
+        "audit": "AI audit & strategy",
+        "other": "Other"
+      },
+      "message": "Message",
+      "message_placeholder": "Briefly describe your need…",
+      "submit": "Send message",
+      "sending": "Sending…",
+      "success": "Message sent!",
+      "error": "Something went wrong. Please try again or email me directly at christian.couillard@5pennyai.com."
+    },
+    "info": {
+      "title": "Contact details",
+      "phone": "(418) 208-9866",
+      "location": "Québec, QC",
+      "social_title": "Social"
+    },
+    "booking": {
+      "label": "DISCOVERY CALL",
+      "text": "Prefer a call? Book a 30-minute slot, free, no commitment.",
+      "button": "Book a call",
+      "placeholder": "Calendar coming soon"
+    },
+    "cta": {
+      "title": "Not sure where to start?",
+      "subtitle": "A 30-minute call is enough to clarify your needs.",
+      "button": "Book a call"
+    }
+  },
+  "portfolio": {
+    "seo": {
+      "title": "Portfolio — 5PennyAi",
+      "description": "PennySEO and other AI projects: from concept to production. SaaS platform for SEO optimization powered by Gemini Vision."
+    },
+    "hero": {
+      "overline": "PORTFOLIO",
+      "title": "What I build.",
+      "subtitle": "Real AI projects, from concept to production."
+    },
+    "pennyseo": {
+      "badge": "FLAGSHIP PROJECT",
+      "title": "PennySEO",
+      "subtitle": "SaaS platform for SEO optimization powered by artificial intelligence.",
+      "tags": ["React 19", "Supabase", "Gemini AI", "Vercel", "DataForSEO", "Tailwind CSS"],
+      "image_alt": "Preview of the PennySEO main dashboard"
+    },
+    "problem": {
+      "overline": "THE PROBLEM",
+      "title": "The problem",
+      "text": "Etsy sellers spend hours hunting for the right keywords for their product listings. The process is manual, tedious, and the results are often mediocre — wrong keywords, poor visibility, lost sales."
+    },
+    "solution": {
+      "overline": "THE SOLUTION",
+      "title": "The solution",
+      "text": "PennySEO automates the entire SEO pipeline with AI. Users upload a product image, and the app automatically generates optimized keywords, scored and ranked by relevance."
+    },
+    "pipeline": {
+      "visual": {
+        "title": "Visual analysis",
+        "description": "Gemini Vision analyzes the product image and identifies visual features, style, and category."
+      },
+      "scoring": {
+        "title": "Smart scoring",
+        "description": "Each keyword gets a score based on purchase intent, search volume, competition, and topical relevance."
+      },
+      "seo": {
+        "title": "SEO optimization",
+        "description": "Automatic generation of titles and descriptions optimized for Etsy, with the 13 best tags selected."
+      }
+    },
+    "screenshots": {
+      "overline": "SCREENSHOTS",
+      "title": "The app in action",
+      "dashboard": {
+        "alt": "PennySEO main dashboard",
+        "caption": "Main dashboard — SEO pipeline overview with performance metrics, shop health score, and recommended actions."
+      },
+      "keywords": {
+        "alt": "Keyword performance table",
+        "caption": "Keyword performance table — Scoring by purchase intent, search volume, trend, and competition. Selection of the 13 best tags."
+      },
+      "favorites": {
+        "alt": "Favorite keywords bank",
+        "caption": "Favorite keywords bank — Smart filtering by category (Gems, Trending, High Volume, Low Competition), preset management."
+      }
+    },
+    "metrics": {
+      "overline": "WHY",
+      "title": "Why it works",
+      "items": {
+        "speed": {
+          "title": "Results in seconds",
+          "description": "A full product analysis — from image to optimized keywords — takes seconds, not hours."
+        },
+        "scoring": {
+          "title": "Data-driven scoring",
+          "description": "Each keyword is evaluated on 4 measurable criteria: purchase intent, volume, competition, and relevance. No guesswork."
+        },
+        "calibration": {
+          "title": "Precision-calibrated prompts",
+          "description": "Over 100 calibration examples ensure consistent, reliable results, product after product."
+        },
+        "security": {
+          "title": "Secure data",
+          "description": "Secure authentication, data isolated per user. Each seller only sees their own products."
+        }
+      }
+    },
+    "stack": {
+      "title": "TECHNICAL STACK"
+    },
+    "upcoming": {
+      "overline": "COMING SOON",
+      "title": "More projects coming",
+      "subtitle": "I'm continuously working on new AI solutions. Check back soon to discover what's next.",
+      "placeholder": "Coming soon"
+    },
+    "cta": {
+      "title": "Got a similar project in mind?",
+      "subtitle": "Let's discuss how AI can turn your idea into a product.",
+      "button": "Book a call"
+    }
   }
 }

@@ -305,5 +305,148 @@
       "subtitle": "Réservez un appel découverte gratuit.",
       "button": "Réserver un appel"
     }
+  },
+  "contact": {
+    "seo": {
+      "title": "Contact — 5PennyAi",
+      "description": "Parlons de votre projet AI. Formulaire, courriel, téléphone et appel découverte gratuit."
+    },
+    "hero": {
+      "overline": "CONTACT",
+      "title": "Parlons de votre projet.",
+      "subtitle": "Une question, une idée, un projet? Réservez un appel ou envoyez-moi un message."
+    },
+    "form": {
+      "name": "Nom",
+      "name_placeholder": "Votre nom",
+      "email": "Courriel",
+      "email_placeholder": "vous@entreprise.com",
+      "subject": "Sujet",
+      "subjects": {
+        "app": "Application AI sur mesure",
+        "integration": "Intégration AI",
+        "prompt": "Prompt engineering",
+        "mvp": "Prototypage rapide (MVP)",
+        "audit": "Audit & stratégie AI",
+        "other": "Autre"
+      },
+      "message": "Message",
+      "message_placeholder": "Décrivez brièvement votre besoin…",
+      "submit": "Envoyer le message",
+      "sending": "Envoi en cours…",
+      "success": "Message envoyé!",
+      "error": "Une erreur est survenue. Réessayez ou écrivez-moi directement à christian.couillard@5pennyai.com."
+    },
+    "info": {
+      "title": "Coordonnées",
+      "phone": "(418) 208-9866",
+      "location": "Québec, QC",
+      "social_title": "Réseaux"
+    },
+    "booking": {
+      "label": "APPEL DÉCOUVERTE",
+      "text": "Préférez un appel? Réservez un créneau de 30 minutes, gratuit et sans engagement.",
+      "button": "Réserver un appel",
+      "placeholder": "Calendrier à venir"
+    },
+    "cta": {
+      "title": "Pas certain par où commencer?",
+      "subtitle": "Un appel de 30 minutes suffit pour clarifier vos besoins.",
+      "button": "Réserver un appel"
+    }
+  },
+  "portfolio": {
+    "seo": {
+      "title": "Portfolio — 5PennyAi",
+      "description": "PennySEO et autres projets AI : du concept à la mise en production. Plateforme SaaS d'optimisation SEO propulsée par Gemini Vision."
+    },
+    "hero": {
+      "overline": "PORTFOLIO",
+      "title": "Ce que je construis.",
+      "subtitle": "Des projets AI concrets, du concept à la mise en production."
+    },
+    "pennyseo": {
+      "badge": "PROJET PHARE",
+      "title": "PennySEO",
+      "subtitle": "Plateforme SaaS d'optimisation SEO propulsée par l'intelligence artificielle.",
+      "tags": ["React 19", "Supabase", "Gemini AI", "Vercel", "DataForSEO", "Tailwind CSS"],
+      "image_alt": "Aperçu du dashboard principal de PennySEO"
+    },
+    "problem": {
+      "overline": "LE PROBLÈME",
+      "title": "Le problème",
+      "text": "Les vendeurs Etsy passent des heures à chercher les bons mots-clés pour leurs fiches produit. Le processus est manuel, fastidieux, et les résultats sont souvent médiocres — mauvais mots-clés, faible visibilité, ventes perdues."
+    },
+    "solution": {
+      "overline": "LA SOLUTION",
+      "title": "La solution",
+      "text": "PennySEO automatise tout le pipeline SEO grâce à l'IA. L'utilisateur upload une image de son produit, et l'application génère automatiquement des mots-clés optimisés, scorés et classés par pertinence."
+    },
+    "pipeline": {
+      "visual": {
+        "title": "Analyse visuelle",
+        "description": "Gemini Vision analyse l'image du produit et identifie les caractéristiques visuelles, le style et la catégorie."
+      },
+      "scoring": {
+        "title": "Scoring intelligent",
+        "description": "Chaque mot-clé reçoit un score basé sur l'intention d'achat, le volume de recherche, la compétition et la pertinence thématique."
+      },
+      "seo": {
+        "title": "Optimisation SEO",
+        "description": "Génération automatique de titres et descriptions optimisés pour Etsy, avec les 13 meilleurs tags sélectionnés."
+      }
+    },
+    "screenshots": {
+      "overline": "SCREENSHOTS",
+      "title": "L'application en action",
+      "dashboard": {
+        "alt": "Dashboard principal de PennySEO",
+        "caption": "Dashboard principal — Vue d'ensemble du pipeline SEO avec métriques de performance, score de santé de la boutique, et actions recommandées."
+      },
+      "keywords": {
+        "alt": "Tableau de performance des mots-clés",
+        "caption": "Tableau de performance des mots-clés — Scoring par intention d'achat, volume de recherche, tendance et compétition. Sélection des 13 meilleurs tags."
+      },
+      "favorites": {
+        "alt": "Banque de mots-clés favoris",
+        "caption": "Banque de mots-clés favoris — Filtrage intelligent par catégorie (Gems, Trending, High Volume, Low Competition), gestion des préréglages."
+      }
+    },
+    "metrics": {
+      "overline": "POURQUOI",
+      "title": "Pourquoi ça marche",
+      "items": {
+        "speed": {
+          "title": "Résultats en secondes",
+          "description": "L'analyse complète d'un produit — de l'image aux mots-clés optimisés — se fait en quelques secondes, pas en heures."
+        },
+        "scoring": {
+          "title": "Scoring basé sur les données",
+          "description": "Chaque mot-clé est évalué sur 4 critères mesurables : intention d'achat, volume, compétition et pertinence. Pas de devinettes."
+        },
+        "calibration": {
+          "title": "Prompts calibrés avec précision",
+          "description": "Plus de 100 exemples de calibration assurent des résultats consistants et fiables, produit après produit."
+        },
+        "security": {
+          "title": "Données sécurisées",
+          "description": "Authentification sécurisée, données isolées par utilisateur. Chaque vendeur ne voit que ses propres produits."
+        }
+      }
+    },
+    "stack": {
+      "title": "STACK TECHNIQUE"
+    },
+    "upcoming": {
+      "overline": "À VENIR",
+      "title": "D'autres projets à venir",
+      "subtitle": "Je travaille continuellement sur de nouvelles solutions AI. Revenez bientôt pour découvrir mes prochaines réalisations.",
+      "placeholder": "Projet à venir"
+    },
+    "cta": {
+      "title": "Un projet similaire en tête?",
+      "subtitle": "Discutons de comment l'IA peut transformer votre idée en produit.",
+      "button": "Réserver un appel"
+    }
   }
 }

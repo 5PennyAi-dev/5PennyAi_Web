@@ -7,9 +7,9 @@ import Button from '@/components/ui/Button'
 const navLinks = [
   { key: 'nav.services', to: '/services' },
   { key: 'nav.about', to: '/about' },
-  { key: 'nav.portfolio', href: '/#case-study' },
+  { key: 'nav.portfolio', to: '/portfolio' },
   { key: 'nav.faq', href: '/#faq' },
-  { key: 'nav.contact', href: '/#booking' },
+  { key: 'nav.contact', to: '/contact' },
 ]
 
 export default function Navbar() {
