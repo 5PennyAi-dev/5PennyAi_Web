@@ -50,8 +50,24 @@ export const markdownComponents = {
       {...props}
     />
   ),
-  img: ({ alt, ...props }) => (
-    <img alt={alt || ''} className="rounded-xl my-8 w-full object-cover shadow-[var(--shadow-card)]" {...props} />
+  img: ({ alt, src, ...props }) => (
+    <button
+      type="button"
+      onClick={() =>
+        window.dispatchEvent(
+          new CustomEvent('lightbox:open', { detail: { src, alt: alt || '' } })
+        )
+      }
+      className="my-8 block w-full rounded-xl bg-transparent border-0 p-0 cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-accent/40 md:w-[calc(100%+80px)] md:max-w-[820px] md:-ml-[40px]"
+      aria-label={alt || 'Open image'}
+    >
+      <img
+        alt={alt || ''}
+        src={src}
+        className="rounded-xl w-full h-auto shadow-[var(--shadow-card)] hover:shadow-lg transition-shadow"
+        {...props}
+      />
+    </button>
   ),
   a: (props) => (
     <a

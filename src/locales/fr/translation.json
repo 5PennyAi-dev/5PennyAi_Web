@@ -629,6 +629,63 @@
       "replaceHint": "Le slug, la date de publication et l'image de couverture seront conservés.",
       "replaceYes": "Remplacer",
       "replaceNo": "Garder l'actuel"
+    },
+    "diagram": {
+      "generate": "Générer un diagramme",
+      "title": "Générer un diagramme",
+      "subtitle": "L'IA analyse votre article et crée un diagramme qui illustre le concept principal.",
+      "previewTitle": "Diagramme généré",
+      "previewSubtitle": "Prévisualisez et insérez dans l'article, ou régénérez avec d'autres paramètres.",
+      "type": "Type de diagramme",
+      "types": {
+        "auto": "Auto (basé sur l'article)",
+        "flow": "Flow gauche-droite",
+        "hub": "Hub and spoke",
+        "hierarchy": "Hiérarchie",
+        "comparison": "Comparaison",
+        "steps": "Étapes numérotées",
+        "cycle": "Cycle"
+      },
+      "format": "Format",
+      "formats": {
+        "landscape": "16:9 paysage",
+        "square": "1:1 carré",
+        "portrait": "4:5 portrait"
+      },
+      "instructions": "Instructions (optionnel)",
+      "instructionsPlaceholder": "Ex : concentre-toi sur les étapes 1 à 3, utilise des icônes simples…",
+      "insertPosition": "Insérer après la section",
+      "insertAtEnd": "À la fin de l'article",
+      "insertAfter": "Après : {{title}}",
+      "generateButton": "Générer",
+      "retry": "Réessayer",
+      "cancel": "Annuler",
+      "insert": "Insérer dans l'article",
+      "regenerate": "Régénérer",
+      "loading": "Génération du diagramme…",
+      "loadingHint": "Prend 20 à 40 secondes. L'IA conçoit le diagramme, puis le navigateur le rend en image.",
+      "loadingMessages": [
+        "Analyse de l'article…",
+        "Conception du diagramme…",
+        "Rendu de l'image…",
+        "Upload en cours…"
+      ],
+      "error": "La génération a échoué. Réessayez dans un instant.",
+      "errorTimeout": "La génération a expiré. Réessayez.",
+      "sceneJson": "JSON Excalidraw",
+      "edit": "Éditer",
+      "copyJson": "Copier le JSON",
+      "jsonCopied": "JSON copié !",
+      "editModalTitle": "Éditer le diagramme",
+      "saveChanges": "Enregistrer",
+      "saving": "Enregistrement…",
+      "editLoading": "Chargement de l'éditeur…",
+      "editLoadError": "Impossible de charger l'éditeur Excalidraw.",
+      "minContent": "Ajoutez au moins 100 caractères de contenu pour activer la génération.",
+      "labelFr": "Français",
+      "labelEn": "English",
+      "bilingualHint": "Deux diagrammes seront générés (FR + EN) en parallèle.",
+      "singleHint": "Un diagramme en {{lang}} sera généré (l'autre langue n'a pas assez de contenu)."
     }
   }
 }

@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, X, Upload, Eye, EyeOff, Sparkles, PencilLine, Check, Image as ImageIcon, Copy } from 'lucide-react'
+import { ArrowLeft, X, Upload, Eye, EyeOff, Sparkles, PencilLine, Check, Image as ImageIcon, Copy, PenTool } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import AdminGuard from '@/components/admin/AdminGuard'
 import Button from '@/components/ui/Button'
 import ArticleGenerator from '@/components/admin/ArticleGenerator'
+import DiagramGenerator from '@/components/admin/DiagramGenerator'
 import { Field, Section, inputClass } from '@/components/admin/editorPrimitives'
 import { supabase } from '@/lib/supabase'
 import { fetchPostById, upsertPost, isSlugTaken, slugify } from '@/lib/posts'
 import { markdownComponents } from '@/components/blog/markdownComponents'
+import Lightbox from '@/components/blog/Lightbox'
+import { stripDiagramArtifacts, insertAfterH2Section } from '@/lib/markdown'
 
 const BUCKET = 'blog-images'
 
@@ -74,6 +77,9 @@ function AdminBlogEditorInner() {
   const [imagePromptHint, setImagePromptHint] = useState('')
   const [pendingRegen, setPendingRegen] = useState(null)
   const [imagePromptCopied, setImagePromptCopied] = useState(false)
+  const [showDiagramGenerator, setShowDiagramGenerator] = useState(false)
+  const contentFrRef = useRef(null)
+  const contentEnRef = useRef(null)
 
   useEffect(() => {
     if (!isEdit) {
@@ -228,6 +234,26 @@ function AdminBlogEditorInner() {
       setShowGenerator(false)
       setAuthorMode('manual')
     }
+  }
+
+  const buildDiagramBlock = (variant) => {
+    if (!variant) return null
+    const alt = variant.language === 'en' ? 'Diagram' : 'Diagramme'
+    const sceneJson = variant.scene ? JSON.stringify(variant.scene) : ''
+    const safeJson = sceneJson.replace(/-->/g, '-- >')
+    return `![${alt}](${variant.url})\n\n<!-- diagram-prompt\n${safeJson}\ndiagram-prompt -->`
+  }
+
+  const insertDiagramMarkdown = ({ fr, en, insertPosition }) => {
+    const blockFr = buildDiagramBlock(fr)
+    const blockEn = buildDiagramBlock(en)
+    const sectionIndex = insertPosition === 'end' || insertPosition == null ? -1 : Number.parseInt(insertPosition, 10)
+    setForm((prev) => ({
+      ...prev,
+      content_fr: blockFr ? insertAfterH2Section(prev.content_fr || '', sectionIndex, blockFr) : prev.content_fr,
+      content_en: blockEn ? insertAfterH2Section(prev.content_en || '', sectionIndex, blockEn) : prev.content_en,
+    }))
+    setShowDiagramGenerator(false)
   }
 
   const handleCopyImagePrompt = async () => {
@@ -485,6 +511,7 @@ function AdminBlogEditorInner() {
 
               <Field label={t('admin.editor.fields.contentFr')} required>
                 <textarea
+                  ref={contentFrRef}
                   value={form.content_fr || ''}
                   onChange={(e) => update('content_fr')(e.target.value)}
                   rows={20}
@@ -493,8 +520,36 @@ function AdminBlogEditorInner() {
                 />
               </Field>
 
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDiagramGenerator((v) => !v)}
+                  disabled={(form.content_fr || '').length < 100 && (form.content_en || '').length < 100}
+                  className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-4 py-2 text-[13px] font-medium text-accent-deep hover:bg-accent/10 hover:border-accent/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-accent/5 disabled:hover:border-accent/30"
+                >
+                  <PenTool size={14} strokeWidth={2} />
+                  {t('admin.diagram.generate')}
+                </button>
+                {(form.content_fr || '').length < 100 && (form.content_en || '').length < 100 && (
+                  <span className="text-[11px] text-muted">
+                    {t('admin.diagram.minContent')}
+                  </span>
+                )}
+              </div>
+
+              {showDiagramGenerator && (
+                <DiagramGenerator
+                  articleContentFr={form.content_fr || ''}
+                  articleContentEn={form.content_en || ''}
+                  slug={form.slug}
+                  onInsert={insertDiagramMarkdown}
+                  onCancel={() => setShowDiagramGenerator(false)}
+                />
+              )}
+
               <Field label={t('admin.editor.fields.contentEn')}>
                 <textarea
+                  ref={contentEnRef}
                   value={form.content_en || ''}
                   onChange={(e) => update('content_en')(e.target.value)}
                   rows={20}
@@ -614,6 +669,7 @@ function AdminBlogEditorInner() {
           )}
         </div>
       </div>
+      <Lightbox />
     </section>
   )
 }
@@ -852,7 +908,7 @@ function PreviewPanel({ form, previewLang, setPreviewLang, t }) {
       <div className="blog-prose">
         {content ? (
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-            {content}
+            {stripDiagramArtifacts(content)}
           </ReactMarkdown>
         ) : (
           <p className="text-muted text-sm">—</p>

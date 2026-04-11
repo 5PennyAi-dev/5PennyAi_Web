@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@calcom/embed-react": "^1.5.3",
+    "@excalidraw/excalidraw": "^0.18.0",
     "@supabase/supabase-js": "^2.103.0",
     "i18next": "^26.0.4",
     "i18next-browser-languagedetector": "^8.2.1",

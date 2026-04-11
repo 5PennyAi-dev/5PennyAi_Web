@@ -12,6 +12,8 @@ import ShaderBackground from '@/components/ui/ShaderBackground'
 import { fetchPostBySlug, fetchAdjacentPosts } from '@/lib/posts'
 import { localizedField } from '@/lib/postI18n'
 import { markdownComponents } from '@/components/blog/markdownComponents'
+import Lightbox from '@/components/blog/Lightbox'
+import { stripDiagramArtifacts } from '@/lib/markdown'
 
 function formatDate(dateString, lang) {
   if (!dateString) return ''
@@ -184,7 +186,7 @@ export default function BlogPost() {
 
       {/* Body */}
       <article ref={bodyRef} className="reveal py-16 md:py-20">
-        <div className="max-w-[720px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[740px] mx-auto px-4 sm:px-6">
           {post.cover_image && (
             <img
               src={post.cover_image}
@@ -208,9 +210,10 @@ export default function BlogPost() {
 
           <div className="blog-prose">
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-              {content}
+              {stripDiagramArtifacts(content)}
             </ReactMarkdown>
           </div>
+          <Lightbox />
 
           {/* Share */}
           <div className="mt-16 pt-8 border-t border-navy/[0.08]">

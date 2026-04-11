@@ -629,6 +629,63 @@
       "replaceHint": "The slug, publish date and cover image will be preserved.",
       "replaceYes": "Replace",
       "replaceNo": "Keep current"
+    },
+    "diagram": {
+      "generate": "Generate diagram",
+      "title": "Generate a diagram",
+      "subtitle": "AI analyzes your article and creates a diagram illustrating the main concept.",
+      "previewTitle": "Generated diagram",
+      "previewSubtitle": "Preview and insert into the article, or regenerate with different parameters.",
+      "type": "Diagram type",
+      "types": {
+        "auto": "Auto (based on article)",
+        "flow": "Left-to-right flow",
+        "hub": "Hub and spoke",
+        "hierarchy": "Hierarchy",
+        "comparison": "Comparison",
+        "steps": "Numbered steps",
+        "cycle": "Cycle"
+      },
+      "format": "Format",
+      "formats": {
+        "landscape": "16:9 landscape",
+        "square": "1:1 square",
+        "portrait": "4:5 portrait"
+      },
+      "instructions": "Instructions (optional)",
+      "instructionsPlaceholder": "Ex: focus on steps 1 to 3, use simple icons…",
+      "insertPosition": "Insert after section",
+      "insertAtEnd": "At the end of the article",
+      "insertAfter": "After: {{title}}",
+      "generateButton": "Generate",
+      "retry": "Retry",
+      "cancel": "Cancel",
+      "insert": "Insert in article",
+      "regenerate": "Regenerate",
+      "loading": "Generating diagram…",
+      "loadingHint": "Takes 20 to 40 seconds. AI designs the diagram, then the browser renders it to an image.",
+      "loadingMessages": [
+        "Analyzing article…",
+        "Designing diagram…",
+        "Rendering image…",
+        "Uploading…"
+      ],
+      "error": "Generation failed. Try again in a moment.",
+      "errorTimeout": "Generation timed out. Try again.",
+      "sceneJson": "Excalidraw JSON",
+      "edit": "Edit",
+      "copyJson": "Copy JSON",
+      "jsonCopied": "JSON copied!",
+      "editModalTitle": "Edit diagram",
+      "saveChanges": "Save changes",
+      "saving": "Saving…",
+      "editLoading": "Loading editor…",
+      "editLoadError": "Failed to load Excalidraw editor.",
+      "minContent": "Add at least 100 characters of content to enable generation.",
+      "labelFr": "Français",
+      "labelEn": "English",
+      "bilingualHint": "Two diagrams will be generated (FR + EN) in parallel.",
+      "singleHint": "One diagram in {{lang}} will be generated (the other language has too little content)."
     }
   }
 }
