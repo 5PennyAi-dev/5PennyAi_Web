@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Sparkles, Workflow, LineChart, Clock, Search } from 'lucide-react'
 import BookingButton from '@/components/ui/BookingButton'
+import ShaderBackground from '@/components/ui/ShaderBackground'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
 const services = [
@@ -51,6 +52,7 @@ export default function ServicesPage() {
             'radial-gradient(ellipse 100% 100% at 50% 50%, #143054 0%, #0D2240 80%)',
         }}
       >
+        <ShaderBackground />
         <div className="absolute inset-0 bg-dot-grid-dark opacity-30 pointer-events-none" />
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
 

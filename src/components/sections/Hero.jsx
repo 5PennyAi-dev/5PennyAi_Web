@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import Button from '@/components/ui/Button'
 import BookingButton from '@/components/ui/BookingButton'
+import ShaderBackground from '@/components/ui/ShaderBackground'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
 export default function Hero() {
@@ -20,6 +21,9 @@ export default function Hero() {
           'radial-gradient(ellipse 100% 100% at 50% 50%, #143054 0%, #0D2240 70%)',
       }}
     >
+      {/* Plasma shader — atmospheric base layer */}
+      <ShaderBackground />
+
       {/* Dot grid texture */}
       <div className="absolute inset-0 bg-dot-grid-dark opacity-40 pointer-events-none" />
 
@@ -76,7 +80,7 @@ export default function Hero() {
           <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
             {t('hero.cta_primary')}
           </BookingButton>
-          <Button to="/services" variant="ghost" className="px-8 py-3.5 text-[15px]">
+          <Button to="/portfolio" variant="ghost" className="px-8 py-3.5 text-[15px]">
             {t('hero.cta_secondary')}
           </Button>
         </div>
