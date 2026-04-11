@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, X, Upload, Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, X, Upload, Eye, EyeOff, Sparkles, PencilLine, Check, Image as ImageIcon, Copy } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import AdminGuard from '@/components/admin/AdminGuard'
 import Button from '@/components/ui/Button'
+import ArticleGenerator from '@/components/admin/ArticleGenerator'
+import { Field, Section, inputClass } from '@/components/admin/editorPrimitives'
 import { supabase } from '@/lib/supabase'
 import { fetchPostById, upsertPost, isSlugTaken, slugify } from '@/lib/posts'
 import { markdownComponents } from '@/components/blog/markdownComponents'
@@ -67,6 +69,11 @@ function AdminBlogEditorInner() {
   const [slugError, setSlugError] = useState(null)
   const [showPreview, setShowPreview] = useState(false)
   const [previewLang, setPreviewLang] = useState('fr')
+  const [authorMode, setAuthorMode] = useState('manual')
+  const [showGenerator, setShowGenerator] = useState(false)
+  const [imagePromptHint, setImagePromptHint] = useState('')
+  const [pendingRegen, setPendingRegen] = useState(null)
+  const [imagePromptCopied, setImagePromptCopied] = useState(false)
 
   useEffect(() => {
     if (!isEdit) {
@@ -171,6 +178,69 @@ function AdminBlogEditorInner() {
     }
   }
 
+  const applyGenerated = (data) => {
+    setForm((prev) => ({
+      ...prev,
+      slug: prev.slug || slugify(data.slug || data.title_fr || ''),
+      title_fr: data.title_fr || '',
+      title_en: data.title_en || '',
+      excerpt_fr: data.excerpt_fr || '',
+      excerpt_en: data.excerpt_en || '',
+      content_fr: data.content_fr || '',
+      content_en: data.content_en || '',
+      tags: Array.isArray(data.tags) ? data.tags : [],
+      reading_time_minutes: data.reading_time_minutes || 5,
+      meta_title_fr: data.meta_title_fr || '',
+      meta_title_en: data.meta_title_en || '',
+      meta_description_fr: data.meta_description_fr || '',
+      meta_description_en: data.meta_description_en || '',
+      status: 'draft',
+      published_at: prev.published_at || toDatetimeLocal(new Date().toISOString()),
+    }))
+    setImagePromptHint(data.cover_image_prompt || '')
+  }
+
+  const replaceGenerated = (data) => {
+    setForm((prev) => ({
+      ...prev,
+      title_fr: data.title_fr || prev.title_fr,
+      title_en: data.title_en || prev.title_en,
+      excerpt_fr: data.excerpt_fr || prev.excerpt_fr,
+      excerpt_en: data.excerpt_en || prev.excerpt_en,
+      content_fr: data.content_fr || prev.content_fr,
+      content_en: data.content_en || prev.content_en,
+      tags: Array.isArray(data.tags) && data.tags.length ? data.tags : prev.tags,
+      reading_time_minutes: data.reading_time_minutes || prev.reading_time_minutes,
+      meta_title_fr: data.meta_title_fr || prev.meta_title_fr,
+      meta_title_en: data.meta_title_en || prev.meta_title_en,
+      meta_description_fr: data.meta_description_fr || prev.meta_description_fr,
+      meta_description_en: data.meta_description_en || prev.meta_description_en,
+    }))
+    setImagePromptHint(data.cover_image_prompt || '')
+  }
+
+  const handleGenerated = (data) => {
+    if (isEdit) {
+      setPendingRegen(data)
+      setShowGenerator(false)
+    } else {
+      applyGenerated(data)
+      setShowGenerator(false)
+      setAuthorMode('manual')
+    }
+  }
+
+  const handleCopyImagePrompt = async () => {
+    if (!imagePromptHint) return
+    try {
+      await navigator.clipboard.writeText(imagePromptHint)
+      setImagePromptCopied(true)
+      setTimeout(() => setImagePromptCopied(false), 2000)
+    } catch (err) {
+      console.error('Clipboard write failed', err)
+    }
+  }
+
   if (loading) {
     return <p className="pt-32 text-center text-muted">{t('blog.loading')}</p>
   }
@@ -178,7 +248,7 @@ function AdminBlogEditorInner() {
   return (
     <section className="pt-28 pb-20 bg-warm-gray min-h-[90vh]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between gap-4 mb-8">
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
           <div>
             <Link
               to="/admin/blog"
@@ -192,15 +262,58 @@ function AdminBlogEditorInner() {
             </h1>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowPreview((v) => !v)}
-            className="hidden md:inline-flex items-center gap-2 rounded-full border border-navy/15 bg-white px-4 py-2 text-[13px] font-medium text-navy/75 hover:text-navy hover:border-navy/30 transition-colors"
-          >
-            {showPreview ? <EyeOff size={14} strokeWidth={2} /> : <Eye size={14} strokeWidth={2} />}
-            {showPreview ? t('admin.editor.actions.hidePreview') : t('admin.editor.actions.showPreview')}
-          </button>
+          <div className="flex items-center gap-3">
+            {isEdit && (
+              <button
+                type="button"
+                onClick={() => setShowGenerator((v) => !v)}
+                className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-4 py-2 text-[13px] font-medium text-accent-deep hover:bg-accent/10 hover:border-accent/50 transition-colors"
+              >
+                <Sparkles size={14} strokeWidth={2} />
+                {t('admin.generator.regenerate')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowPreview((v) => !v)}
+              className="hidden md:inline-flex items-center gap-2 rounded-full border border-navy/15 bg-white px-4 py-2 text-[13px] font-medium text-navy/75 hover:text-navy hover:border-navy/30 transition-colors"
+            >
+              {showPreview ? <EyeOff size={14} strokeWidth={2} /> : <Eye size={14} strokeWidth={2} />}
+              {showPreview ? t('admin.editor.actions.hidePreview') : t('admin.editor.actions.showPreview')}
+            </button>
+          </div>
         </div>
+
+        {!isEdit && (
+          <div className="mb-6 inline-flex items-center gap-1 rounded-full border border-navy/10 bg-white p-1">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthorMode('manual')
+                setShowGenerator(false)
+              }}
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-bold uppercase tracking-[0.1em] transition-colors ${
+                authorMode === 'manual' ? 'bg-navy text-white' : 'text-navy/55 hover:text-navy'
+              }`}
+            >
+              <PencilLine size={13} strokeWidth={2} />
+              {t('admin.generator.manual')}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthorMode('ai')
+                setShowGenerator(true)
+              }}
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-bold uppercase tracking-[0.1em] transition-colors ${
+                authorMode === 'ai' ? 'bg-accent text-white' : 'text-navy/55 hover:text-navy'
+              }`}
+            >
+              <Sparkles size={13} strokeWidth={2} />
+              {t('admin.generator.aiMode')}
+            </button>
+          </div>
+        )}
 
         {feedback && (
           <div
@@ -211,6 +324,54 @@ function AdminBlogEditorInner() {
             }`}
           >
             {feedback.message}
+          </div>
+        )}
+
+        {showGenerator && (
+          <div className="mb-6">
+            <ArticleGenerator
+              initialTopic={isEdit ? form.title_fr : ''}
+              onGenerated={handleGenerated}
+              onCancel={() => {
+                setShowGenerator(false)
+                if (!isEdit) setAuthorMode('manual')
+              }}
+            />
+          </div>
+        )}
+
+        {pendingRegen && (
+          <div className="mb-6 rounded-2xl border border-accent/30 bg-accent/5 p-5 md:p-6">
+            <div className="flex items-start gap-3 mb-3">
+              <Sparkles size={18} strokeWidth={2} className="text-accent mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <h3 className="font-heading font-bold text-navy text-[15px] mb-1">
+                  {t('admin.generator.replaceConfirm')}
+                </h3>
+                <p className="text-[13px] text-navy/70 leading-relaxed">
+                  {t('admin.generator.replaceHint')}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3 pl-7">
+              <button
+                type="button"
+                onClick={() => {
+                  replaceGenerated(pendingRegen)
+                  setPendingRegen(null)
+                }}
+                className="rounded-full bg-accent text-white px-5 py-2 text-[13px] font-heading font-semibold hover:brightness-95 transition-all"
+              >
+                {t('admin.generator.replaceYes')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPendingRegen(null)}
+                className="rounded-full border border-navy/15 bg-white text-navy/75 px-5 py-2 text-[13px] font-medium hover:border-navy/25 hover:text-navy transition-colors"
+              >
+                {t('admin.generator.replaceNo')}
+              </button>
+            </div>
           </div>
         )}
 
@@ -279,6 +440,48 @@ function AdminBlogEditorInner() {
                 onChange={update('cover_image')}
                 t={t}
               />
+
+              {imagePromptHint && (
+                <div className="rounded-lg border border-navy/10 bg-surface p-4">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                        <ImageIcon size={13} strokeWidth={2} className="text-accent" />
+                      </div>
+                      <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-navy/70">
+                        {t('admin.generator.imagePrompt')}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCopyImagePrompt}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all ${
+                        imagePromptCopied
+                          ? 'border-steel/40 bg-steel/10 text-navy'
+                          : 'border-navy/15 bg-white text-navy/75 hover:border-accent/40 hover:text-accent-deep hover:bg-accent/[0.03]'
+                      }`}
+                    >
+                      {imagePromptCopied ? (
+                        <>
+                          <Check size={11} strokeWidth={2.5} />
+                          {t('admin.generator.copied')}
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={11} strokeWidth={2} />
+                          {t('admin.generator.copy')}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-[13px] text-navy/80 italic leading-relaxed whitespace-pre-wrap">
+                    {imagePromptHint}
+                  </p>
+                  <p className="text-[11px] text-muted mt-3 not-italic">
+                    {t('admin.generator.imagePromptHint')}
+                  </p>
+                </div>
+              )}
 
               <Field label={t('admin.editor.fields.contentFr')} required>
                 <textarea
@@ -412,37 +615,6 @@ function AdminBlogEditorInner() {
         </div>
       </div>
     </section>
-  )
-}
-
-const inputClass =
-  'w-full rounded-xl border border-navy/15 bg-white px-4 py-2.5 text-[14px] text-navy placeholder:text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors'
-
-function Section({ title, children }) {
-  return (
-    <div className="space-y-5">
-      <h2 className="font-heading font-bold text-navy text-[13px] uppercase tracking-[0.14em]">
-        {title}
-      </h2>
-      {children}
-    </div>
-  )
-}
-
-function Field({ label, children, hint, error, required }) {
-  return (
-    <label className="block">
-      <span className="block text-[11px] font-bold uppercase tracking-[0.12em] text-navy/60 mb-1.5">
-        {label}
-        {required && <span className="text-accent ml-1">*</span>}
-      </span>
-      {children}
-      {error ? (
-        <span className="block text-[12px] text-accent-deep mt-1">{error}</span>
-      ) : hint ? (
-        <span className="block text-[12px] text-muted mt-1">{hint}</span>
-      ) : null}
-    </label>
   )
 }
 
@@ -587,9 +759,28 @@ function CoverImageField({ value, onChange, t }) {
   )
 }
 
+function formatPreviewDate(value, lang) {
+  if (!value) return ''
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return ''
+  try {
+    return d.toLocaleDateString(lang === 'fr' ? 'fr-CA' : 'en-CA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  } catch {
+    return d.toISOString().slice(0, 10)
+  }
+}
+
 function PreviewPanel({ form, previewLang, setPreviewLang, t }) {
   const content = previewLang === 'en' ? form.content_en || form.content_fr : form.content_fr
   const title = previewLang === 'en' ? form.title_en || form.title_fr : form.title_fr
+  const excerpt = previewLang === 'en' ? form.excerpt_en || form.excerpt_fr : form.excerpt_fr
+  const formattedDate = formatPreviewDate(form.published_at ? new Date(form.published_at).toISOString() : '', previewLang)
+  const readingTime = form.reading_time_minutes ? `${form.reading_time_minutes} ${t('blog.card.minRead')}` : ''
+  const author = form.author || 'Christian Couillard'
 
   return (
     <aside className="bg-white border border-navy/[0.08] rounded-3xl p-6 md:p-8 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
@@ -621,9 +812,42 @@ function PreviewPanel({ form, previewLang, setPreviewLang, t }) {
         />
       )}
 
-      <h1 className="font-heading font-bold text-navy text-2xl mb-5 tracking-tight leading-tight">
+      {form.tags?.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {form.tags.map((tag) => (
+            <span
+              key={tag}
+              className="bg-lavender/60 text-navy text-[10px] font-bold uppercase tracking-[0.14em] px-2.5 py-1 rounded-full"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <h1 className="font-heading font-bold text-navy text-2xl md:text-[1.75rem] mb-3 tracking-tight leading-tight">
         {title || '—'}
       </h1>
+
+      {(formattedDate || readingTime || author) && (
+        <div className="flex flex-wrap items-center gap-2 text-[12px] text-navy/55 mb-6">
+          {formattedDate && <span>{formattedDate}</span>}
+          {formattedDate && readingTime && <span aria-hidden="true">·</span>}
+          {readingTime && <span>{readingTime}</span>}
+          {(formattedDate || readingTime) && author && <span aria-hidden="true">·</span>}
+          {author && (
+            <span>
+              {t('blog.post.by')} {author}
+            </span>
+          )}
+        </div>
+      )}
+
+      {excerpt && (
+        <p className="text-[15px] text-navy/75 leading-relaxed italic mb-6 border-l-2 border-accent/50 pl-4">
+          {excerpt}
+        </p>
+      )}
 
       <div className="blog-prose">
         {content ? (
@@ -637,3 +861,4 @@ function PreviewPanel({ form, previewLang, setPreviewLang, t }) {
     </aside>
   )
 }
+

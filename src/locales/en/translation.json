@@ -585,6 +585,50 @@
         "slugTaken": "This slug is already taken.",
         "uploadError": "Image upload failed."
       }
+    },
+    "generator": {
+      "title": "Generate with AI",
+      "subtitle": "Describe your topic and let AI draft a bilingual article you can review.",
+      "topic": "Article topic",
+      "topicPlaceholder": "Ex: How SMEs can automate customer service with AI",
+      "type": "Article type",
+      "types": {
+        "list": "List (X ways to…)",
+        "tutorial": "Tutorial",
+        "caseStudy": "Case study",
+        "news": "News commentary",
+        "myth": "Myth busting"
+      },
+      "instructions": "Additional instructions (optional)",
+      "instructionsPlaceholder": "Extra guidance, specific angle, keywords to include…",
+      "language": "Primary language",
+      "languageFr": "French first",
+      "languageEn": "English first",
+      "generate": "Generate article",
+      "cancel": "Cancel",
+      "loading": "Generating…",
+      "loadingHint": "Takes 1 to 3 minutes. The AI researches first, then writes the full article in both French and English.",
+      "loadingMessages": [
+        "Searching the web…",
+        "Analyzing sources…",
+        "Drafting the article…",
+        "Translating FR ↔ EN…",
+        "Optimizing SEO…"
+      ],
+      "error": "Generation failed. Retry or write it manually.",
+      "errorTimeout": "The generation timed out. Try again in a moment.",
+      "retry": "Retry",
+      "imagePrompt": "Cover image prompt",
+      "imagePromptHint": "Paste this prompt into DALL-E, Midjourney or another tool to generate the image.",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "manual": "Write manually",
+      "aiMode": "Generate with AI",
+      "regenerate": "Regenerate with AI",
+      "replaceConfirm": "Replace the current content?",
+      "replaceHint": "The slug, publish date and cover image will be preserved.",
+      "replaceYes": "Replace",
+      "replaceNo": "Keep current"
     }
   }
 }

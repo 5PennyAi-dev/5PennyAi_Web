@@ -585,6 +585,50 @@
         "slugTaken": "Ce slug est déjà utilisé.",
         "uploadError": "L'upload de l'image a échoué."
       }
+    },
+    "generator": {
+      "title": "Générer avec l'IA",
+      "subtitle": "Décrivez votre sujet, l'IA rédige un brouillon bilingue prêt à réviser.",
+      "topic": "Sujet de l'article",
+      "topicPlaceholder": "Ex: Comment automatiser le service client d'une PME avec l'IA",
+      "type": "Type d'article",
+      "types": {
+        "list": "Liste (X façons de…)",
+        "tutorial": "Tutoriel",
+        "caseStudy": "Étude de cas",
+        "news": "Actualité commentée",
+        "myth": "Démystification"
+      },
+      "instructions": "Précisions (optionnel)",
+      "instructionsPlaceholder": "Instructions supplémentaires, angle spécifique, mots-clés à inclure…",
+      "language": "Langue principale",
+      "languageFr": "Français d'abord",
+      "languageEn": "Anglais d'abord",
+      "generate": "Générer l'article",
+      "cancel": "Annuler",
+      "loading": "Génération en cours…",
+      "loadingHint": "Prend 1 à 3 minutes. L'IA fait ses recherches puis rédige l'article complet en français et en anglais.",
+      "loadingMessages": [
+        "Recherche web en cours…",
+        "Analyse des sources…",
+        "Rédaction de l'article…",
+        "Traduction FR ↔ EN…",
+        "Optimisation SEO…"
+      ],
+      "error": "La génération a échoué. Réessayez ou rédigez manuellement.",
+      "errorTimeout": "La génération a expiré. Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "imagePrompt": "Prompt pour l'image de couverture",
+      "imagePromptHint": "Copiez ce prompt dans DALL-E, Midjourney ou un autre outil pour générer l'image.",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "manual": "Rédiger manuellement",
+      "aiMode": "Générer avec l'IA",
+      "regenerate": "Régénérer avec l'IA",
+      "replaceConfirm": "Remplacer le contenu actuel ?",
+      "replaceHint": "Le slug, la date de publication et l'image de couverture seront conservés.",
+      "replaceYes": "Remplacer",
+      "replaceNo": "Garder l'actuel"
     }
   }
 }
