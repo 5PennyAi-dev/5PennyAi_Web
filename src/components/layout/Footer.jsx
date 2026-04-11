@@ -110,10 +110,16 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 pt-6 border-t border-white/[0.08] flex items-center justify-center">
+        <div className="mt-14 pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
           <p className="text-white/35 text-xs tnum">
             {t('footer.copyright')}
           </p>
+          <Link
+            to="/admin/blog"
+            className="text-white/25 hover:text-white/60 text-[11px] uppercase tracking-[0.14em] font-bold transition-colors"
+          >
+            {t('footer.admin')}
+          </Link>
         </div>
       </div>
     </footer>

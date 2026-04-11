@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Mail, Phone, MapPin, Calendar } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import { Mail, Phone, MapPin } from 'lucide-react'
+import Cal from '@calcom/embed-react'
+import BookingButton from '@/components/ui/BookingButton'
 import useScrollReveal from '@/hooks/useScrollReveal'
+import { CAL_LINK } from '@/lib/cal'
 
 function LinkedinIcon() {
   return (
@@ -289,19 +291,16 @@ export default function Contact() {
                   <p className="text-muted text-[14px] leading-relaxed mb-5">
                     {t('contact.booking.text')}
                   </p>
-                  <Button variant="outline" href="#calendar">
-                    {t('contact.booking.button')}
-                  </Button>
 
-                  {/* TODO: brancher Cal.com / Calendly */}
                   <div
                     id="calendar"
-                    className="mt-5 h-[280px] rounded-2xl border border-navy/[0.08] bg-white flex flex-col items-center justify-center gap-3"
+                    className="rounded-2xl border border-navy/[0.08] bg-white overflow-hidden min-h-[620px]"
                   >
-                    <Calendar size={28} className="text-accent" strokeWidth={1.8} />
-                    <span className="text-muted text-[13px]">
-                      {t('contact.booking.placeholder')}
-                    </span>
+                    <Cal
+                      calLink={CAL_LINK}
+                      config={{ layout: 'month_view', theme: 'light' }}
+                      style={{ width: '100%', height: '100%', minHeight: '620px', overflow: 'scroll' }}
+                    />
                   </div>
                 </div>
               </div>
@@ -331,9 +330,9 @@ export default function Contact() {
               <p className="text-white/65 text-base mb-8 max-w-md mx-auto leading-relaxed">
                 {t('contact.cta.subtitle')}
               </p>
-              <Button href="/#booking" variant="primary" className="px-8 py-3.5 text-[15px]">
+              <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
                 {t('contact.cta.button')}
-              </Button>
+              </BookingButton>
             </div>
           </div>
         </div>

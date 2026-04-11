@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import Button from '@/components/ui/Button'
+import BookingButton from '@/components/ui/BookingButton'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
 export default function CTABlock() {
@@ -35,9 +35,9 @@ export default function CTABlock() {
         <p className="text-white/65 text-base md:text-lg mb-10 max-w-xl mx-auto leading-relaxed">
           {t('cta_block.subtitle')}
         </p>
-        <Button href="#booking" variant="primary" className="px-8 py-3.5 text-[15px]">
+        <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
           {t('cta_block.cta')}
-        </Button>
+        </BookingButton>
       </div>
     </section>
   )

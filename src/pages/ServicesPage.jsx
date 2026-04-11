@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Sparkles, Workflow, LineChart, Clock, Search } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import BookingButton from '@/components/ui/BookingButton'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
 const services = [
@@ -165,9 +165,9 @@ export default function ServicesPage() {
               <p className="text-white/65 text-base mb-8 max-w-md mx-auto leading-relaxed">
                 {t('services_page.cta.subtitle')}
               </p>
-              <Button href="/#booking" variant="primary" className="px-8 py-3.5 text-[15px]">
+              <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
                 {t('services_page.cta.button')}
-              </Button>
+              </BookingButton>
             </div>
           </div>
         </div>

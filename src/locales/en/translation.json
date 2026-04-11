@@ -3,6 +3,7 @@
     "services": "Services",
     "about": "About",
     "portfolio": "Portfolio",
+    "blog": "Blog",
     "faq": "FAQ",
     "contact": "Contact",
     "cta": "Book a call",
@@ -135,18 +136,22 @@
   },
   "booking": {
     "overline": "BOOK",
-    "title": "Schedule your discovery call",
-    "placeholder": "The booking calendar will be integrated here."
+    "title": "Schedule your discovery call"
   },
   "footer": {
     "copyright": "© 2026 5PennyAi. All rights reserved.",
     "made_with": "Made with passion in Québec, QC",
-    "tagline": "AI Solutions for businesses"
+    "tagline": "AI Solutions for businesses",
+    "admin": "Admin"
   },
   "seo": {
     "home": {
       "title": "5PennyAi — AI Solutions for SMBs",
       "description": "Custom AI application development, model integration and strategy for SMBs. Fast prototypes, accessible pricing."
+    },
+    "blog": {
+      "title": "Blog — 5PennyAi",
+      "description": "Thoughts on applied AI: articles, case studies and tutorials to understand and integrate artificial intelligence in your business."
     }
   },
   "services_page": {
@@ -345,9 +350,7 @@
     },
     "booking": {
       "label": "DISCOVERY CALL",
-      "text": "Prefer a call? Book a 30-minute slot, free, no commitment.",
-      "button": "Book a call",
-      "placeholder": "Calendar coming soon"
+      "text": "Prefer a call? Book a 30-minute slot, free, no commitment."
     },
     "cta": {
       "title": "Not sure where to start?",
@@ -447,6 +450,141 @@
       "title": "Got a similar project in mind?",
       "subtitle": "Let's discuss how AI can turn your idea into a product.",
       "button": "Book a call"
+    }
+  },
+  "blog": {
+    "hero": {
+      "overline": "BLOG",
+      "title": "Thoughts on applied AI",
+      "subtitle": "Articles, case studies and tutorials to understand and integrate artificial intelligence in your business."
+    },
+    "filters": {
+      "all": "All",
+      "label": "Filter by topic"
+    },
+    "card": {
+      "minRead": "min read"
+    },
+    "loadMore": "Load more articles",
+    "loading": "Loading…",
+    "empty": {
+      "title": "Articles coming soon",
+      "subtitle": "The first articles are on their way. Check back soon."
+    },
+    "post": {
+      "by": "by",
+      "share": "Share",
+      "copyLink": "Copy link",
+      "copied": "Link copied!",
+      "prev": "Previous article",
+      "next": "Next article",
+      "back": "Back to blog",
+      "cta": {
+        "title": "Have an AI project?",
+        "subtitle": "Let's discuss it in a free 30-minute discovery call.",
+        "button": "Book a call"
+      }
+    },
+    "notFound": {
+      "title": "Article not found",
+      "subtitle": "This article doesn't exist or has been removed.",
+      "back": "Back to blog"
+    }
+  },
+  "admin": {
+    "login": {
+      "title": "Admin login",
+      "subtitle": "Access restricted to blog administrators.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "error": "Invalid credentials. Please try again."
+    },
+    "denied": {
+      "title": "Access denied",
+      "subtitle": "This account does not have permission to access the admin area.",
+      "back": "Back to site",
+      "logout": "Sign out"
+    },
+    "checking": "Checking session…",
+    "nav": {
+      "logout": "Sign out",
+      "back": "Back to list"
+    },
+    "posts": {
+      "title": "Blog posts",
+      "subtitle": "Create, edit, and publish articles.",
+      "new": "New post",
+      "edit": "Edit",
+      "delete": "Delete",
+      "publish": "Publish",
+      "archive": "Archive",
+      "unarchive": "Reactivate",
+      "deleteConfirm": "Delete this post permanently?",
+      "empty": "No posts yet.",
+      "columns": {
+        "title": "Title",
+        "status": "Status",
+        "date": "Published",
+        "actions": "Actions"
+      },
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      }
+    },
+    "editor": {
+      "titleNew": "New post",
+      "titleEdit": "Edit post",
+      "sections": {
+        "content": "Content",
+        "meta": "Metadata",
+        "seo": "SEO"
+      },
+      "fields": {
+        "titleFr": "Title (FR)",
+        "titleEn": "Title (EN)",
+        "slug": "Slug",
+        "slugHint": "Post URL — auto-generated, editable.",
+        "excerptFr": "Excerpt (FR)",
+        "excerptEn": "Excerpt (EN)",
+        "coverImage": "Cover image",
+        "coverImageHint": "Drag an image or click to pick a file (JPG, PNG, WebP).",
+        "coverImageChange": "Change image",
+        "coverImageRemove": "Remove image",
+        "coverImageUploading": "Uploading…",
+        "tags": "Tags",
+        "tagsHint": "Press Enter to add a tag.",
+        "tagsPlaceholder": "e.g. generative-ai",
+        "readingTime": "Reading time (minutes)",
+        "status": "Status",
+        "publishedAt": "Published date",
+        "metaTitleFr": "Meta title (FR)",
+        "metaDescriptionFr": "Meta description (FR)",
+        "metaTitleEn": "Meta title (EN)",
+        "metaDescriptionEn": "Meta description (EN)",
+        "contentFr": "Markdown content (FR)",
+        "contentEn": "Markdown content (EN)"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "saveDraft": "Save as draft",
+        "publish": "Publish",
+        "update": "Update",
+        "showPreview": "Show preview",
+        "hidePreview": "Hide preview",
+        "previewFr": "FR preview",
+        "previewEn": "EN preview"
+      },
+      "feedback": {
+        "saved": "Post saved.",
+        "published": "Post published.",
+        "error": "Something went wrong.",
+        "slugTaken": "This slug is already taken.",
+        "uploadError": "Image upload failed."
+      }
     }
   }
 }

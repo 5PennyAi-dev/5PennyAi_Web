@@ -8,6 +8,11 @@ import ServicesPage from '@/pages/ServicesPage'
 import AboutPage from '@/pages/AboutPage'
 import Contact from '@/pages/Contact'
 import Portfolio from '@/pages/Portfolio'
+import Blog from '@/pages/Blog'
+import BlogPost from '@/pages/BlogPost'
+import AdminBlog from '@/pages/AdminBlog'
+import AdminBlogEditor from '@/pages/AdminBlogEditor'
+import { initCal } from '@/lib/cal'
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -29,6 +34,10 @@ function App() {
     document.documentElement.lang = i18n.language
   }, [i18n.language])
 
+  useEffect(() => {
+    initCal()
+  }, [])
+
   return (
     <>
       <ScrollToTop />
@@ -40,6 +49,11 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/admin/blog" element={<AdminBlog />} />
+          <Route path="/admin/blog/new" element={<AdminBlogEditor />} />
+          <Route path="/admin/blog/edit/:id" element={<AdminBlogEditor />} />
         </Routes>
       </main>
       <Footer />

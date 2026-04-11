@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Code2, Plug, FileText, BarChart3, MapPin, Mail } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import BookingButton from '@/components/ui/BookingButton'
 import SectionHeader from '@/components/ui/SectionHeader'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
@@ -280,9 +280,9 @@ export default function AboutPage() {
               <p className="text-white/65 text-base mb-8 max-w-md mx-auto leading-relaxed">
                 {t('about_page.cta.subtitle')}
               </p>
-              <Button href="/#booking" variant="primary" className="px-8 py-3.5 text-[15px]">
+              <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
                 {t('about_page.cta.button')}
-              </Button>
+              </BookingButton>
             </div>
           </div>
         </div>

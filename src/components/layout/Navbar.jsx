@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
-import Button from '@/components/ui/Button'
+import BookingButton from '@/components/ui/BookingButton'
 
 const navLinks = [
   { key: 'nav.services', to: '/services' },
   { key: 'nav.about', to: '/about' },
   { key: 'nav.portfolio', to: '/portfolio' },
+  { key: 'nav.blog', to: '/blog' },
   { key: 'nav.faq', href: '/#faq' },
   { key: 'nav.contact', to: '/contact' },
 ]
@@ -34,7 +35,9 @@ export default function Navbar() {
   }
 
   const isActive = (link) => {
-    if (link.to) return pathname === link.to
+    if (!link.to) return false
+    if (pathname === link.to) return true
+    if (link.to === '/blog' && pathname.startsWith('/blog/')) return true
     return false
   }
 
@@ -128,9 +131,9 @@ export default function Navbar() {
           >
             {t('nav.lang_toggle')}
           </button>
-          <Button href="/#booking" variant="primary" className="text-[13px] px-5 py-2">
+          <BookingButton variant="primary" className="text-[13px] px-5 py-2">
             {t('nav.cta')}
-          </Button>
+          </BookingButton>
         </div>
 
         <button
@@ -154,9 +157,9 @@ export default function Navbar() {
               >
                 {t('nav.lang_toggle')}
               </button>
-              <Button href="/#booking" variant="primary" onClick={() => setMobileOpen(false)}>
+              <BookingButton variant="primary" onClick={() => setMobileOpen(false)}>
                 {t('nav.cta')}
-              </Button>
+              </BookingButton>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import Button from '@/components/ui/Button'
+import BookingButton from '@/components/ui/BookingButton'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
 export default function Hero() {
@@ -72,9 +73,9 @@ export default function Hero() {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button href="#booking" variant="primary" className="px-8 py-3.5 text-[15px]">
+          <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
             {t('hero.cta_primary')}
-          </Button>
+          </BookingButton>
           <Button to="/services" variant="ghost" className="px-8 py-3.5 text-[15px]">
             {t('hero.cta_secondary')}
           </Button>

@@ -3,6 +3,7 @@
     "services": "Services",
     "about": "À propos",
     "portfolio": "Portfolio",
+    "blog": "Blog",
     "faq": "FAQ",
     "contact": "Contact",
     "cta": "Réserver un appel",
@@ -135,18 +136,22 @@
   },
   "booking": {
     "overline": "RÉSERVER",
-    "title": "Planifiez votre appel découverte",
-    "placeholder": "Le calendrier de réservation sera intégré ici."
+    "title": "Planifiez votre appel découverte"
   },
   "footer": {
     "copyright": "© 2026 5PennyAi. Tous droits réservés.",
     "made_with": "Fait avec passion à Québec, QC",
-    "tagline": "AI Solutions pour entreprises"
+    "tagline": "AI Solutions pour entreprises",
+    "admin": "Admin"
   },
   "seo": {
     "home": {
       "title": "5PennyAi — Solutions AI pour PME",
       "description": "Développement d'applications AI sur mesure, intégration de modèles et stratégie pour les PME. Prototypes rapides, tarifs accessibles."
+    },
+    "blog": {
+      "title": "Blog — 5PennyAi",
+      "description": "Réflexions sur l'IA appliquée : articles, études de cas et tutoriels pour comprendre et intégrer l'intelligence artificielle dans votre entreprise."
     }
   },
   "services_page": {
@@ -345,9 +350,7 @@
     },
     "booking": {
       "label": "APPEL DÉCOUVERTE",
-      "text": "Préférez un appel? Réservez un créneau de 30 minutes, gratuit et sans engagement.",
-      "button": "Réserver un appel",
-      "placeholder": "Calendrier à venir"
+      "text": "Préférez un appel? Réservez un créneau de 30 minutes, gratuit et sans engagement."
     },
     "cta": {
       "title": "Pas certain par où commencer?",
@@ -447,6 +450,141 @@
       "title": "Un projet similaire en tête?",
       "subtitle": "Discutons de comment l'IA peut transformer votre idée en produit.",
       "button": "Réserver un appel"
+    }
+  },
+  "blog": {
+    "hero": {
+      "overline": "BLOG",
+      "title": "Réflexions sur l'IA appliquée",
+      "subtitle": "Articles, études de cas et tutoriels pour comprendre et intégrer l'intelligence artificielle dans votre entreprise."
+    },
+    "filters": {
+      "all": "Tous",
+      "label": "Filtrer par thème"
+    },
+    "card": {
+      "minRead": "min de lecture"
+    },
+    "loadMore": "Voir plus d'articles",
+    "loading": "Chargement…",
+    "empty": {
+      "title": "Articles à venir",
+      "subtitle": "Les premiers articles du blog arrivent bientôt. Revenez prochainement."
+    },
+    "post": {
+      "by": "par",
+      "share": "Partager",
+      "copyLink": "Copier le lien",
+      "copied": "Lien copié!",
+      "prev": "Article précédent",
+      "next": "Article suivant",
+      "back": "Retour au blog",
+      "cta": {
+        "title": "Vous avez un projet AI?",
+        "subtitle": "Discutons-en lors d'un appel découverte gratuit de 30 minutes.",
+        "button": "Réserver un appel"
+      }
+    },
+    "notFound": {
+      "title": "Article introuvable",
+      "subtitle": "Cet article n'existe pas ou a été retiré.",
+      "back": "Retour au blog"
+    }
+  },
+  "admin": {
+    "login": {
+      "title": "Connexion admin",
+      "subtitle": "Accès réservé à l'administration du blog.",
+      "email": "Courriel",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "submitting": "Connexion…",
+      "error": "Identifiants invalides. Réessayez."
+    },
+    "denied": {
+      "title": "Accès refusé",
+      "subtitle": "Ce compte n'a pas les permissions pour accéder à l'administration.",
+      "back": "Retour au site",
+      "logout": "Se déconnecter"
+    },
+    "checking": "Vérification de la session…",
+    "nav": {
+      "logout": "Déconnexion",
+      "back": "Retour à la liste"
+    },
+    "posts": {
+      "title": "Articles du blog",
+      "subtitle": "Créer, modifier et publier les articles.",
+      "new": "Nouvel article",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "publish": "Publier",
+      "archive": "Archiver",
+      "unarchive": "Réactiver",
+      "deleteConfirm": "Supprimer cet article définitivement?",
+      "empty": "Aucun article pour le moment.",
+      "columns": {
+        "title": "Titre",
+        "status": "Statut",
+        "date": "Publication",
+        "actions": "Actions"
+      },
+      "status": {
+        "draft": "Brouillon",
+        "published": "Publié",
+        "archived": "Archivé"
+      }
+    },
+    "editor": {
+      "titleNew": "Nouvel article",
+      "titleEdit": "Modifier l'article",
+      "sections": {
+        "content": "Contenu",
+        "meta": "Métadonnées",
+        "seo": "SEO"
+      },
+      "fields": {
+        "titleFr": "Titre (FR)",
+        "titleEn": "Titre (EN)",
+        "slug": "Slug",
+        "slugHint": "URL de l'article — généré automatiquement, éditable.",
+        "excerptFr": "Extrait (FR)",
+        "excerptEn": "Extrait (EN)",
+        "coverImage": "Image de couverture",
+        "coverImageHint": "Glissez une image ou cliquez pour choisir un fichier (JPG, PNG, WebP).",
+        "coverImageChange": "Changer l'image",
+        "coverImageRemove": "Retirer l'image",
+        "coverImageUploading": "Upload en cours…",
+        "tags": "Tags",
+        "tagsHint": "Appuyez sur Entrée pour ajouter un tag.",
+        "tagsPlaceholder": "ex: ia-generative",
+        "readingTime": "Temps de lecture (minutes)",
+        "status": "Statut",
+        "publishedAt": "Date de publication",
+        "metaTitleFr": "Meta title (FR)",
+        "metaDescriptionFr": "Meta description (FR)",
+        "metaTitleEn": "Meta title (EN)",
+        "metaDescriptionEn": "Meta description (EN)",
+        "contentFr": "Contenu Markdown (FR)",
+        "contentEn": "Contenu Markdown (EN)"
+      },
+      "actions": {
+        "cancel": "Annuler",
+        "saveDraft": "Enregistrer le brouillon",
+        "publish": "Publier",
+        "update": "Mettre à jour",
+        "showPreview": "Afficher l'aperçu",
+        "hidePreview": "Masquer l'aperçu",
+        "previewFr": "Aperçu FR",
+        "previewEn": "Aperçu EN"
+      },
+      "feedback": {
+        "saved": "Article enregistré.",
+        "published": "Article publié.",
+        "error": "Une erreur est survenue.",
+        "slugTaken": "Ce slug est déjà utilisé.",
+        "uploadError": "L'upload de l'image a échoué."
+      }
     }
   }
 }
