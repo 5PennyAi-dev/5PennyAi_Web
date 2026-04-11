@@ -630,6 +630,16 @@
       "replaceYes": "Remplacer",
       "replaceNo": "Garder l'actuel"
     },
+    "imagePromptGen": {
+      "button": "Générer prompt image",
+      "buttonLoading": "Génération…",
+      "needMeta": "Remplissez d'abord la meta-description FR.",
+      "title": "Prompts d'image générés",
+      "variantLiteral": "Variante 1 — Littérale",
+      "variantMetaphorical": "Variante 2 — Métaphorique",
+      "nanoBananaHint": "Collez le prompt dans Nano Banana Pro pour générer l'image.",
+      "error": "La génération a échoué. Réessayez."
+    },
     "diagram": {
       "generate": "Générer un diagramme",
       "title": "Générer un diagramme",

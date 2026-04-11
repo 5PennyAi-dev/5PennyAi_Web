@@ -8,6 +8,7 @@ import AdminGuard from '@/components/admin/AdminGuard'
 import Button from '@/components/ui/Button'
 import ArticleGenerator from '@/components/admin/ArticleGenerator'
 import DiagramGenerator from '@/components/admin/DiagramGenerator'
+import ImagePromptGenerator from '@/components/admin/ImagePromptGenerator'
 import { Field, Section, inputClass } from '@/components/admin/editorPrimitives'
 import { supabase } from '@/lib/supabase'
 import { fetchPostById, upsertPost, isSlugTaken, slugify } from '@/lib/posts'
@@ -466,6 +467,8 @@ function AdminBlogEditorInner() {
                 onChange={update('cover_image')}
                 t={t}
               />
+
+              <ImagePromptGenerator metaDescription={form.meta_description_fr} />
 
               {imagePromptHint && (
                 <div className="rounded-lg border border-navy/10 bg-surface p-4">
