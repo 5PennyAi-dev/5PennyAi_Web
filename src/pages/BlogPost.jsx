@@ -186,7 +186,7 @@ export default function BlogPost() {
 
       {/* Body */}
       <article ref={bodyRef} className="reveal py-16 md:py-20">
-        <div className="max-w-[740px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[820px] mx-auto px-4 sm:px-6">
           {post.cover_image && (
             <img
               src={post.cover_image}

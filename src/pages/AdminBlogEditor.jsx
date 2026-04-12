@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, X, Upload, Eye, EyeOff, Sparkles, PencilLine, Check, Image as ImageIcon, Copy, PenTool } from 'lucide-react'
+import { ArrowLeft, X, Upload, Eye, EyeOff, Sparkles, PencilLine, Check, Image as ImageIcon, Copy, PenTool, Search, AlertTriangle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import AdminGuard from '@/components/admin/AdminGuard'
@@ -79,6 +79,7 @@ function AdminBlogEditorInner() {
   const [pendingRegen, setPendingRegen] = useState(null)
   const [imagePromptCopied, setImagePromptCopied] = useState(false)
   const [showDiagramGenerator, setShowDiagramGenerator] = useState(false)
+  const [researchUsed, setResearchUsed] = useState(null)
   const contentFrRef = useRef(null)
   const contentEnRef = useRef(null)
 
@@ -227,6 +228,7 @@ function AdminBlogEditorInner() {
   }
 
   const handleGenerated = (data) => {
+    setResearchUsed(data._research_used ?? null)
     if (isEdit) {
       setPendingRegen(data)
       setShowGenerator(false)
@@ -399,6 +401,22 @@ function AdminBlogEditorInner() {
                 {t('admin.generator.replaceNo')}
               </button>
             </div>
+          </div>
+        )}
+
+        {researchUsed !== null && !showGenerator && (
+          <div className={`mb-5 flex items-center gap-2 text-[12px] ${researchUsed ? 'text-emerald-700' : 'text-accent-deep'}`}>
+            {researchUsed ? (
+              <>
+                <Search size={13} strokeWidth={2} className="shrink-0" />
+                <span>{t('admin.generator.researchUsed')}</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle size={13} strokeWidth={2} className="shrink-0" />
+                <span>{t('admin.generator.researchNotUsed')}</span>
+              </>
+            )}
           </div>
         )}
 

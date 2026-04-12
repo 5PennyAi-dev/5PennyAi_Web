@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Sparkles, X, AlertCircle, ClipboardPaste, Check, Search, AlertTriangle } from 'lucide-react'
+import { Sparkles, X, AlertCircle, ClipboardPaste, Check } from 'lucide-react'
 import { Field, inputClass } from '@/components/admin/editorPrimitives'
 
 const ARTICLE_TYPES = ['list', 'tutorial', 'caseStudy', 'news', 'myth']
@@ -19,7 +19,6 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
   const [clipboardError, setClipboardError] = useState(null)
   const [showManualPaste, setShowManualPaste] = useState(false)
   const [manualPasteText, setManualPasteText] = useState('')
-  const [researchUsed, setResearchUsed] = useState(null)
   const intervalRef = useRef(null)
 
   useEffect(() => {
@@ -157,7 +156,6 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
         throw new Error(data.error)
       }
 
-      setResearchUsed(data._research_used ?? null)
       setStatus('idle')
       onGenerated(data)
     } catch (err) {
@@ -366,22 +364,6 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
           {status === 'error' ? t('admin.generator.retry') : t('admin.generator.generate')}
         </button>
       </div>
-
-      {researchUsed !== null && (
-        <div className={`mt-4 flex items-center gap-2 text-[12px] ${researchUsed ? 'text-emerald-700' : 'text-accent-deep'}`}>
-          {researchUsed ? (
-            <>
-              <Search size={13} strokeWidth={2} className="shrink-0" />
-              <span>{t('admin.generator.researchUsed')}</span>
-            </>
-          ) : (
-            <>
-              <AlertTriangle size={13} strokeWidth={2} className="shrink-0" />
-              <span>{t('admin.generator.researchNotUsed')}</span>
-            </>
-          )}
-        </div>
-      )}
     </div>
   )
 }
