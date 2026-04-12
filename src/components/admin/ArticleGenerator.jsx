@@ -4,7 +4,7 @@ import { Sparkles, X, AlertCircle, ClipboardPaste, Check, Search, AlertTriangle 
 import { Field, inputClass } from '@/components/admin/editorPrimitives'
 
 const ARTICLE_TYPES = ['list', 'tutorial', 'caseStudy', 'news', 'myth']
-const TIMEOUT_MS = 180_000
+const TIMEOUT_MS = 300_000
 
 export default function ArticleGenerator({ onGenerated, onCancel, initialTopic = '' }) {
   const { t } = useTranslation()

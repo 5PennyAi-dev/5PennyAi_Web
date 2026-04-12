@@ -3,7 +3,7 @@
 // Keeps ANTHROPIC_API_KEY server-side. Client calls POST /api/generate-article.
 
 export const config = {
-  maxDuration: 120,
+  maxDuration: 300,
 }
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
