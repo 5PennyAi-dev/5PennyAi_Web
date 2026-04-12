@@ -610,7 +610,7 @@
       "loadingHint": "Takes 1 to 3 minutes. The AI researches first, then writes the full article in both French and English.",
       "loadingMessages": [
         "Searching the web…",
-        "Analyzing sources…",
+        "Analyzing sources found…",
         "Drafting the article…",
         "Translating FR ↔ EN…",
         "Optimizing SEO…"
@@ -628,7 +628,15 @@
       "replaceConfirm": "Replace the current content?",
       "replaceHint": "The slug, publish date and cover image will be preserved.",
       "replaceYes": "Replace",
-      "replaceNo": "Keep current"
+      "replaceNo": "Keep current",
+      "pasteFromTopicFinder": "Paste from Topic Finder",
+      "pasteHint": "Auto-fills topic and details",
+      "pasteSuccess": "Pasted!",
+      "pasteFormatError": "The clipboard content doesn't match the Topic Finder format. Use the 'Copy for blog' button in Topic Finder.",
+      "pasteManualLabel": "Paste content here",
+      "pasteManualApply": "Apply",
+      "researchUsed": "Article enriched with web research",
+      "researchNotUsed": "Article generated without web research (Perplexity unavailable)"
     },
     "imagePromptGen": {
       "button": "Generate image prompt",

@@ -3,10 +3,11 @@
 // Keeps ANTHROPIC_API_KEY server-side. Client calls POST /api/generate-article.
 
 export const config = {
-  maxDuration: 60,
+  maxDuration: 120,
 }
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
+const PERPLEXITY_URL = 'https://api.perplexity.ai/chat/completions'
 const MODEL = 'claude-opus-4-6'
 const MAX_TOKENS = 8000
 
@@ -16,6 +17,82 @@ const ARTICLE_TYPES = {
   caseStudy: 'Étude de cas — contexte → problème → solution → résultats → leçons.',
   news: 'Actualité commentée — résumé de l\'actualité → analyse → impact pour les PME → que faire.',
   myth: 'Démystification — mythe/idée reçue → réalité → preuves → conclusion rassurante.',
+}
+
+const RESEARCH_SYSTEM_PROMPT = `Tu es un chercheur spécialisé en intelligence artificielle appliquée aux PME. Tu fais des recherches pour alimenter un article de blog.
+
+Recherche en profondeur sur le web pour trouver :
+1. Des statistiques récentes et chiffrées sur le sujet (études, rapports, sondages)
+2. Des exemples concrets d'entreprises (surtout des PME) qui utilisent cette technologie
+3. Des citations ou verbatims de dirigeants ou experts
+4. Les tendances actuelles et prédictions
+5. Les défis et erreurs courantes à mentionner
+6. Des comparaisons de coûts ou de performance avant/après
+
+Privilégie les sources fiables : études de BDC, Statistique Canada, McKinsey, Gartner, HubSpot, Forbes, rapports gouvernementaux. Inclus les URLs des sources quand possible.
+
+Concentre-toi sur le marché nord-américain et francophone. Retourne un rapport structuré avec toutes tes découvertes.`
+
+const RESEARCH_TYPE_HINTS = {
+  list: `\n\nC'est pour un article de type "liste" — trouve des exemples variés et des cas d'usage concrets.`,
+  tutorial: `\n\nC'est pour un guide pratique — trouve des étapes concrètes, des outils recommandés et des résultats mesurables.`,
+  caseStudy: `\n\nC'est pour une étude de cas — trouve des histoires détaillées d'entreprises avec des chiffres avant/après.`,
+  news: `\n\nC'est pour un article d'actualité — trouve les développements les plus récents et les réactions du marché.`,
+  myth: `\n\nC'est pour un article de démystification — trouve les mythes courants ET les faits qui les contredisent, avec sources.`,
+}
+
+function buildResearchQuery(topic, articleType, instructions) {
+  let query = `Recherche des informations récentes et des données concrètes sur ce sujet : "${topic}"`
+  query += RESEARCH_TYPE_HINTS[articleType] || ''
+  if (instructions && instructions.trim()) {
+    query += `\n\nPrécisions supplémentaires : ${instructions.trim()}`
+  }
+  return query
+}
+
+async function fetchPerplexityResearch(topic, articleType, instructions) {
+  const perplexityKey = process.env.PERPLEXITY_API_KEY
+  if (!perplexityKey) {
+    console.warn('[generate-article] PERPLEXITY_API_KEY not set, skipping research')
+    return { research: '', used: false }
+  }
+
+  try {
+    const response = await fetch(PERPLEXITY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${perplexityKey}`,
+      },
+      body: JSON.stringify({
+        model: 'sonar-pro',
+        messages: [
+          { role: 'system', content: RESEARCH_SYSTEM_PROMPT },
+          { role: 'user', content: buildResearchQuery(topic, articleType, instructions) },
+        ],
+        temperature: 0.3,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (data.error) {
+      console.error('[generate-article] Perplexity error:', data.error)
+      return { research: '', used: false }
+    }
+
+    const content = data.choices?.[0]?.message?.content || ''
+    if (!content) {
+      console.warn('[generate-article] Perplexity returned empty content')
+      return { research: '', used: false }
+    }
+
+    console.log(`[generate-article] Perplexity research received (${content.length} chars)`)
+    return { research: content, used: true }
+  } catch (err) {
+    console.error('[generate-article] Perplexity fetch failed:', err)
+    return { research: '', used: false }
+  }
 }
 
 const SYSTEM_PROMPT = `Tu es un rédacteur éditorial bilingue (français et anglais) expert pour 5PennyAi, une entreprise solo de services AI basée au Québec. Tu rédiges des articles de blog publiables qui convainquent des dirigeants et gestionnaires de PME québécoises et canadiennes d'explorer l'IA appliquée à leur entreprise.
@@ -113,20 +190,27 @@ Schéma exact (toutes les clés obligatoires) :
 
 RAPPEL : réponse = UNIQUEMENT le JSON. Aucun autre caractère avant ou après.`
 
-function buildUserMessage({ topic, articleType, instructions, language }) {
+function buildUserMessage({ topic, articleType, instructions, language, research }) {
   const typeLabel = ARTICLE_TYPES[articleType] || ARTICLE_TYPES.list
   const primary = language === 'en' ? 'anglais (la version EN est la version principale, la FR est une adaptation)' : 'français (la version FR est la version principale, l\'EN est une adaptation)'
   const extras = instructions && instructions.trim() ? `\n\nPrécisions supplémentaires de l'auteur :\n${instructions.trim()}` : ''
+
+  const researchBlock = research
+    ? `\n\nRECHERCHE WEB (utilise ces données pour enrichir l'article avec des statistiques, exemples et sources concrètes) :\n---\n${research}\n---\n\nIMPORTANT : Intègre naturellement les statistiques et exemples trouvés dans la recherche. Cite les sources de manière naturelle dans le texte (ex: "Selon une étude de BDC..." ou "D'après McKinsey..."). Ne copie pas mot pour mot — reformule et intègre dans le fil de l'article. Les URLs de la recherche doivent apparaître dans la section "## Sources".`
+    : ''
+
+  const searchInstruction = research
+    ? `\n\nÉtape 1 — Recherche complémentaire (optionnel) : une recherche Perplexity a déjà été effectuée (voir ci-dessus). Tu peux utiliser web_search pour compléter si nécessaire, mais ce n'est pas obligatoire.`
+    : `\n\nÉtape 1 — Recherche : utilise web_search pour trouver des données récentes, statistiques, exemples concrets et articles fiables sur ce sujet. Fais 3 à 5 recherches au maximum. Garde une liste des URLs les plus pertinentes que tu consultes.`
+
   return `Rédige un article de blog sur ce sujet :
 
 ${topic}
 
 Format demandé : ${typeLabel}
-Langue principale : ${primary}${extras}
+Langue principale : ${primary}${extras}${researchBlock}${searchInstruction}
 
-Étape 1 — Recherche : utilise web_search pour trouver des données récentes, statistiques, exemples concrets et articles fiables sur ce sujet. Fais 3 à 5 recherches au maximum. Garde une liste des URLs les plus pertinentes que tu consultes.
-
-Étape 2 — Rédaction : rédige l'article complet en français et en anglais en intégrant naturellement les données trouvées. Cite 3 à 5 sources réelles avec leurs URLs dans une section "## Sources" placée juste avant le CTA final. N'invente JAMAIS de source ou d'URL — n'utilise que les liens effectivement trouvés via web_search.
+Étape 2 — Rédaction : rédige l'article complet en français et en anglais en intégrant naturellement les données trouvées. Cite 3 à 5 sources réelles avec leurs URLs dans une section "## Sources" placée juste avant le CTA final. N'invente JAMAIS de source ou d'URL — n'utilise que les liens effectivement trouvés via web_search ou fournis dans la recherche Perplexity.
 
 Étape 3 — Image de couverture : génère un cover_image_prompt très spécifique au sujet de l'article. Décris une scène ou composition visuelle concrète qui illustre le thème (pas générique). Inclus la palette de marque (bleu acier #81AED7, orange chaud #DD8737), style éditorial moderne, format 16:9 paysage, sans texte ni logo, éclairage doux, composition épurée.
 
@@ -235,6 +319,17 @@ export default async function handler(req, res) {
 
   try {
     const started = Date.now()
+
+    // Step 1: Perplexity research
+    const { research, used: researchUsed } = await fetchPerplexityResearch(
+      topic.trim(),
+      normalizedType,
+      instructions
+    )
+    const researchElapsed = Math.round((Date.now() - started) / 1000)
+    console.log(`[generate-article] Perplexity done in ${researchElapsed}s (used=${researchUsed})`)
+
+    // Step 2: Claude generation with research context
     const response = await fetch(ANTHROPIC_URL, {
       method: 'POST',
       headers: {
@@ -261,6 +356,7 @@ export default async function handler(req, res) {
               articleType: normalizedType,
               instructions,
               language: normalizedLanguage,
+              research,
             }),
           },
         ],
@@ -297,7 +393,7 @@ export default async function handler(req, res) {
     }
 
     const article = postProcess(parsed)
-    return res.status(200).json(article)
+    return res.status(200).json({ ...article, _research_used: researchUsed })
   } catch (err) {
     console.error('Generation error:', err)
     return res.status(500).json({ error: 'Generation failed' })

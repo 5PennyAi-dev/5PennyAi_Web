@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Sparkles, X, AlertCircle } from 'lucide-react'
+import { Sparkles, X, AlertCircle, ClipboardPaste, Check, Search, AlertTriangle } from 'lucide-react'
 import { Field, inputClass } from '@/components/admin/editorPrimitives'
 
 const ARTICLE_TYPES = ['list', 'tutorial', 'caseStudy', 'news', 'myth']
@@ -15,6 +15,11 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
   const [status, setStatus] = useState('idle')
   const [errorKind, setErrorKind] = useState(null)
   const [loadingIndex, setLoadingIndex] = useState(0)
+  const [pasteSuccess, setPasteSuccess] = useState(false)
+  const [clipboardError, setClipboardError] = useState(null)
+  const [showManualPaste, setShowManualPaste] = useState(false)
+  const [manualPasteText, setManualPasteText] = useState('')
+  const [researchUsed, setResearchUsed] = useState(null)
   const intervalRef = useRef(null)
 
   useEffect(() => {
@@ -42,6 +47,84 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
   const loadingMessages = t('admin.generator.loadingMessages', { returnObjects: true })
   const loadingList = Array.isArray(loadingMessages) ? loadingMessages : [t('admin.generator.loading')]
   const currentLoadingMessage = loadingList[loadingIndex % loadingList.length]
+
+  function parseTopicFinderClipboard(text) {
+    if (!text || (!text.includes('SUJET :') && !text.includes('SUJET:'))) {
+      return null
+    }
+    const lines = text.split('\n').filter((l) => l.trim())
+    let sujet = ''
+    let type = ''
+    let precisions = ''
+
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (/^SUJET\s*:/.test(trimmed)) {
+        sujet = trimmed.replace(/^SUJET\s*:\s*/, '')
+      } else if (/^TYPE\s*:/.test(trimmed)) {
+        type = trimmed.replace(/^TYPE\s*:\s*/, '')
+      } else if (/^PR[ÉE]CISIONS\s*:/.test(trimmed)) {
+        precisions = trimmed.replace(/^PR[ÉE]CISIONS\s*:\s*/, '')
+      }
+    }
+    return { sujet, type, precisions }
+  }
+
+  function mapArticleType(topicFinderType) {
+    const mapping = {
+      'Liste (X façons de...)': 'list',
+      'Guide pratique': 'tutorial',
+      'Comparaison': 'list',
+      'Étude de cas': 'caseStudy',
+      'Opinion / Éditorial': 'news',
+      'Tutoriel pas-à-pas': 'tutorial',
+    }
+    if (mapping[topicFinderType]) return mapping[topicFinderType]
+
+    const normalized = topicFinderType.toLowerCase()
+    if (normalized.includes('liste')) return 'list'
+    if (normalized.includes('guide') || normalized.includes('tutoriel')) return 'tutorial'
+    if (normalized.includes('cas')) return 'caseStudy'
+    if (normalized.includes('opinion') || normalized.includes('actualité')) return 'news'
+    if (normalized.includes('démystif') || normalized.includes('myth')) return 'myth'
+    if (normalized.includes('comparaison')) return 'list'
+    return 'tutorial'
+  }
+
+  function applyParsedData(parsed) {
+    setTopic(parsed.sujet)
+    if (parsed.type) setArticleType(mapArticleType(parsed.type))
+    setInstructions(parsed.precisions)
+    setClipboardError(null)
+    setShowManualPaste(false)
+    setManualPasteText('')
+    setPasteSuccess(true)
+    setTimeout(() => setPasteSuccess(false), 2500)
+  }
+
+  async function handlePasteFromTopicFinder() {
+    setClipboardError(null)
+    try {
+      const text = await navigator.clipboard.readText()
+      const parsed = parseTopicFinderClipboard(text)
+      if (!parsed) {
+        setClipboardError(t('admin.generator.pasteFormatError'))
+        return
+      }
+      applyParsedData(parsed)
+    } catch {
+      setShowManualPaste(true)
+    }
+  }
+
+  function handleManualPasteApply() {
+    const parsed = parseTopicFinderClipboard(manualPasteText)
+    if (!parsed) {
+      setClipboardError(t('admin.generator.pasteFormatError'))
+      return
+    }
+    applyParsedData(parsed)
+  }
 
   const handleSubmit = async () => {
     if (!topic.trim()) return
@@ -74,6 +157,7 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
         throw new Error(data.error)
       }
 
+      setResearchUsed(data._research_used ?? null)
       setStatus('idle')
       onGenerated(data)
     } catch (err) {
@@ -153,6 +237,68 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
         </div>
       )}
 
+      {/* Topic Finder paste */}
+      <div className="mb-5">
+        {!showManualPaste ? (
+          <button
+            type="button"
+            onClick={handlePasteFromTopicFinder}
+            className="group w-full flex items-center gap-3 rounded-xl border border-dashed border-navy/20 bg-navy/[0.02] px-4 py-3 text-left transition-all duration-200 hover:border-solid hover:border-accent/40 hover:bg-accent/[0.04]"
+          >
+            {pasteSuccess ? (
+              <div className="h-8 w-8 shrink-0 rounded-full bg-emerald-100 flex items-center justify-center">
+                <Check size={16} strokeWidth={2.5} className="text-emerald-600" />
+              </div>
+            ) : (
+              <div className="h-8 w-8 shrink-0 rounded-full bg-navy/[0.06] flex items-center justify-center transition-colors group-hover:bg-accent/10">
+                <ClipboardPaste size={15} strokeWidth={2} className="text-navy/50 transition-colors group-hover:text-accent" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className={`text-[13px] font-medium leading-tight transition-colors ${pasteSuccess ? 'text-emerald-700' : 'text-navy/70 group-hover:text-navy'}`}>
+                {pasteSuccess ? t('admin.generator.pasteSuccess') : t('admin.generator.pasteFromTopicFinder')}
+              </p>
+              {!pasteSuccess && (
+                <p className="text-[11px] text-navy/40 mt-0.5">{t('admin.generator.pasteHint')}</p>
+              )}
+            </div>
+          </button>
+        ) : (
+          <div className="rounded-xl border border-dashed border-navy/20 bg-navy/[0.02] p-4 space-y-3">
+            <textarea
+              value={manualPasteText}
+              onChange={(e) => setManualPasteText(e.target.value)}
+              rows={4}
+              placeholder={t('admin.generator.pasteManualLabel')}
+              className={inputClass}
+            />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleManualPasteApply}
+                disabled={!manualPasteText.trim()}
+                className="rounded-full bg-accent text-white px-4 py-1.5 text-[12px] font-medium hover:brightness-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t('admin.generator.pasteManualApply')}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowManualPaste(false); setManualPasteText(''); setClipboardError(null) }}
+                className="rounded-full border border-navy/15 text-navy/60 px-4 py-1.5 text-[12px] font-medium hover:text-navy transition-colors"
+              >
+                {t('admin.generator.cancel')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {clipboardError && (
+          <p className="mt-2 text-[12px] text-accent-deep bg-accent/5 border border-accent/20 rounded-lg px-3 py-2">
+            {clipboardError}
+          </p>
+        )}
+      </div>
+
       <div className="space-y-5">
         <Field label={t('admin.generator.topic')} required>
           <textarea
@@ -220,6 +366,22 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
           {status === 'error' ? t('admin.generator.retry') : t('admin.generator.generate')}
         </button>
       </div>
+
+      {researchUsed !== null && (
+        <div className={`mt-4 flex items-center gap-2 text-[12px] ${researchUsed ? 'text-emerald-700' : 'text-accent-deep'}`}>
+          {researchUsed ? (
+            <>
+              <Search size={13} strokeWidth={2} className="shrink-0" />
+              <span>{t('admin.generator.researchUsed')}</span>
+            </>
+          ) : (
+            <>
+              <AlertTriangle size={13} strokeWidth={2} className="shrink-0" />
+              <span>{t('admin.generator.researchNotUsed')}</span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -609,8 +609,8 @@
       "loading": "Génération en cours…",
       "loadingHint": "Prend 1 à 3 minutes. L'IA fait ses recherches puis rédige l'article complet en français et en anglais.",
       "loadingMessages": [
-        "Recherche web en cours…",
-        "Analyse des sources…",
+        "Recherche en cours sur le web…",
+        "Analyse des sources trouvées…",
         "Rédaction de l'article…",
         "Traduction FR ↔ EN…",
         "Optimisation SEO…"
@@ -628,7 +628,15 @@
       "replaceConfirm": "Remplacer le contenu actuel ?",
       "replaceHint": "Le slug, la date de publication et l'image de couverture seront conservés.",
       "replaceYes": "Remplacer",
-      "replaceNo": "Garder l'actuel"
+      "replaceNo": "Garder l'actuel",
+      "pasteFromTopicFinder": "Coller depuis Topic Finder",
+      "pasteHint": "Colle automatiquement le sujet et les infos",
+      "pasteSuccess": "Collé !",
+      "pasteFormatError": "Le contenu ne correspond pas au format Topic Finder. Utilise le bouton « Copier pour le blog » dans Topic Finder.",
+      "pasteManualLabel": "Colle le contenu ici",
+      "pasteManualApply": "Appliquer",
+      "researchUsed": "Article enrichi par recherche web",
+      "researchNotUsed": "Article généré sans recherche web (Perplexity indisponible)"
     },
     "imagePromptGen": {
       "button": "Générer prompt image",
