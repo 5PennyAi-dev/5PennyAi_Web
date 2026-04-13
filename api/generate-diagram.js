@@ -90,24 +90,24 @@ Text (add):
 - "text_en": string (English label)
 - "fontSize": number (use 30 for the title, 22 for section headers, 18 for labels, 14 for annotations)
 - "textAlign": "center" | "left" | "right"   ← omit if "center"
-- "strokeColor": hex   ← use "#1e1e1e" (default) for main text, "#868e96" for muted annotations
+- "strokeColor": hex   ← use "#143054" (navy) for main text, "#868e96" for muted annotations
 
 Arrow / line (add):
 - "points": [[x1, y1], [x2, y2]]   ← relative to element origin; usually [[0,0],[dx,dy]]
-- "strokeColor": "#495057" (default arrow color; omit if using default)
+- "strokeColor": "#5B8FB9" (default arrow color; omit if using default)
 - "roundness": {"type": 2}
 - "endArrowhead": "arrow" (omit — it's the default)
 - "startArrowhead": optional, omit if none
 
-# Color palette — choose by semantic role, never arbitrary
+# Color palette (5PennyAi brand) — choose by semantic role, never arbitrary
 | Role | strokeColor | backgroundColor |
 |---|---|---|
-| Input / question / user | #1971c2 | #e7f5ff |
-| Processing / transformation | #f59f00 | #fff9db |
-| Output / success / result | #2f9e44 | #d3f9d8 |
-| Warning / before / problem | #c92a2a | #ffe3e3 |
-| Infrastructure / data / meta | #862e9c | #f3d9fa |
-| Neutral container | #495057 | #f8f9fa |
+| Input / source / point de départ | #5B8FB9 | #E3EEF6 |
+| Action / process / étape clé | #D4713B | #FFF0E0 |
+| Concept clé / header / conteneur principal | #143054 | #DDE4EC |
+| Problème / alerte / attention | #C4553A | #FDE8E3 |
+| Infrastructure / support / contexte | #7B6B9E | #EEEAF5 |
+| Neutre / annotation / fond | #8C8578 | #F7F5F2 |
 
 # Layout rules
 - Canvas: design for a 1200 × 800 px viewport. Center the composition.
@@ -140,8 +140,8 @@ Arrow / line (add):
         "id": "box-question",
         "type": "rectangle",
         "x": 80, "y": 150, "width": 240, "height": 90,
-        "strokeColor": "#1971c2",
-        "backgroundColor": "#e7f5ff",
+        "strokeColor": "#5B8FB9",
+        "backgroundColor": "#E3EEF6",
         "roundness": {"type": 3}
       },
       {
@@ -157,7 +157,7 @@ Arrow / line (add):
         "type": "arrow",
         "x": 320, "y": 195, "width": 120, "height": 0,
         "points": [[0, 0], [120, 0]],
-        "strokeColor": "#495057",
+        "strokeColor": "#5B8FB9",
         "roundness": {"type": 2}
       }
     ],
@@ -249,7 +249,7 @@ function normalizeElement(el) {
     return {
       ...base,
       ...ARROW_DEFAULTS,
-      strokeColor: base.strokeColor === BASE_DEFAULTS.strokeColor ? '#495057' : base.strokeColor,
+      strokeColor: base.strokeColor === BASE_DEFAULTS.strokeColor ? '#5B8FB9' : base.strokeColor,
       roundness: el.roundness || { type: 2 },
       points,
       endArrowhead: typeof el.endArrowhead === 'string' ? el.endArrowhead : ARROW_DEFAULTS.endArrowhead,
