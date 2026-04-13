@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Code2, Plug, FileText, BarChart3, MapPin, Mail } from 'lucide-react'
+import { Code2, Plug, FileText, BarChart3, MapPin, Mail, ShieldCheck, BrainCircuit, BarChart2, Award } from 'lucide-react'
 import BookingButton from '@/components/ui/BookingButton'
 import SectionHeader from '@/components/ui/SectionHeader'
 import ShaderBackground from '@/components/ui/ShaderBackground'
@@ -12,6 +12,24 @@ const expertiseItems = [
   { key: 'analysis', icon: FileText, tone: 'steel' },
   { key: 'data', icon: BarChart3, tone: 'accent' },
 ]
+
+function certVendorIcon(vendor) {
+  switch (vendor) {
+    case 'microsoft': return ShieldCheck
+    case 'coursera': return BrainCircuit
+    case 'google': return BarChart2
+    default: return Award
+  }
+}
+
+function certVendorTone(vendor) {
+  switch (vendor) {
+    case 'microsoft': return { bg: 'bg-steel/12', text: 'text-steel' }
+    case 'coursera': return { bg: 'bg-accent/12', text: 'text-accent' }
+    case 'google': return { bg: 'bg-steel/12', text: 'text-steel' }
+    default: return { bg: 'bg-navy/8', text: 'text-navy/60' }
+  }
+}
 
 export default function AboutPage() {
   const { t } = useTranslation()
@@ -71,17 +89,12 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-5 gap-12 md:gap-16 items-start">
             {/* Profile card */}
             <div className="md:col-span-2">
-              <div
-                className="aspect-square w-full max-w-[280px] mx-auto md:mx-0 rounded-3xl border border-navy/[0.08] flex items-center justify-center mb-6 card-elevated"
-                style={{
-                  backgroundImage:
-                    'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(129,174,215,0.15), transparent 70%), linear-gradient(135deg, #FAFAF9 0%, #F0F4F8 100%)',
-                }}
-              >
-                <span className="text-navy/30 text-[11px] font-bold uppercase tracking-[0.18em]">
-                  {t('about_page.profile.photo_placeholder')}
-                </span>
-              </div>
+              <img
+                src="/images/portrait_Christian.jpeg"
+                alt={t('about_page.profile.name')}
+                className="w-[200px] h-[200px] rounded-full border-[3px] border-steel object-cover mx-auto md:mx-0 mb-6"
+                style={{ boxShadow: '0 4px 16px rgba(20, 48, 84, 0.10)' }}
+              />
               <div className="text-center md:text-left max-w-[280px] mx-auto md:mx-0">
                 <h2 className="font-heading font-bold text-navy text-[18px] mb-1 tracking-tight">
                   {t('about_page.profile.name')}
@@ -213,49 +226,51 @@ export default function AboutPage() {
             className="text-center"
           />
 
-          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-            {/* Education */}
-            <div className="bg-white border border-navy/[0.08] rounded-3xl p-7 card-elevated">
-              <h3 className="font-heading font-bold text-navy text-[16px] mb-5 tracking-tight">
-                {t('about_page.credentials.education_title')}
-              </h3>
-              <ul className="space-y-4">
-                {education.map((item, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start justify-between gap-4 pb-4 border-b border-navy/[0.06] last:border-b-0 last:pb-0"
-                  >
-                    <span className="text-muted text-[14px] leading-relaxed flex-1">
-                      {item.label}
-                    </span>
-                    <span className="text-navy/55 text-[12px] font-bold tnum shrink-0 mt-0.5">
-                      {item.year}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+          {/* Education */}
+          <div className="max-w-4xl mx-auto mb-10">
+            <h3 className="font-heading font-bold text-navy text-[16px] mb-5 tracking-tight">
+              {t('about_page.credentials.education_title')}
+            </h3>
+            <div className="grid md:grid-cols-3 gap-3">
+              {education.map((item, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-navy/[0.08] rounded-xl px-5 py-4 flex items-center gap-3.5 card-elevated"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-steel/12 shrink-0 flex items-center justify-center">
+                    <Award size={18} className="text-steel" strokeWidth={1.8} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-navy text-[13px] font-medium leading-snug">{item.label}</p>
+                    <p className="text-navy/45 text-[11px] font-bold tnum mt-0.5">{item.year}</p>
+                  </div>
+                </div>
+              ))}
             </div>
+          </div>
 
-            {/* Certifications */}
-            <div className="bg-white border border-navy/[0.08] rounded-3xl p-7 card-elevated">
-              <h3 className="font-heading font-bold text-navy text-[16px] mb-5 tracking-tight">
-                {t('about_page.credentials.certifications_title')}
-              </h3>
-              <ul className="space-y-4">
-                {certifications.map((item, i) => (
-                  <li
+          {/* Certifications — badge grid */}
+          <div className="max-w-4xl mx-auto">
+            <h3 className="font-heading font-bold text-navy text-[16px] mb-5 tracking-tight">
+              {t('about_page.credentials.certifications_title')}
+            </h3>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {certifications.map((item, i) => {
+                const Icon = certVendorIcon(item.vendor)
+                const iconTone = certVendorTone(item.vendor)
+                return (
+                  <div
                     key={i}
-                    className="flex items-start justify-between gap-4 pb-4 border-b border-navy/[0.06] last:border-b-0 last:pb-0"
+                    className="bg-white border border-navy/[0.08] rounded-xl px-4 py-4 flex flex-col items-center text-center gap-2.5 card-elevated"
                   >
-                    <span className="text-muted text-[14px] leading-relaxed flex-1">
-                      {item.label}
-                    </span>
-                    <span className="text-navy/55 text-[12px] font-bold tnum shrink-0 mt-0.5">
-                      {item.year}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                    <div className={`w-10 h-10 rounded-lg ${iconTone.bg} flex items-center justify-center`}>
+                      <Icon size={20} className={iconTone.text} strokeWidth={1.8} />
+                    </div>
+                    <p className="text-navy text-[12px] font-medium leading-snug">{item.label}</p>
+                    <span className="text-navy/45 text-[11px] font-bold tnum">{item.year}</span>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>

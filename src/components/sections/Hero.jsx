@@ -56,33 +56,89 @@ export default function Hero() {
       {/* Bottom fade transition into next section */}
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-black/20 pointer-events-none" />
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-36 pb-32 text-center z-10">
-        {/* Pill badge overline */}
-        <div className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/[0.12] rounded-full px-4 py-1.5 mb-8 backdrop-blur-md">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_rgba(221,135,55,0.6)]" />
-          <span className="text-white/75 uppercase tracking-[0.2em] text-[11px] font-semibold">
-            {t('hero.overline')}
-          </span>
-        </div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-36 pb-24 md:pt-40 md:pb-32 z-10">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left — text content */}
+          <div className="text-center lg:text-left reveal-left">
+            {/* Pill badge overline */}
+            <div className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/[0.12] rounded-full px-4 py-1.5 mb-8 backdrop-blur-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_rgba(221,135,55,0.6)]" />
+              <span className="text-white/75 uppercase tracking-[0.2em] text-[11px] font-semibold">
+                {t('hero.overline')}
+              </span>
+            </div>
 
-        {/* Display title — bold, confident */}
-        <h1 className="text-display text-[2.75rem] sm:text-[3.5rem] md:text-[4.5rem] lg:text-[5.25rem] font-bold text-white max-w-5xl mx-auto mb-8">
-          {t('hero.title_before')}
-          <span className="text-accent">{t('hero.title_highlight')}</span>
-          {t('hero.title_after')}
-        </h1>
+            {/* Display title */}
+            <h1 className="text-display text-[2.5rem] sm:text-[3rem] md:text-[3.5rem] lg:text-[3.75rem] font-bold text-white mb-6">
+              {t('hero.title_before')}
+              <span className="text-accent">{t('hero.title_highlight')}</span>
+              {t('hero.title_after')}
+            </h1>
 
-        <p className="text-white/65 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-[1.6]">
-          {t('hero.subtitle')}
-        </p>
+            <p className="text-white/65 text-lg md:text-xl max-w-xl mx-auto lg:mx-0 mb-10 leading-[1.6]">
+              {t('hero.subtitle')}
+            </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
-            {t('hero.cta_primary')}
-          </BookingButton>
-          <Button to="/portfolio" variant="ghost" className="px-8 py-3.5 text-[15px]">
-            {t('hero.cta_secondary')}
-          </Button>
+            <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3">
+              <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
+                {t('hero.cta_primary')}
+              </BookingButton>
+              <Button to="/portfolio" variant="ghost" className="px-8 py-3.5 text-[15px]">
+                {t('hero.cta_secondary')}
+              </Button>
+            </div>
+
+            {/* Metrics */}
+            <div className="mt-12 flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-8 sm:gap-0 reveal-metrics">
+              {(t('hero.metrics', { returnObjects: true }) || []).map((m, i, arr) => (
+                <div key={i} className="flex items-center">
+                  <div className="text-center lg:text-left px-6 first:pl-0">
+                    <div className="text-white font-bold text-[1.75rem] md:text-[2rem] leading-none tracking-tight tnum">
+                      {m.value}
+                    </div>
+                    <div className="text-white/55 text-[12px] mt-1.5 leading-snug">
+                      {m.label}
+                    </div>
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div className="hidden sm:block w-px h-10 bg-white/20" aria-hidden="true" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — PennySEO mockup */}
+          <div className="flex justify-center lg:justify-end reveal-right">
+            <div
+              className="relative w-full max-w-lg lg:max-w-none"
+              style={{
+                perspective: '1200px',
+              }}
+            >
+              <div
+                className="rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.03]"
+                style={{
+                  transform: 'rotateY(-5deg)',
+                  boxShadow: '0 24px 80px rgba(0, 0, 0, 0.35), 0 8px 32px rgba(0, 0, 0, 0.2)',
+                }}
+              >
+                {/* Browser chrome dots */}
+                <div className="flex items-center gap-1.5 px-4 py-2.5 bg-white/[0.04] border-b border-white/[0.06]">
+                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                  <span className="ml-3 h-5 flex-1 max-w-[200px] rounded-full bg-white/[0.06]" />
+                </div>
+                <img
+                  src="/images/portfolio/dashboard-full.png"
+                  alt="PennySEO Dashboard"
+                  className="w-full block"
+                  loading="eager"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

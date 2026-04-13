@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 
-export default function useScrollReveal() {
+export default function useScrollReveal(threshold = 0.15) {
   const observerRef = useRef(null)
 
   return useCallback((node) => {
@@ -17,10 +17,10 @@ export default function useScrollReveal() {
           observer.unobserve(node)
         }
       },
-      { threshold: 0.1 }
+      { threshold }
     )
 
     observer.observe(node)
     observerRef.current = observer
-  }, [])
+  }, [threshold])
 }

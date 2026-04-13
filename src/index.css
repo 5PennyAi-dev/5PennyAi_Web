@@ -91,11 +91,11 @@ body {
   overscroll-behavior-y: none;
 }
 
-/* Scroll reveal */
+/* Scroll reveal — fade-in + slide-up */
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
 .reveal.revealed {
@@ -103,9 +103,53 @@ body {
   transform: translateY(0);
 }
 
+/* Directional variants */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.revealed .reveal-left,
+.revealed .reveal-right {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-left.revealed,
+.reveal-right.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Delayed right column — appears after left */
+.revealed .reveal-right {
+  transition-delay: 0.2s;
+}
+
+/* Metrics — sequential fade-in */
+.reveal-metrics > * {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.revealed .reveal-metrics > *:nth-child(1) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+.revealed .reveal-metrics > *:nth-child(2) { transition-delay: 0.45s; opacity: 1; transform: translateY(0); }
+.revealed .reveal-metrics > *:nth-child(3) { transition-delay: 0.6s; opacity: 1; transform: translateY(0); }
+
 @media (prefers-reduced-motion: reduce) {
   .reveal,
-  .stagger-children > * {
+  .reveal-left,
+  .reveal-right,
+  .stagger-children > *,
+  .reveal-metrics > * {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
@@ -113,19 +157,19 @@ body {
   html { scroll-behavior: auto; }
 }
 
-/* Stagger */
+/* Stagger — 100ms between children */
 .stagger-children > * {
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
 .revealed .stagger-children > *:nth-child(1) { transition-delay: 0ms;   opacity: 1; transform: translateY(0); }
-.revealed .stagger-children > *:nth-child(2) { transition-delay: 70ms;  opacity: 1; transform: translateY(0); }
-.revealed .stagger-children > *:nth-child(3) { transition-delay: 140ms; opacity: 1; transform: translateY(0); }
-.revealed .stagger-children > *:nth-child(4) { transition-delay: 210ms; opacity: 1; transform: translateY(0); }
-.revealed .stagger-children > *:nth-child(5) { transition-delay: 280ms; opacity: 1; transform: translateY(0); }
-.revealed .stagger-children > *:nth-child(6) { transition-delay: 350ms; opacity: 1; transform: translateY(0); }
+.revealed .stagger-children > *:nth-child(2) { transition-delay: 100ms; opacity: 1; transform: translateY(0); }
+.revealed .stagger-children > *:nth-child(3) { transition-delay: 200ms; opacity: 1; transform: translateY(0); }
+.revealed .stagger-children > *:nth-child(4) { transition-delay: 300ms; opacity: 1; transform: translateY(0); }
+.revealed .stagger-children > *:nth-child(5) { transition-delay: 400ms; opacity: 1; transform: translateY(0); }
+.revealed .stagger-children > *:nth-child(6) { transition-delay: 500ms; opacity: 1; transform: translateY(0); }
 
 /* === Atmospheric utilities === */
 
@@ -203,4 +247,36 @@ body {
 .divider-soft {
   height: 1px;
   background: linear-gradient(to right, transparent, rgba(20, 48, 84, 0.12), transparent);
+}
+
+/* Blog card entry animation (re-triggers on page/filter change via React key) */
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-enter > * {
+  animation: cardFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.card-enter > *:nth-child(1) { animation-delay: 0ms; }
+.card-enter > *:nth-child(2) { animation-delay: 80ms; }
+.card-enter > *:nth-child(3) { animation-delay: 160ms; }
+.card-enter > *:nth-child(4) { animation-delay: 240ms; }
+.card-enter > *:nth-child(5) { animation-delay: 320ms; }
+.card-enter > *:nth-child(6) { animation-delay: 400ms; }
+.card-enter > *:nth-child(7) { animation-delay: 480ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card-enter > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
-import { Zap, Brain, DollarSign } from 'lucide-react'
+import { Clock, Award, DollarSign } from 'lucide-react'
 import SectionHeader from '@/components/ui/SectionHeader'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
-const icons = [Zap, Brain, DollarSign]
+const icons = [Clock, Award, DollarSign]
 const iconColors = [
   { bg: 'bg-accent/12', text: 'text-accent' },
   { bg: 'bg-steel/12', text: 'text-steel' },
@@ -26,16 +26,19 @@ export default function Benefits() {
           title={t('benefits.title')}
           className="text-center"
         />
-        <div className="grid md:grid-cols-3 gap-8 md:gap-10 max-w-5xl mx-auto stagger-children">
+        <div className="grid md:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto stagger-children">
           {items.map((item, i) => {
             const Icon = icons[i]
             const colors = iconColors[i]
             return (
-              <div key={i} className="text-center px-2">
+              <div key={i} className="bg-white border border-navy/[0.08] rounded-3xl p-7 md:p-8 text-center card-elevated">
                 <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center mx-auto mb-5`}>
                   <Icon size={26} className={colors.text} strokeWidth={1.8} />
                 </div>
-                <h3 className="font-heading font-bold text-navy text-[18px] mb-3 tracking-tight">
+                <div className="text-accent font-bold text-[1.5rem] md:text-[1.75rem] leading-none tracking-tight mb-3">
+                  {item.metric}
+                </div>
+                <h3 className="font-heading font-bold text-navy text-[16px] mb-2 tracking-tight">
                   {item.title}
                 </h3>
                 <p className="text-muted text-[14px] leading-relaxed max-w-[28ch] mx-auto">

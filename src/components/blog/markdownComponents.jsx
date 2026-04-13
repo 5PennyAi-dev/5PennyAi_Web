@@ -58,7 +58,7 @@ export const markdownComponents = {
           new CustomEvent('lightbox:open', { detail: { src, alt: alt || '' } })
         )
       }
-      className="my-8 block w-full rounded-xl bg-transparent border-0 p-0 cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-accent/40 md:w-[calc(100%+80px)] md:max-w-[820px] md:-ml-[40px]"
+      className="my-8 block w-full rounded-xl bg-transparent border-0 p-0 cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-accent/40"
       aria-label={alt || 'Open image'}
     >
       <img

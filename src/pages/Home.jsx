@@ -6,6 +6,7 @@ import Services from '@/components/sections/Services'
 import Benefits from '@/components/sections/Benefits'
 import Process from '@/components/sections/Process'
 import CaseStudy from '@/components/sections/CaseStudy'
+import LatestPosts from '@/components/sections/LatestPosts'
 import FAQ from '@/components/sections/FAQ'
 import CTABlock from '@/components/sections/CTABlock'
 import Booking from '@/components/sections/Booking'
@@ -28,6 +29,7 @@ export default function Home() {
       <Benefits />
       <Process />
       <CaseStudy />
+      <LatestPosts />
       <FAQ />
       <CTABlock />
       <Booking />

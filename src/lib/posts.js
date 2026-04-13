@@ -3,6 +3,17 @@ import { supabase } from '@/lib/supabase'
 const LIST_COLUMNS =
   'id, slug, title_fr, title_en, excerpt_fr, excerpt_en, cover_image, tags, published_at, reading_time_minutes'
 
+export async function fetchAllPublishedPosts() {
+  const { data, error } = await supabase
+    .from('posts')
+    .select(LIST_COLUMNS)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+
+  if (error) throw error
+  return data || []
+}
+
 export async function fetchPublishedPosts({ limit = 10, offset = 0 } = {}) {
   const { data, error } = await supabase
     .from('posts')

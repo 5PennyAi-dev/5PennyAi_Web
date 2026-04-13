@@ -16,7 +16,12 @@
     "title_after": " appliquée à votre business, sans la complexité.",
     "subtitle": "Développement d'applications AI sur mesure, intégration de modèles et stratégie — pour les PME qui veulent avancer vite.",
     "cta_primary": "Réserver un appel",
-    "cta_secondary": "Voir mes réalisations"
+    "cta_secondary": "Voir mes réalisations",
+    "metrics": [
+      { "value": "20+", "label": "Années d'expérience en TI" },
+      { "value": "5", "label": "Certifications AI & Data" },
+      { "value": "2-4 sem.", "label": "Pour un prototype fonctionnel" }
+    ]
   },
   "comparison": {
     "overline": "POURQUOI 5PENNYAI",
@@ -67,16 +72,19 @@
     "title": "Ce que vous gagnez",
     "items": [
       {
-        "title": "Rapidité",
-        "description": "Des prototypes fonctionnels en semaines, pas en mois. Itérations rapides pour valider vos idées."
+        "metric": "2-4 semaines",
+        "title": "Du concept au prototype fonctionnel",
+        "description": "Pas de maquettes Figma sans fin — du vrai code qui marche."
       },
       {
-        "title": "Expertise",
-        "description": "Maîtrise des derniers modèles AI et des meilleures pratiques de développement."
+        "metric": "20+ ans en TI",
+        "title": "Analyste fonctionnel devenu développeur IA",
+        "description": "Je comprends vos besoins métier ET la technique."
       },
       {
-        "title": "Accessibilité",
-        "description": "Des solutions AI à la portée des PME, sans budget enterprise ni équipe technique dédiée."
+        "metric": "Adapté aux PME",
+        "title": "Pas besoin du budget d'une multinationale",
+        "description": "Des solutions IA accessibles, livrées par quelqu'un qui comprend votre réalité."
       }
     ]
   },
@@ -106,6 +114,13 @@
     "title": "PennySEO",
     "description": "Application d'analyse SEO propulsée par l'intelligence artificielle. Génération automatique de recommandations, audit de contenu et suivi de positionnement.",
     "tags": ["React", "Supabase", "Gemini AI", "Vercel"]
+  },
+  "latestPosts": {
+    "overline": "BLOG",
+    "title": "Derniers articles",
+    "readMore": "Lire l'article",
+    "viewAll": "Voir tous les articles",
+    "minRead": "min de lecture"
   },
   "faq": {
     "overline": "FAQ",
@@ -298,11 +313,13 @@
       ],
       "certifications_title": "Certifications professionnelles",
       "certifications": [
-        { "label": "Generative AI with LLMs — Coursera", "year": "2025" },
-        { "label": "Machine Learning Specialization — Coursera", "year": "2024" },
-        { "label": "Microsoft AI Engineer (AI-102)", "year": "2024" },
-        { "label": "Microsoft Data Scientist (DP-100)", "year": "2024" },
-        { "label": "Microsoft Power BI (PL-300)", "year": "2024" }
+        { "label": "Microsoft AI Engineer Associate (AI-102)", "year": "2024", "vendor": "microsoft" },
+        { "label": "Microsoft Data Scientist Associate (DP-100)", "year": "2024", "vendor": "microsoft" },
+        { "label": "Microsoft Power BI Data Analyst (PL-300)", "year": "2024", "vendor": "microsoft" },
+        { "label": "Microsoft AI Fundamentals (AI-900)", "year": "2023", "vendor": "microsoft" },
+        { "label": "Generative AI with LLMs — Coursera", "year": "2025", "vendor": "coursera" },
+        { "label": "Machine Learning Specialization — Coursera", "year": "2024", "vendor": "coursera" },
+        { "label": "Google Advanced Data Analytics", "year": "2023", "vendor": "google" }
       ]
     },
     "cta": {
@@ -361,90 +378,60 @@
   "portfolio": {
     "seo": {
       "title": "Portfolio — 5PennyAi",
-      "description": "PennySEO et autres projets AI : du concept à la mise en production. Plateforme SaaS d'optimisation SEO propulsée par Gemini Vision."
+      "description": "PennySEO : plateforme SaaS d'optimisation SEO propulsée par Gemini Vision. Du concept à la mise en production."
     },
     "hero": {
-      "overline": "PORTFOLIO",
-      "title": "Ce que je construis.",
-      "subtitle": "Des projets AI concrets, du concept à la mise en production."
-    },
-    "pennyseo": {
-      "badge": "PROJET PHARE",
+      "overline": "ÉTUDE DE CAS",
       "title": "PennySEO",
-      "subtitle": "Plateforme SaaS d'optimisation SEO propulsée par l'intelligence artificielle.",
-      "tags": ["React 19", "Supabase", "Gemini AI", "Vercel", "DataForSEO", "Tailwind CSS"],
-      "image_alt": "Aperçu du dashboard principal de PennySEO"
+      "subtitle": "Plateforme SaaS d'optimisation SEO pour vendeurs Etsy, propulsée par la Vision AI et le NLP.",
+      "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
+      "link_label": "Visiter le site"
     },
-    "problem": {
-      "overline": "LE PROBLÈME",
-      "title": "Le problème",
-      "text": "Les vendeurs Etsy passent des heures à chercher les bons mots-clés pour leurs fiches produit. Le processus est manuel, fastidieux, et les résultats sont souvent médiocres — mauvais mots-clés, faible visibilité, ventes perdues."
+    "challenge": {
+      "overline": "LE DÉFI",
+      "title": "Le défi",
+      "text": "Les vendeurs Etsy perdent des heures à optimiser manuellement leurs fiches produits pour le SEO, sans garantie de résultats."
     },
     "solution": {
       "overline": "LA SOLUTION",
       "title": "La solution",
-      "text": "PennySEO automatise tout le pipeline SEO grâce à l'IA. L'utilisateur upload une image de son produit, et l'application génère automatiquement des mots-clés optimisés, scorés et classés par pertinence."
+      "text": "Un SaaS qui transforme une simple photo de produit en fiche SEO optimisée grâce à la Vision AI et au NLP."
     },
-    "pipeline": {
-      "visual": {
-        "title": "Analyse visuelle",
-        "description": "Gemini Vision analyse l'image du produit et identifie les caractéristiques visuelles, le style et la catégorie."
-      },
-      "scoring": {
-        "title": "Scoring intelligent",
-        "description": "Chaque mot-clé reçoit un score basé sur l'intention d'achat, le volume de recherche, la compétition et la pertinence thématique."
-      },
-      "seo": {
-        "title": "Optimisation SEO",
-        "description": "Génération automatique de titres et descriptions optimisés pour Etsy, avec les 13 meilleurs tags sélectionnés."
-      }
+    "architecture": {
+      "overline": "ARCHITECTURE",
+      "title": "Architecture technique",
+      "steps": ["Image", "Gemini Vision", "Mapping taxonomique", "Génération mots-clés", "DataForSEO", "Scoring AI", "Dashboard"]
     },
     "screenshots": {
-      "overline": "SCREENSHOTS",
+      "overline": "EN ACTION",
       "title": "L'application en action",
-      "dashboard": {
-        "alt": "Dashboard principal de PennySEO",
-        "caption": "Dashboard principal — Vue d'ensemble du pipeline SEO avec métriques de performance, score de santé de la boutique, et actions recommandées."
-      },
-      "keywords": {
-        "alt": "Tableau de performance des mots-clés",
-        "caption": "Tableau de performance des mots-clés — Scoring par intention d'achat, volume de recherche, tendance et compétition. Sélection des 13 meilleurs tags."
-      },
-      "favorites": {
-        "alt": "Banque de mots-clés favoris",
-        "caption": "Banque de mots-clés favoris — Filtrage intelligent par catégorie (Gems, Trending, High Volume, Low Competition), gestion des préréglages."
-      }
-    },
-    "metrics": {
-      "overline": "POURQUOI",
-      "title": "Pourquoi ça marche",
-      "items": {
-        "speed": {
-          "title": "Résultats en secondes",
-          "description": "L'analyse complète d'un produit — de l'image aux mots-clés optimisés — se fait en quelques secondes, pas en heures."
+      "items": [
+        {
+          "src": "/images/portfolio/dashboard-full.png",
+          "alt": "Dashboard principal de PennySEO",
+          "caption": "Dashboard principal — Vue d'ensemble du pipeline SEO avec métriques de performance et score de santé de la boutique."
         },
-        "scoring": {
-          "title": "Scoring basé sur les données",
-          "description": "Chaque mot-clé est évalué sur 4 critères mesurables : intention d'achat, volume, compétition et pertinence. Pas de devinettes."
+        {
+          "src": "/images/portfolio/keywords-table.png",
+          "alt": "Tableau de performance des mots-clés",
+          "caption": "Tableau de mots-clés — Scoring par intention d'achat, volume de recherche, tendance et compétition."
         },
-        "calibration": {
-          "title": "Prompts calibrés avec précision",
-          "description": "Plus de 100 exemples de calibration assurent des résultats consistants et fiables, produit après produit."
-        },
-        "security": {
-          "title": "Données sécurisées",
-          "description": "Authentification sécurisée, données isolées par utilisateur. Chaque vendeur ne voit que ses propres produits."
+        {
+          "src": "/images/portfolio/seolab-favorites-table.png",
+          "alt": "Banque de mots-clés favoris",
+          "caption": "Banque de favoris — Filtrage par catégorie (Gems, Trending, High Volume, Low Competition) et préréglages."
         }
-      }
+      ]
     },
-    "stack": {
-      "title": "STACK TECHNIQUE"
-    },
-    "upcoming": {
-      "overline": "À VENIR",
-      "title": "D'autres projets à venir",
-      "subtitle": "Je travaille continuellement sur de nouvelles solutions AI. Revenez bientôt pour découvrir mes prochaines réalisations.",
-      "placeholder": "Projet à venir"
+    "results": {
+      "overline": "RÉSULTATS",
+      "title": "Résultats & Chiffres clés",
+      "items": [
+        { "value": "8", "label": "Routes API serverless" },
+        { "value": "5", "label": "Appels AI parallèles par analyse" },
+        { "value": "100+", "label": "Exemples de calibration prompt" },
+        { "value": "4", "label": "Paliers de scoring composite" }
+      ]
     },
     "cta": {
       "title": "Un projet similaire en tête?",
@@ -458,9 +445,14 @@
       "title": "Réflexions sur l'IA appliquée",
       "subtitle": "Articles, études de cas et tutoriels pour comprendre et intégrer l'intelligence artificielle dans votre entreprise."
     },
+    "featured": {
+      "badge": "À la une"
+    },
     "filters": {
       "all": "Tous",
-      "label": "Filtrer par thème"
+      "label": "Filtrer par thème",
+      "showAll": "Voir tout",
+      "showLess": "Voir moins"
     },
     "card": {
       "minRead": "min de lecture"
@@ -468,8 +460,10 @@
     "loadMore": "Voir plus d'articles",
     "loading": "Chargement…",
     "empty": {
-      "title": "Articles à venir",
-      "subtitle": "Les premiers articles du blog arrivent bientôt. Revenez prochainement."
+      "title": "Aucun article pour le moment",
+      "subtitle": "Revenez bientôt!",
+      "filtered": "Aucun article trouvé pour cette recherche.",
+      "reset": "Réinitialiser les filtres"
     },
     "post": {
       "by": "par",
@@ -489,7 +483,27 @@
       "title": "Article introuvable",
       "subtitle": "Cet article n'existe pas ou a été retiré.",
       "back": "Retour au blog"
-    }
+    },
+    "search": {
+      "placeholder": "Rechercher un article…",
+      "clear": "Effacer la recherche",
+      "noResults": "Aucun article ne correspond à votre recherche.",
+      "reset": "Réinitialiser"
+    },
+    "sort": {
+      "newest": "Plus récents",
+      "oldest": "Plus anciens",
+      "readingTime": "Temps de lecture"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "pageOf": "Page {{current}} sur {{total}}"
+    },
+    "articleCount": "{{count}} article",
+    "articleCount_other": "{{count}} articles",
+    "articleCountFor": "{{count}} article pour «\u00a0{{tag}}\u00a0»",
+    "articleCountFor_other": "{{count}} articles pour «\u00a0{{tag}}\u00a0»"
   },
   "admin": {
     "login": {

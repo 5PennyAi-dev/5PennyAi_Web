@@ -1,42 +1,52 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Feather } from 'lucide-react'
+import { Feather, Search, X, ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react'
 import useScrollReveal from '@/hooks/useScrollReveal'
-import Button from '@/components/ui/Button'
+import useDebounce from '@/hooks/useDebounce'
 import ShaderBackground from '@/components/ui/ShaderBackground'
 import BlogCard from '@/components/blog/BlogCard'
-import { fetchPublishedPosts } from '@/lib/posts'
+import FeaturedCard from '@/components/blog/FeaturedCard'
+import SkeletonCard from '@/components/blog/SkeletonCard'
+import SortSelect from '@/components/blog/SortSelect'
+import { fetchAllPublishedPosts } from '@/lib/posts'
+import { localizedField } from '@/lib/postI18n'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 6
+const TAG_LIMIT = 8
 
 export default function Blog() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const heroRef = useScrollReveal()
   const listRef = useScrollReveal()
+  const gridRef = useRef(null)
 
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [offset, setOffset] = useState(0)
-  const [hasMore, setHasMore] = useState(false)
-  const [activeTag, setActiveTag] = useState(null)
   const [error, setError] = useState(null)
+  const [activeTag, setActiveTag] = useState(null)
+  const [searchInput, setSearchInput] = useState('')
+  const [sortBy, setSortBy] = useState('newest')
+  const [tagsExpanded, setTagsExpanded] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const debouncedSearch = useDebounce(searchInput, 300)
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  const lang = i18n.language?.startsWith('en') ? 'en' : 'fr'
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    fetchPublishedPosts({ limit: PAGE_SIZE, offset: 0 })
+    fetchAllPublishedPosts()
       .then((data) => {
-        if (cancelled) return
-        setPosts(data)
-        setOffset(data.length)
-        setHasMore(data.length === PAGE_SIZE)
+        if (!cancelled) setPosts(data)
       })
       .catch((err) => {
-        if (cancelled) return
-        console.error('Failed to load posts', err)
-        setError(err)
+        if (!cancelled) {
+          console.error('Failed to load posts', err)
+          setError(err)
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -46,30 +56,95 @@ export default function Blog() {
     }
   }, [])
 
-  const handleLoadMore = async () => {
-    setLoadingMore(true)
-    try {
-      const more = await fetchPublishedPosts({ limit: PAGE_SIZE, offset })
-      setPosts((prev) => [...prev, ...more])
-      setOffset((prev) => prev + more.length)
-      setHasMore(more.length === PAGE_SIZE)
-    } catch (err) {
-      console.error('Failed to load more posts', err)
-    } finally {
-      setLoadingMore(false)
-    }
-  }
-
-  const availableTags = useMemo(() => {
-    const set = new Set()
-    posts.forEach((p) => (p.tags || []).forEach((tag) => set.add(tag)))
-    return Array.from(set).sort()
+  const tagData = useMemo(() => {
+    const counts = {}
+    posts.forEach((p) => (p.tags || []).forEach((tag) => { counts[tag] = (counts[tag] || 0) + 1 }))
+    const sorted = Object.entries(counts)
+      .sort(([a, ca], [b, cb]) => cb - ca || a.localeCompare(b))
+    return { counts, tags: sorted.map(([tag]) => tag) }
   }, [posts])
 
-  const filteredPosts = useMemo(() => {
-    if (!activeTag) return posts
-    return posts.filter((p) => (p.tags || []).includes(activeTag))
-  }, [posts, activeTag])
+  const { paginatedPosts, totalFiltered, totalPages } = useMemo(() => {
+    let result = [...posts]
+
+    if (activeTag) {
+      result = result.filter((p) => (p.tags || []).includes(activeTag))
+    }
+
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.trim().toLowerCase()
+      result = result.filter((p) => {
+        const title = localizedField(p, 'title', lang).toLowerCase()
+        const excerpt = localizedField(p, 'excerpt', lang).toLowerCase()
+        return title.includes(q) || excerpt.includes(q)
+      })
+    }
+
+    if (sortBy === 'newest') {
+      result.sort((a, b) => new Date(b.published_at) - new Date(a.published_at))
+    } else if (sortBy === 'oldest') {
+      result.sort((a, b) => new Date(a.published_at) - new Date(b.published_at))
+    } else if (sortBy === 'readingTime') {
+      result.sort((a, b) => (a.reading_time_minutes || 0) - (b.reading_time_minutes || 0))
+    }
+
+    const totalFiltered = result.length
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE))
+    const safePage = Math.min(currentPage, totalPages)
+    const start = (safePage - 1) * PAGE_SIZE
+    const paginatedPosts = result.slice(start, start + PAGE_SIZE)
+
+    return { paginatedPosts, totalFiltered, totalPages }
+  }, [posts, activeTag, debouncedSearch, sortBy, currentPage, lang])
+
+  // Reset to page 1 when filters change (skip initial mount)
+  const filtersRef = useRef({ activeTag, debouncedSearch, sortBy })
+  useEffect(() => {
+    const prev = filtersRef.current
+    filtersRef.current = { activeTag, debouncedSearch, sortBy }
+
+    const changed =
+      prev.activeTag !== activeTag ||
+      prev.debouncedSearch !== debouncedSearch ||
+      prev.sortBy !== sortBy
+
+    if (!changed) return
+
+    setSearchParams((p) => {
+      const next = new URLSearchParams(p)
+      next.delete('page')
+      return next
+    }, { replace: true })
+  }, [activeTag, debouncedSearch, sortBy, setSearchParams])
+
+  const goToPage = useCallback((page) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      if (page <= 1) {
+        next.delete('page')
+      } else {
+        next.set('page', String(page))
+      }
+      return next
+    }, { replace: true })
+
+    gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [setSearchParams])
+
+  const handleTagClick = (tag) => {
+    setActiveTag((prev) => (prev === tag ? null : tag))
+  }
+
+  const handleReset = () => {
+    setSearchInput('')
+    setActiveTag(null)
+  }
+
+  const hasActiveFilters = debouncedSearch.trim() || activeTag
+  const showNoResults = !loading && totalFiltered === 0 && hasActiveFilters
+  const showEmpty = !loading && posts.length === 0 && !hasActiveFilters
+  const showFeatured = currentPage === 1 && !hasActiveFilters && paginatedPosts.length > 0
+  const gridKey = `${currentPage}-${activeTag}-${debouncedSearch}-${sortBy}`
 
   return (
     <>
@@ -116,48 +191,158 @@ export default function Blog() {
       {/* Filters + grid */}
       <section ref={listRef} className="reveal py-20 md:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          {availableTags.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-2 mb-12">
-              <TagPill
-                active={activeTag === null}
-                label={t('blog.filters.all')}
-                onClick={() => setActiveTag(null)}
+
+          {/* Search bar */}
+          <div className="flex justify-center mb-8">
+            <div className="relative w-full max-w-md">
+              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-navy/40 pointer-events-none" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder={t('blog.search.placeholder')}
+                className="w-full pl-11 pr-10 py-2.5 rounded-full border border-navy/15 bg-white
+                           text-[14px] text-navy placeholder:text-navy/40
+                           focus:outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/10
+                           transition-colors"
               />
-              {availableTags.map((tag) => (
-                <TagPill
-                  key={tag}
-                  active={activeTag === tag}
-                  label={tag}
-                  onClick={() => setActiveTag(tag)}
-                />
-              ))}
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={() => setSearchInput('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-navy/40 hover:text-navy transition-colors"
+                  aria-label={t('blog.search.clear')}
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Tag filters */}
+          {tagData.tags.length > 0 && (() => {
+            const visibleTags = tagsExpanded ? tagData.tags : tagData.tags.slice(0, TAG_LIMIT)
+            const hasMore = tagData.tags.length > TAG_LIMIT
+            return (
+              <div className="mb-8">
+                <div className="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-none">
+                  <TagPill
+                    active={activeTag === null}
+                    label={t('blog.filters.all')}
+                    count={posts.length}
+                    onClick={() => handleTagClick(null)}
+                  />
+                  {visibleTags.map((tag) => (
+                    <TagPill
+                      key={tag}
+                      active={activeTag === tag}
+                      label={tag}
+                      count={tagData.counts[tag]}
+                      onClick={() => handleTagClick(tag)}
+                    />
+                  ))}
+                  {hasMore && (
+                    <button
+                      type="button"
+                      onClick={() => setTagsExpanded((v) => !v)}
+                      className="inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em]
+                                 border border-navy/15 text-navy/50 hover:text-navy hover:border-navy/35 transition-colors whitespace-nowrap"
+                    >
+                      {tagsExpanded ? t('blog.filters.showLess') : t('blog.filters.showAll')}
+                      <ChevronDown
+                        size={14}
+                        className={`transition-transform duration-200 ${tagsExpanded ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* Results bar */}
+          {!loading && totalFiltered > 0 && (
+            <div className="flex items-center justify-between mb-8">
+              <p className="text-[13px] text-muted tabular-nums">
+                {activeTag
+                  ? t('blog.articleCountFor', { count: totalFiltered, tag: activeTag })
+                  : t('blog.articleCount', { count: totalFiltered })}
+              </p>
+              <SortSelect value={sortBy} onChange={setSortBy} />
             </div>
           )}
 
+          {/* Content */}
           {loading ? (
-            <div className="text-center text-muted py-20">{t('blog.loading')}</div>
-          ) : filteredPosts.length === 0 ? (
+            <div>
+              {currentPage === 1 && !hasActiveFilters && <SkeletonCard featured />}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {Array.from({ length: currentPage === 1 && !hasActiveFilters ? 5 : 6 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
+            </div>
+          ) : showEmpty ? (
             <EmptyState t={t} />
+          ) : showNoResults ? (
+            <div className="text-center py-16">
+              <p className="text-muted text-[14px] mb-4">{t('blog.empty.filtered')}</p>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="rounded-full px-5 py-2 text-[12px] font-bold uppercase tracking-[0.14em]
+                           border border-accent text-accent hover:bg-accent/10 transition-colors"
+              >
+                {t('blog.empty.reset')}
+              </button>
+            </div>
           ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 stagger-children">
-                {filteredPosts.map((post) => (
+            <div key={gridKey} className="card-enter">
+              {showFeatured && <FeaturedCard post={paginatedPosts[0]} />}
+              <div
+                ref={gridRef}
+                className="grid grid-cols-1 md:grid-cols-2 gap-8 scroll-mt-24"
+              >
+                {(showFeatured ? paginatedPosts.slice(1) : paginatedPosts).map((post) => (
                   <BlogCard key={post.id} post={post} />
                 ))}
               </div>
 
-              {hasMore && !activeTag && (
-                <div className="flex justify-center mt-14">
-                  <Button
-                    variant="outline"
-                    onClick={handleLoadMore}
-                    disabled={loadingMore}
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-14 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage <= 1}
+                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5
+                               text-[12px] font-bold uppercase tracking-[0.14em]
+                               border border-navy/15 text-navy/60
+                               hover:text-navy hover:border-navy/35 transition-colors
+                               disabled:opacity-40 disabled:pointer-events-none"
                   >
-                    {loadingMore ? t('blog.loading') : t('blog.loadMore')}
-                  </Button>
+                    <ArrowLeft size={14} />
+                    {t('blog.pagination.previous')}
+                  </button>
+                  <span className="text-[13px] text-muted tabular-nums">
+                    {t('blog.pagination.pageOf', { current: Math.min(currentPage, totalPages), total: totalPages })}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage >= totalPages}
+                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5
+                               text-[12px] font-bold uppercase tracking-[0.14em]
+                               border border-navy/15 text-navy/60
+                               hover:text-navy hover:border-navy/35 transition-colors
+                               disabled:opacity-40 disabled:pointer-events-none"
+                  >
+                    {t('blog.pagination.next')}
+                    <ArrowRight size={14} />
+                  </button>
                 </div>
               )}
-            </>
+            </div>
           )}
 
           {error && (
@@ -171,15 +356,15 @@ export default function Blog() {
   )
 }
 
-function TagPill({ active, label, onClick }) {
+function TagPill({ active, label, count, onClick }) {
   const base =
-    'rounded-full px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em] border transition-colors duration-200'
-  const activeClass = 'bg-accent/10 border-accent text-accent-deep'
+    'rounded-full px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em] border transition-colors duration-200 whitespace-nowrap'
+  const activeClass = 'bg-accent border-accent text-white'
   const idleClass =
     'bg-transparent border-navy/15 text-navy/60 hover:text-navy hover:border-navy/35'
   return (
     <button type="button" onClick={onClick} className={`${base} ${active ? activeClass : idleClass}`}>
-      {label}
+      {label}{count != null ? ` (${count})` : ''}
     </button>
   )
 }
