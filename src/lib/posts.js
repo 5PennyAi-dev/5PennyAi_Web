@@ -67,7 +67,7 @@ export async function fetchAdjacentPosts(publishedAt) {
 export async function fetchAllPostsAdmin() {
   const { data, error } = await supabase
     .from('posts')
-    .select('id, slug, title_fr, status, published_at, updated_at')
+    .select('id, slug, title_fr, status, published_at, updated_at, linkedin_fr')
     .order('updated_at', { ascending: false })
 
   if (error) throw error

@@ -1,23 +1,43 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Share2, Copy, Check, X } from 'lucide-react'
 
 const TABS = ['linkedin', 'facebook', 'twitter']
 const CHAR_LIMITS = { linkedin: 1300, facebook: 600, twitter: 280 }
 
-export default function SocialPostsGenerator({ contentFr, contentEn, slug }) {
+export default function SocialPostsGenerator({
+  contentFr,
+  contentEn,
+  slug,
+  socialPosts,
+  onUpdate,
+  onGenerated,
+}) {
   const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [posts, setPosts] = useState(null)
   const [copiedKey, setCopiedKey] = useState(null)
   const [activeTab, setActiveTab] = useState('linkedin')
+  const [showPanel, setShowPanel] = useState(false)
+
+  const hasPosts = TABS.some(
+    (p) => (socialPosts[`${p}_fr`] || '').trim() || (socialPosts[`${p}_en`] || '').trim()
+  )
+
+  const initializedRef = useRef(false)
+  useEffect(() => {
+    if (!initializedRef.current && hasPosts) {
+      setShowPanel(true)
+      initializedRef.current = true
+    }
+  }, [hasPosts])
 
   const canGenerate = Boolean(contentFr && contentFr.trim())
   const articleUrl = slug ? `https://5pennyai.com/blog/${slug}` : ''
 
   const handleGenerate = async () => {
     if (!canGenerate) return
+    if (hasPosts && !window.confirm(t('admin.socialPosts.overwriteConfirm'))) return
     setLoading(true)
     setError(null)
     try {
@@ -35,7 +55,15 @@ export default function SocialPostsGenerator({ contentFr, contentEn, slug }) {
         return
       }
       const data = await res.json()
-      setPosts(data)
+      onGenerated({
+        linkedin_fr: data.linkedin.fr,
+        linkedin_en: data.linkedin.en,
+        facebook_fr: data.facebook.fr,
+        facebook_en: data.facebook.en,
+        twitter_fr: data.twitter.fr,
+        twitter_en: data.twitter.en,
+      })
+      setShowPanel(true)
     } catch (err) {
       console.error('Social posts generation failed', err)
       setError(t('admin.socialPosts.error'))
@@ -53,6 +81,9 @@ export default function SocialPostsGenerator({ contentFr, contentEn, slug }) {
       console.error('Clipboard write failed', err)
     }
   }
+
+  const frField = `${activeTab}_fr`
+  const enField = `${activeTab}_en`
 
   return (
     <div className="space-y-3">
@@ -86,9 +117,18 @@ export default function SocialPostsGenerator({ contentFr, contentEn, slug }) {
             {t('admin.socialPosts.needContent')}
           </span>
         )}
+        {hasPosts && !showPanel && (
+          <button
+            type="button"
+            onClick={() => setShowPanel(true)}
+            className="text-[12px] font-medium text-steel hover:text-navy transition-colors"
+          >
+            {t('admin.socialPosts.show')}
+          </button>
+        )}
       </div>
 
-      {posts && (
+      {showPanel && hasPosts && (
         <div className="rounded-lg border border-navy/10 bg-surface p-4 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -101,7 +141,7 @@ export default function SocialPostsGenerator({ contentFr, contentEn, slug }) {
             </div>
             <button
               type="button"
-              onClick={() => setPosts(null)}
+              onClick={() => setShowPanel(false)}
               aria-label="close"
               className="text-navy/50 hover:text-navy transition-colors"
             >
@@ -128,20 +168,24 @@ export default function SocialPostsGenerator({ contentFr, contentEn, slug }) {
 
           <PostBlock
             label={t('admin.socialPosts.langFr')}
-            text={posts[activeTab].fr}
+            text={socialPosts[frField] || ''}
             charLimit={CHAR_LIMITS[activeTab]}
-            copied={copiedKey === `${activeTab}-fr`}
-            onCopy={() => copy(`${activeTab}-fr`, posts[activeTab].fr)}
+            rows={activeTab === 'twitter' ? 3 : 6}
+            copied={copiedKey === frField}
+            onCopy={() => copy(frField, socialPosts[frField] || '')}
+            onChange={(val) => onUpdate(frField, val)}
             copyLabel={t('admin.generator.copy')}
             copiedLabel={t('admin.generator.copied')}
           />
 
           <PostBlock
             label={t('admin.socialPosts.langEn')}
-            text={posts[activeTab].en}
+            text={socialPosts[enField] || ''}
             charLimit={CHAR_LIMITS[activeTab]}
-            copied={copiedKey === `${activeTab}-en`}
-            onCopy={() => copy(`${activeTab}-en`, posts[activeTab].en)}
+            rows={activeTab === 'twitter' ? 3 : 6}
+            copied={copiedKey === enField}
+            onCopy={() => copy(enField, socialPosts[enField] || '')}
+            onChange={(val) => onUpdate(enField, val)}
             copyLabel={t('admin.generator.copy')}
             copiedLabel={t('admin.generator.copied')}
           />
@@ -151,7 +195,7 @@ export default function SocialPostsGenerator({ contentFr, contentEn, slug }) {
   )
 }
 
-function PostBlock({ label, text, charLimit, copied, onCopy, copyLabel, copiedLabel }) {
+function PostBlock({ label, text, charLimit, rows, copied, onCopy, onChange, copyLabel, copiedLabel }) {
   const isOver = text.length > charLimit
   return (
     <div className="space-y-2">
@@ -163,11 +207,12 @@ function PostBlock({ label, text, charLimit, copied, onCopy, copyLabel, copiedLa
           {text.length} / {charLimit}
         </span>
       </div>
-      <div className="rounded-md border border-navy/10 bg-white p-3">
-        <p className="text-[12px] text-navy/80 leading-relaxed whitespace-pre-wrap">
-          {text}
-        </p>
-      </div>
+      <textarea
+        value={text}
+        onChange={(e) => onChange(e.target.value)}
+        rows={rows || 6}
+        className="w-full rounded-md border border-navy/10 bg-white p-3 text-[12px] text-navy/80 leading-relaxed resize-y focus:border-accent focus:ring-2 focus:ring-accent/20 transition-colors"
+      />
       <div className="flex justify-end">
         <button
           type="button"

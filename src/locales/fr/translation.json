@@ -536,6 +536,7 @@
       "archive": "Archiver",
       "unarchive": "Réactiver",
       "deleteConfirm": "Supprimer cet article définitivement?",
+      "hasSocial": "Posts sociaux prêts",
       "empty": "Aucun article pour le moment.",
       "columns": {
         "title": "Titre",
@@ -672,7 +673,9 @@
       "twitter": "Twitter/X",
       "langFr": "FR",
       "langEn": "EN",
-      "error": "La génération a échoué. Réessayez."
+      "error": "La génération a échoué. Réessayez.",
+      "overwriteConfirm": "Écraser les posts sociaux existants ?",
+      "show": "Voir les posts sociaux"
     },
     "diagram": {
       "generate": "Générer un diagramme",

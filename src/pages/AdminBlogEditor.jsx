@@ -37,6 +37,12 @@ const EMPTY_FORM = {
   meta_title_en: '',
   meta_description_en: '',
   published_at: '',
+  linkedin_fr: '',
+  linkedin_en: '',
+  facebook_fr: '',
+  facebook_en: '',
+  twitter_fr: '',
+  twitter_en: '',
 }
 
 function toDatetimeLocal(iso) {
@@ -583,6 +589,16 @@ function AdminBlogEditorInner() {
                 contentFr={form.content_fr}
                 contentEn={form.content_en}
                 slug={form.slug}
+                socialPosts={{
+                  linkedin_fr: form.linkedin_fr,
+                  linkedin_en: form.linkedin_en,
+                  facebook_fr: form.facebook_fr,
+                  facebook_en: form.facebook_en,
+                  twitter_fr: form.twitter_fr,
+                  twitter_en: form.twitter_en,
+                }}
+                onUpdate={(field, value) => setForm((prev) => ({ ...prev, [field]: value }))}
+                onGenerated={(posts) => setForm((prev) => ({ ...prev, ...posts }))}
               />
             </Section>
 

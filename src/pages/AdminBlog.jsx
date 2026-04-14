@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Pencil, Trash2, Plus, LogOut, ArrowUpCircle, Archive, RotateCcw } from 'lucide-react'
+import { Pencil, Trash2, Plus, LogOut, ArrowUpCircle, Archive, RotateCcw, Share2 } from 'lucide-react'
 import AdminGuard from '@/components/admin/AdminGuard'
 import Button from '@/components/ui/Button'
 import { supabase } from '@/lib/supabase'
@@ -136,7 +136,14 @@ function AdminBlogInner() {
                     <p className="font-heading font-semibold text-navy text-[15px] tracking-tight">
                       {post.title_fr}
                     </p>
-                    <p className="text-muted text-[12px] mt-0.5 font-mono">/{post.slug}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-muted text-[12px] font-mono">/{post.slug}</p>
+                      {post.linkedin_fr && (
+                        <span className="inline-flex items-center gap-1 text-steel" title={t('admin.posts.hasSocial')}>
+                          <Share2 size={11} strokeWidth={2} />
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div>

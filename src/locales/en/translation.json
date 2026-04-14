@@ -536,6 +536,7 @@
       "archive": "Archive",
       "unarchive": "Reactivate",
       "deleteConfirm": "Delete this post permanently?",
+      "hasSocial": "Social posts ready",
       "empty": "No posts yet.",
       "columns": {
         "title": "Title",
@@ -672,7 +673,9 @@
       "twitter": "Twitter/X",
       "langFr": "FR",
       "langEn": "EN",
-      "error": "Generation failed. Please retry."
+      "error": "Generation failed. Please retry.",
+      "overwriteConfirm": "Overwrite existing social posts?",
+      "show": "View social posts"
     },
     "diagram": {
       "generate": "Generate diagram",
