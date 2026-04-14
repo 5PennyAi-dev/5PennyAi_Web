@@ -122,13 +122,20 @@ export default function BlogPost() {
       <Helmet>
         <title>{`${metaTitle} — 5PennyAi`}</title>
         {metaDescription && <meta name="description" content={metaDescription} />}
+        <link rel="canonical" href={currentUrl} />
         <meta property="og:title" content={metaTitle} />
         {metaDescription && <meta property="og:description" content={metaDescription} />}
         <meta property="og:type" content="article" />
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:site_name" content="5PennyAi" />
         {post.cover_image && <meta property="og:image" content={post.cover_image} />}
         {post.published_at && (
           <meta property="article:published_time" content={post.published_at} />
         )}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        {metaDescription && <meta name="twitter:description" content={metaDescription} />}
+        {post.cover_image && <meta name="twitter:image" content={post.cover_image} />}
       </Helmet>
 
       {/* Hero */}
