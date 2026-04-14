@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import SectionHeader from '@/components/ui/SectionHeader'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
 export default function CaseStudy() {
@@ -13,11 +12,21 @@ export default function CaseStudy() {
       <div className="absolute inset-0 bg-dot-grid opacity-40 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
-        <SectionHeader
-          overline={t('case_study.overline')}
-          title={t('case_study.title')}
-          className="text-center"
-        />
+        <div className="text-center mb-14 md:mb-16">
+          <div className="inline-flex items-center gap-2 bg-accent/[0.08] border border-accent/[0.18] rounded-full px-3.5 py-1 mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+            <span className="text-accent uppercase tracking-[0.18em] text-[11px] font-bold">
+              {t('case_study.overline')}
+            </span>
+          </div>
+          <div>
+            <img
+              src="/images/pennyseo-logo.png"
+              alt="PennySEO"
+              className="w-[280px] md:w-[360px] mx-auto"
+            />
+          </div>
+        </div>
         <div className="grid md:grid-cols-2 gap-12 md:gap-14 max-w-5xl mx-auto items-center">
           {/* Text side */}
           <div>
@@ -39,22 +48,12 @@ export default function CaseStudy() {
           {/* Browser-chrome mockup */}
           <div className="browser-chrome bg-white rounded-2xl border border-navy/[0.08] card-elevated overflow-hidden">
             <div className="pt-[28px]">
-              <div
-                className="aspect-[16/10] flex items-center justify-center relative"
-                style={{
-                  backgroundImage:
-                    'radial-gradient(ellipse 80% 60% at 50% 30%, rgba(129,174,215,0.15), transparent 70%), linear-gradient(135deg, #FAFAF9 0%, #F0F4F8 100%)',
-                }}
-              >
-                <div className="text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-accent/10 ring-1 ring-accent/20 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-accent font-display font-bold text-[14px] tracking-tight">SEO</span>
-                  </div>
-                  <span className="text-navy/35 font-heading font-bold text-[11px] uppercase tracking-[0.18em]">
-                    PennySEO
-                  </span>
-                </div>
-              </div>
+              <img
+                src="/images/portfolio/keywords-table.png"
+                alt="PennySEO Keywords Table"
+                className="w-full block"
+                loading="lazy"
+              />
             </div>
           </div>
         </div>

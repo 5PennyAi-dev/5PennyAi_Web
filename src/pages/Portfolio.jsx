@@ -52,9 +52,11 @@ export default function Portfolio() {
             </span>
           </div>
 
-          <h1 className="text-display text-[3rem] md:text-[4rem] lg:text-[5rem] font-bold text-white mb-5">
-            {t('portfolio.hero.title')}
-          </h1>
+          <img
+            src="/images/pennyseo-logo.png"
+            alt="PennySEO"
+            className="w-[280px] md:w-[360px] mx-auto mb-5 brightness-[1.15] drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+          />
 
           <p className="text-white/60 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
             {t('portfolio.hero.subtitle')}

@@ -662,6 +662,18 @@
       "nanoBananaHint": "Paste the prompt into Nano Banana Pro to generate the image.",
       "error": "Generation failed. Please retry."
     },
+    "socialPosts": {
+      "button": "Generate social posts",
+      "buttonLoading": "Generating…",
+      "needContent": "Write the FR content first.",
+      "title": "Generated social posts",
+      "linkedin": "LinkedIn",
+      "facebook": "Facebook",
+      "twitter": "Twitter/X",
+      "langFr": "FR",
+      "langEn": "EN",
+      "error": "Generation failed. Please retry."
+    },
     "diagram": {
       "generate": "Generate diagram",
       "title": "Generate a diagram",

@@ -662,6 +662,18 @@
       "nanoBananaHint": "Collez le prompt dans Nano Banana Pro pour générer l'image.",
       "error": "La génération a échoué. Réessayez."
     },
+    "socialPosts": {
+      "button": "Générer posts sociaux",
+      "buttonLoading": "Génération…",
+      "needContent": "Rédigez d'abord le contenu FR.",
+      "title": "Posts sociaux générés",
+      "linkedin": "LinkedIn",
+      "facebook": "Facebook",
+      "twitter": "Twitter/X",
+      "langFr": "FR",
+      "langEn": "EN",
+      "error": "La génération a échoué. Réessayez."
+    },
     "diagram": {
       "generate": "Générer un diagramme",
       "title": "Générer un diagramme",

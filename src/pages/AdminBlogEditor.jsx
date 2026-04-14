@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button'
 import ArticleGenerator from '@/components/admin/ArticleGenerator'
 import DiagramGenerator from '@/components/admin/DiagramGenerator'
 import ImagePromptGenerator from '@/components/admin/ImagePromptGenerator'
+import SocialPostsGenerator from '@/components/admin/SocialPostsGenerator'
 import { Field, Section, inputClass } from '@/components/admin/editorPrimitives'
 import { supabase } from '@/lib/supabase'
 import { fetchPostById, upsertPost, isSlugTaken, slugify } from '@/lib/posts'
@@ -577,6 +578,12 @@ function AdminBlogEditorInner() {
                   className={`${inputClass} font-mono text-[13px] leading-relaxed`}
                 />
               </Field>
+
+              <SocialPostsGenerator
+                contentFr={form.content_fr}
+                contentEn={form.content_en}
+                slug={form.slug}
+              />
             </Section>
 
             <Section title={t('admin.editor.sections.meta')}>
