@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Mail } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 
 function LinkedinIcon() {
   return (
@@ -48,11 +49,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-5">
             <Link to="/" className="inline-block">
-              <img
-                src="/images/logo5PennyAi.png"
-                alt="5PennyAi"
-                className="h-7 brightness-[2]"
-              />
+              <Logo variant="dark" height={28} />
             </Link>
             <p className="text-white/35 text-[11px] uppercase tracking-[0.18em] font-bold mt-5">
               {t('footer.tagline')}

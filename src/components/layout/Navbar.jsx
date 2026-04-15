@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import BookingButton from '@/components/ui/BookingButton'
+import Logo from '@/components/ui/Logo'
 
 const navLinks = [
   { key: 'nav.services', to: '/services' },
@@ -108,11 +109,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-[68px]">
         <Link to="/" className="shrink-0">
-          <img
-            src="/images/logo5PennyAi.png"
-            alt="5PennyAi"
-            className={`h-7 transition-all duration-300 ${scrolled ? '' : 'brightness-[2]'}`}
-          />
+          <Logo variant={scrolled ? 'light' : 'dark'} height={28} />
         </Link>
 
         <div className="hidden md:flex items-center gap-7">
