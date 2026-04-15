@@ -92,7 +92,7 @@ export default function Hero() {
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-0 reveal-metrics">
               {(t('hero.metrics', { returnObjects: true }) || []).map((m, i, arr) => (
                 <div key={i} className="flex items-center">
-                  <div className="text-center px-6 first:pl-0">
+                  <div className="text-center px-6">
                     <div className="text-white font-bold text-[1.75rem] md:text-[2rem] leading-none tracking-tight tnum">
                       {m.value}
                     </div>
