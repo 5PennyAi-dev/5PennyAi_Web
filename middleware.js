@@ -1,5 +1,9 @@
+// Only match actual crawlers/bots, not in-app browsers.
+// WhatsApp in-app browser sends "WhatsApp" in UA but also "Mozilla" — the
+// crawler sends "WhatsApp/2.x" without "Mozilla". Same logic for Facebook:
+// facebookexternalhit is the crawler, FBAN/FBAV is the in-app browser.
 const CRAWLER_PATTERN =
-  /LinkedInBot|facebookexternalhit|Facebot|Twitterbot|Slackbot|WhatsApp|TelegramBot|Discordbot/i
+  /LinkedInBot|facebookexternalhit|Facebot|Twitterbot|Slackbot|TelegramBot|Discordbot/i
 
 const SITE_URL = 'https://5pennyai.com'
 const SITE_NAME = '5PennyAi'
