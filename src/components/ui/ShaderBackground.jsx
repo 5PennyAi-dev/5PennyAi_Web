@@ -208,7 +208,7 @@ export default function ShaderBackground({ className = '' }) {
       aria-hidden="true"
       className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}
     >
-      <canvas ref={canvasRef} className="w-full h-full block" />
+      <canvas ref={canvasRef} className="w-full h-full block" style={{ background: 'transparent' }} />
     </div>
   )
 }
