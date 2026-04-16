@@ -50,20 +50,20 @@
     "title": "Comment je peux vous aider",
     "items": [
       {
-        "title": "Apps AI sur mesure",
+        "title": "Apps IA sur mesure",
         "description": "Développement d'applications intelligentes adaptées à vos processus métier et vos données."
       },
       {
-        "title": "Intégration AI",
-        "description": "Connexion de modèles AI (GPT, Claude, Gemini) à vos outils et workflows existants."
+        "title": "Intégration IA",
+        "description": "Connexion de modèles IA (GPT, Claude, Gemini) à vos outils et workflows existants."
       },
       {
         "title": "Prompt engineering",
         "description": "Optimisation de vos prompts et chaînes de traitement pour des résultats fiables et précis."
       },
       {
-        "title": "Audit & stratégie AI",
-        "description": "Évaluation de vos opportunités AI et feuille de route concrète pour les exploiter."
+        "title": "Audit & stratégie IA",
+        "description": "Évaluation de vos opportunités IA et feuille de route concrète pour les exploiter."
       }
     ]
   },
@@ -172,43 +172,43 @@
   "services_page": {
     "seo": {
       "title": "Services — 5PennyiA",
-      "description": "Découvrez mes services AI : applications sur mesure, intégration, prompt engineering, MVP rapides et audit stratégique."
+      "description": "Découvrez mes services IA : applications sur mesure, intégration, prompt engineering, MVP rapides et audit stratégique."
     },
     "hero": {
       "overline": "SERVICES",
-      "title": "Des solutions AI adaptées à chaque besoin.",
+      "title": "Des solutions IA adaptées à chaque besoin.",
       "subtitle": "Que vous ayez besoin d'un prototype rapide ou d'une intégration complète, je m'adapte à votre réalité."
     },
     "case_label": "Cas typique :",
     "items": {
       "app": {
-        "title": "Applications AI sur mesure",
+        "title": "Applications IA sur mesure",
         "description": "Développement complet d'applications propulsées par l'intelligence artificielle. Du concept au produit déployé.",
         "tags": ["SaaS", "Outils internes", "Dashboards", "Automatisation"],
-        "case": "PennySEO — plateforme SaaS d'analyse SEO avec scoring AI, analyse d'images, et rapports automatisés. Stack React + Supabase + Gemini + Vercel."
+        "case": "PennySEO — plateforme SaaS d'analyse SEO avec scoring IA, analyse d'images, et rapports automatisés. Stack React + Supabase + Gemini + Vercel."
       },
       "integration": {
-        "title": "Intégration AI dans vos systèmes",
-        "description": "Connecter des modèles AI (Gemini, Claude, OpenAI) à vos outils et workflows existants. API, webhooks, bases de données.",
-        "tags": ["APIs AI", "Webhooks", "Supabase", "CRM / ERP"],
-        "case": "Une PME veut ajouter de la génération de contenu AI dans son CMS existant, ou automatiser la classification de tickets support avec un modèle."
+        "title": "Intégration IA dans vos systèmes",
+        "description": "Connecter des modèles IA (Gemini, Claude, OpenAI) à vos outils et workflows existants. API, webhooks, bases de données.",
+        "tags": ["APIs IA", "Webhooks", "Supabase", "CRM / ERP"],
+        "case": "Une PME veut ajouter de la génération de contenu IA dans son CMS existant, ou automatiser la classification de tickets support avec un modèle."
       },
       "prompt": {
         "title": "Prompt engineering & optimisation",
-        "description": "Calibrer vos prompts, concevoir des pipelines de scoring, et optimiser la qualité des résultats AI. Le détail qui fait la différence entre un prototype et un produit fiable.",
+        "description": "Calibrer vos prompts, concevoir des pipelines de scoring, et optimiser la qualité des résultats IA. Le détail qui fait la différence entre un prototype et un produit fiable.",
         "tags": ["Calibration", "Scoring", "Pipelines", "Évaluation"],
-        "case": "Vous avez un chatbot ou un outil AI mais les résultats sont inconsistants. J'optimise les prompts et mets en place un système de scoring pour garantir la qualité."
+        "case": "Vous avez un chatbot ou un outil IA mais les résultats sont inconsistants. J'optimise les prompts et mets en place un système de scoring pour garantir la qualité."
       },
       "mvp": {
         "title": "Prototypage rapide (MVP)",
         "description": "Valider une idée rapidement avec un prototype fonctionnel. Pas de maquettes Figma sans fin — du code qui marche, livré en 2-4 semaines.",
         "tags": ["Proof of concept", "Validation", "Itération rapide"],
-        "case": "Vous avez une idée de produit AI mais ne savez pas si c'est faisable. Je livre un MVP fonctionnel pour tester le marché avant d'investir davantage."
+        "case": "Vous avez une idée de produit IA mais ne savez pas si c'est faisable. Je livre un MVP fonctionnel pour tester le marché avant d'investir davantage."
       },
       "audit": {
-        "title": "Audit & stratégie AI",
+        "title": "Audit & stratégie IA",
         "description": "Évaluer où l'IA peut avoir un impact concret dans votre entreprise. Recommandations d'approche, estimation des coûts API, choix de modèles.",
-        "tags": ["Diagnostic", "Roadmap AI", "Estimation coûts"],
+        "tags": ["Diagnostic", "Roadmap IA", "Estimation coûts"],
         "case": "Vous entendez parler d'IA partout mais ne savez pas par où commencer. Je fais un audit de vos processus et vous livre un plan d'action concret."
       }
     },
