@@ -10,7 +10,7 @@
     "lang_toggle": "EN"
   },
   "hero": {
-    "overline": "AI SOLUTIONS POUR ENTREPRISES",
+    "overline": "SOLUTIONS IA POUR ENTREPRISES",
     "title_before": "L'",
     "title_highlight": "IA",
     "title_after": " appliquée à votre business, sans la complexité.",
@@ -25,7 +25,7 @@
   },
   "comparison": {
     "overline": "POURQUOI 5PENNYAI",
-    "title": "Pourquoi travailler avec 5PennyAi?",
+    "title": "Pourquoi travailler avec 5PennyiA?",
     "old_way": {
       "title": "Agence traditionnelle",
       "items": [
@@ -36,7 +36,7 @@
       ]
     },
     "new_way": {
-      "title": "Avec 5PennyAi",
+      "title": "Avec 5PennyiA",
       "items": [
         "Prototype fonctionnel en quelques semaines",
         "Tarifs transparents, adaptés aux PME",
@@ -154,24 +154,24 @@
     "title": "Planifiez votre appel découverte"
   },
   "footer": {
-    "copyright": "© 2026 5PennyAi. Tous droits réservés.",
+    "copyright": "© 2026 5PennyiA. Tous droits réservés.",
     "made_with": "Fait avec passion à Québec, QC",
-    "tagline": "AI Solutions pour entreprises",
+    "tagline": "Solutions IA pour entreprises",
     "admin": "Admin"
   },
   "seo": {
     "home": {
-      "title": "5PennyAi — Solutions AI pour PME",
+      "title": "5PennyiA — Solutions AI pour PME",
       "description": "Développement d'applications AI sur mesure, intégration de modèles et stratégie pour les PME. Prototypes rapides, tarifs accessibles."
     },
     "blog": {
-      "title": "Blog — 5PennyAi",
+      "title": "Blog — 5PennyiA",
       "description": "Réflexions sur l'IA appliquée : articles, études de cas et tutoriels pour comprendre et intégrer l'intelligence artificielle dans votre entreprise."
     }
   },
   "services_page": {
     "seo": {
-      "title": "Services — 5PennyAi",
+      "title": "Services — 5PennyiA",
       "description": "Découvrez mes services AI : applications sur mesure, intégration, prompt engineering, MVP rapides et audit stratégique."
     },
     "hero": {
@@ -226,26 +226,26 @@
   },
   "about_page": {
     "seo": {
-      "title": "À propos — 5PennyAi",
-      "description": "Christian Couillard, fondateur de 5PennyAi. 20+ ans d'expérience en TI, développeur AI passionné basé à Québec."
+      "title": "À propos — 5PennyiA",
+      "description": "Christian Couillard, fondateur de 5PennyiA. 20+ ans d'expérience en TI, développeur AI passionné basé à Québec."
     },
     "hero": {
       "overline": "À PROPOS",
       "title": "L'IA au service de votre entreprise.",
-      "subtitle": "Derrière 5PennyAi, un développeur passionné avec 20+ ans d'expérience en TI."
+      "subtitle": "Derrière 5PennyiA, un développeur passionné avec 20+ ans d'expérience en TI."
     },
     "profile": {
       "photo_placeholder": "Photo à venir",
       "name": "Christian Couillard",
-      "role": "Fondateur, 5PennyAi",
+      "role": "Fondateur, 5PennyiA",
       "location": "Québec, QC",
       "email": "christian.couillard@5pennyai.com"
     },
     "story": {
       "section1_title": "Mon parcours",
-      "section1_p1": "Après plus de 20 ans dans les technologies de l'information — dont plusieurs années comme analyste fonctionnel chez CGI, au CHU de Québec, à l'INSPQ et dans le secteur public québécois — j'ai fondé 5PennyAi pour me consacrer entièrement à ce qui me passionne : construire des solutions AI concrètes.",
+      "section1_p1": "Après plus de 20 ans dans les technologies de l'information — dont plusieurs années comme analyste fonctionnel chez CGI, au CHU de Québec, à l'INSPQ et dans le secteur public québécois — j'ai fondé 5PennyiA pour me consacrer entièrement à ce qui me passionne : construire des solutions AI concrètes.",
       "section1_p2": "Mon expérience en analyse fonctionnelle m'a appris à écouter les besoins d'affaires avant de penser technologie. Aujourd'hui, je combine cette compréhension du terrain avec une expertise technique pointue pour développer des applications AI qui résolvent de vrais problèmes.",
-      "section2_title": "Pourquoi 5PennyAi?",
+      "section2_title": "Pourquoi 5PennyiA?",
       "section2_p1": "Je crois que l'intelligence artificielle ne devrait pas être réservée aux grandes entreprises avec des budgets illimités. Les PME ont des besoins concrets — automatiser un processus, analyser des données, améliorer l'expérience client — et méritent des solutions accessibles, livrées rapidement, par quelqu'un qui comprend leur réalité.",
       "section2_p2": "C'est exactement ce que je fais : transformer des problèmes d'affaires en solutions AI opérationnelles, du prototype à la mise en production."
     },
@@ -277,7 +277,7 @@
       "items": [
         {
           "period": "2025 – présent",
-          "role": "Fondateur & Consultant AI — 5PennyAi",
+          "role": "Fondateur & Consultant AI — 5PennyiA",
           "description": "Développement de PennySEO, consultation en IA, prototypage d'applications intelligentes."
         },
         {
@@ -330,7 +330,7 @@
   },
   "contact": {
     "seo": {
-      "title": "Contact — 5PennyAi",
+      "title": "Contact — 5PennyiA",
       "description": "Parlons de votre projet AI. Formulaire, courriel, téléphone et appel découverte gratuit."
     },
     "hero": {
@@ -377,7 +377,7 @@
   },
   "portfolio": {
     "seo": {
-      "title": "Portfolio — 5PennyAi",
+      "title": "Portfolio — 5PennyiA",
       "description": "PennySEO : plateforme SaaS d'optimisation SEO propulsée par Gemini Vision. Du concept à la mise en production."
     },
     "hero": {
