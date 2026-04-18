@@ -9,7 +9,7 @@ export const config = {
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const PERPLEXITY_URL = 'https://api.perplexity.ai/chat/completions'
 const MODEL = 'claude-opus-4-6'
-const MAX_TOKENS = 8000
+const MAX_TOKENS = 16000
 
 const ARTICLE_TYPES = {
   list: 'Liste numérotée (X façons de…) — introduction + sections numérotées + conclusion.',
@@ -283,23 +283,68 @@ function countWords(markdown) {
   return String(markdown).replace(/[#>*_`[\](){}!-]/g, ' ').split(/\s+/).filter(Boolean).length
 }
 
+// Scan backward from the last `}` and find the matching opening `{`
+// that yields the outermost balanced JSON object in the string.
+// Handles preamble/narration text that Claude may emit between web_search
+// tool calls before the final JSON output.
+function findLastBalancedJsonObject(text) {
+  if (!text) return null
+  const lastClose = text.lastIndexOf('}')
+  if (lastClose === -1) return null
+
+  let inString = false
+  let escape = false
+  let depth = 0
+
+  for (let i = lastClose; i >= 0; i--) {
+    const ch = text[i]
+    if (escape) {
+      escape = false
+      continue
+    }
+    if (ch === '\\') {
+      escape = true
+      continue
+    }
+    if (ch === '"') {
+      inString = !inString
+      continue
+    }
+    if (inString) continue
+    if (ch === '}') depth++
+    else if (ch === '{') {
+      depth--
+      if (depth === 0) return text.slice(i, lastClose + 1)
+    }
+  }
+  return null
+}
+
 function extractJson(text) {
   if (!text) return null
   let cleaned = text.trim()
   cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim()
   try {
     return JSON.parse(cleaned)
-  } catch {
-    const match = cleaned.match(/\{[\s\S]*\}/)
-    if (match) {
-      try {
-        return JSON.parse(match[0])
-      } catch {
-        return null
-      }
-    }
-    return null
+  } catch { /* fall through */ }
+
+  const balanced = findLastBalancedJsonObject(cleaned)
+  if (balanced) {
+    try {
+      return JSON.parse(balanced)
+    } catch { /* fall through */ }
   }
+
+  // Last-chance fallback: greedy regex for the widest {...} span
+  const match = cleaned.match(/\{[\s\S]*\}/)
+  if (match) {
+    try {
+      return JSON.parse(match[0])
+    } catch {
+      return null
+    }
+  }
+  return null
 }
 
 function postProcess(article) {
@@ -415,23 +460,43 @@ export default async function handler(req, res) {
     const data = await response.json()
 
     const searches = (data.content || []).filter((b) => b.type === 'server_tool_use' && b.name === 'web_search').length
+    const stopReason = data?.stop_reason || 'unknown'
     const elapsed = Math.round((Date.now() - started) / 1000)
-    console.log(`[generate-article] model=${MODEL} web_searches=${searches} elapsed=${elapsed}s`)
+    console.log(
+      `[generate-article] model=${MODEL} web_searches=${searches} elapsed=${elapsed}s stop_reason=${stopReason}`,
+    )
 
-    const text = (data.content || [])
-      .filter((b) => b.type === 'text')
-      .map((b) => b.text)
-      .join('\n')
-      .trim()
-
-    if (!text) {
+    // Claude interleaves narration text blocks between web_search tool calls.
+    // The actual JSON output lives in the LAST text block. Try it alone first;
+    // fall back to the full concatenation if that doesn't parse.
+    const textBlocks = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text)
+    if (!textBlocks.length) {
       console.error('Empty text response from Claude', JSON.stringify(data).slice(0, 500))
       return res.status(500).json({ error: 'Generation returned empty content' })
     }
 
-    const parsed = extractJson(text)
+    const lastText = (textBlocks[textBlocks.length - 1] || '').trim()
+    const allText = textBlocks.join('\n').trim()
+
+    let parsed = extractJson(lastText)
+    if (!parsed && allText !== lastText) {
+      parsed = extractJson(allText)
+    }
     if (!parsed) {
-      console.error('Failed to parse JSON from Claude response. First 400 chars:', text.slice(0, 400))
+      if (stopReason === 'max_tokens') {
+        console.error(
+          `Failed to parse JSON: response hit max_tokens=${MAX_TOKENS} and was truncated. ` +
+            `blocks=${textBlocks.length} lastLen=${lastText.length} allLen=${allText.length} ` +
+            `tail=${lastText.slice(-400)}`,
+        )
+        return res.status(500).json({
+          error: 'Generation truncated at max_tokens. Try a shorter topic or request a shorter article.',
+        })
+      }
+      console.error(
+        `Failed to parse JSON. stop_reason=${stopReason} blocks=${textBlocks.length} ` +
+          `lastLen=${lastText.length} lastHead=${lastText.slice(0, 300)} lastTail=${lastText.slice(-300)}`,
+      )
       return res.status(500).json({ error: 'Generation produced invalid JSON' })
     }
 
