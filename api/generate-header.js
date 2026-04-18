@@ -83,18 +83,25 @@ You MUST respond with ONLY a single JSON object, parseable by JSON.parse. No mar
 
 Schema:
 {
-  "title_in_image": "short title baked into the image (3-5 words)",
-  "subtitle_in_image": "subtitle baked into the image (4-8 words, or empty string)",
+  "title_in_image_fr": "French title baked into the FR image (3-5 words)",
+  "title_in_image_en": "English translation of the title for the EN image (3-5 words)",
+  "subtitle_in_image_fr": "French subtitle for the FR image (4-8 words, or empty string)",
+  "subtitle_in_image_en": "English translation of the subtitle for the EN image (4-8 words, or empty string)",
   "category": "INSIGHTS | STRATEGIE | TUTORIEL | CAS_DUSAGE | ACTUALITE",
   "mode": "light | dark (must follow the category rule in editorial-categories.md)",
   "focal_accent": "short number or symbol rendered in the small orange badge (e.g. '5', '×2', '→', '!')",
   "metaphor_objects": ["object 1", "object 2", "object 3"],
-  "prompt_en": "Full English Nano Banana prompt (200-400 words, the 9 sections from prompt-patterns.md in order)",
-  "prompt_fr": "French version, same structure",
+  "prompt_en": "Full ENGLISH Nano Banana prompt (200-400 words, 9 sections). MUST embed title_in_image_en and subtitle_in_image_en verbatim between double quotes. MUST NOT contain any French text in the image specification (no accents like é/è/à in the text to render).",
+  "prompt_fr": "Full FRENCH Nano Banana prompt. MUST embed title_in_image_fr and subtitle_in_image_fr verbatim between double quotes.",
   "alt_fr": "French alt text (2-3 sentences, accessible description)",
   "alt_en": "English alt text",
   "reasoning": "one sentence justifying the chosen category + mode + metaphors"
 }
+
+CRITICAL language discipline:
+- prompt_en must generate an ENGLISH-language image. The title and subtitle rendered inside the image MUST be in English (title_in_image_en / subtitle_in_image_en), not the French original. The editorial label (INSIGHTS, TUTORIAL, USE CASE, NEWS, STRATEGY) MUST also be in English.
+- prompt_fr must generate a FRENCH-language image with title_in_image_fr / subtitle_in_image_fr and the French label (INSIGHTS, TUTORIEL, CAS D'USAGE, ACTUALITÉ, STRATÉGIE).
+- The two prompts are NOT translations of each other at the sentence level — they are two distinct prompts each instructing Nano Banana to render text IN THE TARGET LANGUAGE.
 
 Both prompt_en and prompt_fr MUST specify 16:9 aspect ratio. Never include footers, URLs, or site signatures inside the image.
 
@@ -118,10 +125,14 @@ ${trimmed}
 ${extras.length ? `\n${extras.join('\n\n')}\n` : ''}
 Follow the skill. Pick the editorial category based on the article's register
 (INSIGHTS/STRATEGIE → dark navy; TUTORIEL/CAS_DUSAGE/ACTUALITE → light glacier).
-Extract a 3-5 word title and 4-8 word subtitle from the article. Pick 3-4
-metaphor objects from metaphor-library.md relevant to the article topic. Pick
-a short focal accent (number or symbol). Return only the JSON object defined
-in the system prompt.`
+
+Output TWO independent prompts:
+- title_in_image_fr (French) + subtitle_in_image_fr (French) → used in prompt_fr, which renders a FRENCH image with the French editorial label.
+- title_in_image_en (English translation) + subtitle_in_image_en (English translation) → used in prompt_en, which renders an ENGLISH image with the English editorial label (INSIGHTS, TUTORIAL, USE CASE, NEWS, STRATEGY).
+
+The two images share the same category, mode, metaphor objects and focal accent. Only the rendered text language differs. Do NOT leave French text inside prompt_en.
+
+Pick 3-4 metaphor objects from metaphor-library.md relevant to the article topic. Pick a short focal accent (number or symbol). Return only the JSON object defined in the system prompt.`
 }
 
 function extractText(data) {
@@ -194,7 +205,16 @@ async function callClaude({ articleContent, instructions, apiKey }) {
     throw new Error('anthropic_invalid_json')
   }
 
-  const required = ['title_in_image', 'category', 'mode', 'prompt_en', 'prompt_fr', 'alt_fr', 'alt_en']
+  const required = [
+    'title_in_image_fr',
+    'title_in_image_en',
+    'category',
+    'mode',
+    'prompt_en',
+    'prompt_fr',
+    'alt_fr',
+    'alt_en',
+  ]
   const missing = required.filter((k) => typeof parsed[k] !== 'string' || !parsed[k].trim())
   if (missing.length) {
     console.error(`Claude response missing fields: ${missing.join(',')}`)
