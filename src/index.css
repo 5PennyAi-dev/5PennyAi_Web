@@ -52,6 +52,35 @@ body {
   }
 }
 
+@layer components {
+  /* Article body images — sizing per aspect-ratio so portrait infographies
+     don't monopolize the reading column. Applied to the <button> wrapper in
+     markdownComponents.img so the clickable/lightbox area matches the image.
+     Parent container is max-w-[820px] (BlogPost reading column). */
+  .blog-image-landscape {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .blog-image-square {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .blog-image-portrait {
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /* Before the format is known (pre-onLoad for legacy markdown images):
+     stay full-width to avoid a sudden shrink after detection. */
+  .blog-image-pending {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 /* Display sizes — even tighter tracking */
 .text-display {
   font-family: var(--font-display);

@@ -317,8 +317,15 @@ function AdminBlogEditorInner() {
   }
 
   const insertInfographic = async ({ scope, sectionIndex, sectionTitle, urls, promptData, modelVersion }) => {
-    const blockFr = `![${promptData.alt_fr}](${urls.fr})`
-    const blockEn = `![${promptData.alt_en}](${urls.en})`
+    const escapeAttr = (s) =>
+      String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+    const fmt = escapeAttr(promptData.format || '')
+    const blockFr = `<img src="${escapeAttr(urls.fr)}" alt="${escapeAttr(promptData.alt_fr)}" data-format="${fmt}" />`
+    const blockEn = `<img src="${escapeAttr(urls.en)}" alt="${escapeAttr(promptData.alt_en)}" data-format="${fmt}" />`
 
     setForm((prev) => ({
       ...prev,

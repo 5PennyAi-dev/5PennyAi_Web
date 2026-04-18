@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import { ArrowLeft, ArrowRight, Copy, Check } from 'lucide-react'
 import useScrollReveal from '@/hooks/useScrollReveal'
 import Button from '@/components/ui/Button'
@@ -223,7 +224,11 @@ export default function BlogPost() {
           )}
 
           <div className="blog-prose">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={markdownComponents}
+            >
               {stripDiagramArtifacts(content)}
             </ReactMarkdown>
           </div>

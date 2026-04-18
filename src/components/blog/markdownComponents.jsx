@@ -1,3 +1,61 @@
+import { useState } from 'react'
+
+function normalizeFormat(raw) {
+  if (!raw) return null
+  const f = String(raw).trim()
+  if (f === '16:9' || f === '3:2' || f === 'landscape') return 'landscape'
+  if (f === '1:1' || f === 'square') return 'square'
+  if (f === '4:5' || f === '3:4' || f === 'portrait') return 'portrait'
+  return null
+}
+
+function ImageWithFormat({ alt, src, ...props }) {
+  // ReactMarkdown/rehype-raw exposes HTML attributes as JSX props. Keep both
+  // `data-format` (HTML) and the React-camelCased variants just in case.
+  const explicit =
+    props['data-format'] || props.dataFormat || null
+  const [detected, setDetected] = useState(null)
+  const format = normalizeFormat(explicit) || detected || 'pending'
+
+  const handleLoad = (e) => {
+    if (detected || normalizeFormat(explicit)) return
+    const img = e.currentTarget
+    const w = img?.naturalWidth
+    const h = img?.naturalHeight
+    if (!w || !h) return
+    const ratio = w / h
+    if (ratio >= 1.45) setDetected('landscape')
+    else if (ratio >= 0.95 && ratio <= 1.05) setDetected('square')
+    else setDetected('portrait')
+  }
+
+  // Strip the data-format props before spreading onto <img> so React doesn't
+  // complain about unknown DOM attributes.
+  // eslint-disable-next-line no-unused-vars
+  const { ['data-format']: _df, dataFormat: _dfCamel, ...imgProps } = props
+
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        window.dispatchEvent(
+          new CustomEvent('lightbox:open', { detail: { src, alt: alt || '' } })
+        )
+      }
+      className={`my-8 block w-full rounded-xl bg-transparent border-0 p-0 cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-accent/40 blog-image-${format}`}
+      aria-label={alt || 'Open image'}
+    >
+      <img
+        alt={alt || ''}
+        src={src}
+        onLoad={handleLoad}
+        className="rounded-xl w-full h-auto shadow-[var(--shadow-card)] hover:shadow-lg transition-shadow"
+        {...imgProps}
+      />
+    </button>
+  )
+}
+
 export const markdownComponents = {
   h1: (props) => (
     <h1 className="font-heading font-bold text-navy text-3xl md:text-4xl mt-10 mb-5 tracking-tight" {...props} />
@@ -50,25 +108,7 @@ export const markdownComponents = {
       {...props}
     />
   ),
-  img: ({ alt, src, ...props }) => (
-    <button
-      type="button"
-      onClick={() =>
-        window.dispatchEvent(
-          new CustomEvent('lightbox:open', { detail: { src, alt: alt || '' } })
-        )
-      }
-      className="my-8 block w-full rounded-xl bg-transparent border-0 p-0 cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-accent/40"
-      aria-label={alt || 'Open image'}
-    >
-      <img
-        alt={alt || ''}
-        src={src}
-        className="rounded-xl w-full h-auto shadow-[var(--shadow-card)] hover:shadow-lg transition-shadow"
-        {...props}
-      />
-    </button>
-  ),
+  img: ImageWithFormat,
   a: (props) => (
     <a
       className="text-accent hover:text-accent-deep underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition-colors"
