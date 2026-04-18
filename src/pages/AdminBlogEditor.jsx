@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, X, Upload, Eye, EyeOff, Sparkles, PencilLine, Check, Image as ImageIcon, Copy, PenTool, Search, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, X, Eye, EyeOff, Sparkles, PencilLine, Search, AlertTriangle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import AdminGuard from '@/components/admin/AdminGuard'
 import Button from '@/components/ui/Button'
 import ArticleGenerator from '@/components/admin/ArticleGenerator'
-import DiagramGenerator from '@/components/admin/DiagramGenerator'
-import ImagePromptGenerator from '@/components/admin/ImagePromptGenerator'
+import VisualAssetsSection from '@/components/admin/VisualAssetsSection'
 import SocialPostsGenerator from '@/components/admin/SocialPostsGenerator'
 import { Field, Section, inputClass } from '@/components/admin/editorPrimitives'
 import { supabase } from '@/lib/supabase'
@@ -16,9 +15,7 @@ import { fetchPostById, upsertPost, isSlugTaken, slugify } from '@/lib/posts'
 import { updateTopicStatus } from '@/lib/topics'
 import { markdownComponents } from '@/components/blog/markdownComponents'
 import Lightbox from '@/components/blog/Lightbox'
-import { stripDiagramArtifacts, insertAfterH2Section } from '@/lib/markdown'
-
-const BUCKET = 'blog-images'
+import { stripDiagramArtifacts, insertAfterH2Section, insertBeforeFirstH2 } from '@/lib/markdown'
 
 const EMPTY_FORM = {
   id: null,
@@ -31,6 +28,12 @@ const EMPTY_FORM = {
   content_fr: '',
   content_en: '',
   cover_image: '',
+  cover_image_fr: '',
+  cover_image_en: '',
+  cover_image_alt_fr: '',
+  cover_image_alt_en: '',
+  cover_image_category: '',
+  cover_image_mode: '',
   tags: [],
   reading_time_minutes: 5,
   meta_title_fr: '',
@@ -84,10 +87,8 @@ function AdminBlogEditorInner() {
   const [previewLang, setPreviewLang] = useState('fr')
   const [authorMode, setAuthorMode] = useState('manual')
   const [showGenerator, setShowGenerator] = useState(false)
-  const [imagePromptHint, setImagePromptHint] = useState('')
   const [pendingRegen, setPendingRegen] = useState(null)
-  const [imagePromptCopied, setImagePromptCopied] = useState(false)
-  const [showDiagramGenerator, setShowDiagramGenerator] = useState(false)
+  const [existingInfographics, setExistingInfographics] = useState([])
   const [researchUsed, setResearchUsed] = useState(null)
   const [topicId, setTopicId] = useState(null)
   const [seoData, setSeoData] = useState(null)
@@ -140,6 +141,29 @@ function AdminBlogEditorInner() {
       cancelled = true
     }
   }, [id, isEdit, t])
+
+  useEffect(() => {
+    if (!isEdit || !id) {
+      setExistingInfographics([])
+      return
+    }
+    let cancelled = false
+    supabase
+      .from('article_infographics')
+      .select('id, takeaway_variant, scope, section_index, type, format')
+      .eq('post_id', id)
+      .then(({ data, error }) => {
+        if (cancelled) return
+        if (error) {
+          console.error('Failed to load article_infographics:', error.message)
+          return
+        }
+        setExistingInfographics(data || [])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [id, isEdit])
 
   const update = (field) => (value) => setForm((prev) => ({ ...prev, [field]: value }))
 
@@ -240,7 +264,6 @@ function AdminBlogEditorInner() {
       status: 'draft',
       published_at: prev.published_at || toDatetimeLocal(new Date().toISOString()),
     }))
-    setImagePromptHint(data.cover_image_prompt || '')
   }
 
   const replaceGenerated = (data) => {
@@ -259,7 +282,6 @@ function AdminBlogEditorInner() {
       meta_description_fr: data.meta_description_fr || prev.meta_description_fr,
       meta_description_en: data.meta_description_en || prev.meta_description_en,
     }))
-    setImagePromptHint(data.cover_image_prompt || '')
   }
 
   const handleGenerated = (data) => {
@@ -294,15 +316,75 @@ function AdminBlogEditorInner() {
     setShowDiagramGenerator(false)
   }
 
-  const handleCopyImagePrompt = async () => {
-    if (!imagePromptHint) return
-    try {
-      await navigator.clipboard.writeText(imagePromptHint)
-      setImagePromptCopied(true)
-      setTimeout(() => setImagePromptCopied(false), 2000)
-    } catch (err) {
-      console.error('Clipboard write failed', err)
+  const insertInfographic = async ({ scope, sectionIndex, sectionTitle, urls, promptData, modelVersion }) => {
+    const blockFr = `![${promptData.alt_fr}](${urls.fr})`
+    const blockEn = `![${promptData.alt_en}](${urls.en})`
+
+    setForm((prev) => ({
+      ...prev,
+      content_fr:
+        scope === 'global'
+          ? insertBeforeFirstH2(prev.content_fr || '', blockFr)
+          : insertAfterH2Section(prev.content_fr || '', sectionIndex ?? -1, blockFr),
+      content_en:
+        scope === 'global'
+          ? insertBeforeFirstH2(prev.content_en || '', blockEn)
+          : insertAfterH2Section(prev.content_en || '', sectionIndex ?? -1, blockEn),
+    }))
+    setShowInfographicGenerator(false)
+
+    if (form.id) {
+      try {
+        const { data, error } = await supabase
+          .from('article_infographics')
+          .insert({
+            post_id: form.id,
+            scope,
+            section_index: scope === 'section' ? sectionIndex : null,
+            section_title: scope === 'section' ? sectionTitle : null,
+            type: promptData.type,
+            format: promptData.format,
+            takeaway_variant: promptData.takeaway_variant || null,
+            prompt_fr: promptData.prompt_fr,
+            prompt_en: promptData.prompt_en,
+            alt_fr: promptData.alt_fr,
+            alt_en: promptData.alt_en,
+            image_url_fr: urls.fr,
+            image_url_en: urls.en,
+            ...(modelVersion ? { model_version: modelVersion } : {}),
+          })
+          .select('id, takeaway_variant, scope, section_index, type, format')
+          .single()
+        if (error) throw error
+        if (data) setExistingInfographics((prev) => [...prev, data])
+      } catch (err) {
+        console.error('Failed to insert article_infographics row:', err.message || err)
+      }
     }
+  }
+
+  const handleHeaderApply = ({ urls, promptData }) => {
+    setForm((prev) => ({
+      ...prev,
+      cover_image_fr: urls.fr || '',
+      cover_image_en: urls.en || '',
+      cover_image_alt_fr: promptData.alt_fr || '',
+      cover_image_alt_en: promptData.alt_en || '',
+      cover_image_category: promptData.category || '',
+      cover_image_mode: promptData.mode || '',
+    }))
+  }
+
+  const handleHeaderClear = () => {
+    setForm((prev) => ({
+      ...prev,
+      cover_image_fr: '',
+      cover_image_en: '',
+      cover_image_alt_fr: '',
+      cover_image_alt_en: '',
+      cover_image_category: '',
+      cover_image_mode: '',
+    }))
   }
 
   if (loading) {
@@ -518,55 +600,15 @@ function AdminBlogEditorInner() {
                 </Field>
               </div>
 
-              <CoverImageField
-                value={form.cover_image || ''}
-                onChange={update('cover_image')}
-                t={t}
+              <VisualAssetsSection
+                form={form}
+                update={update}
+                onApplyHeader={handleHeaderApply}
+                onClearHeader={handleHeaderClear}
+                onInsertInfographic={insertInfographic}
+                onInsertDiagram={insertDiagramMarkdown}
+                existingInfographics={existingInfographics}
               />
-
-              <ImagePromptGenerator metaDescription={form.meta_description_fr} />
-
-              {imagePromptHint && (
-                <div className="rounded-lg border border-navy/10 bg-surface p-4">
-                  <div className="flex items-center justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                        <ImageIcon size={13} strokeWidth={2} className="text-accent" />
-                      </div>
-                      <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-navy/70">
-                        {t('admin.generator.imagePrompt')}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleCopyImagePrompt}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all ${
-                        imagePromptCopied
-                          ? 'border-steel/40 bg-steel/10 text-navy'
-                          : 'border-navy/15 bg-white text-navy/75 hover:border-accent/40 hover:text-accent-deep hover:bg-accent/[0.03]'
-                      }`}
-                    >
-                      {imagePromptCopied ? (
-                        <>
-                          <Check size={11} strokeWidth={2.5} />
-                          {t('admin.generator.copied')}
-                        </>
-                      ) : (
-                        <>
-                          <Copy size={11} strokeWidth={2} />
-                          {t('admin.generator.copy')}
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <p className="text-[13px] text-navy/80 italic leading-relaxed whitespace-pre-wrap">
-                    {imagePromptHint}
-                  </p>
-                  <p className="text-[11px] text-muted mt-3 not-italic">
-                    {t('admin.generator.imagePromptHint')}
-                  </p>
-                </div>
-              )}
 
               <Field label={t('admin.editor.fields.contentFr')} required>
                 <textarea
@@ -578,33 +620,6 @@ function AdminBlogEditorInner() {
                   required
                 />
               </Field>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowDiagramGenerator((v) => !v)}
-                  disabled={(form.content_fr || '').length < 100 && (form.content_en || '').length < 100}
-                  className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-4 py-2 text-[13px] font-medium text-accent-deep hover:bg-accent/10 hover:border-accent/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-accent/5 disabled:hover:border-accent/30"
-                >
-                  <PenTool size={14} strokeWidth={2} />
-                  {t('admin.diagram.generate')}
-                </button>
-                {(form.content_fr || '').length < 100 && (form.content_en || '').length < 100 && (
-                  <span className="text-[11px] text-muted">
-                    {t('admin.diagram.minContent')}
-                  </span>
-                )}
-              </div>
-
-              {showDiagramGenerator && (
-                <DiagramGenerator
-                  articleContentFr={form.content_fr || ''}
-                  articleContentEn={form.content_en || ''}
-                  slug={form.slug}
-                  onInsert={insertDiagramMarkdown}
-                  onCancel={() => setShowDiagramGenerator(false)}
-                />
-              )}
 
               <Field label={t('admin.editor.fields.contentEn')}>
                 <textarea
@@ -805,91 +820,6 @@ function TagInput({ value, onChange, label, hint, placeholder }) {
   )
 }
 
-function CoverImageField({ value, onChange, t }) {
-  const inputRef = useRef(null)
-  const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const handleFile = async (file) => {
-    if (!file) return
-    setError(null)
-    setUploading(true)
-    try {
-      const extMatch = file.name.match(/\.[a-z0-9]+$/i)
-      const ext = extMatch ? extMatch[0].toLowerCase() : ''
-      const safeBase = slugify(file.name.replace(/\.[a-z0-9]+$/i, '')) || 'image'
-      const fileName = `${Date.now()}-${safeBase}${ext}`
-
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET)
-        .upload(fileName, file, { cacheControl: '3600', upsert: false })
-      if (uploadError) throw uploadError
-
-      const { data } = supabase.storage.from(BUCKET).getPublicUrl(fileName)
-      onChange(data.publicUrl)
-    } catch (err) {
-      console.error(err)
-      setError(err.message || t('admin.editor.feedback.uploadError'))
-    } finally {
-      setUploading(false)
-      if (inputRef.current) inputRef.current.value = ''
-    }
-  }
-
-  return (
-    <Field
-      label={t('admin.editor.fields.coverImage')}
-      hint={t('admin.editor.fields.coverImageHint')}
-      error={error}
-    >
-      <div className="space-y-3">
-        {value && (
-          <div className="relative inline-block">
-            <img
-              src={value}
-              alt=""
-              className="max-h-48 w-auto rounded-xl object-cover border border-navy/[0.08]"
-            />
-          </div>
-        )}
-
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            disabled={uploading}
-            onClick={() => inputRef.current?.click()}
-            className="inline-flex items-center gap-2 rounded-full border border-navy/15 bg-white px-4 py-2 text-[13px] font-medium text-navy/75 hover:text-navy hover:border-navy/30 transition-colors disabled:opacity-60"
-          >
-            <Upload size={14} strokeWidth={2} />
-            {uploading
-              ? t('admin.editor.fields.coverImageUploading')
-              : value
-              ? t('admin.editor.fields.coverImageChange')
-              : t('admin.editor.fields.coverImage')}
-          </button>
-          {value && !uploading && (
-            <button
-              type="button"
-              onClick={() => onChange('')}
-              className="text-[12px] font-medium text-muted hover:text-accent-deep transition-colors"
-            >
-              {t('admin.editor.fields.coverImageRemove')}
-            </button>
-          )}
-        </div>
-
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => handleFile(e.target.files?.[0])}
-        />
-      </div>
-    </Field>
-  )
-}
-
 function formatPreviewDate(value, lang) {
   if (!value) return ''
   const d = new Date(value)
@@ -909,6 +839,14 @@ function PreviewPanel({ form, previewLang, setPreviewLang, t }) {
   const content = previewLang === 'en' ? form.content_en || form.content_fr : form.content_fr
   const title = previewLang === 'en' ? form.title_en || form.title_fr : form.title_fr
   const excerpt = previewLang === 'en' ? form.excerpt_en || form.excerpt_fr : form.excerpt_fr
+  const coverUrl =
+    previewLang === 'en'
+      ? form.cover_image_en || form.cover_image_fr || form.cover_image
+      : form.cover_image_fr || form.cover_image_en || form.cover_image
+  const coverAlt =
+    previewLang === 'en'
+      ? form.cover_image_alt_en || form.cover_image_alt_fr || ''
+      : form.cover_image_alt_fr || form.cover_image_alt_en || ''
   const formattedDate = formatPreviewDate(form.published_at ? new Date(form.published_at).toISOString() : '', previewLang)
   const readingTime = form.reading_time_minutes ? `${form.reading_time_minutes} ${t('blog.card.minRead')}` : ''
   const author = form.author || 'Christian Couillard'
@@ -935,10 +873,10 @@ function PreviewPanel({ form, previewLang, setPreviewLang, t }) {
         </div>
       </div>
 
-      {form.cover_image && (
+      {coverUrl && (
         <img
-          src={form.cover_image}
-          alt=""
+          src={coverUrl}
+          alt={coverAlt}
           className="w-full aspect-video object-cover rounded-xl mb-6 border border-navy/[0.06]"
         />
       )}

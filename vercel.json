@@ -2,6 +2,12 @@
   "functions": {
     "api/search-topics.js": {
       "maxDuration": 120
+    },
+    "api/generate-infographic.js": {
+      "maxDuration": 120
+    },
+    "api/generate-header.js": {
+      "maxDuration": 120
     }
   },
   "rewrites": [

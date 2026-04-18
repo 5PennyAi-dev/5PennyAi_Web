@@ -34,3 +34,15 @@ export function insertAfterH2Section(md, sectionIndex, block) {
   const separator = after ? '\n\n' : '\n'
   return before + '\n\n' + block + separator + after
 }
+
+export function insertBeforeFirstH2(md, block) {
+  if (!block) return md
+  const base = md || ''
+  const firstH2 = base.search(/^##\s/m)
+  if (firstH2 === -1) {
+    return base.replace(/\s*$/, '') + (base ? '\n\n' : '') + block + '\n'
+  }
+  const before = base.slice(0, firstH2).replace(/\s*$/, '')
+  const after = base.slice(firstH2)
+  return before + '\n\n' + block + '\n\n' + after
+}

@@ -9,7 +9,7 @@ import useScrollReveal from '@/hooks/useScrollReveal'
 import Button from '@/components/ui/Button'
 import BookingButton from '@/components/ui/BookingButton'
 import ShaderBackground from '@/components/ui/ShaderBackground'
-import { fetchPostBySlug, fetchAdjacentPosts } from '@/lib/posts'
+import { fetchPostBySlug, fetchAdjacentPosts, resolveCoverImage, resolveCoverAlt } from '@/lib/posts'
 import { localizedField } from '@/lib/postI18n'
 import { markdownComponents } from '@/components/blog/markdownComponents'
 import Lightbox from '@/components/blog/Lightbox'
@@ -128,14 +128,21 @@ export default function BlogPost() {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={currentUrl} />
         <meta property="og:site_name" content="5PennyAi" />
-        {post.cover_image && <meta property="og:image" content={post.cover_image} />}
+        {resolveCoverImage(post, lang) && (
+          <meta property="og:image" content={resolveCoverImage(post, lang)} />
+        )}
+        {resolveCoverAlt(post, lang) && (
+          <meta property="og:image:alt" content={resolveCoverAlt(post, lang)} />
+        )}
         {post.published_at && (
           <meta property="article:published_time" content={post.published_at} />
         )}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={metaTitle} />
         {metaDescription && <meta name="twitter:description" content={metaDescription} />}
-        {post.cover_image && <meta name="twitter:image" content={post.cover_image} />}
+        {resolveCoverImage(post, lang) && (
+          <meta name="twitter:image" content={resolveCoverImage(post, lang)} />
+        )}
       </Helmet>
 
       {/* Hero */}
@@ -194,10 +201,10 @@ export default function BlogPost() {
       {/* Body */}
       <article ref={bodyRef} className="reveal py-16 md:py-20">
         <div className="max-w-[820px] mx-auto px-4 sm:px-6">
-          {post.cover_image && (
+          {resolveCoverImage(post, lang) && (
             <img
-              src={post.cover_image}
-              alt={title}
+              src={resolveCoverImage(post, lang)}
+              alt={resolveCoverAlt(post, lang) || title}
               className="w-full aspect-video object-cover rounded-2xl mb-10 shadow-[var(--shadow-card)]"
             />
           )}

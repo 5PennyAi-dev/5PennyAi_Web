@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowRight, Image as ImageIcon } from 'lucide-react'
 import SectionHeader from '@/components/ui/SectionHeader'
 import useScrollReveal from '@/hooks/useScrollReveal'
-import { fetchPublishedPosts } from '@/lib/posts'
+import { fetchPublishedPosts, resolveCoverImage, resolveCoverAlt } from '@/lib/posts'
 import { localizedField } from '@/lib/postI18n'
 
 function formatDate(dateString, lang) {
@@ -74,6 +74,8 @@ export default function LatestPosts() {
             {posts.map((post) => {
               const title = localizedField(post, 'title', lang)
               const excerpt = localizedField(post, 'excerpt', lang)
+              const coverUrl = resolveCoverImage(post, lang)
+              const coverAlt = resolveCoverAlt(post, lang) || title
 
               return (
                 <Link
@@ -83,10 +85,10 @@ export default function LatestPosts() {
                 >
                   {/* Thumbnail */}
                   <div className="sm:w-[180px] md:w-[220px] shrink-0 aspect-[16/10] sm:aspect-auto bg-warm-gray overflow-hidden">
-                    {post.cover_image ? (
+                    {coverUrl ? (
                       <img
-                        src={post.cover_image}
-                        alt={title}
+                        src={coverUrl}
+                        alt={coverAlt}
                         loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       />

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Image as ImageIcon } from 'lucide-react'
 import { localizedField } from '@/lib/postI18n'
+import { resolveCoverImage, resolveCoverAlt } from '@/lib/posts'
 
 function formatDate(dateString, lang) {
   if (!dateString) return ''
@@ -22,6 +23,8 @@ export default function FeaturedCard({ post }) {
 
   const title = localizedField(post, 'title', lang)
   const excerpt = localizedField(post, 'excerpt', lang)
+  const coverUrl = resolveCoverImage(post, lang)
+  const coverAlt = resolveCoverAlt(post, lang) || title
   const visibleTags = (post.tags || []).slice(0, 3)
 
   return (
@@ -32,10 +35,10 @@ export default function FeaturedCard({ post }) {
       <div className="md:grid md:grid-cols-5">
         {/* Image — ~40% on desktop */}
         <div className="relative md:col-span-2 aspect-[16/9] md:aspect-auto md:min-h-[280px] bg-warm-gray overflow-hidden">
-          {post.cover_image ? (
+          {coverUrl ? (
             <img
-              src={post.cover_image}
-              alt={title}
+              src={coverUrl}
+              alt={coverAlt}
               loading="lazy"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />

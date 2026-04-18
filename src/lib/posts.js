@@ -1,7 +1,28 @@
 import { supabase } from '@/lib/supabase'
 
 const LIST_COLUMNS =
-  'id, slug, title_fr, title_en, excerpt_fr, excerpt_en, cover_image, tags, published_at, reading_time_minutes'
+  'id, slug, title_fr, title_en, excerpt_fr, excerpt_en, cover_image, cover_image_fr, cover_image_en, cover_image_alt_fr, cover_image_alt_en, tags, published_at, reading_time_minutes'
+
+// Resolve the best cover image URL for a given language, falling back to the
+// other language's image, and finally to the legacy single `cover_image` field.
+// Returns null if no image is set.
+export function resolveCoverImage(post, lang = 'fr') {
+  if (!post) return null
+  const wantEn = typeof lang === 'string' && lang.toLowerCase().startsWith('en')
+  if (wantEn) {
+    return post.cover_image_en || post.cover_image_fr || post.cover_image || null
+  }
+  return post.cover_image_fr || post.cover_image_en || post.cover_image || null
+}
+
+export function resolveCoverAlt(post, lang = 'fr') {
+  if (!post) return ''
+  const wantEn = typeof lang === 'string' && lang.toLowerCase().startsWith('en')
+  if (wantEn) {
+    return post.cover_image_alt_en || post.cover_image_alt_fr || post.title_en || post.title_fr || ''
+  }
+  return post.cover_image_alt_fr || post.cover_image_alt_en || post.title_fr || post.title_en || ''
+}
 
 export async function fetchAllPublishedPosts() {
   const { data, error } = await supabase
