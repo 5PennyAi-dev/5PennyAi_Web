@@ -32,9 +32,12 @@ export default function FeaturedCard({ post }) {
       to={`/blog/${post.slug}`}
       className="group block bg-white border border-navy/[0.08] rounded-2xl overflow-hidden card-elevated hover:border-steel/40 mb-8"
     >
-      <div className="md:grid md:grid-cols-5 md:items-stretch">
-        {/* Image — ~40% on desktop, strict 16:9 to preserve header composition */}
-        <div className="relative md:col-span-2 aspect-[16/9] bg-warm-gray overflow-hidden">
+      <div className="md:grid md:grid-cols-5 md:items-center">
+        {/* Image — ~40% on desktop, strict 16:9 to preserve the asymmetric
+            header composition. items-center keeps the image at its natural
+            aspect-ratio'd size without stretching (which would otherwise push
+            its width beyond its grid column). */}
+        <div className="relative md:col-span-2 w-full aspect-[16/9] bg-warm-gray overflow-hidden">
           {coverUrl ? (
             <img
               src={coverUrl}
