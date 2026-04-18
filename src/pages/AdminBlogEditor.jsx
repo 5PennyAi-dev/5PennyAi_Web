@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, X, Upload, Eye, EyeOff, Sparkles, PencilLine, Check, Image as ImageIcon, Copy, PenTool, Search, AlertTriangle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
@@ -13,6 +13,7 @@ import SocialPostsGenerator from '@/components/admin/SocialPostsGenerator'
 import { Field, Section, inputClass } from '@/components/admin/editorPrimitives'
 import { supabase } from '@/lib/supabase'
 import { fetchPostById, upsertPost, isSlugTaken, slugify } from '@/lib/posts'
+import { updateTopicStatus } from '@/lib/topics'
 import { markdownComponents } from '@/components/blog/markdownComponents'
 import Lightbox from '@/components/blog/Lightbox'
 import { stripDiagramArtifacts, insertAfterH2Section } from '@/lib/markdown'
@@ -71,6 +72,7 @@ function AdminBlogEditorInner() {
   const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const isEdit = Boolean(id)
 
   const [form, setForm] = useState(EMPTY_FORM)
@@ -87,8 +89,24 @@ function AdminBlogEditorInner() {
   const [imagePromptCopied, setImagePromptCopied] = useState(false)
   const [showDiagramGenerator, setShowDiagramGenerator] = useState(false)
   const [researchUsed, setResearchUsed] = useState(null)
+  const [topicId, setTopicId] = useState(null)
+  const [seoData, setSeoData] = useState(null)
   const contentFrRef = useRef(null)
   const contentEnRef = useRef(null)
+
+  // Detect navigation from Topic Finder
+  const topicFinderState = useRef(location.state)
+  useEffect(() => {
+    const state = topicFinderState.current
+    if (state?.fromTopicFinder) {
+      setAuthorMode('ai')
+      setShowGenerator(true)
+      setSeoData(state.seoData || null)
+      setTopicId(state.topicId || null)
+      // Clear location state to prevent re-triggering on back/refresh
+      window.history.replaceState({}, '')
+    }
+  }, [])
 
   useEffect(() => {
     if (!isEdit) {
@@ -175,6 +193,16 @@ function AdminBlogEditorInner() {
         tags: saved.tags || [],
         published_at: toDatetimeLocal(saved.published_at),
       }))
+
+      // Link article to topic if coming from Topic Finder
+      if (topicId && saved.id) {
+        try {
+          await updateTopicStatus(topicId, 'written', saved.id)
+        } catch (err) {
+          console.error('Failed to link topic to post:', err)
+        }
+      }
+
       setFeedback({
         kind: 'success',
         message:
@@ -366,7 +394,10 @@ function AdminBlogEditorInner() {
         {showGenerator && (
           <div className="mb-6">
             <ArticleGenerator
-              initialTopic={isEdit ? form.title_fr : ''}
+              initialTopic={isEdit ? form.title_fr : (topicFinderState.current?.topic || '')}
+              seoData={seoData}
+              initialArticleType={topicFinderState.current?.articleType || 'list'}
+              initialInstructions={topicFinderState.current?.instructions || ''}
               onGenerated={handleGenerated}
               onCancel={() => {
                 setShowGenerator(false)

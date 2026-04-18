@@ -651,7 +651,17 @@
       "pasteManualLabel": "Colle le contenu ici",
       "pasteManualApply": "Appliquer",
       "researchUsed": "Article enrichi par recherche web",
-      "researchNotUsed": "Article généré sans recherche web (Perplexity indisponible)"
+      "researchNotUsed": "Article généré sans recherche web (Perplexity indisponible)",
+      "seoData": {
+        "title": "Données SEO",
+        "primaryKeyword": "Mot-clé principal",
+        "perMonth": "/mois",
+        "difficulty": "Difficulté",
+        "cpc": "CPC",
+        "intent": "Intent",
+        "secondaryKeywords": "Mots-clés secondaires",
+        "score": "Score SEO"
+      }
     },
     "imagePromptGen": {
       "button": "Générer prompt image",
@@ -676,6 +686,63 @@
       "error": "La génération a échoué. Réessayez.",
       "overwriteConfirm": "Écraser les posts sociaux existants ?",
       "show": "Voir les posts sociaux"
+    },
+    "topics": {
+      "title": "Sujets",
+      "search": {
+        "placeholder": "Ex: Comment l'IA peut réduire les tâches administratives dans une PME?",
+        "button": "Rechercher",
+        "loading1": "Perplexity explore le web…",
+        "loading2": "Claude structure les résultats…",
+        "loading3": "DataForSEO enrichit les mots-clés…",
+        "loading4": "Finalisation…"
+      },
+      "results": {
+        "title": "sujets trouvés",
+        "saveToBank": "+ Banque",
+        "markChosen": "★ À rédiger",
+        "writeArticle": "Rédiger cet article →",
+        "inBank": "✓ Dans la banque"
+      },
+      "seo": {
+        "volume": "Vol",
+        "difficulty": "Diff",
+        "cpc": "CPC",
+        "intent": "Intent",
+        "score": "SEO",
+        "unavailable": "Les données SEO ne sont pas disponibles pour cette recherche. Les sujets sont affichés sans scores de volume/difficulté."
+      },
+      "trends": {
+        "title": "Tendances détectées"
+      },
+      "gaps": {
+        "title": "Opportunités (peu couvert en français)"
+      },
+      "questions": {
+        "title": "Questions réelles trouvées en ligne"
+      },
+      "bank": {
+        "title": "Banque de sujets",
+        "all": "Tous",
+        "saved": "En banque",
+        "chosen": "À rédiger",
+        "written": "Rédigés",
+        "empty": "Ta banque est vide",
+        "emptySubtitle": "Lance une recherche et sauvegarde les sujets qui t'intéressent.",
+        "savedAt": "Sauvegardé le",
+        "remove": "Retirer",
+        "confirmRemove": "Retirer ce sujet de la banque?"
+      },
+      "stepper": {
+        "research": "Recherche",
+        "seo": "SEO",
+        "writing": "Rédaction"
+      },
+      "difficulty": {
+        "débutant": "débutant",
+        "intermédiaire": "intermédiaire",
+        "avancé": "avancé"
+      }
     },
     "diagram": {
       "generate": "Générer un diagramme",

@@ -651,7 +651,17 @@
       "pasteManualLabel": "Paste content here",
       "pasteManualApply": "Apply",
       "researchUsed": "Article enriched with web research",
-      "researchNotUsed": "Article generated without web research (Perplexity unavailable)"
+      "researchNotUsed": "Article generated without web research (Perplexity unavailable)",
+      "seoData": {
+        "title": "SEO Data",
+        "primaryKeyword": "Primary keyword",
+        "perMonth": "/mo",
+        "difficulty": "Difficulty",
+        "cpc": "CPC",
+        "intent": "Intent",
+        "secondaryKeywords": "Secondary keywords",
+        "score": "SEO Score"
+      }
     },
     "imagePromptGen": {
       "button": "Generate image prompt",
@@ -676,6 +686,63 @@
       "error": "Generation failed. Please retry.",
       "overwriteConfirm": "Overwrite existing social posts?",
       "show": "View social posts"
+    },
+    "topics": {
+      "title": "Topics",
+      "search": {
+        "placeholder": "Ex: How can AI reduce administrative tasks in an SME?",
+        "button": "Search",
+        "loading1": "Perplexity is searching the web…",
+        "loading2": "Claude is structuring results…",
+        "loading3": "DataForSEO is enriching keywords…",
+        "loading4": "Finalizing…"
+      },
+      "results": {
+        "title": "topics found",
+        "saveToBank": "+ Bank",
+        "markChosen": "★ To write",
+        "writeArticle": "Write this article →",
+        "inBank": "✓ In the bank"
+      },
+      "seo": {
+        "volume": "Vol",
+        "difficulty": "Diff",
+        "cpc": "CPC",
+        "intent": "Intent",
+        "score": "SEO",
+        "unavailable": "SEO data is not available for this search. Topics are shown without volume/difficulty scores."
+      },
+      "trends": {
+        "title": "Trends detected"
+      },
+      "gaps": {
+        "title": "Opportunities (underserved in French)"
+      },
+      "questions": {
+        "title": "Real questions found online"
+      },
+      "bank": {
+        "title": "Topic bank",
+        "all": "All",
+        "saved": "In bank",
+        "chosen": "To write",
+        "written": "Written",
+        "empty": "Your bank is empty",
+        "emptySubtitle": "Run a search and save the topics that interest you.",
+        "savedAt": "Saved on",
+        "remove": "Remove",
+        "confirmRemove": "Remove this topic from the bank?"
+      },
+      "stepper": {
+        "research": "Research",
+        "seo": "SEO",
+        "writing": "Writing"
+      },
+      "difficulty": {
+        "débutant": "beginner",
+        "intermédiaire": "intermediate",
+        "avancé": "advanced"
+      }
     },
     "diagram": {
       "generate": "Generate diagram",

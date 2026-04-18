@@ -6,11 +6,30 @@ import { Field, inputClass } from '@/components/admin/editorPrimitives'
 const ARTICLE_TYPES = ['list', 'tutorial', 'caseStudy', 'news', 'myth']
 const TIMEOUT_MS = 300_000
 
-export default function ArticleGenerator({ onGenerated, onCancel, initialTopic = '' }) {
+const COMPETITION_LABELS = {
+  LOW: 'facile',
+  MEDIUM: 'moyen',
+  HIGH: 'élevé',
+}
+
+const COMPETITION_COLORS = {
+  LOW: 'text-green-600',
+  MEDIUM: 'text-amber-600',
+  HIGH: 'text-red-600',
+}
+
+function formatVolume(vol) {
+  if (vol == null) return '—'
+  return vol >= 1000 ? `${(vol / 1000).toFixed(1).replace('.0', '')}k` : String(vol)
+}
+
+export default function ArticleGenerator({ onGenerated, onCancel, initialTopic = '', seoData = null, initialArticleType = 'list', initialInstructions = '' }) {
   const { t } = useTranslation()
   const [topic, setTopic] = useState(initialTopic)
-  const [articleType, setArticleType] = useState('list')
-  const [instructions, setInstructions] = useState('')
+  const [articleType, setArticleType] = useState(
+    ARTICLE_TYPES.includes(initialArticleType) ? initialArticleType : 'list'
+  )
+  const [instructions, setInstructions] = useState(initialInstructions)
   const [language, setLanguage] = useState('fr')
   const [status, setStatus] = useState('idle')
   const [errorKind, setErrorKind] = useState(null)
@@ -142,6 +161,7 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
           articleType,
           instructions: instructions.trim() || undefined,
           language,
+          seoData: seoData || undefined,
         }),
         signal: controller.signal,
       })
@@ -345,6 +365,60 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
           />
         </Field>
       </div>
+
+      {/* SEO data panel (read-only, from Topic Finder) */}
+      {seoData?.primary_keyword && (
+        <div className="bg-surface rounded-xl p-4 mt-5 space-y-2">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">{t('admin.generator.seoData.title')}</p>
+
+          <div className="text-sm text-navy">
+            <span className="font-medium">{t('admin.generator.seoData.primaryKeyword')} : </span>
+            <span className="font-mono">{seoData.primary_keyword.keyword}</span>
+            {seoData.primary_keyword.search_volume != null && (
+              <span className="text-gray-500 font-mono"> ({formatVolume(seoData.primary_keyword.search_volume)}{t('admin.generator.seoData.perMonth')})</span>
+            )}
+            {seoData.primary_keyword.keyword_fr && (
+              <span className="text-gray-400"> → {seoData.primary_keyword.keyword_fr}</span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 text-xs text-gray-500">
+            <span>
+              {t('admin.generator.seoData.difficulty')} :{' '}
+              <strong className={COMPETITION_COLORS[seoData.primary_keyword.competition_level] || 'text-gray-600'}>
+                {COMPETITION_LABELS[seoData.primary_keyword.competition_level] || '—'}
+              </strong>
+            </span>
+            {seoData.primary_keyword.cpc != null && (
+              <span>{t('admin.generator.seoData.cpc')} : <strong className="text-navy">{seoData.primary_keyword.cpc.toFixed(2)}$</strong></span>
+            )}
+            <span>{t('admin.generator.seoData.intent')} : <strong className="text-steel">{seoData.primary_keyword.search_intent || '—'}</strong></span>
+          </div>
+
+          {seoData.secondary_keywords?.length > 0 && (
+            <div>
+              <p className="text-xs text-gray-400 mt-1">{t('admin.generator.seoData.secondaryKeywords')} :</p>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {seoData.secondary_keywords.map((kw, i) => (
+                  <span key={i} className="text-xs font-mono bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md">
+                    {kw.keyword}
+                    {kw.search_volume != null && (
+                      <span className="text-gray-400"> ({formatVolume(kw.search_volume)}{t('admin.generator.seoData.perMonth')})</span>
+                    )}
+                    {kw.keyword_fr && <span className="text-gray-400"> → {kw.keyword_fr}</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {seoData.seo_score != null && (
+            <p className="text-xs text-gray-500">
+              {t('admin.generator.seoData.score')} : <strong className="text-navy">{seoData.seo_score}/100</strong>
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center justify-end gap-3 pt-6 mt-5 border-t border-navy/[0.06]">
         <button

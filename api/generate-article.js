@@ -41,16 +41,58 @@ const RESEARCH_TYPE_HINTS = {
   myth: `\n\nC'est pour un article de démystification — trouve les mythes courants ET les faits qui les contredisent, avec sources.`,
 }
 
-function buildResearchQuery(topic, articleType, instructions) {
+function buildResearchQuery(topic, articleType, instructions, seoData) {
   let query = `Recherche des informations récentes et des données concrètes sur ce sujet : "${topic}"`
   query += RESEARCH_TYPE_HINTS[articleType] || ''
+  if (seoData?.primary_keyword?.keyword) {
+    query += `\n\nMot-clé SEO principal à cibler : "${seoData.primary_keyword.keyword}". Trouve des statistiques, exemples et données qui supportent ce mot-clé spécifiquement.`
+  }
   if (instructions && instructions.trim()) {
     query += `\n\nPrécisions supplémentaires : ${instructions.trim()}`
   }
   return query
 }
 
-async function fetchPerplexityResearch(topic, articleType, instructions) {
+function buildSEOInstructions(seoData) {
+  if (!seoData || !seoData.primary_keyword) return ''
+
+  const primary = seoData.primary_keyword
+  const secondary = (seoData.secondary_keywords || [])
+    .map((k) => `"${k.keyword}" (${k.search_volume}/mois)`)
+    .join(', ')
+
+  let intentHint = ''
+  if (primary.search_intent === 'informational') {
+    intentHint = "L'article doit éduquer et informer. Le lecteur cherche à comprendre."
+  } else if (primary.search_intent === 'transactional') {
+    intentHint = "L'article doit guider vers une action. Le lecteur est prêt à agir."
+  } else if (primary.search_intent === 'commercial') {
+    intentHint = "L'article doit comparer et recommander. Le lecteur évalue ses options."
+  }
+
+  return `
+
+INSTRUCTIONS SEO CRITIQUES — ces mots-clés ont des volumes de recherche réels validés par DataForSEO :
+
+MOT-CLÉ PRINCIPAL : "${primary.keyword}" (${primary.search_volume} recherches/mois, difficulté: ${primary.competition_level})
+Ce mot-clé DOIT apparaître :
+- Dans le titre (title_fr et title_en)
+- Dans l'extrait (excerpt_fr et excerpt_en)
+- Dans le premier paragraphe du contenu
+- Dans au moins 2 sous-titres H2
+- Dans la meta_title et meta_description
+- Naturellement 3-5 fois dans le corps de l'article (pas de keyword stuffing)
+
+MOTS-CLÉS SECONDAIRES : ${secondary || 'aucun'}
+Ces mots-clés doivent apparaître naturellement dans le corps du texte, dans des H2/H3 quand possible, et dans l'extrait si ça reste naturel.
+
+INTENTION DE RECHERCHE : ${primary.search_intent || 'informational'}
+${intentHint}
+
+IMPORTANT : Les mots-clés doivent être intégrés NATURELLEMENT. Un article bien écrit pour un humain EST un article bien optimisé pour Google. Ne sacrifie jamais la lisibilité pour le SEO.`
+}
+
+async function fetchPerplexityResearch(topic, articleType, instructions, seoData) {
   const perplexityKey = process.env.PERPLEXITY_API_KEY
   if (!perplexityKey) {
     console.warn('[generate-article] PERPLEXITY_API_KEY not set, skipping research')
@@ -68,7 +110,7 @@ async function fetchPerplexityResearch(topic, articleType, instructions) {
         model: 'sonar-pro',
         messages: [
           { role: 'system', content: RESEARCH_SYSTEM_PROMPT },
-          { role: 'user', content: buildResearchQuery(topic, articleType, instructions) },
+          { role: 'user', content: buildResearchQuery(topic, articleType, instructions, seoData) },
         ],
         temperature: 0.3,
       }),
@@ -308,7 +350,7 @@ export default async function handler(req, res) {
   }
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
-  const { topic, articleType, instructions, language } = body
+  const { topic, articleType, instructions, language, seoData } = body
 
   if (!topic || typeof topic !== 'string' || !topic.trim()) {
     return res.status(400).json({ error: 'Topic is required' })
@@ -324,7 +366,8 @@ export default async function handler(req, res) {
     const { research, used: researchUsed } = await fetchPerplexityResearch(
       topic.trim(),
       normalizedType,
-      instructions
+      instructions,
+      seoData
     )
     const researchElapsed = Math.round((Date.now() - started) / 1000)
     console.log(`[generate-article] Perplexity done in ${researchElapsed}s (used=${researchUsed})`)
@@ -340,7 +383,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_TOKENS,
-        system: SYSTEM_PROMPT,
+        system: SYSTEM_PROMPT + buildSEOInstructions(seoData),
         tools: [
           {
             type: 'web_search_20250305',

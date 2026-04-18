@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Pencil, Trash2, Plus, LogOut, ArrowUpCircle, Archive, RotateCcw, Share2 } from 'lucide-react'
 import AdminGuard from '@/components/admin/AdminGuard'
+import AdminTopics from '@/components/admin/AdminTopics'
 import Button from '@/components/ui/Button'
 import { supabase } from '@/lib/supabase'
 import { fetchAllPostsAdmin, deletePost, updatePostStatus } from '@/lib/posts'
@@ -10,8 +11,49 @@ import { fetchAllPostsAdmin, deletePost, updatePostStatus } from '@/lib/posts'
 export default function AdminBlog() {
   return (
     <AdminGuard>
-      <AdminBlogInner />
+      <AdminBlogShell />
     </AdminGuard>
+  )
+}
+
+function AdminBlogShell() {
+  const { t } = useTranslation()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isTopics = location.pathname === '/admin/blog/topics'
+
+  const tabs = [
+    { key: 'articles', label: t('admin.posts.title'), path: '/admin/blog' },
+    { key: 'topics', label: t('admin.topics.title'), path: '/admin/blog/topics' },
+  ]
+
+  return (
+    <section className="pt-28 pb-20 bg-warm-gray min-h-[90vh]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        {/* Tab bar */}
+        <div className="flex border-b border-gray-200 gap-0 mb-8">
+          {tabs.map((tab) => {
+            const active = tab.key === 'topics' ? isTopics : !isTopics
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => navigate(tab.path)}
+                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors duration-200 cursor-pointer ${
+                  active
+                    ? 'text-navy border-accent'
+                    : 'text-gray-500 border-transparent hover:text-navy hover:border-gray-300'
+                }`}
+              >
+                {tab.label}
+              </button>
+            )
+          })}
+        </div>
+
+        {isTopics ? <AdminTopics /> : <AdminBlogArticles />}
+      </div>
+    </section>
   )
 }
 
@@ -28,7 +70,7 @@ function formatDate(dateString, lang) {
   }
 }
 
-function AdminBlogInner() {
+function AdminBlogArticles() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language?.startsWith('en') ? 'en' : 'fr'
   const [posts, setPosts] = useState([])
@@ -77,124 +119,122 @@ function AdminBlogInner() {
   const handleLogout = () => supabase.auth.signOut()
 
   return (
-    <section className="pt-28 pb-20 bg-warm-gray min-h-[90vh]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent mb-2">
-              {t('blog.hero.overline')} · ADMIN
-            </p>
-            <h1 className="font-heading font-bold text-navy text-2xl md:text-3xl tracking-tight">
-              {t('admin.posts.title')}
-            </h1>
-            <p className="text-muted text-[14px] mt-1">{t('admin.posts.subtitle')}</p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button to="/admin/blog/new" variant="primary" className="inline-flex items-center gap-2">
-              <Plus size={16} strokeWidth={2.2} />
-              {t('admin.posts.new')}
-            </Button>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="inline-flex items-center gap-2 rounded-full border border-navy/15 bg-white px-4 py-2 text-[13px] font-medium text-navy/75 hover:text-navy hover:border-navy/30 transition-colors"
-            >
-              <LogOut size={14} strokeWidth={2} />
-              {t('admin.nav.logout')}
-            </button>
-          </div>
+    <>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent mb-2">
+            {t('blog.hero.overline')} · ADMIN
+          </p>
+          <h1 className="font-heading font-bold text-navy text-2xl md:text-3xl tracking-tight">
+            {t('admin.posts.title')}
+          </h1>
+          <p className="text-muted text-[14px] mt-1">{t('admin.posts.subtitle')}</p>
         </div>
 
-        {loading ? (
-          <p className="text-muted text-sm py-10 text-center">{t('blog.loading')}</p>
-        ) : error ? (
-          <p className="text-accent-deep text-sm py-10 text-center">
-            {t('admin.editor.feedback.error')}
-          </p>
-        ) : posts.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-navy/[0.08] p-10 text-center">
-            <p className="text-muted">{t('admin.posts.empty')}</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-3xl border border-navy/[0.08] overflow-hidden">
-            {/* Desktop table */}
-            <div className="hidden md:grid grid-cols-[1fr_140px_140px_180px] gap-4 px-6 py-4 border-b border-navy/[0.06] bg-warm-gray/40 text-[11px] font-bold uppercase tracking-[0.14em] text-navy/55">
-              <div>{t('admin.posts.columns.title')}</div>
-              <div>{t('admin.posts.columns.status')}</div>
-              <div>{t('admin.posts.columns.date')}</div>
-              <div className="text-right">{t('admin.posts.columns.actions')}</div>
-            </div>
-
-            <ul className="divide-y divide-navy/[0.06]">
-              {posts.map((post) => (
-                <li
-                  key={post.id}
-                  className="px-6 py-4 md:grid md:grid-cols-[1fr_140px_140px_180px] md:gap-4 md:items-center flex flex-col gap-3"
-                >
-                  <div>
-                    <p className="font-heading font-semibold text-navy text-[15px] tracking-tight">
-                      {post.title_fr}
-                    </p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <p className="text-muted text-[12px] font-mono">/{post.slug}</p>
-                      {post.linkedin_fr && (
-                        <span className="inline-flex items-center gap-1 text-steel" title={t('admin.posts.hasSocial')}>
-                          <Share2 size={11} strokeWidth={2} />
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <StatusBadge status={post.status} t={t} />
-                  </div>
-
-                  <div className="text-[13px] text-muted tnum">
-                    {formatDate(post.published_at, lang)}
-                  </div>
-
-                  <div className="flex items-center gap-2 md:justify-end">
-                    <IconAction
-                      to={`/admin/blog/edit/${post.id}`}
-                      icon={Pencil}
-                      label={t('admin.posts.edit')}
-                    />
-                    {post.status !== 'published' && (
-                      <IconAction
-                        onClick={() => handleStatus(post.id, 'published')}
-                        icon={ArrowUpCircle}
-                        label={t('admin.posts.publish')}
-                      />
-                    )}
-                    {post.status === 'published' && (
-                      <IconAction
-                        onClick={() => handleStatus(post.id, 'archived')}
-                        icon={Archive}
-                        label={t('admin.posts.archive')}
-                      />
-                    )}
-                    {post.status === 'archived' && (
-                      <IconAction
-                        onClick={() => handleStatus(post.id, 'draft')}
-                        icon={RotateCcw}
-                        label={t('admin.posts.unarchive')}
-                      />
-                    )}
-                    <IconAction
-                      onClick={() => handleDelete(post.id)}
-                      icon={Trash2}
-                      label={t('admin.posts.delete')}
-                      danger
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          <Button to="/admin/blog/new" variant="primary" className="inline-flex items-center gap-2">
+            <Plus size={16} strokeWidth={2.2} />
+            {t('admin.posts.new')}
+          </Button>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex items-center gap-2 rounded-full border border-navy/15 bg-white px-4 py-2 text-[13px] font-medium text-navy/75 hover:text-navy hover:border-navy/30 transition-colors"
+          >
+            <LogOut size={14} strokeWidth={2} />
+            {t('admin.nav.logout')}
+          </button>
+        </div>
       </div>
-    </section>
+
+      {loading ? (
+        <p className="text-muted text-sm py-10 text-center">{t('blog.loading')}</p>
+      ) : error ? (
+        <p className="text-accent-deep text-sm py-10 text-center">
+          {t('admin.editor.feedback.error')}
+        </p>
+      ) : posts.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-navy/[0.08] p-10 text-center">
+          <p className="text-muted">{t('admin.posts.empty')}</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-3xl border border-navy/[0.08] overflow-hidden">
+          {/* Desktop table */}
+          <div className="hidden md:grid grid-cols-[1fr_140px_140px_180px] gap-4 px-6 py-4 border-b border-navy/[0.06] bg-warm-gray/40 text-[11px] font-bold uppercase tracking-[0.14em] text-navy/55">
+            <div>{t('admin.posts.columns.title')}</div>
+            <div>{t('admin.posts.columns.status')}</div>
+            <div>{t('admin.posts.columns.date')}</div>
+            <div className="text-right">{t('admin.posts.columns.actions')}</div>
+          </div>
+
+          <ul className="divide-y divide-navy/[0.06]">
+            {posts.map((post) => (
+              <li
+                key={post.id}
+                className="px-6 py-4 md:grid md:grid-cols-[1fr_140px_140px_180px] md:gap-4 md:items-center flex flex-col gap-3"
+              >
+                <div>
+                  <p className="font-heading font-semibold text-navy text-[15px] tracking-tight">
+                    {post.title_fr}
+                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-muted text-[12px] font-mono">/{post.slug}</p>
+                    {post.linkedin_fr && (
+                      <span className="inline-flex items-center gap-1 text-steel" title={t('admin.posts.hasSocial')}>
+                        <Share2 size={11} strokeWidth={2} />
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <StatusBadge status={post.status} t={t} />
+                </div>
+
+                <div className="text-[13px] text-muted tnum">
+                  {formatDate(post.published_at, lang)}
+                </div>
+
+                <div className="flex items-center gap-2 md:justify-end">
+                  <IconAction
+                    to={`/admin/blog/edit/${post.id}`}
+                    icon={Pencil}
+                    label={t('admin.posts.edit')}
+                  />
+                  {post.status !== 'published' && (
+                    <IconAction
+                      onClick={() => handleStatus(post.id, 'published')}
+                      icon={ArrowUpCircle}
+                      label={t('admin.posts.publish')}
+                    />
+                  )}
+                  {post.status === 'published' && (
+                    <IconAction
+                      onClick={() => handleStatus(post.id, 'archived')}
+                      icon={Archive}
+                      label={t('admin.posts.archive')}
+                    />
+                  )}
+                  {post.status === 'archived' && (
+                    <IconAction
+                      onClick={() => handleStatus(post.id, 'draft')}
+                      icon={RotateCcw}
+                      label={t('admin.posts.unarchive')}
+                    />
+                  )}
+                  <IconAction
+                    onClick={() => handleDelete(post.id)}
+                    icon={Trash2}
+                    label={t('admin.posts.delete')}
+                    danger
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </>
   )
 }
 
