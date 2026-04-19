@@ -44,7 +44,7 @@ export default function FeaturedCard({ post }) {
               src={coverUrl}
               alt={coverAlt}
               loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              className="w-full h-full object-cover object-left transition-transform duration-500 group-hover:scale-[1.03]"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
