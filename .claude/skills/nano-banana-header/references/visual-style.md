@@ -1,162 +1,114 @@
-# Style visuel — Hero éditorial asymétrique
+# Style visuel — Règles de base
 
-Ce fichier définit le style cible pour toutes les images d'en-tête du blog 5PennyAi. Lis-le en début de session.
-
-## Philosophie du style
-
-**Hero éditorial asymétrique** à la Stripe Press, Ramp blog, Notion blog : une composition en deux zones où la typographie porte le sujet d'un côté, et 3-4 objets conceptuels flat racontent une mini-histoire de l'autre. Une petite signature éditoriale en haut ancre l'article dans une catégorie (série).
-
-**Trois mots-clés** : *éditorial, asymétrique, signature*.
-
-**Inspiration générique** (à décrire techniquement, jamais à nommer dans un prompt) : blog heroes de publications tech premium contemporaines, couvertures de magazines business haut de gamme, pages d'accueil de SaaS leaders (Linear, Vercel, Stripe).
-
-## Structure de la composition
-
-```
-┌──────────────────────────────────────────┐
-│         [PASTILLE ÉDITORIALE]            │  ← zone haute
-│                                           │
-│   TITRE DE                                │
-│   L'ARTICLE         [OBJET 1]   [OBJET 2]│
-│   ───                                     │
-│   SOUS-TITRE         [OBJET 3] 🟠        │  ← focal orange
-│                       [OBJET 4]           │
-│                                           │
-└──────────────────────────────────────────┘
-       Zone titre (55%)    Zone objets (45%)
-```
-
-- **Pastille éditoriale** en haut centrée (petite, discrète)
-- **Zone titre** à gauche (55% width) : titre + séparateur + sous-titre
-- **Zone objets** à droite (45% width) : 3-4 objets flat
-- **Focal orange** : un petit badge circulaire (48px) intégré dans la zone objets, près d'un des objets (souvent la loupe si présente)
-
-## Caractéristiques techniques
-
-### Composition asymétrique
-
-- **Titre aligné à gauche**, vertical-centré dans les 75% inférieurs
-- **Objets à droite** arrangés asymétriquement mais équilibrés
-- **Tilts variés** (5-15°) sur les objets pour éviter l'aspect rigide
-- **Espace négatif généreux** dans les coins (upper-right, lower-left)
-- **Overlap léger** entre 2-3 objets pour créer de la profondeur visuelle (pas trop)
-
-### Typographie
-
-**Hiérarchie stricte à 3 niveaux** :
-
-1. **Pastille éditoriale** : small caps, cobalt `#4F7CD4`, 14px bold, dans un pill blanc (light) ou transparent (dark)
-2. **Titre principal** : large bold, navy `#143054` (light) ou cream `#F7F5F2` (dark), left-aligned
-3. **Sous-titre** : medium weight, navy (light) ou cream à 85% (dark), all caps avec slight letter-spacing
-
-**Règle importante** : le sous-titre **n'est jamais en orange** (l'orange est réservé au focal unique).
-
-**Rendu du texte dans Nano Banana** :
-- Encapsuler chaque texte entre guillemets
-- **Titre : 3-5 mots maximum** (si plus long, le modèle l'écrase ou le tronque)
-- **Sous-titre : 4-8 mots maximum**
-- Séparer titre et sous-titre par un petit trait orange de 3px × 60px
-
-### Objets métaphoriques
-
-- **Flat vector 2D pur** — pas de 3D, pas d'isométrique pour les headers (réservé aux infographies type stack si besoin)
-- **3 à 4 objets maximum** par image
-- **Tailles variées** mais coordonnées : un objet principal (220-280px), 2 secondaires (120-160px), 1 discret (80-100px)
-- **Tilts variés** (5-15°) pour le mouvement
-- **Contours navy** fins (2px) quand le contraste l'exige
-- **Cohérence de style** : tous les objets dans le même registre (tous "illustrés au trait" ou tous "solides")
-
-Voir `metaphor-library.md` pour les combinaisons d'objets par thème.
-
-### Focal accent orange
-
-**Un seul élément** en orange vif `#DD8737` dans toute l'image :
-
-- **Format** : petit cercle solide de 40-50px diamètre, positionné près d'un objet (souvent partiellement overlap sur la loupe ou le document principal)
-- **Contenu** : un chiffre ou symbole court en blanc bold (ex : "5", "7", "×2", "→", "!", "?")
-- **Rôle** : point focal visuel qui attire immédiatement l'œil et donne un indice du contenu (chiffre dans le titre, symbole d'action, etc.)
-- **Jamais dupliqué** — s'il y a un "5", pas d'autre pastille orange ailleurs
-
-### Pastille éditoriale (signature variable)
-
-Petit pill rectangulaire arrondi positionné en haut centré, ~60px du bord supérieur :
-
-- **Light version** : fond blanc pur, bordure 1px cobalt `#4F7CD4`, texte small caps bold cobalt
-- **Dark version** : fond transparent, bordure 1px cobalt à 80% opacité, texte small caps bold cobalt
-- **Contenu** : "5PENNYAI · [CATÉGORIE]" (ex : "5PENNYAI · INSIGHTS")
-- **Taille texte** : 14px bold
-- **Letter-spacing** : léger (+0.05em)
+Ce fichier définit les règles **non négociables** pour tous les headers : palette, typographie, fonds. Tout le reste (composition, métaphores, scènes) est libre.
 
 ---
 
-## 🎨 Palette — Variantes Light et Dark
+## 🎨 Palette 5PennyAi
 
-### Variante Light (fond glacier) — pour TUTORIEL, CAS D'USAGE, ACTUALITÉ
+### Couleurs d'ancrage (toujours présentes)
 
-| Couleur | HEX | Rôle |
+| Couleur | HEX | Utilisation |
+|---------|-----|-------------|
+| **Navy** | `#143054` | Texte principal, contours, éléments dominants |
+| **Orange** | `#DD8737` | Accent — utilisé avec intention (jamais en cercle-avec-chiffre) |
+| **Fond** | Light ou Dark selon catégorie | Voir ci-dessous |
+
+### Fonds (déterminés par la catégorie éditoriale)
+
+**Light — pour TUTORIEL, CAS D'USAGE, ACTUALITÉ** :
+- Fond : glacier blue `#EEF4FC` (bleu très pâle teinté cobalt — **jamais** blanc pur, **jamais** crème/beige)
+- Texte principal : navy `#143054`
+
+**Dark — pour INSIGHTS, STRATÉGIE** :
+- Fond : deep navy `#0F1E3D` (navy profond — **jamais** noir pur)
+- Texte principal : cream `#F7F5F2` (jamais blanc pur — toujours un off-white chaud)
+
+### Accents vifs (à utiliser selon besoin)
+
+| Couleur | HEX | Pour |
 |---------|-----|------|
-| **Glacier** | `#EEF4FC` | Fond de l'image |
-| **Navy** | `#143054` | Titre, sous-titre, contours, objets dominants |
-| **Orange** | `#DD8737` | Focal accent unique + séparateur court sous le titre |
-| **Cobalt** | `#4F7CD4` | Objets secondaires (livre, éléments structurels), pastille éditoriale |
-| **Violet** | `#8B5CF6` | Objets secondaires alternatifs (documents, formes) |
-| **Teal** | `#14B8A6` | Petits points décoratifs, mini data-viz si présente |
+| Cobalt blue | `#4F7CD4` | Éléments principaux, objets, zones structurelles |
+| Royal violet | `#8B5CF6` | Éléments de contraste, objets secondaires |
+| Fresh teal | `#14B8A6` | Accents de fraîcheur, points décoratifs |
+| Golden amber | `#F59E0B` | Rare — pour un accent chaleureux ponctuel |
 
-### Variante Dark (fond navy) — pour INSIGHTS, STRATÉGIE
+**Règle** : maximum 5-6 couleurs distinctes dans une image. Si tu as plus, simplifie.
 
-| Couleur | HEX | Rôle |
-|---------|-----|------|
-| **Deep navy** | `#0F1E3D` | Fond de l'image (pas pur noir) |
-| **Cream** | `#F7F5F2` | Titre, sous-titre (85% opacity), contours, pages de livre |
-| **Orange** | `#DD8737` | Focal accent unique + séparateur court |
-| **Cobalt** | `#4F7CD4` | Objets principaux (livre), pastille bordure |
-| **Violet** | `#8B5CF6` | Objets secondaires |
-| **Teal** | `#14B8A6` | Petits points décoratifs |
+---
 
-**Effet dark mode** : les accents (cobalt, violet, teal, orange) deviennent **lumineux et électriques** sur le fond navy profond — c'est la signature recherchée de cette variante.
+## ✍️ Typographie
 
-## À ne JAMAIS faire
+### Règles absolues
 
-- ❌ Photoréalisme, 3D, isométrique (réservé aux infographies si besoin)
-- ❌ Dégradés, ombres portées fortes, glow effects
-- ❌ Hand-drawn, watercolor, textures papier
-- ❌ Personnages cartoon, visages, mains, corporate memphis
-- ❌ Mascottes "AI" stylisées (le robot mignon à éviter absolument)
-- ❌ Logos de marques réelles
-- ❌ Plus de 6 couleurs distinctes
-- ❌ Plus de 4 objets métaphoriques
-- ❌ Titre de plus de 5 mots / sous-titre de plus de 8 mots
-- ❌ Sous-titre en orange (orange réservé au focal unique)
-- ❌ Plus d'un accent orange (un seul focal par image)
-- ❌ Fond pur blanc ou pur noir (toujours glacier ou deep navy)
-- ❌ Typographie serif ou script (toujours sans-serif géométrique)
-- ❌ Spécifier une taille en pixels collée à un texte (bug "38px")
-- ❌ Plusieurs textes non prévus (titre + sous-titre + pastille seulement)
+- **Sans-serif géométrique** (style Inter, Outfit, DM Sans)
+- **Jamais** serif, **jamais** script, **jamais** handwritten
+- Rendu anti-aliasé net et propre
 
-## Formulation négative standard
+### Hiérarchie (3 niveaux max)
 
-```
-Avoid: photorealism, 3D rendering, isometric perspective, color
-gradients, drop shadows, glow effects, lens flare, hand-drawn or
-sketch style, watercolor textures, paper grain, corporate memphis
-illustration style with cartoon characters or stylized figures or
-disembodied hands, plastic or metallic textures, cartoon robots or
-AI mascots, real brand logos, watermarks, mixing filled and outlined
-icons, emojis, serif or script typography, cluttered layouts, pure
-white backgrounds, pure black backgrounds, warm beige or cream
-backgrounds (in light version), washed-out pastel colors, multiple
-orange elements competing for attention, subtitle rendered in orange
-color, additional text beyond title/subtitle/editorial pill, text
-labels containing pixel measurements, website URLs or footer
-signatures or "5pennyai.com" anywhere in the image.
-```
+1. **Titre principal** : grand, gras, couleur principale (navy en light / cream en dark)
+   - **3 à 5 mots maximum**
+   - Peut occuper une partie importante de l'image
 
-## Feel test
+2. **Sous-titre** (optionnel) : taille moyenne, medium weight
+   - **4 à 8 mots maximum**
+   - Généralement en all caps avec un léger letter-spacing
+   - **Jamais en orange** (l'orange est réservé au focal unique)
 
-1. L'image pourrait-elle apparaître en bannière d'un article Ramp, Notion ou Stripe sans dépareiller ?
-2. La signature éditoriale est-elle reconnaissable même en miniature (LinkedIn feed) ?
-3. Le focal orange attire-t-il l'œil immédiatement ?
-4. Le ton (light/dark) reflète-t-il bien le registre de l'article (pédagogique vs analytique) ?
-5. Les objets métaphoriques racontent-ils une mini-histoire cohérente avec le sujet ?
+3. **Pastille éditoriale** : petit texte en small caps
+   - Format : `5PENNYAI · [CATÉGORIE]`
+   - Cobalt sur fond blanc (light) ou transparent avec bordure cobalt (dark)
 
-Si tu hésites sur l'un de ces 5 points, retravaille.
+### Orange dans la typographie
+
+L'orange peut apparaître sur **un seul mot** du titre ou du sous-titre si ça sert le sujet. Exemple : "5 **MYTHES** à oublier" avec "MYTHES" en orange. Mais **une seule emphase orange** par image.
+
+---
+
+## 🖼️ Règles visuelles générales
+
+### Esthétique cible
+- **Flat vector éditorial crisp** (magazine tech moderne haut de gamme)
+- Formes nettes, aplats de couleur unis
+- Qualité impression papier glacé
+
+### Interdits absolus
+- ❌ Photoréalisme, rendu 3D, perspective isométrique
+- ❌ Dégradés de couleur (radiaux ou linéaires)
+- ❌ Drop shadows, glow effects, lens flare
+- ❌ Textures (papier, aquarelle, grain, hand-drawn)
+- ❌ Corporate memphis (bonhommes stylisés, mains désincarnées, figures génériques)
+- ❌ Cartoon, mascottes IA, robots mignons
+- ❌ Logos de marques réelles, watermarks
+- ❌ Emojis rendus comme icônes
+- ❌ **Cercle orange avec un chiffre dedans** (tic visuel banni)
+- ❌ Annotations techniques visibles (px, degrés, opacités, spec colors)
+- ❌ URL, nom de site, signature dans l'image
+
+### Composition
+- **Respirer** : espace négatif généreux, pas de surcharge
+- **Hiérarchie claire** : l'œil doit savoir où regarder en 1 seconde
+- **Cohérence narrative** : si plusieurs éléments, ils doivent dialoguer (pas s'additionner)
+
+---
+
+## 📐 Format
+
+- **Aspect ratio** : 16:9 landscape
+- **Dimensions** : approximativement 1920×1080
+- Spécifier l'aspect ratio dans le prompt ET dans les paramètres Nano Banana
+
+---
+
+## 🧪 Test de validation d'une image
+
+Après génération, se demander :
+
+1. Est-ce que je reconnais l'identité 5PennyAi (palette, style) ?
+2. Est-ce que l'image évoque bien le sujet précis de l'article ?
+3. Est-ce qu'il y a du texte parasite (px, degrés, labels aléatoires) ?
+4. Est-ce que je vois un cercle orange avec un chiffre ? (si oui → mauvais)
+5. Est-ce que la composition respire et a une hiérarchie claire ?
+
+Si une réponse est décevante, régénérer avec un prompt ajusté.

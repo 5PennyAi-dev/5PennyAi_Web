@@ -64,6 +64,20 @@ Consulter `references/diagram-types.md` pour les 7 types :
 
 Le choix est **piloté par la structure du contenu**, pas l'inverse.
 
+### Étape 2bis — Choisir le format (aspect ratio)
+
+**⚠️ Étape importante** : consulter `references/format-guide.md` pour choisir le **format approprié**.
+
+**Règle par défaut** : privilégier le **landscape (16:9 ou 3:2)** qui s'intègre naturellement au flux de lecture. Le **portrait 4:5** doit être **justifié** (vraiment nécessaire pour 5+ items verticaux).
+
+**Format recommandé par type** (voir format-guide.md pour le détail) :
+- Comparaison (3), Concept + stats (4), Système annoté (1) → **16:9 landscape**
+- Dashboard (6), Processus 4-5 étapes (2) → **3:2 landscape**
+- Catalogue 4 items équilibré → **1:1 square**
+- Catalogue 5-7 items (7A/7B), Stack hiérarchique (5), Processus 6+ étapes → **4:5 portrait** (avec justification)
+
+**Objectif éditorial** : un article standard ne devrait pas contenir plus d'**1 infographie portrait 4:5** pour préserver le rythme de lecture.
+
 ### Étape 3 — Rédiger le prompt Nano Banana
 
 Utiliser le template de `references/prompt-patterns.md`. Chaque prompt contient dans l'ordre :
@@ -172,6 +186,7 @@ Pour Nano Banana / Gemini 2.5 Flash Image (via API ou Google AI Studio) :
 
 - `references/visual-style.md` — style flat vector infographique en détail : composition, typographie, icônographie, data-viz, **palette enrichie**, do/don't
 - `references/diagram-types.md` — les 7 types avec exemples de composition
+- `references/format-guide.md` — **choix du format (aspect ratio)** selon le type d'infographie, recommandations éditoriales
 - `references/prompt-patterns.md` — template 9-sections, **exemples complets**, anti-patterns
 
 **Lis `visual-style.md` en début de session.** Les deux autres au moment du choix de type et de la rédaction du prompt.

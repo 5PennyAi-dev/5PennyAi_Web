@@ -1,102 +1,96 @@
 ---
 name: nano-banana-header
-description: Génère des prompts optimisés pour Nano Banana (Google Gemini 2.5 Flash Image) afin de produire des images d'en-tête éditoriales 16:9 pour les articles du blog 5PennyAi — composition asymétrique avec titre à gauche, objets conceptuels à droite, signature éditoriale variable (INSIGHTS, TUTORIEL, CAS D'USAGE, ACTUALITÉ, STRATÉGIE). Utilise cette skill dès que l'utilisateur demande une image d'en-tête, une bannière d'article, un header, une cover image, une illustration d'article, une image de couverture, un visuel principal, une hero image. Se déclenche aussi quand un nouvel article est créé et qu'il lui faut une image principale, ou quand une image existante doit être remplacée pour cohérence éditoriale.
+description: Génère des prompts Nano Banana pour produire des images d'en-tête éditoriales 16:9 qui représentent visuellement le sujet d'un article du blog 5PennyAi. Chaque image est pensée spécifiquement pour son article — scène, métaphore ou illustration conceptuelle selon ce qui sert le mieux le contenu. Utilise cette skill quand l'utilisateur demande une image d'en-tête, une bannière d'article, un header, une cover image, une illustration principale, une hero image, un visuel de couverture.
 ---
 
-# Nano Banana Header — Images d'en-tête éditoriales pour le blog 5PennyAi
+# Nano Banana Header — Images d'en-tête pour le blog 5PennyAi
 
-Skill de génération de prompts pour **Nano Banana** (Google Gemini 2.5 Flash Image) afin de produire des **images d'en-tête éditoriales 16:9** pour les articles du blog 5PennyAi. Ces images servent à la fois de **bannière d'article** sur le site et d'**image de partage** sur LinkedIn, Twitter, Pinterest, newsletter.
+Skill qui génère des prompts pour **Nano Banana** (Google Gemini 2.5 Flash Image) afin de produire une **image d'en-tête 16:9** qui représente bien l'article.
 
-## Contexte et intention
+---
 
-Contrairement aux **infographies internes** (voir skill `nano-banana-infographic`) qui expliquent et structurent de l'information, les **images d'en-tête** ont un rôle différent :
+## 🎯 Principe unique
 
-- **Rôle** : attirer l'œil, évoquer le sujet, donner le ton éditorial
-- **Durée de regard** : 1-2 secondes (accroche), pas de lecture longue
-- **Texte intégré** : titre + sous-titre + signature éditoriale (≤15 mots total dans l'image)
-- **Format** : toujours 16:9 landscape (1920×1080)
+**Une image d'en-tête doit faire une chose : représenter l'article de manière mémorable.**
 
-Les images générées doivent :
-- Partager la **palette 5PennyAi** avec les infographies (pour cohérence visuelle du blog)
-- Utiliser un **registre éditorial clair** via le label (INSIGHTS, TUTORIEL, CAS D'USAGE, ACTUALITÉ, STRATÉGIE)
-- Fonctionner aussi bien **sur le site** qu'en **partage social** (LinkedIn, newsletter)
+Pas de formule obligatoire, pas de check-list complexe. L'important est que l'image :
 
-## Style visuel à produire
+1. **Parle du sujet précis** de l'article (pas d'une thématique générale)
+2. **Soit visuellement belle et éditoriale** (qualité magazine haut de gamme)
+3. **Respecte l'identité visuelle** 5PennyAi (palette, typographie)
 
-**Hero éditorial asymétrique** : titre à gauche (~55% width), composition de 3-4 objets conceptuels métaphoriques à droite (~45% width), petite pastille éditoriale en haut centrée, un unique focal orange (petit badge avec chiffre ou symbole).
+C'est tout. Pour le reste, fais preuve de jugement éditorial.
 
-Deux variantes de fond au choix selon le registre de l'article :
-- **Light (glacier `#EEF4FC`)** — registre accessible, pédagogique, pratique
-- **Dark (navy profond `#0F1E3D`)** — registre premium, analytique, editorial
+---
 
-Détails techniques complets dans `references/visual-style.md` — **lis ce fichier en début de session**.
+## 📋 Processus en 3 étapes
 
-## Processus
+### Étape 1 — Comprendre l'article en profondeur
 
-### Étape 1 — Analyser l'article
+Lire le contenu de l'article et répondre à ces questions :
 
-Extraire de l'article :
+1. **De quoi parle précisément l'article ?** (en 1 phrase spécifique, pas "IA" mais "comment un entrepreneur en peinture utilise l'IA pour gérer ses devis")
+2. **Quel est le message ou l'émotion centrale ?** (démystification, conseil, surprise, etc.)
+3. **Quel titre court pourrait apparaître dans l'image ?** (3-5 mots max)
+4. **Quel sous-titre court ?** (4-8 mots max, optionnel)
+5. **Quelle catégorie éditoriale ?** (INSIGHTS, TUTORIEL, CAS D'USAGE, ACTUALITÉ, STRATÉGIE — voir `editorial-categories.md`)
 
-1. **Le sujet central** (1 phrase : de quoi parle l'article)
-2. **Le titre** (version courte pour l'image : 3-5 mots max)
-3. **Le sous-titre** (accroche de 4-8 mots max, pas le sous-titre complet de l'article)
-4. **Le registre éditorial** : pédagogique ? analytique ? pratique ? démystification ?
-5. **Le "focal visuel"** : un chiffre ou symbole court qui évoque le contenu (ex : "5" pour "5 mythes", "×2" pour "doubler", "→" pour "transformation", "!" pour surprise, "?")
+### Étape 2 — Imaginer l'image qui représente le mieux ce sujet
 
-### Étape 2 — Choisir la catégorie éditoriale et le fond
+**Il n'y a pas de formule**. Choisis librement ce qui sert le mieux l'article. Ça peut être :
 
-Consulter `references/editorial-categories.md` pour choisir parmi les 5 labels :
+- **Une scène illustrée** (ex : un atelier d'artisan au travail, un jardin, une cuisine, un paysage symbolique)
+- **Un objet unique et fort** (métaphore dominante qui occupe la composition)
+- **Une typographie audacieuse** avec une lettre qui devient un élément visuel
+- **Deux situations en diptyque** (avant/après, ici/ailleurs)
+- **Une composition conceptuelle abstraite** (formes géométriques qui évoquent le sujet)
+- **Autre chose** que tu trouves plus approprié
 
-- **INSIGHTS** 🌙 → dark navy
-- **STRATÉGIE** 🌙 → dark navy
-- **TUTORIEL** ☀️ → light glacier
-- **CAS D'USAGE** ☀️ → light glacier
-- **ACTUALITÉ** ☀️ → light glacier
+Le seul impératif : **cette image doit être spécifique à CET article**, pas interchangeable avec un autre.
 
-La règle est automatique : **la catégorie détermine le fond**. Cette cohérence aide le lecteur à identifier le type de contenu au premier coup d'œil.
+Pour t'aider, `references/inspiration.md` contient des pistes (pas des règles) organisées par grand type d'article.
 
-### Étape 3 — Choisir les 3-4 objets métaphoriques
+### Étape 3 — Rédiger le prompt Nano Banana
 
-Consulter `references/metaphor-library.md` pour trouver les bons objets selon le thème de l'article (IA, automatisation, vente, SEO, service client, etc.).
+**Principes de rédaction du prompt** (voir `references/prompt-writing.md` pour détails) :
 
-**Règles** :
-- **3 à 4 objets maximum** (trop = encombré)
-- **Objets complémentaires** qui racontent ensemble une mini-histoire (pas 4 objets au hasard)
-- **Formes flat 2D** simples et reconnaissables
-- **Tailles variées** mais dans une gamme cohérente (120-280px)
+- Décris **ce que tu vois dans l'image** comme si tu la décrivais à quelqu'un qui ne peut pas la voir
+- Sois **précis** sur la palette (HEX exacts de 5PennyAi — voir `visual-style.md`)
+- Sois **précis** sur le texte à afficher (entre guillemets)
+- **Ne mentionne jamais de tailles en pixels, de tilts en degrés, d'opacités en pourcentages** dans les descriptions qui pourraient fuiter dans l'image rendue
+- Inclus **toujours** la section "avoid:" pour bloquer les dérives connues
 
-### Étape 4 — Rédiger le prompt Nano Banana
+---
 
-Utiliser le template de `references/prompt-patterns.md`. Chaque prompt contient :
+## ✅ Règles dures (seulement 5)
 
-1. **Médium + style global**
-2. **Composition asymétrique détaillée** (titre gauche, objets droite)
-3. **Pastille éditoriale** (texte et emplacement)
-4. **Typographie exacte** (titre, sous-titre, séparateur orange)
-5. **Objets métaphoriques** (liste précise avec position, taille, couleur, tilt)
-6. **Focal accent** (petit badge orange avec chiffre/symbole)
-7. **Palette HEX** (light ou dark selon registre)
-8. **Format 16:9**
-9. **Négatifs** (avoid:)
+1. **Palette 5PennyAi** : fond glacier `#EEF4FC` (light) OU navy `#0F1E3D` (dark) selon la catégorie éditoriale. Accents : navy `#143054`, orange `#DD8737`, cobalt `#4F7CD4`, violet `#8B5CF6`, teal `#14B8A6`.
 
-### Étape 5 — Livrer
+2. **Pas de cercle orange avec un chiffre dedans** (banni — c'était devenu un tic visuel). L'orange peut apparaître autrement : typographie, soulignement, tache de couleur intégrée dans la scène, etc.
 
-Format de sortie standard :
+3. **Pas d'accumulation d'objets flottants sans lien**. Si plusieurs éléments sont présents, ils doivent **dialoguer entre eux** (une scène, pas une bibliothèque d'icônes éparpillées).
+
+4. **Texte dans l'image** : titre (3-5 mots) + sous-titre optionnel (4-8 mots) + pastille éditoriale. Rien d'autre. Pas de labels d'objets, pas de specs techniques, pas d'annotations.
+
+5. **Style général** : flat vector éditorial crisp. Pas de 3D, pas de photoréalisme, pas de corporate memphis (bonhommes stylisés), pas de cartoon, pas de hand-drawn, pas de dégradés visibles.
+
+---
+
+## 📤 Format de livraison
 
 ```markdown
 ## Image d'en-tête proposée
 
 **Catégorie éditoriale** : [INSIGHTS / TUTORIEL / CAS D'USAGE / ACTUALITÉ / STRATÉGIE]
 **Fond** : [Light glacier ☀️ / Dark navy 🌙]
+**Concept de l'image** : [1-2 phrases qui décrivent ce que l'image représente et POURQUOI ça sert l'article]
 **Titre dans l'image** : "[3-5 mots]"
-**Sous-titre dans l'image** : "[4-8 mots]"
-**Focal visuel** : "[chiffre ou symbole court]"
-**Objets métaphoriques** : [liste des 3-4 objets choisis]
+**Sous-titre dans l'image** : "[4-8 mots]" ou "aucun"
 
 ### Prompt Nano Banana (EN — recommandé)
 
 ```
-[Prompt complet, 200-400 mots]
+[Prompt complet, 150-300 mots]
 ```
 
 ### Prompt Nano Banana (FR — alternative)
@@ -109,62 +103,31 @@ Format de sortie standard :
 
 - **FR** : [description accessible, 2 phrases]
 - **EN** : [English alt text]
-
-### Notes pour itération
-
-[3-5 suggestions d'ajustement]
 ```
 
-## Règles dures
+---
 
-- **Toujours** inclure la pastille éditoriale en haut (variante B choisie pour 5PennyAi)
-- **Toujours** utiliser la palette 5PennyAi (même HEX que les infographies)
-- **Toujours** un seul focal orange (le petit badge avec chiffre/symbole)
-- **Toujours** section "avoid:" explicite
-- **Jamais** subtitle en orange (réservé au focal unique et aux petits accents)
-- **Jamais** logos de marques réelles
-- **Jamais** personnages cartoon, corporate memphis, figures stylisées
-- **Jamais** d'autres textes que : pastille éditoriale + titre + sous-titre (3 blocs textuels maximum)
-- **Titre dans l'image** : 3-5 mots maximum — si plus long, reformuler
-- **Sous-titre dans l'image** : 4-8 mots maximum
-- **Température Nano Banana** : 0.4 (validée empiriquement)
+## 🌡️ Paramètres Nano Banana
 
-## Checklist avant livraison
+- **Température** : **0.4**
+- **Aspect ratio** : 16:9
+- **Model** : `gemini-2.5-flash-image-preview`
 
-- [ ] Catégorie éditoriale choisie et fond correspondant (light/dark) validé
-- [ ] Titre image ≤ 5 mots
-- [ ] Sous-titre image ≤ 8 mots
-- [ ] 3-4 objets métaphoriques pertinents au sujet (pas décoratifs aléatoires)
-- [ ] Un seul focal orange (badge avec chiffre/symbole)
-- [ ] Prompt contient les 9 sections dans l'ordre
-- [ ] Palette HEX cohérente avec skill `nano-banana-infographic`
-- [ ] Section avoid: présente
-- [ ] Alt text FR + EN
-- [ ] Prompt EN (principal) + FR (alternative)
+---
 
 ## Fichiers de référence
 
-- `references/visual-style.md` — style cible en détail : composition, typographie, objets, palette light et dark, do/don't
-- `references/editorial-categories.md` — les 5 catégories éditoriales + règle de choix automatique
-- `references/metaphor-library.md` — répertoire d'objets métaphoriques par thème d'article
-- `references/prompt-patterns.md` — template 9-sections, **3 exemples complets** (INSIGHTS dark, TUTORIEL light, CAS D'USAGE light), pièges de formulation
+- `references/visual-style.md` — palette, typographie, light/dark (règles visuelles de base)
+- `references/editorial-categories.md` — les 5 catégories éditoriales + règle light/dark automatique
+- `references/inspiration.md` — **pistes d'inspiration par type d'article** (pas des règles à suivre à la lettre, des idées à adapter)
+- `references/prompt-writing.md` — **comment bien écrire un prompt Nano Banana** (principes + pièges à éviter)
 
-**Lis `visual-style.md` en début de session.** Les autres : au moment du choix de catégorie et de métaphores.
+---
 
-## 🌡️ Paramètres de génération recommandés
+## 🎨 Note finale sur l'approche
 
-Identiques à la skill `nano-banana-infographic` (testés empiriquement) :
+Cette skill est conçue pour être **souple**. Elle te fait confiance pour comprendre l'article et imaginer l'image appropriée. Les fichiers de référence donnent des **matières premières** (palette, exemples d'approches, pièges techniques) mais ne dictent pas quoi faire.
 
-- **Température** : **0.4**
-- **Aspect ratio** : 16:9 (spécifier dans le prompt ET en paramètre de génération)
-- **Model** : `gemini-2.5-flash-image-preview`
+Si tu sens qu'un article mérite une image très simple (une seule forme, beaucoup de blanc), fais-le. S'il mérite une scène riche, fais-le aussi. L'important est le **jugement éditorial** au service de l'article.
 
-## Cohérence avec les autres skills
-
-- **Palette identique** à `nano-banana-infographic` (même HEX)
-- **Typographie** du même registre (sans-serif géométrique Inter/Outfit)
-- **Orange `#DD8737`** comme focal unique (même règle)
-- **Pas de footer/URL dans l'image** (même règle)
-- **Flat vector crisp** (même esthétique générale)
-
-Le lecteur doit percevoir une **continuité visuelle** entre le header d'article et les infographies internes — c'est la signature du blog 5PennyAi.
+Cohérence avec `nano-banana-infographic` : même palette, même typographie, même qualité éditoriale — pour que le lecteur perçoive un blog unifié.

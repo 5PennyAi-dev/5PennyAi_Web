@@ -51,6 +51,7 @@ function loadSkillFile(relativePath) {
 const SKILL_MD = loadSkillFile('SKILL.md')
 const VISUAL_STYLE = loadSkillFile('references/visual-style.md')
 const DIAGRAM_TYPES = loadSkillFile('references/diagram-types.md')
+const FORMAT_GUIDE = loadSkillFile('references/format-guide.md')
 const PROMPT_PATTERNS = loadSkillFile('references/prompt-patterns.md')
 
 const SYSTEM_PROMPT = `${SKILL_MD}
@@ -60,6 +61,9 @@ ${VISUAL_STYLE}
 
 # Reference: diagram-types.md
 ${DIAGRAM_TYPES}
+
+# Reference: format-guide.md
+${FORMAT_GUIDE}
 
 # Reference: prompt-patterns.md
 ${PROMPT_PATTERNS}

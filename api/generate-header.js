@@ -61,8 +61,8 @@ function loadSkillFile(relativePath) {
 const SKILL_MD = loadSkillFile('SKILL.md')
 const VISUAL_STYLE = loadSkillFile('references/visual-style.md')
 const EDITORIAL_CATEGORIES = loadSkillFile('references/editorial-categories.md')
-const METAPHOR_LIBRARY = loadSkillFile('references/metaphor-library.md')
-const PROMPT_PATTERNS = loadSkillFile('references/prompt-patterns.md')
+const INSPIRATION = loadSkillFile('references/inspiration.md')
+const PROMPT_WRITING = loadSkillFile('references/prompt-writing.md')
 
 const SYSTEM_PROMPT = `${SKILL_MD}
 
@@ -72,11 +72,11 @@ ${VISUAL_STYLE}
 # Reference: editorial-categories.md
 ${EDITORIAL_CATEGORIES}
 
-# Reference: metaphor-library.md
-${METAPHOR_LIBRARY}
+# Reference: inspiration.md
+${INSPIRATION}
 
-# Reference: prompt-patterns.md
-${PROMPT_PATTERNS}
+# Reference: prompt-writing.md
+${PROMPT_WRITING}
 
 # Output format — STRICT
 You MUST respond with ONLY a single JSON object, parseable by JSON.parse. No markdown fences, no preamble, no commentary.
