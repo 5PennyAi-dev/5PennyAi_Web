@@ -276,7 +276,7 @@ export default function Blog() {
           {loading ? (
             <div>
               {currentPage === 1 && !hasActiveFilters && <SkeletonCard featured />}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {Array.from({ length: currentPage === 1 && !hasActiveFilters ? 5 : 6 }).map((_, i) => (
                   <SkeletonCard key={i} />
                 ))}
@@ -301,7 +301,7 @@ export default function Blog() {
               {showFeatured && <FeaturedCard post={paginatedPosts[0]} />}
               <div
                 ref={gridRef}
-                className="grid grid-cols-1 md:grid-cols-2 gap-8 scroll-mt-24"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 scroll-mt-24"
               >
                 {(showFeatured ? paginatedPosts.slice(1) : paginatedPosts).map((post) => (
                   <BlogCard key={post.id} post={post} />
