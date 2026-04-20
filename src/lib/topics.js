@@ -22,9 +22,12 @@ export async function saveTopic(topic, searchId) {
       angle: topic.angle,
       difficulty: topic.difficulty,
       keywords: topic.keywords,
+      keywords_en: topic.keywords_en || [],
       sources: topic.sources,
       blog_precisions: topic.blog_precisions,
       seo_data: topic.seo_data || {},
+      business_relevance: topic.business_relevance || null,
+      specificity: topic.specificity || null,
       status: 'saved',
     })
     .select()

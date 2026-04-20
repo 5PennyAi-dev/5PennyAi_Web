@@ -20,7 +20,7 @@ const COMPETITION_LABELS = {
   HIGH: 'élevé',
 }
 
-function SEOScoreBadge({ score }) {
+function SEOScoreBadge({ score, t }) {
   if (score == null) {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono bg-gray-100 text-gray-400">
@@ -28,14 +28,19 @@ function SEOScoreBadge({ score }) {
       </span>
     )
   }
-  const tone =
+  const { tone, labelKey } =
     score >= 70
-      ? 'bg-green-100 text-green-800 border-green-300'
-      : score >= 40
-        ? 'bg-amber-100 text-amber-800 border-amber-300'
-        : 'bg-red-100 text-red-800 border-red-300'
+      ? { tone: 'bg-green-100 text-green-800 border-green-300', labelKey: 'excellent' }
+      : score >= 50
+        ? { tone: 'bg-blue-100 text-blue-800 border-blue-300', labelKey: 'good' }
+        : score >= 35
+          ? { tone: 'bg-amber-100 text-amber-800 border-amber-300', labelKey: 'medium' }
+          : { tone: 'bg-gray-100 text-gray-600 border-gray-200', labelKey: 'weak' }
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${tone}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${tone}`}
+      title={t(`admin.topics.score.${labelKey}`)}
+    >
       SEO: {score}
     </span>
   )
@@ -110,7 +115,7 @@ export default function TopicCard({
             {topic.title}
           </h3>
           <div className="flex items-center gap-2 shrink-0 mt-0.5">
-            <SEOScoreBadge score={seoScore} />
+            <SEOScoreBadge score={seoScore} t={t} />
             {expanded ? (
               <ChevronUp size={16} className="text-gray-400" />
             ) : (
@@ -215,6 +220,11 @@ export default function TopicCard({
                 ))}
               </div>
             </div>
+          )}
+
+          {/* Score breakdown — 4 dimensions */}
+          {seo.score_breakdown && (
+            <ScoreBreakdown t={t} breakdown={seo.score_breakdown} topic={topic} />
           )}
 
           {/* Sources */}
@@ -353,6 +363,48 @@ export default function TopicCard({
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function ScoreBreakdown({ t, breakdown, topic }) {
+  const rows = [
+    { key: 'search', value: breakdown.search, max: 25, barClass: 'bg-steel' },
+    { key: 'rank', value: breakdown.rank, max: 30, barClass: 'bg-green-600' },
+    { key: 'business', value: breakdown.business, max: 25, barClass: 'bg-accent', reason: topic.business_relevance?.reason },
+    { key: 'specificity', value: breakdown.specificity, max: 20, barClass: 'bg-lavender', reason: topic.specificity?.reason },
+  ]
+  return (
+    <div>
+      <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
+        {t('admin.topics.score.title')}
+      </p>
+      <div className="space-y-2">
+        {rows.map((row) => (
+          <div key={row.key} className="flex items-center gap-3 text-xs">
+            <span className="w-24 shrink-0 text-gray-500">
+              {t(`admin.topics.score.${row.key}`)}
+            </span>
+            <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full ${row.barClass}`}
+                style={{ width: `${(row.value / row.max) * 100}%` }}
+              />
+            </div>
+            <span className="w-12 shrink-0 text-right font-mono text-gray-600 tabular-nums">
+              {row.value}/{row.max}
+            </span>
+            {row.reason && (
+              <span
+                className="hidden md:inline text-gray-400 truncate max-w-[220px]"
+                title={row.reason}
+              >
+                {row.reason}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

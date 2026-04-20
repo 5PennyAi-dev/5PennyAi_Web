@@ -31,7 +31,25 @@ Sois exhaustif. Cite les sources avec URLs quand possible. Concentre-toi sur le 
 
 const STRUCTURING_SYSTEM_PROMPT = `Tu es un stratège de contenu expert pour le blog 5PennyAi qui aide les PME à comprendre l'IA.
 
-On te donne un rapport de recherche brut. Analyse-le et retourne UNIQUEMENT un JSON valide (pas de markdown, pas de backticks, pas de texte avant/après) :
+On te donne un rapport de recherche brut. Analyse-le et retourne UNIQUEMENT un JSON valide (pas de markdown, pas de backticks, pas de texte avant/après).
+
+SCORING ÉDITORIAL — pour chaque sujet, évalue deux dimensions :
+
+PERTINENCE BUSINESS (0-25 points) :
+5PennyAi offre ces services : développement d'applications IA sur mesure, intégration de modèles de langage dans des processus existants, automatisation de workflows par agents IA, prompt engineering, prototypage rapide, et audit/stratégie IA pour PME.
+- 20-25 pts : Le sujet mène DIRECTEMENT à ces services. Un lecteur qui lit cet article penserait naturellement "j'ai besoin d'aide pour faire ça" → appel découverte. Ex: "Comment automatiser vos processus internes avec l'IA"
+- 13-19 pts : Le sujet est lié aux services mais indirectement. Le lecteur apprend quelque chose d'utile et découvre 5PennyAi. Ex: "5 outils IA gratuits pour les PME"
+- 6-12 pts : Le sujet est éducatif sur l'IA mais ne crée pas de besoin pour les services. Ex: "Comment l'IA transforme l'industrie manufacturière"
+- 0-5 pts : Le sujet n'a aucun lien avec les services. Ex: "L'histoire de l'intelligence artificielle depuis 1950"
+
+SPÉCIFICITÉ (0-20 points) :
+Un nouveau blog doit cibler des niches, pas des termes génériques.
+- 16-20 pts : Sujet très spécifique, longue traîne, peu de compétition probable. Cible un type de PME ou un cas d'usage précis. Ex: "Automatiser la facturation pour les cabinets comptables avec l'IA"
+- 10-15 pts : Sujet ciblé mais pas ultra-niche. Ex: "Comment les PME utilisent les chatbots pour le service client"
+- 5-9 pts : Sujet assez large, beaucoup de compétiteurs probables. Ex: "Les avantages de l'IA pour les entreprises"
+- 0-4 pts : Sujet trop générique, dominé par les gros sites. Ex: "Qu'est-ce que l'intelligence artificielle?"
+
+Structure JSON attendue :
 {
   "topics": [
     {
@@ -44,7 +62,15 @@ On te donne un rapport de recherche brut. Analyse-le et retourne UNIQUEMENT un J
       "keywords": ["3-5 mots-clés SEO en français"],
       "keywords_en": ["3-5 mots-clés SEO en anglais"],
       "sources": ["URLs ou descriptions des sources"],
-      "blog_precisions": "Instructions complètes pour la rédaction : audience, angle, problème, mots-clés, sources, ton."
+      "blog_precisions": "Instructions complètes pour la rédaction : audience, angle, problème, mots-clés, sources, ton.",
+      "business_relevance": {
+        "score": 22,
+        "reason": "Explication en 1 phrase courte"
+      },
+      "specificity": {
+        "score": 16,
+        "reason": "Explication en 1 phrase courte"
+      }
     }
   ],
   "trends": ["3-5 tendances émergentes"],
@@ -52,7 +78,7 @@ On te donne un rapport de recherche brut. Analyse-le et retourne UNIQUEMENT un J
   "content_gaps": ["3-5 sujets peu couverts en français"]
 }
 
-Trouve au moins 6 sujets variés. Les titres doivent être accrocheurs et orientés bénéfice pour le lecteur PME. Les mots-clés doivent être des termes que quelqu'un taperait dans Google.`
+Trouve au moins 6 sujets variés. Les titres doivent être accrocheurs et orientés bénéfice pour le lecteur PME. Les mots-clés doivent être des termes que quelqu'un taperait dans Google. Les reasons de scoring doivent tenir en 1 phrase.`
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -93,11 +119,17 @@ function isValidTopicsShape(obj) {
   )
 }
 
-function enrichTopicWithSEO(topic, dfsResults) {
+function clamp(n, lo, hi) {
+  return Math.max(lo, Math.min(hi, n))
+}
+
+// Maps DataForSEO results onto a topic's EN keywords and returns the keyword
+// structure used by the UI. Score calculation is centralized in
+// `calculateTopicScore` below — this function only shapes the raw SEO data.
+function buildSeoKeywordData(topic, dfsResults) {
   const kwEn = topic.keywords_en || []
   const kwFr = topic.keywords || []
 
-  // Build a lookup map for case-insensitive + trimmed matching
   const dfsMap = new Map()
   for (const item of dfsResults) {
     if (item.keyword) {
@@ -105,7 +137,6 @@ function enrichTopicWithSEO(topic, dfsResults) {
     }
   }
 
-  // Map EN keywords to DataForSEO results, pair with FR equivalent
   const keywordData = kwEn.map((kw, i) => {
     const match = dfsMap.get(kw.trim().toLowerCase())
     const frEquivalent = kwFr[i] || null
@@ -123,34 +154,57 @@ function enrichTopicWithSEO(topic, dfsResults) {
   })
 
   const sorted = [...keywordData].sort((a, b) => (b.search_volume || 0) - (a.search_volume || 0))
-  const primary = sorted[0] || {}
-  const secondary = sorted.slice(1)
+  return {
+    primary_keyword: sorted[0] || {},
+    secondary_keywords: sorted.slice(1),
+    fetched_at: new Date().toISOString(),
+  }
+}
 
-  // SEO score composite (0-100)
-  // Favouring: high volume + low difficulty + informational intent (educational blog)
-  const volumeScore = Math.min((primary.search_volume || 0) / 50, 40) // max 40 pts
-  const difficultyScore =
-    primary.competition_level === 'LOW'
-      ? 30
-      : primary.competition_level === 'MEDIUM'
-        ? 20
-        : primary.competition_level === 'HIGH'
-          ? 10
-          : 15 // max 30 pts
-  const intent = (primary.search_intent || 'informational').toLowerCase()
-  const intentScore =
-    intent === 'informational' ? 30
-      : intent === 'commercial' ? 20
-        : intent === 'navigational' ? 15
-          : intent === 'transactional' ? 10
-            : 20 // max 30 pts
-  const seoScore = Math.round(volumeScore + difficultyScore + intentScore)
+// 4-dimension composite score (0-100). Used for both fresh results and fallback
+// when DataForSEO is unavailable — in that case the two SEO dimensions fall
+// back to their low defaults and Claude's business/specificity scores drive
+// the total.
+function calculateTopicScore(topic, seoData) {
+  // Dim 1 — Recherche (max 25)
+  const volume = seoData?.primary_keyword?.search_volume || 0
+  let searchScore =
+    volume >= 5000 ? 25
+    : volume >= 2000 ? 22
+    : volume >= 1000 ? 18
+    : volume >= 500 ? 14
+    : volume >= 200 ? 10
+    : volume >= 50 ? 6
+    : 2
+  const intent = (seoData?.primary_keyword?.search_intent || '').toLowerCase()
+  if (intent === 'informational') searchScore = Math.min(searchScore + 3, 25)
+
+  // Dim 2 — Ranker (max 30)
+  const comp = (seoData?.primary_keyword?.competition_level || 'UNKNOWN').toUpperCase()
+  let rankScore =
+    comp === 'LOW' ? 28
+    : comp === 'MEDIUM' ? 18
+    : comp === 'HIGH' ? 8
+    : 15
+  const kw = seoData?.primary_keyword?.keyword || ''
+  const words = kw.trim().split(/\s+/).filter(Boolean).length
+  if (words >= 4) rankScore = Math.min(rankScore + 5, 30)
+  else if (words >= 3) rankScore = Math.min(rankScore + 2, 30)
+
+  // Dim 3 — Business (max 25, défaut moyen 12 si Claude n'a pas scoré)
+  const businessScore = clamp(topic.business_relevance?.score ?? 12, 0, 25)
+
+  // Dim 4 — Spécificité (max 20, défaut moyen 10 si Claude n'a pas scoré)
+  const specificityScore = clamp(topic.specificity?.score ?? 10, 0, 20)
 
   return {
-    primary_keyword: primary,
-    secondary_keywords: secondary,
-    seo_score: Math.min(seoScore, 100),
-    fetched_at: new Date().toISOString(),
+    total: Math.min(searchScore + rankScore + businessScore + specificityScore, 100),
+    breakdown: {
+      search: searchScore,
+      rank: rankScore,
+      business: businessScore,
+      specificity: specificityScore,
+    },
   }
 }
 
@@ -350,7 +404,7 @@ export default async function handler(req, res) {
       if (enriched) {
         structured.topics = structured.topics.map((topic) => ({
           ...topic,
-          seo_data: enrichTopicWithSEO(topic, results),
+          seo_data: buildSeoKeywordData(topic, results),
         }))
         seoAvailable = true
       }
@@ -362,6 +416,22 @@ export default async function handler(req, res) {
   } else {
     console.warn('[search-topics] DataForSEO credentials not configured, skipping SEO enrichment')
   }
+
+  // Step 4: Composite score (always runs — fallback defaults kick in when SEO is missing)
+  structured.topics = structured.topics.map((topic) => {
+    const score = calculateTopicScore(topic, topic.seo_data)
+    return {
+      ...topic,
+      seo_data: {
+        ...(topic.seo_data || {}),
+        seo_score: score.total,
+        score_breakdown: score.breakdown,
+      },
+    }
+  })
+
+  // Sort descending: best opportunities first
+  structured.topics.sort((a, b) => (b.seo_data?.seo_score || 0) - (a.seo_data?.seo_score || 0))
 
   const totalElapsed = Math.round((Date.now() - started) / 1000)
   console.log(`[search-topics] Pipeline complete in ${totalElapsed}s — ${structured.topics.length} topics, seo=${seoAvailable}`)

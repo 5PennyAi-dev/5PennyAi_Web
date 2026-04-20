@@ -699,6 +699,17 @@
         "score": "SEO",
         "unavailable": "Les données SEO ne sont pas disponibles pour cette recherche. Les sujets sont affichés sans scores de volume/difficulté."
       },
+      "score": {
+        "title": "Score",
+        "search": "Recherche",
+        "rank": "Ranker",
+        "business": "Business",
+        "specificity": "Spécificité",
+        "excellent": "Excellent potentiel",
+        "good": "Bon potentiel",
+        "medium": "Potentiel moyen",
+        "weak": "Faible potentiel"
+      },
       "trends": {
         "title": "Tendances détectées"
       },
