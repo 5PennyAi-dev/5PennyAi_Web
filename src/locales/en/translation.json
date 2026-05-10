@@ -125,7 +125,7 @@
         "description": "App that turns a simple Etsy product photo into an SEO-optimized listing in under 60 seconds. Multi-model AI pipeline, serverless full-stack architecture. Designed, built and deployed solo.",
         "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
         "image": "/images/portfolio/dashboard-full.png",
-        "link": "/portfolio",
+        "link": "/portfolio/pennyseo",
         "cta": "View case study"
       },
       {
@@ -430,6 +430,35 @@
       "subtitle": "An email is enough to clarify the next step. I reply quickly.",
       "button": "Get in touch"
     }
+  },
+  "portfolio_index": {
+    "seo": {
+      "title": "Portfolio — Christian Couillard",
+      "description": "Case studies of AI products designed, built and shipped solo: multi-model SEO SaaS, automated editorial pipeline."
+    },
+    "hero": {
+      "overline": "PORTFOLIO",
+      "title": "Case studies",
+      "subtitle": "AI products built end-to-end — from concept to production deployment."
+    },
+    "items": [
+      {
+        "title": "PennySEO — AI SEO optimization SaaS",
+        "description": "App that turns a simple Etsy product photo into an SEO-optimized listing in under 60 seconds. Multi-model AI pipeline, serverless full-stack architecture. Designed, built and deployed solo.",
+        "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
+        "image": "/images/portfolio/dashboard-full.png",
+        "link": "/portfolio/pennyseo",
+        "cta": "View case study"
+      },
+      {
+        "title": "Automated editorial pipeline — Multimodal AI content generation",
+        "description": "End-to-end pipeline generating SEO-optimized articles for the 5pennyai.com blog. Three orchestrated LLMs: real-time web research, structured writing via a custom skill, image and infographic generation. A dozen articles already published.",
+        "tags": ["Perplexity", "Claude API", "Gemini Image", "Custom skills"],
+        "image": "/images/portfolio/keywords-table.png",
+        "link": "/portfolio/pipeline-editorial",
+        "cta": "View case study"
+      }
+    ]
   },
   "portfolio": {
     "seo": {

@@ -125,7 +125,7 @@
         "description": "Application qui transforme une simple photo de produit Etsy en fiche optimisée SEO en moins de 60 secondes. Pipeline IA multi-modèles, architecture full-stack serverless. Conçu, développé et déployé en solo.",
         "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
         "image": "/images/portfolio/dashboard-full.png",
-        "link": "/portfolio",
+        "link": "/portfolio/pennyseo",
         "cta": "Voir l'étude de cas"
       },
       {
@@ -430,6 +430,35 @@
       "subtitle": "Un courriel suffit pour clarifier la suite. Je réponds rapidement.",
       "button": "Me contacter"
     }
+  },
+  "portfolio_index": {
+    "seo": {
+      "title": "Portfolio — Christian Couillard",
+      "description": "Études de cas de produits IA conçus, développés et déployés en solo : SaaS SEO multi-modèles, pipeline éditorial automatisé."
+    },
+    "hero": {
+      "overline": "PORTFOLIO",
+      "title": "Études de cas",
+      "subtitle": "Produits IA construits de bout en bout — du concept au déploiement en production."
+    },
+    "items": [
+      {
+        "title": "PennySEO — SaaS d'optimisation SEO par IA",
+        "description": "Application qui transforme une simple photo de produit Etsy en fiche optimisée SEO en moins de 60 secondes. Pipeline IA multi-modèles, architecture full-stack serverless. Conçu, développé et déployé en solo.",
+        "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
+        "image": "/images/portfolio/dashboard-full.png",
+        "link": "/portfolio/pennyseo",
+        "cta": "Voir l'étude de cas"
+      },
+      {
+        "title": "Pipeline éditorial automatisé — Génération de contenu IA multimodale",
+        "description": "Pipeline complet de génération d'articles SEO-optimisés pour le blog 5pennyai.com. Trois LLMs orchestrés : recherche web, rédaction structurée par skill custom, génération d'images et infographies. Une dizaine d'articles publiés.",
+        "tags": ["Perplexity", "Claude API", "Gemini Image", "Skills custom"],
+        "image": "/images/portfolio/keywords-table.png",
+        "link": "/portfolio/pipeline-editorial",
+        "cta": "Voir l'étude de cas"
+      }
+    ]
   },
   "portfolio": {
     "seo": {

@@ -8,6 +8,7 @@ import ServicesPage from '@/pages/ServicesPage'
 import AboutPage from '@/pages/AboutPage'
 import Contact from '@/pages/Contact'
 import Portfolio from '@/pages/Portfolio'
+import PortfolioIndex from '@/pages/PortfolioIndex'
 import PortfolioPipeline from '@/pages/PortfolioPipeline'
 import Blog from '@/pages/Blog'
 import BlogPost from '@/pages/BlogPost'
@@ -50,7 +51,7 @@ function App() {
           <Route path="/services" element={<Navigate to="/expertise" replace />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/portfolio" element={<PortfolioIndex />} />
           <Route path="/portfolio/pennyseo" element={<Portfolio />} />
           <Route path="/portfolio/pipeline-editorial" element={<PortfolioPipeline />} />
           <Route path="/blog" element={<Blog />} />
