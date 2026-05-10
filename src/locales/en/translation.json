@@ -132,7 +132,7 @@
         "title": "Automated editorial pipeline — Multimodal AI content generation",
         "description": "End-to-end pipeline generating SEO-optimized articles for the 5pennyai.com blog. Three orchestrated LLMs: real-time web research, structured writing via a custom skill, image and infographic generation. A dozen articles already published.",
         "tags": ["Perplexity", "Claude API", "Gemini Image", "Custom skills"],
-        "image": "/images/portfolio/keywords-table.png",
+        "image": "/images/portfolio/pipeline-automatise.png",
         "link": "/portfolio/pipeline-editorial",
         "cta": "View case study"
       }
@@ -454,7 +454,7 @@
         "title": "Automated editorial pipeline — Multimodal AI content generation",
         "description": "End-to-end pipeline generating SEO-optimized articles for the 5pennyai.com blog. Three orchestrated LLMs: real-time web research, structured writing via a custom skill, image and infographic generation. A dozen articles already published.",
         "tags": ["Perplexity", "Claude API", "Gemini Image", "Custom skills"],
-        "image": "/images/portfolio/keywords-table.png",
+        "image": "/images/portfolio/pipeline-automatise.png",
         "link": "/portfolio/pipeline-editorial",
         "cta": "View case study"
       }

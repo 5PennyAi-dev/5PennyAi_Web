@@ -132,7 +132,7 @@
         "title": "Pipeline éditorial automatisé — Génération de contenu IA multimodale",
         "description": "Pipeline complet de génération d'articles SEO-optimisés pour le blog 5pennyai.com. Trois LLMs orchestrés : recherche web, rédaction structurée par skill custom, génération d'images et infographies. Une dizaine d'articles publiés.",
         "tags": ["Perplexity", "Claude API", "Gemini Image", "Skills custom"],
-        "image": "/images/portfolio/keywords-table.png",
+        "image": "/images/portfolio/pipeline-automatise.png",
         "link": "/portfolio/pipeline-editorial",
         "cta": "Voir l'étude de cas"
       }
@@ -454,7 +454,7 @@
         "title": "Pipeline éditorial automatisé — Génération de contenu IA multimodale",
         "description": "Pipeline complet de génération d'articles SEO-optimisés pour le blog 5pennyai.com. Trois LLMs orchestrés : recherche web, rédaction structurée par skill custom, génération d'images et infographies. Une dizaine d'articles publiés.",
         "tags": ["Perplexity", "Claude API", "Gemini Image", "Skills custom"],
-        "image": "/images/portfolio/keywords-table.png",
+        "image": "/images/portfolio/pipeline-automatise.png",
         "link": "/portfolio/pipeline-editorial",
         "cta": "Voir l'étude de cas"
       }
