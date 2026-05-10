@@ -298,11 +298,11 @@
     },
     "story": {
       "section1_title": "Mon parcours",
-      "section1_p1": "Après plus de 20 ans dans les technologies de l'information — dont plusieurs années comme analyste fonctionnel chez CGI, au CHU de Québec, à l'INSPQ et dans le secteur public québécois — j'ai fondé 5PennyiA pour me consacrer entièrement à ce qui me passionne : construire des solutions AI concrètes.",
-      "section1_p2": "Mon expérience en analyse fonctionnelle m'a appris à écouter les besoins d'affaires avant de penser technologie. Aujourd'hui, je combine cette compréhension du terrain avec une expertise technique pointue pour développer des applications AI qui résolvent de vrais problèmes.",
-      "section2_title": "Pourquoi 5PennyiA?",
-      "section2_p1": "Je crois que l'intelligence artificielle ne devrait pas être réservée aux grandes entreprises avec des budgets illimités. Les PME ont des besoins concrets — automatiser un processus, analyser des données, améliorer l'expérience client — et méritent des solutions accessibles, livrées rapidement, par quelqu'un qui comprend leur réalité.",
-      "section2_p2": "C'est exactement ce que je fais : transformer des problèmes d'affaires en solutions AI opérationnelles, du prototype à la mise en production."
+      "section1_p1": "Mon parcours académique reflète une curiosité large : philosophie, informatique, bioinformatique, et sciences des données. J'ai toujours aimé explorer plusieurs domaines en profondeur, parce que les bonnes idées naissent souvent à l'intersection de plusieurs disciplines. Cette envie d'apprendre continue aujourd'hui — je passe une partie de mon temps à expérimenter avec les outils IA les plus récents, et je documente ce que j'apprends sur ce site.",
+      "section1_p2": "Pendant plus de 20 ans, j'ai livré du logiciel dans des environnements complexes — santé publique (INSPQ, CHU de Québec), justice (Ministère de la Justice), gouvernement, secteur institutionnel (Russell Investments, CGI). Cette discipline d'exécution est aujourd'hui ce qui distingue ma pratique en IA générative appliquée : je ne fais pas que des prototypes, je livre en production.",
+      "section2_title": "Ce que je construis aujourd'hui",
+      "section2_p1": "Aujourd'hui, je conçois et déploie des produits IA de bout en bout — analyse, architecture, développement, déploiement. RAG, agents, orchestration multi-LLM, automatisation de processus.",
+      "section2_p2": "5pennyai.com est mon <strong>laboratoire personnel</strong> : c'est là que j'expérimente, que je publie ce que j'apprends, et que je documente les projets que je construis. <strong>PennySEO</strong> (SaaS d'optimisation SEO par IA) et le <strong>pipeline éditorial automatisé</strong> qui alimente ce site sont mes deux réalisations principales — <portfolioLink>voir la section Réalisations</portfolioLink> pour les détails techniques."
     },
     "expertise": {
       "overline": "EXPERTISE",

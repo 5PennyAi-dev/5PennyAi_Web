@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async'
-import { useTranslation } from 'react-i18next'
+import { useTranslation, Trans } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { Code2, Plug, FileText, BarChart3, MapPin, Mail, ShieldCheck, BrainCircuit, BarChart2, Award } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import SectionHeader from '@/components/ui/SectionHeader'
@@ -135,7 +136,18 @@ export default function AboutPage() {
                 {t('about_page.story.section2_p1')}
               </p>
               <p className="text-muted text-[15px] leading-relaxed">
-                {t('about_page.story.section2_p2')}
+                <Trans
+                  i18nKey="about_page.story.section2_p2"
+                  components={{
+                    strong: <strong className="font-semibold text-navy" />,
+                    portfolioLink: (
+                      <Link
+                        to="/portfolio"
+                        className="text-accent hover:brightness-90 underline underline-offset-2 decoration-accent/30 hover:decoration-accent transition-all"
+                      />
+                    ),
+                  }}
+                />
               </p>
             </div>
           </div>

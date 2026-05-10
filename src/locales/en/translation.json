@@ -298,11 +298,11 @@
     },
     "story": {
       "section1_title": "My background",
-      "section1_p1": "After more than 20 years in information technology — including several years as a functional analyst at CGI, CHU de Québec, INSPQ, and the Quebec public sector — I founded 5PennyAi to dedicate myself entirely to what I love: building concrete AI solutions.",
-      "section1_p2": "My experience in functional analysis taught me to listen to business needs before thinking about technology. Today, I combine that field-tested understanding with sharp technical expertise to develop AI applications that solve real problems.",
-      "section2_title": "Why 5PennyAi?",
-      "section2_p1": "I believe artificial intelligence shouldn't be reserved for large companies with unlimited budgets. SMBs have concrete needs — automating a process, analyzing data, improving customer experience — and deserve accessible solutions, delivered quickly, by someone who understands their reality.",
-      "section2_p2": "That's exactly what I do: turning business problems into operational AI solutions, from prototype to production."
+      "section1_p1": "My academic path reflects broad curiosity: philosophy, computer science, bioinformatics, and data science. I've always enjoyed exploring multiple fields in depth, because good ideas often emerge at the intersection of disciplines. That drive to learn is still active today — I spend part of my time experimenting with the latest AI tools and documenting what I learn on this site.",
+      "section1_p2": "For more than 20 years, I've shipped software in demanding environments — public health (INSPQ, CHU de Québec), justice (Quebec Ministry of Justice), government, institutional (Russell Investments, CGI). That delivery discipline is what sets my applied generative-AI practice apart today: I don't just prototype, I ship to production.",
+      "section2_title": "What I'm building today",
+      "section2_p1": "Today, I design and ship AI products end-to-end — analysis, architecture, development, deployment. RAG, agents, multi-LLM orchestration, process automation.",
+      "section2_p2": "5pennyai.com is my <strong>personal lab</strong>: where I experiment, publish what I learn, and document the projects I build. <strong>PennySEO</strong> (AI SEO optimization SaaS) and the <strong>automated editorial pipeline</strong> that powers this site are my two main case studies — <portfolioLink>see the Portfolio section</portfolioLink> for the technical details."
     },
     "expertise": {
       "overline": "EXPERTISE",
