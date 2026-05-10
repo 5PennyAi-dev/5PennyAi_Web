@@ -1,6 +1,7 @@
 {
   "nav": {
     "services": "Services",
+    "expertise": "Expertise",
     "about": "About",
     "portfolio": "Portfolio",
     "blog": "Blog",
@@ -11,17 +12,16 @@
     "admin": "Admin"
   },
   "hero": {
-    "overline": "AI SOLUTIONS FOR BUSINESSES",
-    "title_before": "",
-    "title_highlight": "AI",
-    "title_after": " applied to your business, without the complexity.",
-    "subtitle": "Custom AI application development, model integration and strategy — for SMBs that want to move fast.",
-    "cta_primary": "Book a call",
-    "cta_secondary": "View my work",
+    "overline": "PERSONAL PORTFOLIO",
+    "name": "Christian Couillard",
+    "role": "AI Solutions Engineer · Builder & applied-AI consultant",
+    "description": "I design and ship end-to-end AI products. 20+ years of software delivery experience in service of applied generative AI — RAG, agents, automation. Based in Québec City.",
+    "cta_primary": "See my work",
+    "cta_secondary": "Get in touch",
     "metrics": [
-      { "value": "20+", "label": "Years of IT experience" },
+      { "value": "20+", "label": "Years in software delivery" },
       { "value": "5", "label": "AI & Data certifications" },
-      { "value": "2-4 wks", "label": "To a working prototype" }
+      { "value": "2+", "label": "Years in applied generative AI" }
     ]
   },
   "comparison": {
@@ -116,6 +116,60 @@
     "description": "AI-powered SEO analysis application. Automatic generation of recommendations, content auditing and position tracking.",
     "tags": ["React", "Supabase", "Gemini AI", "Vercel"]
   },
+  "realisations": {
+    "overline": "WORK",
+    "title": "Projects shipped to production",
+    "items": [
+      {
+        "title": "PennySEO — AI SEO optimization SaaS",
+        "description": "App that turns a simple Etsy product photo into an SEO-optimized listing in under 60 seconds. Multi-model AI pipeline, serverless full-stack architecture. Designed, built and deployed solo.",
+        "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
+        "image": "/images/portfolio/dashboard-full.png",
+        "link": "/portfolio",
+        "cta": "View case study"
+      },
+      {
+        "title": "Automated editorial pipeline — Multimodal AI content generation",
+        "description": "End-to-end pipeline generating SEO-optimized articles for the 5pennyai.com blog. Three orchestrated LLMs: real-time web research, structured writing via a custom skill, image and infographic generation. A dozen articles already published.",
+        "tags": ["Perplexity", "Claude API", "Gemini Image", "Custom skills"],
+        "image": "/images/portfolio/keywords-table.png",
+        "link": "/portfolio/pipeline-editorial",
+        "cta": "View case study"
+      }
+    ]
+  },
+  "tools": {
+    "overline": "STACK",
+    "title": "My daily tools",
+    "subtitle": "The stack I use to build and ship every day.",
+    "groups": [
+      {
+        "label": "AI & LLMs",
+        "items": ["Claude API", "Gemini", "OpenAI", "Perplexity", "MCP", "Pinecone"]
+      },
+      {
+        "label": "Development",
+        "items": ["React 19", "Node.js", "TypeScript", "Python", "Tailwind CSS"]
+      },
+      {
+        "label": "Cloud & Architecture",
+        "items": ["Vercel Serverless", "Supabase", "Azure AI", "n8n"]
+      }
+    ]
+  },
+  "home_contact": {
+    "overline": "CONTACT",
+    "title": "Let's work together",
+    "subtitle": "Open to a full-time role in applied AI or a consulting engagement — Québec City area, hybrid or remote.",
+    "email_label": "Email",
+    "email": "christian.couillard@gmail.com",
+    "linkedin_label": "LinkedIn",
+    "linkedin_handle": "Christian Couillard",
+    "linkedin_url": "https://www.linkedin.com/in/christian-couillard-86705146/",
+    "github_label": "GitHub",
+    "github_handle": "github.com/5PennyAi-dev",
+    "github_url": "https://github.com/5PennyAi-dev"
+  },
   "latestPosts": {
     "overline": "BLOG",
     "title": "Latest articles",
@@ -155,15 +209,15 @@
     "title": "Schedule your discovery call"
   },
   "footer": {
-    "copyright": "© 2026 5PennyAi. All rights reserved.",
-    "made_with": "Made with passion in Québec, QC",
-    "tagline": "AI Solutions for businesses",
+    "copyright": "© 2026 Christian Couillard. All rights reserved.",
+    "made_with": "Based in Québec, QC · 5pennyai.com — personal applied-AI lab",
+    "tagline": "AI Solutions Engineer",
     "admin": "Admin"
   },
   "seo": {
     "home": {
-      "title": "5PennyAi — AI Solutions for SMBs",
-      "description": "Custom AI application development, model integration and strategy for SMBs. Fast prototypes, accessible pricing."
+      "title": "Christian Couillard — AI Solutions Engineer",
+      "description": "AI Solutions Engineer · Builder & applied-AI consultant. I design and ship end-to-end AI products — RAG, agents, automation. 20+ years in software delivery, based in Québec City."
     },
     "blog": {
       "title": "Blog — 5PennyAi",
@@ -172,57 +226,57 @@
   },
   "services_page": {
     "seo": {
-      "title": "Services — 5PennyAi",
-      "description": "Discover my AI services: custom apps, integration, prompt engineering, fast MVPs and strategic audits."
+      "title": "Expertise — Christian Couillard",
+      "description": "AI areas of expertise: full-stack applications, LLM integration, prompt engineering, RAG/agents, advisory & architecture. Backed by concrete projects."
     },
     "hero": {
-      "overline": "SERVICES",
-      "title": "AI solutions tailored to every need.",
-      "subtitle": "Whether you need a fast prototype or a complete integration, I adapt to your reality."
+      "overline": "EXPERTISE",
+      "title": "My areas of expertise",
+      "subtitle": "These are the areas where I bring the most value, illustrated with concrete projects."
     },
-    "case_label": "Typical case:",
+    "case_label": "Flagship project:",
     "items": {
       "app": {
-        "title": "Custom AI applications",
-        "description": "Complete development of AI-powered applications. From concept to deployed product.",
-        "tags": ["SaaS", "Internal tools", "Dashboards", "Automation"],
-        "case": "PennySEO — SaaS platform for SEO analysis with AI scoring, image analysis, and automated reports. Stack React + Supabase + Gemini + Vercel."
+        "title": "Full-stack AI applications",
+        "description": "I design and build end-to-end AI applications, from concept to deployed product. Serverless architecture, multi-model pipelines, production-grade LLM integration.",
+        "tags": ["SaaS", "AI pipelines", "Serverless architecture", "Production"],
+        "case": "PennySEO — SaaS SEO analysis platform with AI scoring and image analysis. Designed and shipped solo."
       },
       "integration": {
-        "title": "AI integration into your systems",
-        "description": "Connect AI models (Gemini, Claude, OpenAI) to your existing tools and workflows. APIs, webhooks, databases.",
-        "tags": ["AI APIs", "Webhooks", "Supabase", "CRM / ERP"],
-        "case": "An SMB wants to add AI content generation to its existing CMS, or automate support ticket classification with a model."
+        "title": "LLM integration & multi-model orchestration",
+        "description": "I integrate AI models (Claude, Gemini, OpenAI, Perplexity) into existing systems or orchestrated pipelines. APIs, webhooks, vector stores, MCP, n8n.",
+        "tags": ["Multi-LLM", "MCP", "Pinecone", "n8n", "Webhooks"],
+        "case": "Automated editorial pipeline — orchestration of 3 cascading LLMs to generate articles + illustrations in production."
       },
       "prompt": {
-        "title": "Prompt engineering & optimization",
-        "description": "Calibrate your prompts, design scoring pipelines, and optimize the quality of AI results. The detail that makes the difference between a prototype and a reliable product.",
+        "title": "Prompt engineering & AI quality",
+        "description": "I calibrate complex prompts, design scoring pipelines and evaluation systems to guarantee AI quality in production. The detail that makes the difference between a POC and a reliable product.",
         "tags": ["Calibration", "Scoring", "Pipelines", "Evaluation"],
-        "case": "You have a chatbot or AI tool but the results are inconsistent. I optimize the prompts and set up a scoring system to guarantee quality."
+        "case": "PennySEO — calibrated on 100+ examples, 4-tier composite scoring, multi-prompt pipelines."
       },
       "mvp": {
-        "title": "Rapid prototyping (MVP)",
-        "description": "Validate an idea quickly with a working prototype. No endless Figma mockups — code that works, delivered in 2-4 weeks.",
-        "tags": ["Proof of concept", "Validation", "Fast iteration"],
-        "case": "You have an idea for an AI product but don't know if it's feasible. I deliver a working MVP to test the market before investing further."
+        "title": "RAG, Agents & automation",
+        "description": "I build RAG (retrieval-augmented generation) systems, autonomous agents and process automations in production. Custom Claude skills, MCP, multi-tool orchestration.",
+        "tags": ["RAG", "Agents", "MCP", "Custom skills", "Automation"],
+        "case": "PennyAudit — AI audit system orchestrated by 5–6 custom Claude skills (in progress)."
       },
       "audit": {
-        "title": "AI audit & strategy",
-        "description": "Evaluate where AI can have a concrete impact in your company. Approach recommendations, API cost estimation, model selection.",
-        "tags": ["Diagnostic", "AI Roadmap", "Cost estimation"],
-        "case": "You hear about AI everywhere but don't know where to start. I audit your processes and deliver a concrete action plan."
+        "title": "Advisory & AI architecture",
+        "description": "I bring architectural expertise to organizations moving from AI POC to production. Model selection, pipeline design, cost estimation, governance.",
+        "tags": ["Architecture", "Model selection", "API costs", "Governance"],
+        "case": "20 years of software delivery experience in complex environments (government, healthcare, public sector)."
       }
     },
     "tech": {
       "title": "Technologies mastered",
       "label": "TOOLKIT"
     },
-    "counter": "5 services",
+    "counter": "5 areas",
     "intro_label": "Index",
     "cta": {
-      "title": "Got a project in mind?",
-      "subtitle": "Let's discuss it in a free 30-minute discovery call.",
-      "button": "Book a call"
+      "title": "Curious or interested?",
+      "subtitle": "I'm open to a full-time role in applied AI or a consulting engagement. Reach out at christian.couillard@gmail.com or find me on LinkedIn.",
+      "button": "Get in touch"
     }
   },
   "about_page": {
@@ -325,19 +379,19 @@
     },
     "cta": {
       "title": "Let's work together",
-      "subtitle": "Book a free discovery call.",
-      "button": "Book a call"
+      "subtitle": "Open to a full-time role in applied AI or a consulting engagement.",
+      "button": "Get in touch"
     }
   },
   "contact": {
     "seo": {
-      "title": "Contact — 5PennyAi",
-      "description": "Let's talk about your AI project. Form, email, phone, and free discovery call."
+      "title": "Contact — Christian Couillard",
+      "description": "Let's discuss an applied-AI opportunity. Email, LinkedIn, GitHub — Québec City area, hybrid or remote."
     },
     "hero": {
       "overline": "CONTACT",
-      "title": "Let's talk about your project.",
-      "subtitle": "A question, an idea, a project? Book a call or send me a message."
+      "title": "Let's work together.",
+      "subtitle": "An opportunity, a question, an idea? Drop me a line — I reply quickly."
     },
     "form": {
       "name": "Name",
@@ -358,22 +412,23 @@
       "submit": "Send message",
       "sending": "Sending…",
       "success": "Message sent!",
-      "error": "Something went wrong. Please try again or email me directly at christian.couillard@5pennyai.com."
+      "error": "Something went wrong. Please try again or email me directly at christian.couillard@gmail.com."
     },
     "info": {
       "title": "Contact details",
       "phone": "(418) 208-9866",
       "location": "Québec, QC",
+      "availability": "Hybrid or remote",
       "social_title": "Social"
     },
     "booking": {
-      "label": "DISCOVERY CALL",
-      "text": "Prefer a call? Book a 30-minute slot, free, no commitment."
+      "label": "CALL",
+      "text": "Prefer a call? Drop me a line and we'll find a time that works."
     },
     "cta": {
       "title": "Not sure where to start?",
-      "subtitle": "A 30-minute call is enough to clarify your needs.",
-      "button": "Book a call"
+      "subtitle": "An email is enough to clarify the next step. I reply quickly.",
+      "button": "Get in touch"
     }
   },
   "portfolio": {
@@ -436,8 +491,70 @@
     },
     "cta": {
       "title": "Got a similar project in mind?",
-      "subtitle": "Let's discuss how AI can turn your idea into a product.",
-      "button": "Book a call"
+      "subtitle": "Drop me a line — I'm open to a role or a consulting engagement.",
+      "button": "Get in touch"
+    }
+  },
+  "portfolio_pipeline": {
+    "seo": {
+      "title": "Automated editorial pipeline — Christian Couillard",
+      "description": "Case study: end-to-end pipeline generating SEO-optimized articles. 3 orchestrated LLMs (Perplexity, Claude, Gemini Image), custom skill, running in production on 5pennyai.com."
+    },
+    "hero": {
+      "overline": "CASE STUDY",
+      "title": "Automated editorial pipeline",
+      "subtitle": "Multimodal AI content generation — research, writing and illustration in an orchestrated pipeline.",
+      "tags": ["Perplexity", "Claude API", "Gemini Image", "Custom skills", "Vercel"],
+      "link_label": "View the blog (live in production)",
+      "link_to": "/blog"
+    },
+    "challenge": {
+      "overline": "THE CHALLENGE",
+      "title": "The challenge",
+      "text": "Running a quality technical blog takes hours of research, writing and illustration. How do you automate the entire flow without sacrificing editorial quality?"
+    },
+    "solution": {
+      "overline": "THE SOLUTION",
+      "title": "The solution",
+      "text": "A pipeline orchestrating three cascading LLMs: Perplexity explores the live web to validate topics and find sources, Claude writes structured articles through a custom skill calibrated for SEO quality, and Gemini 2.5 Flash Image (NanoBanana) generates illustrations and infographics. Result: time-to-publish divided by 5 to 10."
+    },
+    "architecture": {
+      "overline": "ARCHITECTURE",
+      "title": "Technical architecture",
+      "steps": ["Topic", "Perplexity Search", "Claude (blog-generator skill)", "Gemini Image", "Markdown + assets", "Publish"]
+    },
+    "screenshots": {
+      "overline": "IN ACTION",
+      "title": "The pipeline in action",
+      "items": [
+        {
+          "title": "Research & SEO validation",
+          "description": "Topics are validated through real-time web search. SEO score is computed to prioritize the angles with the highest potential."
+        },
+        {
+          "title": "Structured writing",
+          "description": "The custom Claude skill generates a full article with H1/H2/H3 structure, hook intro, cited sources, and CTAs aligned with SEO guidelines."
+        },
+        {
+          "title": "Multimodal illustration",
+          "description": "NanoBanana generates hero image + infographics consistent with the brand identity. Automatic iterations until the output is satisfactory."
+        }
+      ]
+    },
+    "results": {
+      "overline": "RESULTS",
+      "title": "Results & key numbers",
+      "items": [
+        { "value": "3", "label": "Orchestrated LLMs" },
+        { "value": "10+", "label": "Published articles" },
+        { "value": "1", "label": "Custom Claude skill" },
+        { "value": "~15 min", "label": "Per article (vs 3–4 h manual)" }
+      ]
+    },
+    "cta": {
+      "title": "An AI pipeline to design?",
+      "subtitle": "I'm open to a full-time role in applied AI or a consulting engagement. Reach out to discuss.",
+      "button": "Get in touch"
     }
   },
   "blog": {
@@ -475,9 +592,9 @@
       "next": "Next article",
       "back": "Back to blog",
       "cta": {
-        "title": "Have an AI project?",
-        "subtitle": "Let's discuss it in a free 30-minute discovery call.",
-        "button": "Book a call"
+        "title": "An opportunity or AI project?",
+        "subtitle": "Drop me a line — I'm open to a full-time role in applied AI or a consulting engagement.",
+        "button": "Get in touch"
       }
     },
     "notFound": {

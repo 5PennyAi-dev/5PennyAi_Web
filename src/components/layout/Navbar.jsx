@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
-import BookingButton from '@/components/ui/BookingButton'
 import Logo from '@/components/ui/Logo'
 
 const navLinks = [
-  { key: 'nav.services', to: '/services' },
+  { key: 'nav.expertise', to: '/expertise' },
   { key: 'nav.about', to: '/about' },
   { key: 'nav.portfolio', to: '/portfolio' },
   { key: 'nav.blog', to: '/blog' },
-  { key: 'nav.faq', href: '/#faq' },
   { key: 'nav.contact', to: '/contact' },
 ]
 
@@ -117,16 +115,18 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            to="/admin/blog"
-            className={`text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 ${
-              scrolled
-                ? 'text-navy/40 hover:text-navy/75'
-                : 'text-white/40 hover:text-white/80'
-            }`}
-          >
-            {t('nav.admin')}
-          </Link>
+          {import.meta.env.DEV && (
+            <Link
+              to="/admin/blog"
+              className={`text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 ${
+                scrolled
+                  ? 'text-navy/40 hover:text-navy/75'
+                  : 'text-white/40 hover:text-white/80'
+              }`}
+            >
+              {t('nav.admin')}
+            </Link>
+          )}
           <button
             onClick={toggleLang}
             className={`text-[12px] font-semibold tracking-wide transition-colors duration-200 px-3 py-1.5 rounded-full border ${
@@ -138,9 +138,6 @@ export default function Navbar() {
           >
             {t('nav.lang_toggle')}
           </button>
-          <BookingButton variant="primary" className="text-[13px] px-5 py-2">
-            {t('nav.cta')}
-          </BookingButton>
         </div>
 
         <button
@@ -158,22 +155,21 @@ export default function Navbar() {
           <div className="px-5 py-5 space-y-1">
             {navLinks.map(renderMobileLink)}
             <div className="flex flex-wrap items-center gap-3 pt-4 mt-3 border-t border-navy/5">
-              <Link
-                to="/admin/blog"
-                onClick={() => setMobileOpen(false)}
-                className="text-[11px] font-bold uppercase tracking-[0.14em] text-navy/40 hover:text-navy/75 transition-colors"
-              >
-                {t('nav.admin')}
-              </Link>
+              {import.meta.env.DEV && (
+                <Link
+                  to="/admin/blog"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-[11px] font-bold uppercase tracking-[0.14em] text-navy/40 hover:text-navy/75 transition-colors"
+                >
+                  {t('nav.admin')}
+                </Link>
+              )}
               <button
                 onClick={toggleLang}
                 className="text-sm font-semibold text-navy/55 hover:text-navy px-3 py-1.5 rounded-full border border-navy/10"
               >
                 {t('nav.lang_toggle')}
               </button>
-              <BookingButton variant="primary" onClick={() => setMobileOpen(false)}>
-                {t('nav.cta')}
-              </BookingButton>
             </div>
           </div>
         </div>

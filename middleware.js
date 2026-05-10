@@ -6,7 +6,7 @@ const CRAWLER_PATTERN =
   /LinkedInBot|facebookexternalhit|Facebot|Twitterbot|Slackbot|TelegramBot|Discordbot/i
 
 const SITE_URL = 'https://5pennyai.com'
-const SITE_NAME = '5PennyAi'
+const SITE_NAME = 'Christian Couillard'
 const DEFAULT_IMAGE = `${SITE_URL}/images/pennyseo-logo.png`
 
 function escapeHtml(str) {

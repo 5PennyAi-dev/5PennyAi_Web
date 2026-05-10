@@ -1,15 +1,10 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import Hero from '@/components/sections/Hero'
-import Comparison from '@/components/sections/Comparison'
-import Services from '@/components/sections/Services'
-import Benefits from '@/components/sections/Benefits'
-import Process from '@/components/sections/Process'
-import CaseStudy from '@/components/sections/CaseStudy'
+import Realisations from '@/components/sections/Realisations'
+import Tools from '@/components/sections/Tools'
 import LatestPosts from '@/components/sections/LatestPosts'
-import FAQ from '@/components/sections/FAQ'
-import CTABlock from '@/components/sections/CTABlock'
-import Booking from '@/components/sections/Booking'
+import HomeContact from '@/components/sections/HomeContact'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -22,17 +17,19 @@ export default function Home() {
         <meta property="og:title" content={t('seo.home.title')} />
         <meta property="og:description" content={t('seo.home.description')} />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Christian Couillard" />
+        <meta property="og:url" content="https://5pennyai.com" />
+        <meta property="og:image" content="https://5pennyai.com/images/pennyseo-logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={t('seo.home.title')} />
+        <meta name="twitter:description" content={t('seo.home.description')} />
+        <meta name="twitter:image" content="https://5pennyai.com/images/pennyseo-logo.png" />
       </Helmet>
       <Hero />
-      <Comparison />
-      <Services />
-      <Benefits />
-      <Process />
-      <CaseStudy />
+      <Realisations />
+      <Tools />
       <LatestPosts />
-      <FAQ />
-      <CTABlock />
-      <Booking />
+      <HomeContact />
     </>
   )
 }

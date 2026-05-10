@@ -8,7 +8,6 @@ import rehypeRaw from 'rehype-raw'
 import { ArrowLeft, ArrowRight, Copy, Check } from 'lucide-react'
 import useScrollReveal from '@/hooks/useScrollReveal'
 import Button from '@/components/ui/Button'
-import BookingButton from '@/components/ui/BookingButton'
 import ShaderBackground from '@/components/ui/ShaderBackground'
 import { fetchPostBySlug, fetchAdjacentPosts, resolveCoverImage, resolveCoverAlt } from '@/lib/posts'
 import { localizedField } from '@/lib/postI18n'
@@ -299,9 +298,9 @@ export default function BlogPost() {
               <p className="text-white/65 text-[15px] mb-7 max-w-md mx-auto leading-relaxed">
                 {t('blog.post.cta.subtitle')}
               </p>
-              <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
+              <Button to="/contact" variant="primary" className="px-8 py-3.5 text-[15px]">
                 {t('blog.post.cta.button')}
-              </BookingButton>
+              </Button>
             </div>
           </div>
         </div>

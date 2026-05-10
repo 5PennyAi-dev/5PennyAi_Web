@@ -1,6 +1,7 @@
 {
   "nav": {
     "services": "Services",
+    "expertise": "Expertise",
     "about": "À propos",
     "portfolio": "Portfolio",
     "blog": "Blog",
@@ -11,17 +12,16 @@
     "admin": "Admin"
   },
   "hero": {
-    "overline": "SOLUTIONS IA POUR ENTREPRISES",
-    "title_before": "L'",
-    "title_highlight": "IA",
-    "title_after": " appliquée à votre business, sans la complexité.",
-    "subtitle": "Développement d'applications AI sur mesure, intégration de modèles et stratégie — pour les PME qui veulent avancer vite.",
-    "cta_primary": "Réserver un appel",
-    "cta_secondary": "Voir mes réalisations",
+    "overline": "PORTFOLIO PERSONNEL",
+    "name": "Christian Couillard",
+    "role": "AI Solutions Engineer · Builder & Consultant IA appliquée",
+    "description": "Je construis et déploie des produits IA de bout en bout. 20+ ans d'expérience en livraison logicielle au service de l'IA générative appliquée — RAG, agents, automatisation. Basé à Québec.",
+    "cta_primary": "Voir mes réalisations",
+    "cta_secondary": "Me contacter",
     "metrics": [
-      { "value": "20+", "label": "Années d'expérience en TI" },
-      { "value": "5", "label": "Certifications AI & Data" },
-      { "value": "2-4 sem.", "label": "Pour un prototype fonctionnel" }
+      { "value": "20+", "label": "Années en livraison logicielle" },
+      { "value": "5", "label": "Certifications IA & Data" },
+      { "value": "2+", "label": "Années en IA générative appliquée" }
     ]
   },
   "comparison": {
@@ -116,6 +116,60 @@
     "description": "Application d'analyse SEO propulsée par l'intelligence artificielle. Génération automatique de recommandations, audit de contenu et suivi de positionnement.",
     "tags": ["React", "Supabase", "Gemini AI", "Vercel"]
   },
+  "realisations": {
+    "overline": "RÉALISATIONS",
+    "title": "Projets construits, déployés en production",
+    "items": [
+      {
+        "title": "PennySEO — SaaS d'optimisation SEO par IA",
+        "description": "Application qui transforme une simple photo de produit Etsy en fiche optimisée SEO en moins de 60 secondes. Pipeline IA multi-modèles, architecture full-stack serverless. Conçu, développé et déployé en solo.",
+        "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
+        "image": "/images/portfolio/dashboard-full.png",
+        "link": "/portfolio",
+        "cta": "Voir l'étude de cas"
+      },
+      {
+        "title": "Pipeline éditorial automatisé — Génération de contenu IA multimodale",
+        "description": "Pipeline complet de génération d'articles SEO-optimisés pour le blog 5pennyai.com. Trois LLMs orchestrés : recherche web, rédaction structurée par skill custom, génération d'images et infographies. Une dizaine d'articles publiés.",
+        "tags": ["Perplexity", "Claude API", "Gemini Image", "Skills custom"],
+        "image": "/images/portfolio/keywords-table.png",
+        "link": "/portfolio/pipeline-editorial",
+        "cta": "Voir l'étude de cas"
+      }
+    ]
+  },
+  "tools": {
+    "overline": "STACK",
+    "title": "Mes outils quotidiens",
+    "subtitle": "Stack avec laquelle je construis et déploie au quotidien.",
+    "groups": [
+      {
+        "label": "IA & LLMs",
+        "items": ["Claude API", "Gemini", "OpenAI", "Perplexity", "MCP", "Pinecone"]
+      },
+      {
+        "label": "Développement",
+        "items": ["React 19", "Node.js", "TypeScript", "Python", "Tailwind CSS"]
+      },
+      {
+        "label": "Cloud & Architecture",
+        "items": ["Vercel Serverless", "Supabase", "Azure AI", "n8n"]
+      }
+    ]
+  },
+  "home_contact": {
+    "overline": "CONTACT",
+    "title": "Travaillons ensemble",
+    "subtitle": "Ouvert à un poste temps plein en IA appliquée ou à un mandat consultant — région de Québec, hybride ou remote.",
+    "email_label": "Courriel",
+    "email": "christian.couillard@gmail.com",
+    "linkedin_label": "LinkedIn",
+    "linkedin_handle": "Christian Couillard",
+    "linkedin_url": "https://www.linkedin.com/in/christian-couillard-86705146/",
+    "github_label": "GitHub",
+    "github_handle": "github.com/5PennyAi-dev",
+    "github_url": "https://github.com/5PennyAi-dev"
+  },
   "latestPosts": {
     "overline": "BLOG",
     "title": "Derniers articles",
@@ -155,80 +209,80 @@
     "title": "Planifiez votre appel découverte"
   },
   "footer": {
-    "copyright": "© 2026 5PennyiA. Tous droits réservés.",
-    "made_with": "Fait avec passion à Québec, QC",
-    "tagline": "Solutions IA pour entreprises",
+    "copyright": "© 2026 Christian Couillard. Tous droits réservés.",
+    "made_with": "Basé à Québec, QC · 5pennyai.com — laboratoire personnel d'IA appliquée",
+    "tagline": "AI Solutions Engineer",
     "admin": "Admin"
   },
   "seo": {
     "home": {
-      "title": "5PennyiA — Solutions AI pour PME",
-      "description": "Développement d'applications AI sur mesure, intégration de modèles et stratégie pour les PME. Prototypes rapides, tarifs accessibles."
+      "title": "Christian Couillard — AI Solutions Engineer",
+      "description": "AI Solutions Engineer · Builder & Consultant IA appliquée. Je construis et déploie des produits IA de bout en bout — RAG, agents, automatisation. 20+ ans en livraison logicielle, basé à Québec."
     },
     "blog": {
-      "title": "Blog — 5PennyiA",
+      "title": "Blog — 5PennyAi",
       "description": "Réflexions sur l'IA appliquée : articles, études de cas et tutoriels pour comprendre et intégrer l'intelligence artificielle dans votre entreprise."
     }
   },
   "services_page": {
     "seo": {
-      "title": "Services — 5PennyiA",
-      "description": "Découvrez mes services IA : applications sur mesure, intégration, prompt engineering, MVP rapides et audit stratégique."
+      "title": "Expertise — Christian Couillard",
+      "description": "Domaines d'expertise IA : applications fullstack, intégration LLM, prompt engineering, RAG/agents, conseil & architecture. Illustrés par des projets concrets."
     },
     "hero": {
-      "overline": "SERVICES",
-      "title": "Des solutions IA adaptées à chaque besoin.",
-      "subtitle": "Que vous ayez besoin d'un prototype rapide ou d'une intégration complète, je m'adapte à votre réalité."
+      "overline": "EXPERTISE",
+      "title": "Mes domaines d'expertise",
+      "subtitle": "Voici les domaines où j'apporte le plus de valeur, illustrés par des projets concrets."
     },
-    "case_label": "Cas typique :",
+    "case_label": "Projet phare :",
     "items": {
       "app": {
-        "title": "Applications IA sur mesure",
-        "description": "Développement complet d'applications propulsées par l'intelligence artificielle. Du concept au produit déployé.",
-        "tags": ["SaaS", "Outils internes", "Dashboards", "Automatisation"],
-        "case": "PennySEO — plateforme SaaS d'analyse SEO avec scoring IA, analyse d'images, et rapports automatisés. Stack React + Supabase + Gemini + Vercel."
+        "title": "Applications IA fullstack",
+        "description": "Je conçois et développe des applications IA de bout en bout, du concept au produit déployé. Architecture serverless, pipelines multi-modèles, intégration LLM en production.",
+        "tags": ["SaaS", "Pipelines IA", "Architecture serverless", "Production"],
+        "case": "PennySEO — plateforme SaaS d'analyse SEO avec scoring IA et analyse d'images. Conçu et déployé en solo."
       },
       "integration": {
-        "title": "Intégration IA dans vos systèmes",
-        "description": "Connecter des modèles IA (Gemini, Claude, OpenAI) à vos outils et workflows existants. API, webhooks, bases de données.",
-        "tags": ["APIs IA", "Webhooks", "Supabase", "CRM / ERP"],
-        "case": "Une PME veut ajouter de la génération de contenu IA dans son CMS existant, ou automatiser la classification de tickets support avec un modèle."
+        "title": "Intégration LLM & orchestration multi-modèles",
+        "description": "J'intègre des modèles IA (Claude, Gemini, OpenAI, Perplexity) dans des systèmes existants ou en pipelines orchestrés. API, webhooks, bases vectorielles, MCP, n8n.",
+        "tags": ["Multi-LLM", "MCP", "Pinecone", "n8n", "Webhooks"],
+        "case": "Pipeline éditorial automatisé — orchestration de 3 LLMs en cascade pour générer articles + illustrations en production."
       },
       "prompt": {
-        "title": "Prompt engineering & optimisation",
-        "description": "Calibrer vos prompts, concevoir des pipelines de scoring, et optimiser la qualité des résultats IA. Le détail qui fait la différence entre un prototype et un produit fiable.",
+        "title": "Prompt engineering & qualité IA",
+        "description": "Je calibre des prompts complexes, conçois des pipelines de scoring et systèmes d'évaluation pour garantir la qualité IA en production. Le détail qui fait la différence entre un POC et un produit fiable.",
         "tags": ["Calibration", "Scoring", "Pipelines", "Évaluation"],
-        "case": "Vous avez un chatbot ou un outil IA mais les résultats sont inconsistants. J'optimise les prompts et mets en place un système de scoring pour garantir la qualité."
+        "case": "PennySEO — calibration sur 100+ exemples, scoring composite à 4 paliers, pipelines multi-prompts."
       },
       "mvp": {
-        "title": "Prototypage rapide (MVP)",
-        "description": "Valider une idée rapidement avec un prototype fonctionnel. Pas de maquettes Figma sans fin — du code qui marche, livré en 2-4 semaines.",
-        "tags": ["Proof of concept", "Validation", "Itération rapide"],
-        "case": "Vous avez une idée de produit IA mais ne savez pas si c'est faisable. Je livre un MVP fonctionnel pour tester le marché avant d'investir davantage."
+        "title": "RAG, Agents & automatisation",
+        "description": "Je construis des systèmes RAG (retrieval-augmented generation), des agents autonomes et des automatisations de processus en production. Skills Claude custom, MCP, orchestration multi-outils.",
+        "tags": ["RAG", "Agents", "MCP", "Skills custom", "Automatisation"],
+        "case": "PennyAudit — système d'audit IA orchestré par 5-6 skills Claude custom (en construction)."
       },
       "audit": {
-        "title": "Audit & stratégie IA",
-        "description": "Évaluer où l'IA peut avoir un impact concret dans votre entreprise. Recommandations d'approche, estimation des coûts API, choix de modèles.",
-        "tags": ["Diagnostic", "Roadmap IA", "Estimation coûts"],
-        "case": "Vous entendez parler d'IA partout mais ne savez pas par où commencer. Je fais un audit de vos processus et vous livre un plan d'action concret."
+        "title": "Conseil & architecture IA",
+        "description": "J'apporte une expertise d'architecture pour les organisations qui veulent passer du POC IA à la production. Choix de modèles, design de pipelines, estimation des coûts, gouvernance.",
+        "tags": ["Architecture", "Choix de modèles", "Coûts API", "Gouvernance"],
+        "case": "20 ans d'expérience en livraison logicielle dans des environnements complexes (gouvernement, santé, institutionnel)."
       }
     },
     "tech": {
       "title": "Technologies maîtrisées",
       "label": "TOOLKIT"
     },
-    "counter": "5 offres",
+    "counter": "5 domaines",
     "intro_label": "Sommaire",
     "cta": {
-      "title": "Un projet en tête?",
-      "subtitle": "Discutons-en lors d'un appel découverte gratuit de 30 minutes.",
-      "button": "Réserver un appel"
+      "title": "Curieux ou intéressé?",
+      "subtitle": "Je suis ouvert à un poste temps plein en IA appliquée ou à un mandat consultant. Écrivez-moi à christian.couillard@gmail.com ou trouvez-moi sur LinkedIn.",
+      "button": "Me contacter"
     }
   },
   "about_page": {
     "seo": {
-      "title": "À propos — 5PennyiA",
-      "description": "Christian Couillard, fondateur de 5PennyiA. 20+ ans d'expérience en TI, développeur AI passionné basé à Québec."
+      "title": "À propos — 5PennyAi",
+      "description": "Christian Couillard, fondateur de 5PennyAi. 20+ ans d'expérience en TI, développeur AI passionné basé à Québec."
     },
     "hero": {
       "overline": "À PROPOS",
@@ -240,7 +294,7 @@
       "name": "Christian Couillard",
       "role": "Fondateur, 5PennyiA",
       "location": "Québec, QC",
-      "email": "christian.couillard@5pennyai.com"
+      "email": "christian.couillard@gmail.com"
     },
     "story": {
       "section1_title": "Mon parcours",
@@ -325,19 +379,19 @@
     },
     "cta": {
       "title": "Travaillons ensemble",
-      "subtitle": "Réservez un appel découverte gratuit.",
-      "button": "Réserver un appel"
+      "subtitle": "Ouvert à un poste temps plein en IA appliquée ou à un mandat consultant.",
+      "button": "Me contacter"
     }
   },
   "contact": {
     "seo": {
-      "title": "Contact — 5PennyiA",
-      "description": "Parlons de votre projet AI. Formulaire, courriel, téléphone et appel découverte gratuit."
+      "title": "Contact — Christian Couillard",
+      "description": "Discutons d'une opportunité en IA appliquée. Courriel, LinkedIn, GitHub — région de Québec, hybride ou remote."
     },
     "hero": {
       "overline": "CONTACT",
-      "title": "Parlons de votre projet.",
-      "subtitle": "Une question, une idée, un projet? Réservez un appel ou envoyez-moi un message."
+      "title": "Travaillons ensemble.",
+      "subtitle": "Une opportunité, une question, une idée? Écrivez-moi — je réponds rapidement."
     },
     "form": {
       "name": "Nom",
@@ -358,27 +412,28 @@
       "submit": "Envoyer le message",
       "sending": "Envoi en cours…",
       "success": "Message envoyé!",
-      "error": "Une erreur est survenue. Réessayez ou écrivez-moi directement à christian.couillard@5pennyai.com."
+      "error": "Une erreur est survenue. Réessayez ou écrivez-moi directement à christian.couillard@gmail.com."
     },
     "info": {
       "title": "Coordonnées",
       "phone": "(418) 208-9866",
       "location": "Québec, QC",
+      "availability": "Hybride ou remote",
       "social_title": "Réseaux"
     },
     "booking": {
-      "label": "APPEL DÉCOUVERTE",
-      "text": "Préférez un appel? Réservez un créneau de 30 minutes, gratuit et sans engagement."
+      "label": "APPEL",
+      "text": "Préférez un appel? Écrivez-moi et on trouve un créneau qui te convient."
     },
     "cta": {
       "title": "Pas certain par où commencer?",
-      "subtitle": "Un appel de 30 minutes suffit pour clarifier vos besoins.",
-      "button": "Réserver un appel"
+      "subtitle": "Un courriel suffit pour clarifier la suite. Je réponds rapidement.",
+      "button": "Me contacter"
     }
   },
   "portfolio": {
     "seo": {
-      "title": "Portfolio — 5PennyiA",
+      "title": "Portfolio — 5PennyAi",
       "description": "PennySEO : plateforme SaaS d'optimisation SEO propulsée par Gemini Vision. Du concept à la mise en production."
     },
     "hero": {
@@ -436,8 +491,70 @@
     },
     "cta": {
       "title": "Un projet similaire en tête?",
-      "subtitle": "Discutons de comment l'IA peut transformer votre idée en produit.",
-      "button": "Réserver un appel"
+      "subtitle": "Écrivez-moi pour en discuter — je suis ouvert à un poste ou à un mandat.",
+      "button": "Me contacter"
+    }
+  },
+  "portfolio_pipeline": {
+    "seo": {
+      "title": "Pipeline éditorial automatisé — Christian Couillard",
+      "description": "Étude de cas : pipeline complet de génération d'articles SEO-optimisés. 3 LLMs orchestrés (Perplexity, Claude, Gemini Image), skill custom, production sur 5pennyai.com."
+    },
+    "hero": {
+      "overline": "ÉTUDE DE CAS",
+      "title": "Pipeline éditorial automatisé",
+      "subtitle": "Génération de contenu IA multimodale — recherche, rédaction et illustration en pipeline orchestré.",
+      "tags": ["Perplexity", "Claude API", "Gemini Image", "Skills custom", "Vercel"],
+      "link_label": "Voir le blog (le résultat en production)",
+      "link_to": "/blog"
+    },
+    "challenge": {
+      "overline": "LE DÉFI",
+      "title": "Le défi",
+      "text": "Maintenir un blog technique de qualité demande des heures de recherche, de rédaction et d'illustration. Comment automatiser ce flux complet sans sacrifier la qualité éditoriale?"
+    },
+    "solution": {
+      "overline": "LA SOLUTION",
+      "title": "La solution",
+      "text": "Un pipeline orchestrant trois LLMs en cascade : Perplexity explore le web en temps réel pour valider les sujets et trouver des sources, Claude rédige des articles structurés via une skill custom calibrée pour la qualité SEO, et Gemini 2.5 Flash Image (NanoBanana) génère les illustrations et infographies. Résultat : production d'articles publiables divisée par 5 à 10."
+    },
+    "architecture": {
+      "overline": "ARCHITECTURE",
+      "title": "Architecture technique",
+      "steps": ["Sujet", "Perplexity Search", "Claude (skill blog-generator)", "Gemini Image", "Markdown + assets", "Publication"]
+    },
+    "screenshots": {
+      "overline": "EN ACTION",
+      "title": "Le pipeline en action",
+      "items": [
+        {
+          "title": "Recherche & validation SEO",
+          "description": "Le sujet est validé via recherche web temps réel. Score SEO calculé pour prioriser les angles à plus fort potentiel."
+        },
+        {
+          "title": "Rédaction structurée",
+          "description": "La skill Claude custom génère un article complet avec structure H1/H2/H3, intro accrocheuse, sources citées, et CTA conformes aux guidelines SEO."
+        },
+        {
+          "title": "Illustration multimodale",
+          "description": "NanoBanana génère hero image + infographies cohérentes avec l'identité visuelle. Itérations automatiques jusqu'au résultat satisfaisant."
+        }
+      ]
+    },
+    "results": {
+      "overline": "RÉSULTATS",
+      "title": "Résultats & Chiffres clés",
+      "items": [
+        { "value": "3", "label": "LLMs orchestrés" },
+        { "value": "10+", "label": "Articles publiés" },
+        { "value": "1", "label": "Skill Claude custom" },
+        { "value": "~15 min", "label": "Par article (vs 3-4 h manuel)" }
+      ]
+    },
+    "cta": {
+      "title": "Un pipeline IA à concevoir?",
+      "subtitle": "Je suis ouvert à un poste temps plein en IA appliquée ou à un mandat consultant. Écrivez-moi pour en discuter.",
+      "button": "Me contacter"
     }
   },
   "blog": {
@@ -475,9 +592,9 @@
       "next": "Article suivant",
       "back": "Retour au blog",
       "cta": {
-        "title": "Vous avez un projet AI?",
-        "subtitle": "Discutons-en lors d'un appel découverte gratuit de 30 minutes.",
-        "button": "Réserver un appel"
+        "title": "Une opportunité ou un projet IA?",
+        "subtitle": "Écrivez-moi — je suis ouvert à un poste temps plein en IA appliquée ou à un mandat consultant.",
+        "button": "Me contacter"
       }
     },
     "notFound": {

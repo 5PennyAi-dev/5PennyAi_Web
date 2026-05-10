@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next'
 import Button from '@/components/ui/Button'
-import BookingButton from '@/components/ui/BookingButton'
 import ShaderBackground from '@/components/ui/ShaderBackground'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
@@ -21,13 +20,10 @@ export default function Hero() {
           'radial-gradient(ellipse 100% 100% at 50% 50%, #143054 0%, #0D2240 70%)',
       }}
     >
-      {/* Plasma shader — atmospheric base layer */}
       <ShaderBackground />
 
-      {/* Dot grid texture */}
       <div className="absolute inset-0 bg-dot-grid-dark opacity-40 pointer-events-none" />
 
-      {/* Network node pattern — subtle conceptual reference to AI */}
       <svg
         className="absolute inset-0 w-full h-full opacity-[0.05] pointer-events-none"
         xmlns="http://www.w3.org/2000/svg"
@@ -50,17 +46,12 @@ export default function Hero() {
         <rect width="100%" height="100%" fill="url(#nodes)" />
       </svg>
 
-      {/* Top fade for navbar legibility */}
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
-
-      {/* Bottom fade transition into next section */}
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-black/20 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-36 pb-24 md:pt-40 md:pb-32 z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left — text content */}
           <div className="text-center lg:text-left reveal-left">
-            {/* Pill badge overline */}
             <div className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/[0.12] rounded-full px-4 py-1.5 mb-8 backdrop-blur-md">
               <span className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_rgba(221,135,55,0.6)]" />
               <span className="text-white/75 uppercase tracking-[0.2em] text-[11px] font-semibold">
@@ -68,27 +59,27 @@ export default function Hero() {
               </span>
             </div>
 
-            {/* Display title */}
-            <h1 className="text-display text-[2.5rem] sm:text-[3rem] md:text-[3.5rem] lg:text-[3.75rem] font-bold text-white mb-6">
-              {t('hero.title_before')}
-              <span className="text-accent">{t('hero.title_highlight')}</span>
-              {t('hero.title_after')}
+            <h1 className="text-display text-[2.5rem] sm:text-[3rem] md:text-[3.5rem] lg:text-[3.75rem] font-bold text-white mb-4 leading-[1.05]">
+              {t('hero.name')}
             </h1>
 
-            <p className="text-white/65 text-lg md:text-xl max-w-xl mx-auto lg:mx-0 mb-10 leading-[1.6]">
-              {t('hero.subtitle')}
+            <p className="text-white/85 font-heading font-semibold text-lg md:text-xl lg:text-2xl mb-6 leading-snug max-w-xl mx-auto lg:mx-0">
+              {t('hero.role')}
+            </p>
+
+            <p className="text-white/65 text-base md:text-lg max-w-xl mx-auto lg:mx-0 mb-10 leading-[1.6]">
+              {t('hero.description')}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3">
-              <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
+              <Button href="#realisations" variant="primary" className="px-8 py-3.5 text-[15px]">
                 {t('hero.cta_primary')}
-              </BookingButton>
-              <Button to="/portfolio" variant="ghost" className="px-8 py-3.5 text-[15px]">
+              </Button>
+              <Button to="/contact" variant="ghost" className="px-8 py-3.5 text-[15px]">
                 {t('hero.cta_secondary')}
               </Button>
             </div>
 
-            {/* Metrics */}
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-0 reveal-metrics">
               {(t('hero.metrics', { returnObjects: true }) || []).map((m, i, arr) => (
                 <div key={i} className="flex items-center">
@@ -108,13 +99,10 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right — PennySEO mockup */}
           <div className="flex justify-center lg:justify-end reveal-right">
             <div
               className="relative w-full max-w-lg lg:max-w-none"
-              style={{
-                perspective: '1200px',
-              }}
+              style={{ perspective: '1200px' }}
             >
               <div
                 className="rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.03]"
@@ -123,7 +111,6 @@ export default function Hero() {
                   boxShadow: '0 24px 80px rgba(0, 0, 0, 0.35), 0 8px 32px rgba(0, 0, 0, 0.2)',
                 }}
               >
-                {/* Browser chrome dots */}
                 <div className="flex items-center gap-1.5 px-4 py-2.5 bg-white/[0.04] border-b border-white/[0.06]">
                   <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
                   <span className="w-2.5 h-2.5 rounded-full bg-white/15" />

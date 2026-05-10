@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Sparkles, Workflow, LineChart, Clock, Search } from 'lucide-react'
-import BookingButton from '@/components/ui/BookingButton'
+import { Sparkles, Workflow, LineChart, Bot, Search } from 'lucide-react'
+import Button from '@/components/ui/Button'
 import ShaderBackground from '@/components/ui/ShaderBackground'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
@@ -9,7 +9,7 @@ const services = [
   { key: 'app', icon: Sparkles, tone: 'accent' },
   { key: 'integration', icon: Workflow, tone: 'steel' },
   { key: 'prompt', icon: LineChart, tone: 'accent' },
-  { key: 'mvp', icon: Clock, tone: 'steel' },
+  { key: 'mvp', icon: Bot, tone: 'steel' },
   { key: 'audit', icon: Search, tone: 'accent' },
 ]
 
@@ -167,9 +167,9 @@ export default function ServicesPage() {
               <p className="text-white/65 text-base mb-8 max-w-md mx-auto leading-relaxed">
                 {t('services_page.cta.subtitle')}
               </p>
-              <BookingButton variant="primary" className="px-8 py-3.5 text-[15px]">
+              <Button to="/contact" variant="primary" className="px-8 py-3.5 text-[15px]">
                 {t('services_page.cta.button')}
-              </BookingButton>
+              </Button>
             </div>
           </div>
         </div>

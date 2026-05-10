@@ -23,10 +23,10 @@ function FacebookIcon() {
 
 
 const footerLinks = [
-  { key: 'nav.services', to: '/services' },
+  { key: 'nav.expertise', to: '/expertise' },
   { key: 'nav.about', to: '/about' },
   { key: 'nav.portfolio', to: '/portfolio' },
-  { key: 'nav.faq', href: '/#faq' },
+  { key: 'nav.blog', to: '/blog' },
   { key: 'nav.contact', to: '/contact' },
 ]
 
@@ -90,7 +90,7 @@ export default function Footer() {
               {[
                 { icon: <LinkedinIcon />, href: 'https://www.linkedin.com/in/christian-couillard-86705146/', label: 'LinkedIn' },
                 { icon: <FacebookIcon />, href: 'https://www.facebook.com/profile.php?id=61576445489064', label: 'Facebook' },
-                { icon: <Mail size={18} aria-hidden="true" />, href: 'mailto:info@5pennyai.com', label: 'Email' },
+                { icon: <Mail size={18} aria-hidden="true" />, href: 'mailto:christian.couillard@gmail.com', label: 'Email' },
               ].map((social) => (
                 <a
                   key={social.label}
@@ -111,12 +111,14 @@ export default function Footer() {
           <p className="text-white/35 text-xs tnum">
             {t('footer.copyright')}
           </p>
-          <Link
-            to="/admin/blog"
-            className="text-white/25 hover:text-white/60 text-[11px] uppercase tracking-[0.14em] font-bold transition-colors"
-          >
-            {t('footer.admin')}
-          </Link>
+          {import.meta.env.DEV && (
+            <Link
+              to="/admin/blog"
+              className="text-white/25 hover:text-white/60 text-[11px] uppercase tracking-[0.14em] font-bold transition-colors"
+            >
+              {t('footer.admin')}
+            </Link>
+          )}
         </div>
       </div>
     </footer>

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -8,6 +8,7 @@ import ServicesPage from '@/pages/ServicesPage'
 import AboutPage from '@/pages/AboutPage'
 import Contact from '@/pages/Contact'
 import Portfolio from '@/pages/Portfolio'
+import PortfolioPipeline from '@/pages/PortfolioPipeline'
 import Blog from '@/pages/Blog'
 import BlogPost from '@/pages/BlogPost'
 import AdminBlog from '@/pages/AdminBlog'
@@ -45,10 +46,13 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/expertise" element={<ServicesPage />} />
+          <Route path="/services" element={<Navigate to="/expertise" replace />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/portfolio/pennyseo" element={<Portfolio />} />
+          <Route path="/portfolio/pipeline-editorial" element={<PortfolioPipeline />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/admin/blog" element={<AdminBlog />} />
