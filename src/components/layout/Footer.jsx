@@ -111,14 +111,12 @@ export default function Footer() {
           <p className="text-white/35 text-xs tnum">
             {t('footer.copyright')}
           </p>
-          {import.meta.env.DEV && (
-            <Link
-              to="/admin/blog"
-              className="text-white/25 hover:text-white/60 text-[11px] uppercase tracking-[0.14em] font-bold transition-colors"
-            >
-              {t('footer.admin')}
-            </Link>
-          )}
+          <Link
+            to="/admin/blog"
+            className="text-white/25 hover:text-white/60 text-[11px] uppercase tracking-[0.14em] font-bold transition-colors"
+          >
+            {t('footer.admin')}
+          </Link>
         </div>
       </div>
     </footer>
