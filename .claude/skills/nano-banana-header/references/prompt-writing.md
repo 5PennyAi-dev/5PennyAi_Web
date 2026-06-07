@@ -99,6 +99,14 @@ Nano Banana peut inventer des mots français mal orthographiés si le prompt ne 
 
 ✅ Descriptions concrètes de ce que tu vois dans ta tête : formes, couleurs, positions, atmosphère.
 
+### Piège 6 — Les accessoires éditoriaux qui reviennent partout
+
+❌ Ne pas utiliser par défaut : plante/pousse/feuilles, calendrier, horloge/montre/chronomètre, enveloppe/lettre/email icon/paper plane, livre ouvert/carnet/journal, clipboard/checklist, documents flottants, bureau/plateau en bois, boussole, loupe, graphique montant, ampoule, puzzle, sol fissuré, plante fanée.
+
+Ces objets remplissent l'image mais ne prouvent pas que le contenu de l'article a été compris. Ils créent une série de headers interchangeables.
+
+✅ À la place, représenter le **mécanisme spécifique** de l'article : flux de données, pipeline, comparaison de systèmes, couche de modèle, grille d'évaluation, transformation entrée/sortie, interface modulaire, signal map, protocole, graphe de décisions.
+
 ---
 
 ## 📏 Longueur du prompt
@@ -127,7 +135,12 @@ in light version, orange circle badge containing a number (this specific
 element is banned from this blog), annotations with pixel measurements
 or degree values or percentage opacity written as text, website URLs
 or footer signatures or "5pennyai.com" in the image, random floating
-objects without narrative connection.
+objects without narrative connection, recurring generic editorial props such as
+plants or sprouts or leaves, calendars, clocks or watches, envelopes or
+letters or email icons or paper planes, open books or notebooks or journals,
+clipboards or checklists, loose document stacks, wooden desks or tabletops,
+compasses, magnifying glasses, generic upward charts, light bulbs, puzzle
+pieces, cracked ground, wilted plants.
 ```
 
 Tu peux enrichir cette liste avec des anti-patterns spécifiques au contexte si utile.

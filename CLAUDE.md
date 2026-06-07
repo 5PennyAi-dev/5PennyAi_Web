@@ -28,6 +28,9 @@ Site vitrine bilingue (FR/EN) pour **5PennyAi** (5pennyai.com). Entreprise solo 
 ### Skill frontend-design
 Avant toute tâche visuelle (création ou modification de page, composant, style), lire la skill frontend-design. Appliquer ses principes de qualité (micro-interactions, espacements, contrastes, accessibilité) tout en respectant les contraintes ci-dessous.
 
+### Style guide admin
+Avant tout développement dans l'admin, lire `docs/style-guide-admin.md` et respecter les composants et patterns définis.
+
 ### Typographie
 - **Headings** : Outfit (Semi-Bold 600 / Bold 700) — via Google Fonts
 - **Body** : DM Sans (Regular 400 / Medium 500) — via Google Fonts, line-height 1.7

@@ -65,25 +65,25 @@ Ces pistes sont **des déclencheurs**, pas des prescriptions. Adapte-les ou igno
 ### Articles sur l'IA appliquée aux PME
 
 - Un **atelier d'artisan moderne** où l'IA est un outil parmi d'autres (pas le sujet central)
-- Une **plante qui pousse** à travers une structure urbaine (IA qui s'adapte à l'existant)
+- Un **flux de données** qui traverse une structure existante et se transforme en actions lisibles
 - Un **miroir fragmenté** qui reflète des morceaux de quotidien
-- Un **cristal** qui réfracte des informations en multiples sorties
-- Une **main qui tient** un objet familier du monde professionnel (un café, un carnet, un outil)
+- Un **cristal / prisme de données** qui réfracte une entrée en multiples sorties utiles
+- Une **interface métier stylisée** où des modules IA se branchent sur un processus existant
 
 ### Articles tutoriels (processus, étapes)
 
-- Une **recette illustrée** (ingrédients qui se transforment en plat)
-- Un **chemin dans un paysage** (avec quelques jalons qui l'identifient)
-- Des **outils disposés** sur un plan de travail d'artisan
-- Un **escalier dans un décor** stylisé
+- Un **pipeline visuel** : entrée → étapes → résultat, avec 3-4 modules clairement connectés
+- Une **command palette** qui révèle progressivement les actions à effectuer
+- Une **grille de progression** ou checklist abstraite intégrée à une interface, sans clipboard ni carnet
+- Un **escalier de modules UI** stylisé, chaque palier représentant une étape
 - Un **diagramme très simplifié** (juste 2-3 éléments connectés) si vraiment pertinent
 
 ### Articles sur des outils ou technologies
 
-- L'**outil en question** représenté de manière stylisée (pas un screenshot d'interface)
-- Une **trousse à outils** ouverte avec les outils visibles
-- Un **objet hybride** qui combine éléments familiers + élément moderne
-- Un **zoom avant** sur un détail qui révèle la complexité
+- L'**outil en question** représenté comme une interface abstraite, pas un screenshot ni un logo
+- Une **console / command palette** avec quelques blocs d'action lisibles
+- Un **objet hybride techno** qui combine une forme familière + une couche de données/modèle
+- Un **zoom avant** sur un détail d'interface qui révèle la logique interne
 
 ### Articles de démystification (mythes, erreurs)
 
@@ -95,11 +95,10 @@ Ces pistes sont **des déclencheurs**, pas des prescriptions. Adapte-les ou igno
 
 ### Articles sur la vente, la prospection
 
-- Une **enveloppe** (communication — mais sans loupe à côté)
-- Un **fil d'Ariane** dans un paysage
-- Un **pont** entre deux berges
-- Une **clé dans une serrure** stylisée
-- Une **graine tenue dans une main** (prospect potentiel)
+- Un **fil d'Ariane digital** entre signaux faibles et réponse claire
+- Un **pont de données** entre deux systèmes ou deux intentions
+- Une **clé abstraite** intégrée à une interface d'accès / qualification
+- Un **radar de signaux** qui transforme des points dispersés en opportunité lisible
 
 ### Articles sur les données, l'analyse, le ROI
 
@@ -118,10 +117,10 @@ Ces pistes sont **des déclencheurs**, pas des prescriptions. Adapte-les ou igno
 
 ### Articles sur l'apprentissage, la transmission
 
-- Un **carnet de terrain** ouvert (croquis, notes)
-- Une **cuisine avec transmission** (apprentissage par le faire)
-- Un **arbre dont on voit les racines** (fondations du savoir)
-- Une **page blanche avec les premières lignes** écrites
+- Une **carte de concepts** en nœuds reliés, du simple vers le complexe
+- Une **interface de simulation** qui montre l'apprentissage par essais successifs
+- Une **pile de couches de connaissance** qui révèle les fondations sous la surface
+- Un **tableau de progression abstrait** où chaque bloc devient plus net
 
 ---
 

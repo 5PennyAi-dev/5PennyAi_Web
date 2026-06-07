@@ -48,6 +48,14 @@ Lire le contenu de l'article et répondre à ces questions :
 
 Le seul impératif : **cette image doit être spécifique à CET article**, pas interchangeable avec un autre.
 
+### Règle anti-générique — obligatoire
+
+Avant de choisir une image, formule une **thèse visuelle** : une phrase qui explique ce que l'image rend visible sur CET article. Si la thèse pourrait convenir à 10 articles IA différents, elle est trop générique.
+
+Privilégie maintenant un look **tech-forward** : fragments d'interface, flux de données, pipeline de modèle, graphe de nœuds, grille d'évaluation, split-screen système, couches de protocole, console/command palette, panneaux modulaires, signal map. L'image doit rester éditoriale et flat vector, mais moins “bureau cosy” et plus “magazine techno / SaaS / AI product”.
+
+Évite les natures mortes de bureau et les accessoires récurrents. Les objets suivants sont bannis sauf si l'article parle littéralement de l'objet : plante/pousse/feuilles/arbre, calendrier, horloge/montre/chronomètre, enveloppe/lettre/email icon/paper plane, livre ouvert/carnet/journal/checklist/clipboard/documents, bureau/plateau en bois, boussole, loupe, graphique générique qui monte, ampoule, puzzle, sol fissuré, plante fanée.
+
 Pour t'aider, `references/inspiration.md` contient des pistes (pas des règles) organisées par grand type d'article.
 
 ### Étape 3 — Rédiger le prompt Nano Banana
@@ -62,17 +70,19 @@ Pour t'aider, `references/inspiration.md` contient des pistes (pas des règles) 
 
 ---
 
-## ✅ Règles dures (seulement 5)
+## ✅ Règles dures (seulement 6)
 
 1. **Palette 5PennyAi** : fond glacier `#EEF4FC` (light) OU navy `#0F1E3D` (dark) selon la catégorie éditoriale. Accents : navy `#143054`, orange `#DD8737`, cobalt `#4F7CD4`, violet `#8B5CF6`, teal `#14B8A6`.
 
 2. **Pas de cercle orange avec un chiffre dedans** (banni — c'était devenu un tic visuel). L'orange peut apparaître autrement : typographie, soulignement, tache de couleur intégrée dans la scène, etc.
 
-3. **Pas d'accumulation d'objets flottants sans lien**. Si plusieurs éléments sont présents, ils doivent **dialoguer entre eux** (une scène, pas une bibliothèque d'icônes éparpillées).
+3. **Pas d'accumulation d'objets flottants sans lien**. Si plusieurs éléments sont présents, ils doivent **dialoguer entre eux** (une scène ou un système, pas une bibliothèque d'icônes éparpillées). Maximum un élément dominant + 0-2 soutiens nécessaires.
 
-4. **Texte dans l'image** : titre (3-5 mots) + sous-titre optionnel (4-8 mots) + pastille éditoriale. Rien d'autre. Pas de labels d'objets, pas de specs techniques, pas d'annotations.
+4. **Pas d'accessoires récurrents génériques** : plante, horloge, calendrier, enveloppe, lettre, email icon, paper plane, carnet, livre ouvert, clipboard, documents, bureau en bois, boussole, loupe, graphique montant, ampoule, puzzle, sol fissuré, plante fanée. Ces éléments sont bannis sauf si l'article porte explicitement dessus.
 
-5. **Style général** : flat vector éditorial crisp. Pas de 3D, pas de photoréalisme, pas de corporate memphis (bonhommes stylisés), pas de cartoon, pas de hand-drawn, pas de dégradés visibles.
+5. **Texte dans l'image** : titre (3-5 mots) + sous-titre optionnel (4-8 mots) + pastille éditoriale. Rien d'autre. Pas de labels d'objets, pas de specs techniques, pas d'annotations.
+
+6. **Style général** : flat vector éditorial crisp. Pas de 3D, pas de photoréalisme, pas de corporate memphis (bonhommes stylisés), pas de cartoon, pas de hand-drawn, pas de dégradés visibles.
 
 ---
 

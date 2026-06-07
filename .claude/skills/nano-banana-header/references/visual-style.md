@@ -70,6 +70,7 @@ L'orange peut apparaître sur **un seul mot** du titre ou du sous-titre si ça s
 
 ### Esthétique cible
 - **Flat vector éditorial crisp** (magazine tech moderne haut de gamme)
+- Plus **tech-forward / SaaS / AI product** que bureau cosy : fragments d'interface, grilles modulaires, flux de données, graphes de nœuds, panneaux angulaires, couches de modèle, systèmes abstraits lisibles
 - Formes nettes, aplats de couleur unis
 - Qualité impression papier glacé
 
@@ -82,6 +83,7 @@ L'orange peut apparaître sur **un seul mot** du titre ou du sous-titre si ça s
 - ❌ Cartoon, mascottes IA, robots mignons
 - ❌ Logos de marques réelles, watermarks
 - ❌ Emojis rendus comme icônes
+- ❌ Accessoires récurrents génériques : plante/pousse/feuilles, calendrier, horloge/montre/chronomètre, enveloppe/lettre/email icon/paper plane, carnet/livre ouvert/clipboard/documents, bureau en bois, boussole, loupe, graphique montant, ampoule, puzzle, sol fissuré, plante fanée
 - ❌ **Cercle orange avec un chiffre dedans** (tic visuel banni)
 - ❌ Annotations techniques visibles (px, degrés, opacités, spec colors)
 - ❌ URL, nom de site, signature dans l'image
