@@ -29,5 +29,10 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+.env.bak
+.env.*.bak
 
 .vercel
+
+# Claude Code local settings
+.claude/settings.local.json
