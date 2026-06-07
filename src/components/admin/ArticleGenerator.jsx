@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Sparkles, X, AlertCircle, ClipboardPaste, Check } from 'lucide-react'
 import { Field, inputClass } from '@/components/admin/editorPrimitives'
 
-const ARTICLE_TYPES = ['list', 'tutorial', 'caseStudy', 'news', 'myth']
+const ARTICLE_TYPES = ['explainer', 'cheatsheet', 'news', 'comparison', 'tutorial', 'mythbusting', 'glossary', 'list']
 const TIMEOUT_MS = 300_000
 
 const COMPETITION_LABELS = {
@@ -23,11 +23,11 @@ function formatVolume(vol) {
   return vol >= 1000 ? `${(vol / 1000).toFixed(1).replace('.0', '')}k` : String(vol)
 }
 
-export default function ArticleGenerator({ onGenerated, onCancel, initialTopic = '', seoData = null, initialArticleType = 'list', initialInstructions = '' }) {
+export default function ArticleGenerator({ onGenerated, onCancel, initialTopic = '', seoData = null, initialArticleType = 'explainer', initialInstructions = '' }) {
   const { t } = useTranslation()
   const [topic, setTopic] = useState(initialTopic)
   const [articleType, setArticleType] = useState(
-    ARTICLE_TYPES.includes(initialArticleType) ? initialArticleType : 'list'
+    () => mapArticleType(initialArticleType)
   )
   const [instructions, setInstructions] = useState(initialInstructions)
   const [language, setLanguage] = useState('fr')
@@ -88,25 +88,31 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
     return { sujet, type, precisions }
   }
 
-  function mapArticleType(topicFinderType) {
-    const mapping = {
+  function mapArticleType(input) {
+    if (!input) return 'explainer'
+    const legacyCodes = { caseStudy: 'explainer', myth: 'mythbusting' }
+    if (ARTICLE_TYPES.includes(input)) return input
+    if (legacyCodes[input]) return legacyCodes[input]
+
+    const labelMap = {
       'Liste (X façons de...)': 'list',
       'Guide pratique': 'tutorial',
-      'Comparaison': 'list',
-      'Étude de cas': 'caseStudy',
+      'Comparaison': 'comparison',
+      'Étude de cas': 'explainer',
       'Opinion / Éditorial': 'news',
       'Tutoriel pas-à-pas': 'tutorial',
     }
-    if (mapping[topicFinderType]) return mapping[topicFinderType]
+    if (labelMap[input]) return labelMap[input]
 
-    const normalized = topicFinderType.toLowerCase()
-    if (normalized.includes('liste')) return 'list'
-    if (normalized.includes('guide') || normalized.includes('tutoriel')) return 'tutorial'
-    if (normalized.includes('cas')) return 'caseStudy'
-    if (normalized.includes('opinion') || normalized.includes('actualité')) return 'news'
-    if (normalized.includes('démystif') || normalized.includes('myth')) return 'myth'
-    if (normalized.includes('comparaison')) return 'list'
-    return 'tutorial'
+    const n = String(input).toLowerCase()
+    if (n.includes('cheat') || n.includes('aide-mém')) return 'cheatsheet'
+    if (n.includes('compar')) return 'comparison'
+    if (n.includes('tutoriel') || n.includes('tutorial') || n.includes('guide')) return 'tutorial'
+    if (n.includes('démystif') || n.includes('myth')) return 'mythbusting'
+    if (n.includes('glossair') || n.includes('définition') || n.includes('glossary')) return 'glossary'
+    if (n.includes('actualité') || n.includes('news') || n.includes('opinion')) return 'news'
+    if (n.includes('liste') || n.includes('list')) return 'list'
+    return 'explainer'
   }
 
   function applyParsedData(parsed) {
@@ -161,7 +167,6 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
           articleType,
           instructions: instructions.trim() || undefined,
           language,
-          seoData: seoData || undefined,
         }),
         signal: controller.signal,
       })

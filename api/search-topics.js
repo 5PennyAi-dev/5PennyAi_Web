@@ -11,59 +11,80 @@ const PERPLEXITY_URL = 'https://api.perplexity.ai/chat/completions'
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const DATAFORSEO_URL = 'https://api.dataforseo.com/v3/dataforseo_labs/google/keyword_overview/live'
 const CLAUDE_MODEL = 'claude-sonnet-4-20250514'
-const CLAUDE_MAX_TOKENS = 4000
+const CLAUDE_MAX_TOKENS = 8000
 
 // ---------------------------------------------------------------------------
 // Prompts
 // ---------------------------------------------------------------------------
 
-const RESEARCH_SYSTEM_PROMPT = `Tu es un chercheur spécialisé en intelligence artificielle pour les PME.
+const RESEARCH_SYSTEM_PROMPT = `Tu es un veilleur spécialisé en intelligence artificielle. Tu cherches des sujets d'articles pour un blog de vulgarisation IA destiné au GRAND PUBLIC (étudiants, professionnels non techniques, curieux).
 
 Recherche en profondeur sur le web pour trouver :
-1. Les vraies questions que les propriétaires de PME posent sur ce sujet (forums, Reddit, Quora, LinkedIn)
-2. Les frustrations et défis concrets mentionnés par des entrepreneurs
-3. Les tendances émergentes
-4. Les cas d'usage concrets et histoires de succès
-5. Les mythes et objections fréquentes
-6. Des statistiques et données chiffrées récentes
+1. Les questions que les gens posent sur l'IA en ce moment (Reddit r/ArtificialIntelligence, r/ChatGPT, Quora, forums, commentaires YouTube, Twitter/X)
+2. Les concepts mal compris ou souvent mal expliqués qui mériteraient un article de vulgarisation
+3. Les actualités IA récentes (nouveaux modèles, fonctionnalités, polémiques) qui méritent d'être décryptées pour le grand public
+4. Les outils IA qui gagnent en popularité et que les gens veulent comprendre
+5. Les mythes, peurs, idées reçues sur l'IA qui circulent et qu'il faudrait nuancer
+6. Les comparaisons d'outils que les gens cherchent (ChatGPT vs X, Y vs Z)
+7. Les termes techniques qui apparaissent dans la presse sans être bien expliqués
 
-Sois exhaustif. Cite les sources avec URLs quand possible. Concentre-toi sur le marché nord-américain et francophone.`
+Sources de tendance : Google Trends, Reddit (subreddits IA), Hacker News, Product Hunt, Twitter/X (annonces officielles OpenAI/Anthropic/Google), MIT Tech Review, Wired, The Verge, Ars Technica.
 
-const STRUCTURING_SYSTEM_PROMPT = `Tu es un stratège de contenu expert pour le blog 5PennyAi qui aide les PME à comprendre l'IA.
+Évite les sources B2B et les angles "comment booster ma productivité au travail" — ce n'est pas l'audience. On cherche des sujets de culture générale IA.
 
-On te donne un rapport de recherche brut. Analyse-le et retourne UNIQUEMENT un JSON valide (pas de markdown, pas de backticks, pas de texte avant/après).
+Cite les sources avec URLs. Marché : francophone et anglophone.`
+
+const STRUCTURING_SYSTEM_PROMPT = `Tu es un stratège de contenu pour 5PennyAi, un blog de vulgarisation IA pour le grand public.
+
+On te donne un rapport de recherche brut. Ta tâche : extraire 8 à 12 sujets d'articles concrets, variés et engageants pour le grand public.
+
+PRINCIPES
+- Audience : grand public curieux (étudiants, parents, professionnels non techniques)
+- Objectif : éduquer et démocratiser l'IA, PAS vendre des services
+- Variété : mélange différents types d'articles dans tes sorties
+- Concrétude : chaque sujet doit avoir un angle clair et un titre accrocheur
+
+TYPES D'ARTICLES disponibles (à varier dans tes sorties) :
+- "explainer" — Vulgariser un concept (ex: "C'est quoi un LLM?")
+- "cheatsheet" — Aide-mémoire pratique (ex: "20 prompts ChatGPT essentiels")
+- "news" — Actualité IA décryptée (ex: "Gemini 3 vient de sortir : ce qui change")
+- "comparison" — Comparaison d'outils (ex: "ChatGPT vs Claude vs Gemini en 2026")
+- "tutorial" — Tutoriel pratique (ex: "Créer un GPT personnalisé en 10 min")
+- "mythbusting" — Démystification (ex: "Non, l'IA n'a pas de conscience")
+- "glossary" — Définition d'un terme (ex: "RAG, c'est quoi exactement?")
+- "list" — Liste utile (ex: "10 cas d'usage de l'IA pour les étudiants")
 
 SCORING ÉDITORIAL — pour chaque sujet, évalue deux dimensions :
 
-PERTINENCE BUSINESS (0-25 points) :
-5PennyAi offre ces services : développement d'applications IA sur mesure, intégration de modèles de langage dans des processus existants, automatisation de workflows par agents IA, prompt engineering, prototypage rapide, et audit/stratégie IA pour PME.
-- 20-25 pts : Le sujet mène DIRECTEMENT à ces services. Un lecteur qui lit cet article penserait naturellement "j'ai besoin d'aide pour faire ça" → appel découverte. Ex: "Comment automatiser vos processus internes avec l'IA"
-- 13-19 pts : Le sujet est lié aux services mais indirectement. Le lecteur apprend quelque chose d'utile et découvre 5PennyAi. Ex: "5 outils IA gratuits pour les PME"
-- 6-12 pts : Le sujet est éducatif sur l'IA mais ne crée pas de besoin pour les services. Ex: "Comment l'IA transforme l'industrie manufacturière"
-- 0-5 pts : Le sujet n'a aucun lien avec les services. Ex: "L'histoire de l'intelligence artificielle depuis 1950"
+AUDIENCE RELEVANCE (0-25 points) :
+À quel point ce sujet parle au grand public curieux d'IA ? Est-ce que le titre attire un lecteur non spécialiste ? Est-ce un sujet de culture générale IA ou un sujet de niche professionnelle ?
+- 20-25 pts : Sujet de culture générale IA, titre qui attire n'importe quel curieux. Ex: "C'est quoi un LLM, expliqué simplement"
+- 13-19 pts : Intéresse une partie du grand public (ex: utilisateurs ChatGPT) sans être niche. Ex: "10 prompts ChatGPT pour mieux étudier"
+- 6-12 pts : Sujet utile mais à audience plus restreinte (étudiants en info, créateurs de contenu). Ex: "Fine-tuner un modèle open source en local"
+- 0-5 pts : Niche pro / B2B, ne parle pas au grand public. Ex: "Optimiser le ROI de votre déploiement IA en entreprise"
 
 SPÉCIFICITÉ (0-20 points) :
-Un nouveau blog doit cibler des niches, pas des termes génériques.
-- 16-20 pts : Sujet très spécifique, longue traîne, peu de compétition probable. Cible un type de PME ou un cas d'usage précis. Ex: "Automatiser la facturation pour les cabinets comptables avec l'IA"
-- 10-15 pts : Sujet ciblé mais pas ultra-niche. Ex: "Comment les PME utilisent les chatbots pour le service client"
-- 5-9 pts : Sujet assez large, beaucoup de compétiteurs probables. Ex: "Les avantages de l'IA pour les entreprises"
+Un nouveau blog doit cibler des angles précis, pas des termes génériques.
+- 16-20 pts : Sujet très spécifique, longue traîne, peu de compétition probable. Angle pédagogique unique. Ex: "Pourquoi ChatGPT invente parfois des sources : l'hallucination expliquée avec une analogie de cuisine"
+- 10-15 pts : Sujet ciblé mais pas ultra-niche. Ex: "5 différences concrètes entre ChatGPT et Claude"
+- 5-9 pts : Sujet assez large, beaucoup de compétiteurs probables. Ex: "Comment utiliser l'IA au quotidien"
 - 0-4 pts : Sujet trop générique, dominé par les gros sites. Ex: "Qu'est-ce que l'intelligence artificielle?"
 
 Structure JSON attendue :
 {
   "topics": [
     {
-      "title": "Titre d'article de blog accrocheur en français",
-      "article_type": "liste | guide | comparaison | etude-de-cas | opinion | tutoriel",
-      "problem": "Le problème métier concret que ça résout",
-      "audience": "Type de PME visée",
-      "angle": "L'angle unique ou le hook de l'article",
+      "title": "Titre d'article accrocheur en français (style vulgarisation)",
+      "article_type": "explainer | cheatsheet | news | comparison | tutorial | mythbusting | glossary | list",
+      "problem": "La question ou la confusion concrète que cet article éclaire",
+      "audience": "Type de lecteur visé (ex: débutants curieux, parents qui s'inquiètent, étudiants, utilisateurs de ChatGPT)",
+      "angle": "L'angle unique ou pédagogique (ex: analogie de cuisine, sans jargon, comparaison côte à côte)",
       "difficulty": "débutant | intermédiaire | avancé",
-      "keywords": ["3-5 mots-clés SEO en français"],
-      "keywords_en": ["3-5 mots-clés SEO en anglais"],
+      "keywords": ["3-5 mots-clés SEO grand public en français (PAS B2B)"],
+      "keywords_en": ["3-5 mots-clés SEO grand public en anglais"],
       "sources": ["URLs ou descriptions des sources"],
-      "blog_precisions": "Instructions complètes pour la rédaction : audience, angle, problème, mots-clés, sources, ton.",
-      "business_relevance": {
+      "blog_precisions": "Paragraphe complet prêt à coller dans le générateur d'articles : audience cible, angle pédagogique, analogies à utiliser, concepts à expliquer, ton, mots-clés à inclure.",
+      "audience_relevance": {
         "score": 22,
         "reason": "Explication en 1 phrase courte"
       },
@@ -73,12 +94,12 @@ Structure JSON attendue :
       }
     }
   ],
-  "trends": ["3-5 tendances émergentes"],
-  "raw_questions": ["8-12 vraies questions posées par des gens"],
-  "content_gaps": ["3-5 sujets peu couverts en français"]
+  "trends": ["3-5 tendances IA actuelles repérées dans la recherche"],
+  "raw_questions": ["5-10 vraies questions du grand public extraites de la recherche"],
+  "content_gaps": ["3-5 angles peu couverts par d'autres blogs IA grand public"]
 }
 
-Trouve au moins 6 sujets variés. Les titres doivent être accrocheurs et orientés bénéfice pour le lecteur PME. Les mots-clés doivent être des termes que quelqu'un taperait dans Google. Les reasons de scoring doivent tenir en 1 phrase.`
+Trouve 8 à 12 sujets variés (mélange les article_type). Les titres doivent être accrocheurs et clairs pour un lecteur non spécialiste. Les mots-clés doivent être des termes que quelqu'un taperait dans Google pour comprendre l'IA. Les reasons de scoring doivent tenir en 1 phrase.`
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -191,18 +212,18 @@ function calculateTopicScore(topic, seoData) {
   if (words >= 4) rankScore = Math.min(rankScore + 5, 30)
   else if (words >= 3) rankScore = Math.min(rankScore + 2, 30)
 
-  // Dim 3 — Business (max 25, défaut moyen 12 si Claude n'a pas scoré)
-  const businessScore = clamp(topic.business_relevance?.score ?? 12, 0, 25)
+  // Dim 3 — Audience (max 25, défaut moyen 12 si Claude n'a pas scoré)
+  const audienceScore = clamp(topic.audience_relevance?.score ?? 12, 0, 25)
 
   // Dim 4 — Spécificité (max 20, défaut moyen 10 si Claude n'a pas scoré)
   const specificityScore = clamp(topic.specificity?.score ?? 10, 0, 20)
 
   return {
-    total: Math.min(searchScore + rankScore + businessScore + specificityScore, 100),
+    total: Math.min(searchScore + rankScore + audienceScore + specificityScore, 100),
     breakdown: {
       search: searchScore,
       rank: rankScore,
-      business: businessScore,
+      audience: audienceScore,
       specificity: specificityScore,
     },
   }
@@ -281,9 +302,27 @@ async function structureWithClaude(rawResearch, query, apiKey) {
     throw new Error('Claude returned empty content')
   }
 
+  const stopReason = data?.stop_reason || 'unknown'
   const parsed = extractJson(text)
-  if (!parsed || !isValidTopicsShape(parsed)) {
-    throw new Error('Claude produced invalid JSON structure')
+  if (!parsed) {
+    console.error(`[search-topics] JSON parse failed. stop_reason=${stopReason} len=${text.length} tail=${text.slice(-400)}`)
+    if (stopReason === 'max_tokens') {
+      throw new Error(`Truncated at max_tokens=${CLAUDE_MAX_TOKENS}. Increase CLAUDE_MAX_TOKENS or request fewer topics.`)
+    }
+    throw new Error('Claude returned unparseable JSON')
+  }
+  if (!isValidTopicsShape(parsed)) {
+    const issues = []
+    if (!Array.isArray(parsed.topics)) issues.push('topics is not an array')
+    else if (parsed.topics.length === 0) issues.push('topics is empty')
+    else {
+      parsed.topics.forEach((t, i) => {
+        if (!t.title || typeof t.title !== 'string') issues.push(`topic[${i}].title missing`)
+        if (!Array.isArray(t.keywords) || t.keywords.length === 0) issues.push(`topic[${i}].keywords missing`)
+      })
+    }
+    console.error(`[search-topics] Schema validation failed. stop_reason=${stopReason} issues=${issues.slice(0, 5).join(' | ')}`)
+    throw new Error(`Claude produced invalid JSON structure (${issues[0] || 'unknown'})`)
   }
 
   return parsed

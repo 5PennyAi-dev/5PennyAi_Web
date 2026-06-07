@@ -371,7 +371,7 @@ function ScoreBreakdown({ t, breakdown, topic }) {
   const rows = [
     { key: 'search', value: breakdown.search, max: 25, barClass: 'bg-steel' },
     { key: 'rank', value: breakdown.rank, max: 30, barClass: 'bg-green-600' },
-    { key: 'business', value: breakdown.business, max: 25, barClass: 'bg-accent', reason: topic.business_relevance?.reason },
+    { key: 'audience', value: breakdown.audience ?? breakdown.business, max: 25, barClass: 'bg-accent', reason: topic.audience_relevance?.reason ?? topic.business_relevance?.reason },
     { key: 'specificity', value: breakdown.specificity, max: 20, barClass: 'bg-lavender', reason: topic.specificity?.reason },
   ]
   return (

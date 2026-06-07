@@ -26,7 +26,7 @@ export async function saveTopic(topic, searchId) {
       sources: topic.sources,
       blog_precisions: topic.blog_precisions,
       seo_data: topic.seo_data || {},
-      business_relevance: topic.business_relevance || null,
+      business_relevance: topic.audience_relevance || topic.business_relevance || null,
       specificity: topic.specificity || null,
       status: 'saved',
     })

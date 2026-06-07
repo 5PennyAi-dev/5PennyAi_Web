@@ -2,7 +2,7 @@
 // Vercel Serverless Function — Nano Banana editorial header generator.
 // Flow: Claude (driven by the nano-banana-header skill) drafts bilingual
 // 16:9 prompts for an editorial hero banner (category label + title +
-// subtitle + metaphor objects + focal orange accent), then Gemini 3 Pro
+// subtitle + one article-specific techno visual thesis), then Gemini 3 Pro
 // Image renders the FR and EN PNGs in parallel. The client uploads the
 // base64 payloads to Supabase Storage and updates posts.cover_image_fr/en.
 
@@ -89,10 +89,13 @@ Schema:
   "subtitle_in_image_en": "English translation of the subtitle for the EN image (4-8 words, or empty string)",
   "category": "INSIGHTS | STRATEGIE | TUTORIEL | CAS_DUSAGE | ACTUALITE",
   "mode": "light | dark (must follow the category rule in editorial-categories.md)",
-  "focal_accent": "short number or symbol rendered in the small orange badge (e.g. '5', '×2', '→', '!')",
-  "metaphor_objects": ["object 1", "object 2", "object 3"],
-  "prompt_en": "Full ENGLISH Nano Banana prompt (200-400 words, 9 sections). MUST embed title_in_image_en and subtitle_in_image_en verbatim between double quotes. MUST NOT contain any French text in the image specification (no accents like é/è/à in the text to render).",
-  "prompt_fr": "Full FRENCH Nano Banana prompt. MUST embed title_in_image_fr and subtitle_in_image_fr verbatim between double quotes.",
+  "visual_thesis": "one precise sentence explaining what the image makes visible about THIS article, not generic AI",
+  "primary_visual_metaphor": "the single dominant article-specific techno metaphor or scene",
+  "supporting_elements": ["0-2 supporting elements that are necessary to understand the metaphor"],
+  "focal_accent": "optional short number/symbol/word used as typography emphasis only; never a badge or standalone icon",
+  "metaphor_objects": ["legacy UI summary: primary metaphor + supporting elements only; no generic props"],
+  "prompt_en": "Full ENGLISH Nano Banana prompt (200-350 words). MUST embed title_in_image_en and subtitle_in_image_en verbatim between double quotes. MUST NOT contain any French text in the image specification (no accents like é/è/à in the text to render).",
+  "prompt_fr": "Full FRENCH Nano Banana prompt (200-350 words). MUST embed title_in_image_fr and subtitle_in_image_fr verbatim between double quotes.",
   "alt_fr": "French alt text (2-3 sentences, accessible description)",
   "alt_en": "English alt text",
   "reasoning": "one sentence justifying the chosen category + mode + metaphors"
@@ -104,6 +107,28 @@ CRITICAL language discipline:
 - The two prompts are NOT translations of each other at the sentence level — they are two distinct prompts each instructing Nano Banana to render text IN THE TARGET LANGUAGE.
 
 Both prompt_en and prompt_fr MUST specify 16:9 aspect ratio. Never include footers, URLs, or site signatures inside the image.
+
+# Header specificity and anti-repetition rules — CRITICAL
+The current failure mode is generic editorial props recurring across articles. Prevent it.
+
+Before writing prompts, extract:
+1. the article's precise claim or mechanism;
+2. what makes this article different from another AI article;
+3. the one visual thesis that would still make sense if the title were hidden.
+
+Composition rules:
+- Use ONE dominant visual idea, preferably a modern techno/editorial metaphor: interface layer, data flow, model pipeline, node graph, split-screen system, command palette, modular dashboard, evaluation grid, signal map, protocol stack, synthetic document transformation, or abstract machine diagram.
+- Add at most 0-2 supporting elements. They must be necessary to understand the dominant metaphor.
+- Do NOT create a still-life desk scene. Do NOT list several independent objects.
+- The image must feel more tech-forward than cozy editorial: crisp vector UI fragments, connected data paths, angular panels, grid logic, cobalt/teal/violet accents, clean SaaS/AI product aesthetic.
+
+Recurring generic props are banned unless the article is literally about that object:
+plant, sprout, leaves, flower, tree, seedling, watering can, calendar, clock, watch, stopwatch, alarm clock, envelope, letter, email icon, paper plane, mailbox, open book, notebook, journal, checklist clipboard, loose documents, paper stack, wooden desk, tabletop, compass, magnifying glass, generic bar chart, upward chart arrow, light bulb, puzzle piece, cracked ground, wilted plant.
+
+Prompt self-check before output:
+- Would the image still clearly evoke THIS article with the title removed? If not, make the visual thesis more specific.
+- Did you include any banned recurring prop? If yes, replace it with a topic-specific techno metaphor.
+- Did you rely on generic objects around text? If yes, redesign as a coherent tech-forward scene/system.
 
 REMINDER: respond with ONLY the JSON object. No other characters.`
 
@@ -130,9 +155,9 @@ Output TWO independent prompts:
 - title_in_image_fr (French) + subtitle_in_image_fr (French) → used in prompt_fr, which renders a FRENCH image with the French editorial label.
 - title_in_image_en (English translation) + subtitle_in_image_en (English translation) → used in prompt_en, which renders an ENGLISH image with the English editorial label (INSIGHTS, TUTORIAL, USE CASE, NEWS, STRATEGY).
 
-The two images share the same category, mode, metaphor objects and focal accent. Only the rendered text language differs. Do NOT leave French text inside prompt_en.
+The two images share the same category, mode and visual thesis. Only the rendered text language differs. Do NOT leave French text inside prompt_en.
 
-Pick 3-4 metaphor objects from metaphor-library.md relevant to the article topic. Pick a short focal accent (number or symbol). Return only the JSON object defined in the system prompt.`
+Do NOT pick generic metaphor objects. There is no object catalogue to follow. Instead, design one article-specific techno/editorial visual system that expresses the article's core mechanism or tension. Use at most two supporting elements, and avoid the banned recurring props listed in the system prompt. Return only the JSON object defined in the system prompt.`
 }
 
 function extractText(data) {
@@ -205,6 +230,27 @@ async function callClaude({ articleContent, instructions, apiKey }) {
     throw new Error('anthropic_invalid_json')
   }
 
+  // FR↔EN fallback for translated pairs: if Claude omits one language,
+  // copy from the other so generation can still proceed (degraded but usable).
+  const translationPairs = [
+    ['title_in_image_fr', 'title_in_image_en'],
+    ['subtitle_in_image_fr', 'subtitle_in_image_en'],
+    ['prompt_fr', 'prompt_en'],
+    ['alt_fr', 'alt_en'],
+  ]
+  const filled = []
+  for (const [a, b] of translationPairs) {
+    const aOk = typeof parsed[a] === 'string' && parsed[a].trim()
+    const bOk = typeof parsed[b] === 'string' && parsed[b].trim()
+    if (!aOk && bOk) { parsed[a] = parsed[b]; filled.push(a) }
+    else if (!bOk && aOk) { parsed[b] = parsed[a]; filled.push(b) }
+  }
+  if (filled.length) {
+    console.warn(
+      `[generate-header] Claude omitted ${filled.join(',')} — filled from sibling. Returned keys: ${Object.keys(parsed).join(',')}`,
+    )
+  }
+
   const required = [
     'title_in_image_fr',
     'title_in_image_en',
@@ -217,7 +263,9 @@ async function callClaude({ articleContent, instructions, apiKey }) {
   ]
   const missing = required.filter((k) => typeof parsed[k] !== 'string' || !parsed[k].trim())
   if (missing.length) {
-    console.error(`Claude response missing fields: ${missing.join(',')}`)
+    console.error(
+      `Claude response missing fields after FR/EN fallback: ${missing.join(',')}. Returned keys: ${Object.keys(parsed).join(',')}`,
+    )
     throw new Error(`anthropic_missing_fields_${missing.join(',')}`)
   }
 
