@@ -2,6 +2,8 @@
 // Vercel Serverless Function — AI article generator for the 5PennyAi blog admin.
 // Keeps ANTHROPIC_API_KEY server-side. Client calls POST /api/generate-article.
 
+import { normalizeType, ARTICLE_TYPE_LABELS, ARTICLE_TYPES, DEFAULT_FORMAT } from '../src/lib/contentFormats.js'
+
 export const config = {
   maxDuration: 300,
 }
@@ -10,22 +12,6 @@ const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const PERPLEXITY_URL = 'https://api.perplexity.ai/chat/completions'
 const MODEL = 'claude-opus-4-6'
 const MAX_TOKENS = 16000
-
-const ARTICLE_TYPES = {
-  explainer:   { fr: 'Vulgarisation',         en: 'Explainer' },
-  cheatsheet:  { fr: 'Aide-mémoire',          en: 'Cheat sheet' },
-  news:        { fr: 'Actualité IA',          en: 'AI news' },
-  comparison:  { fr: 'Comparaison d\'outils', en: 'Tool comparison' },
-  tutorial:    { fr: 'Tutoriel pratique',     en: 'Tutorial' },
-  mythbusting: { fr: 'Démystification',       en: 'Myth busting' },
-  glossary:    { fr: 'Définition',            en: 'Glossary' },
-  list:        { fr: 'Liste utile',           en: 'Useful list' },
-}
-
-function normalizeArticleType(type) {
-  const legacyMap = { caseStudy: 'explainer', myth: 'mythbusting' }
-  return legacyMap[type] || type
-}
 
 const RESEARCH_SYSTEM_PROMPT = `Tu es un chercheur qui prépare la documentation d'un article de vulgarisation sur l'intelligence artificielle, destiné au grand public.
 
@@ -184,7 +170,7 @@ FORMAT DE RÉPONSE — JSON UNIQUEMENT, pas de texte avant ou après, pas de bac
 }`
 
 function buildUserMessage({ topic, articleType, instructions, language, research }) {
-  const typeLabel = ARTICLE_TYPES[articleType]?.fr || 'Vulgarisation'
+  const typeLabel = ARTICLE_TYPE_LABELS[articleType]?.fr || 'Vulgarisation'
   const primary = language === 'en' ? 'anglais (la version EN est la version principale, la FR est une adaptation)' : 'français (la version FR est la version principale, l\'EN est une adaptation)'
   const extras = instructions && instructions.trim() ? `\n\nPrécisions supplémentaires de l'auteur :\n${instructions.trim()}` : ''
 
@@ -345,8 +331,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Topic is required' })
   }
 
-  const normalizedType = normalizeArticleType(articleType)
-  const finalType = ARTICLE_TYPES[normalizedType] ? normalizedType : 'explainer'
+  const normalizedType = normalizeType(articleType)
+  const finalType = ARTICLE_TYPES.includes(normalizedType) ? normalizedType : 'explainer'
   const normalizedLanguage = language === 'en' ? 'en' : 'fr'
 
   try {
@@ -434,7 +420,7 @@ export default async function handler(req, res) {
     }
 
     const article = postProcess(parsed)
-    return res.status(200).json({ ...article, _research_used: researchUsed })
+    return res.status(200).json({ ...article, article_type: finalType, format: DEFAULT_FORMAT, _research_used: researchUsed })
   } catch (err) {
     console.error('Generation error:', err)
     return res.status(500).json({ error: 'Generation failed' })

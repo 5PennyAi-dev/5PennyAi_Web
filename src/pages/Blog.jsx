@@ -12,6 +12,7 @@ import SkeletonCard from '@/components/blog/SkeletonCard'
 import SortSelect from '@/components/blog/SortSelect'
 import { fetchAllPublishedPosts } from '@/lib/posts'
 import { localizedField } from '@/lib/postI18n'
+import { FORMATS } from '@/lib/contentFormats'
 
 const PAGE_SIZE = 6
 const TAG_LIMIT = 8
@@ -26,6 +27,7 @@ export default function Blog() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeTag, setActiveTag] = useState(null)
+  const [activeFormat, setActiveFormat] = useState(null)
   const [searchInput, setSearchInput] = useState('')
   const [sortBy, setSortBy] = useState('newest')
   const [tagsExpanded, setTagsExpanded] = useState(false)
@@ -56,6 +58,11 @@ export default function Blog() {
     }
   }, [])
 
+  const availableFormats = useMemo(
+    () => [...new Set(posts.map((p) => p.format).filter(Boolean))],
+    [posts]
+  )
+
   const tagData = useMemo(() => {
     const counts = {}
     posts.forEach((p) => (p.tags || []).forEach((tag) => { counts[tag] = (counts[tag] || 0) + 1 }))
@@ -69,6 +76,10 @@ export default function Blog() {
 
     if (activeTag) {
       result = result.filter((p) => (p.tags || []).includes(activeTag))
+    }
+
+    if (activeFormat) {
+      result = result.filter((p) => p.format === activeFormat)
     }
 
     if (debouncedSearch.trim()) {
@@ -95,16 +106,17 @@ export default function Blog() {
     const paginatedPosts = result.slice(start, start + PAGE_SIZE)
 
     return { paginatedPosts, totalFiltered, totalPages }
-  }, [posts, activeTag, debouncedSearch, sortBy, currentPage, lang])
+  }, [posts, activeTag, activeFormat, debouncedSearch, sortBy, currentPage, lang])
 
   // Reset to page 1 when filters change (skip initial mount)
-  const filtersRef = useRef({ activeTag, debouncedSearch, sortBy })
+  const filtersRef = useRef({ activeTag, activeFormat, debouncedSearch, sortBy })
   useEffect(() => {
     const prev = filtersRef.current
-    filtersRef.current = { activeTag, debouncedSearch, sortBy }
+    filtersRef.current = { activeTag, activeFormat, debouncedSearch, sortBy }
 
     const changed =
       prev.activeTag !== activeTag ||
+      prev.activeFormat !== activeFormat ||
       prev.debouncedSearch !== debouncedSearch ||
       prev.sortBy !== sortBy
 
@@ -115,7 +127,7 @@ export default function Blog() {
       next.delete('page')
       return next
     }, { replace: true })
-  }, [activeTag, debouncedSearch, sortBy, setSearchParams])
+  }, [activeTag, activeFormat, debouncedSearch, sortBy, setSearchParams])
 
   const goToPage = useCallback((page) => {
     setSearchParams((prev) => {
@@ -138,9 +150,10 @@ export default function Blog() {
   const handleReset = () => {
     setSearchInput('')
     setActiveTag(null)
+    setActiveFormat(null)
   }
 
-  const hasActiveFilters = debouncedSearch.trim() || activeTag
+  const hasActiveFilters = debouncedSearch.trim() || activeTag || activeFormat
   const showNoResults = !loading && totalFiltered === 0 && hasActiveFilters
   const showEmpty = !loading && posts.length === 0 && !hasActiveFilters
   const showFeatured = currentPage === 1 && !hasActiveFilters && paginatedPosts.length > 0
@@ -218,6 +231,41 @@ export default function Blog() {
               )}
             </div>
           </div>
+
+          {/* Format filter — only shown when multiple formats exist */}
+          {availableFormats.length > 1 && (
+            <div className="flex flex-wrap justify-center gap-2 mb-4">
+              <button
+                type="button"
+                onClick={() => setActiveFormat(null)}
+                className={`rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                  activeFormat === null
+                    ? 'bg-navy text-white'
+                    : 'bg-navy/5 text-navy/70 hover:bg-navy/10'
+                }`}
+              >
+                {t('blog.filters.all')}
+              </button>
+              {availableFormats.map((fmtId) => {
+                const fmt = FORMATS.find((f) => f.id === fmtId)
+                if (!fmt) return null
+                return (
+                  <button
+                    key={fmtId}
+                    type="button"
+                    onClick={() => setActiveFormat(fmtId)}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                      activeFormat === fmtId
+                        ? fmt.badgeColor + ' ring-1 ring-current'
+                        : 'bg-navy/5 text-navy/70 hover:bg-navy/10'
+                    }`}
+                  >
+                    {t(fmt.i18nKey)}
+                  </button>
+                )
+              })}
+            </div>
+          )}
 
           {/* Tag filters */}
           {tagData.tags.length > 0 && (() => {

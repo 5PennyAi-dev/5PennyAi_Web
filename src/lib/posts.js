@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 
 const LIST_COLUMNS =
-  'id, slug, title_fr, title_en, excerpt_fr, excerpt_en, cover_image, cover_image_fr, cover_image_en, cover_image_alt_fr, cover_image_alt_en, tags, published_at, reading_time_minutes'
+  'id, slug, title_fr, title_en, excerpt_fr, excerpt_en, cover_image, cover_image_fr, cover_image_en, cover_image_alt_fr, cover_image_alt_en, tags, published_at, reading_time_minutes, format, article_type'
 
 // Resolve the best cover image URL for a given language, falling back to the
 // other language's image, and finally to the legacy single `cover_image` field.
@@ -88,7 +88,7 @@ export async function fetchAdjacentPosts(publishedAt) {
 export async function fetchAllPostsAdmin() {
   const { data, error } = await supabase
     .from('posts')
-    .select('id, slug, title_fr, status, published_at, updated_at, linkedin_fr')
+    .select('id, slug, title_fr, status, published_at, updated_at, linkedin_fr, format, article_type')
     .order('updated_at', { ascending: false })
 
   if (error) throw error

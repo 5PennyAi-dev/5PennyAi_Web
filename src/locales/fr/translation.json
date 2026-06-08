@@ -599,7 +599,8 @@
       "all": "Tous",
       "label": "Filtrer par thème",
       "showAll": "Voir tout",
-      "showLess": "Voir moins"
+      "showLess": "Voir moins",
+      "format": "Format"
     },
     "card": {
       "minRead": "min de lecture"
@@ -651,6 +652,12 @@
     "articleCount_other": "{{count}} articles",
     "articleCountFor": "{{count}} article pour «\u00a0{{tag}}\u00a0»",
     "articleCountFor_other": "{{count}} articles pour «\u00a0{{tag}}\u00a0»"
+  },
+  "format": {
+    "article": "Article",
+    "news": "News",
+    "cheatsheet": "Cheat sheet",
+    "infographic": "Infographie"
   },
   "admin": {
     "login": {
@@ -1053,6 +1060,28 @@
         "TUTORIEL": "Tutoriel",
         "CAS_DUSAGE": "Cas d'usage",
         "ACTUALITE": "Actualité"
+      }
+    },
+    "studio": {
+      "breadcrumb": "Ressources IA",
+      "newContent": "Nouveau contenu",
+      "tabs": {
+        "preview": "Aperçu",
+        "content": "Contenu",
+        "seo": "SEO"
+      },
+      "formatLabel": "Format",
+      "formats": {
+        "article": "Article",
+        "news": "News",
+        "cheatsheet": "Cheat sheet",
+        "infographic": "Infographie"
+      },
+      "comingSoon": "Génération à venir",
+      "comingSoonDesc": "Ce format sera disponible prochainement.",
+      "engines": {
+        "label": "Moteurs",
+        "article": "Perplexity → Claude"
       }
     }
   }

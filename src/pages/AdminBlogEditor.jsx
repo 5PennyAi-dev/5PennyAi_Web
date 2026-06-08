@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, X, Eye, EyeOff, Sparkles, PencilLine, Search, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, X, Cpu, Sparkles, PencilLine, Search, AlertTriangle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import AdminGuard from '@/components/admin/AdminGuard'
 import Button from '@/components/ui/Button'
 import ArticleGenerator from '@/components/admin/ArticleGenerator'
+import FormatSelector from '@/components/admin/FormatSelector'
 import VisualAssetsSection from '@/components/admin/VisualAssetsSection'
 import SocialPostsGenerator from '@/components/admin/SocialPostsGenerator'
 import { Field, Section, inputClass } from '@/components/admin/editorPrimitives'
@@ -47,6 +48,8 @@ const EMPTY_FORM = {
   facebook_en: '',
   twitter_fr: '',
   twitter_en: '',
+  format: 'article',
+  article_type: null,
 }
 
 function toDatetimeLocal(iso) {
@@ -83,10 +86,9 @@ function AdminBlogEditorInner() {
   const [saving, setSaving] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const [slugError, setSlugError] = useState(null)
-  const [showPreview, setShowPreview] = useState(false)
+  const [activeTab, setActiveTab] = useState('content')
   const [previewLang, setPreviewLang] = useState('fr')
   const [authorMode, setAuthorMode] = useState('manual')
-  const [showGenerator, setShowGenerator] = useState(false)
   const [pendingRegen, setPendingRegen] = useState(null)
   const [existingInfographics, setExistingInfographics] = useState([])
   const [researchUsed, setResearchUsed] = useState(null)
@@ -101,7 +103,6 @@ function AdminBlogEditorInner() {
     const state = topicFinderState.current
     if (state?.fromTopicFinder) {
       setAuthorMode('ai')
-      setShowGenerator(true)
       setSeoData(state.seoData || null)
       setTopicId(state.topicId || null)
       // Clear location state to prevent re-triggering on back/refresh
@@ -261,6 +262,8 @@ function AdminBlogEditorInner() {
       meta_title_en: data.meta_title_en || '',
       meta_description_fr: data.meta_description_fr || '',
       meta_description_en: data.meta_description_en || '',
+      article_type: data.article_type ?? null,
+      format: data.format ?? 'article',
       status: 'draft',
       published_at: prev.published_at || toDatetimeLocal(new Date().toISOString()),
     }))
@@ -281,6 +284,8 @@ function AdminBlogEditorInner() {
       meta_title_en: data.meta_title_en || prev.meta_title_en,
       meta_description_fr: data.meta_description_fr || prev.meta_description_fr,
       meta_description_en: data.meta_description_en || prev.meta_description_en,
+      article_type: data.article_type ?? prev.article_type,
+      format: data.format ?? prev.format,
     }))
   }
 
@@ -288,10 +293,8 @@ function AdminBlogEditorInner() {
     setResearchUsed(data._research_used ?? null)
     if (isEdit) {
       setPendingRegen(data)
-      setShowGenerator(false)
     } else {
       applyGenerated(data)
-      setShowGenerator(false)
       setAuthorMode('manual')
     }
   }
@@ -399,375 +402,441 @@ function AdminBlogEditorInner() {
   }
 
   return (
-    <section className="pt-28 pb-20 bg-warm-gray min-h-[90vh]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-          <div>
-            <Link
-              to="/admin/blog"
-              className="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted hover:text-navy transition-colors mb-2"
-            >
-              <ArrowLeft size={13} strokeWidth={2} />
-              {t('admin.nav.back')}
-            </Link>
-            <h1 className="font-heading font-bold text-navy text-2xl md:text-3xl tracking-tight">
-              {isEdit ? t('admin.editor.titleEdit') : t('admin.editor.titleNew')}
-            </h1>
-          </div>
+    <div className="pt-28 bg-surface flex flex-col min-h-screen">
 
-          <div className="flex items-center gap-3">
-            {isEdit && (
-              <button
-                type="button"
-                onClick={() => setShowGenerator((v) => !v)}
-                className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-4 py-2 text-[13px] font-medium text-accent-deep hover:bg-accent/10 hover:border-accent/50 transition-colors"
-              >
-                <Sparkles size={14} strokeWidth={2} />
-                {t('admin.generator.regenerate')}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setShowPreview((v) => !v)}
-              className="hidden md:inline-flex items-center gap-2 rounded-full border border-navy/15 bg-white px-4 py-2 text-[13px] font-medium text-navy/75 hover:text-navy hover:border-navy/30 transition-colors"
-            >
-              {showPreview ? <EyeOff size={14} strokeWidth={2} /> : <Eye size={14} strokeWidth={2} />}
-              {showPreview ? t('admin.editor.actions.hidePreview') : t('admin.editor.actions.showPreview')}
-            </button>
-          </div>
+      {/* ── TOP BAR ── */}
+      <div className="sticky top-28 z-40 bg-white border-b border-navy/[0.08] px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0 text-[13px]">
+          <Link
+            to="/admin/blog"
+            className="inline-flex items-center gap-1.5 font-medium text-navy/55 hover:text-navy transition-colors shrink-0"
+          >
+            <ArrowLeft size={13} strokeWidth={2} />
+            {t('admin.nav.back')}
+          </Link>
+          <span className="text-navy/25">/</span>
+          <span className="text-navy/55 truncate">{t('admin.studio.breadcrumb')}</span>
+          <span className="text-navy/25">/</span>
+          <span className="font-medium text-navy truncate">
+            {isEdit ? (form.title_fr || '…') : t('admin.studio.newContent')}
+          </span>
         </div>
-
-        {!isEdit && (
-          <div className="mb-6 inline-flex items-center gap-1 rounded-full border border-navy/10 bg-white p-1">
-            <button
-              type="button"
-              onClick={() => {
-                setAuthorMode('manual')
-                setShowGenerator(false)
-              }}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-bold uppercase tracking-[0.1em] transition-colors ${
-                authorMode === 'manual' ? 'bg-navy text-white' : 'text-navy/55 hover:text-navy'
-              }`}
-            >
-              <PencilLine size={13} strokeWidth={2} />
-              {t('admin.generator.manual')}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthorMode('ai')
-                setShowGenerator(true)
-              }}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-bold uppercase tracking-[0.1em] transition-colors ${
-                authorMode === 'ai' ? 'bg-accent text-white' : 'text-navy/55 hover:text-navy'
-              }`}
-            >
-              <Sparkles size={13} strokeWidth={2} />
-              {t('admin.generator.aiMode')}
-            </button>
-          </div>
-        )}
-
-        {feedback && (
-          <div
-            className={`mb-6 rounded-xl px-4 py-3 text-[14px] ${
-              feedback.kind === 'success'
-                ? 'bg-steel/15 text-navy border border-steel/30'
-                : 'bg-accent/10 text-accent-deep border border-accent/30'
-            }`}
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest bg-navy/5 text-navy/50">
+            {t('admin.posts.status.' + form.status)}
+          </span>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => handleSave('draft')}
+            className="rounded-full border border-navy/15 bg-white text-navy/75 px-5 py-2 text-[13px] font-medium hover:border-navy/25 hover:text-navy transition-colors disabled:opacity-60"
           >
-            {feedback.message}
-          </div>
-        )}
-
-        {showGenerator && (
-          <div className="mb-6">
-            <ArticleGenerator
-              initialTopic={isEdit ? form.title_fr : (topicFinderState.current?.topic || '')}
-              seoData={seoData}
-              initialArticleType={topicFinderState.current?.articleType || 'list'}
-              initialInstructions={topicFinderState.current?.instructions || ''}
-              onGenerated={handleGenerated}
-              onCancel={() => {
-                setShowGenerator(false)
-                if (!isEdit) setAuthorMode('manual')
-              }}
-            />
-          </div>
-        )}
-
-        {pendingRegen && (
-          <div className="mb-6 rounded-2xl border border-accent/30 bg-accent/5 p-5 md:p-6">
-            <div className="flex items-start gap-3 mb-3">
-              <Sparkles size={18} strokeWidth={2} className="text-accent mt-0.5 shrink-0" />
-              <div className="flex-1">
-                <h3 className="font-heading font-bold text-navy text-[15px] mb-1">
-                  {t('admin.generator.replaceConfirm')}
-                </h3>
-                <p className="text-[13px] text-navy/70 leading-relaxed">
-                  {t('admin.generator.replaceHint')}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-3 pl-7">
-              <button
-                type="button"
-                onClick={() => {
-                  replaceGenerated(pendingRegen)
-                  setPendingRegen(null)
-                }}
-                className="rounded-full bg-accent text-white px-5 py-2 text-[13px] font-heading font-semibold hover:brightness-95 transition-all"
-              >
-                {t('admin.generator.replaceYes')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setPendingRegen(null)}
-                className="rounded-full border border-navy/15 bg-white text-navy/75 px-5 py-2 text-[13px] font-medium hover:border-navy/25 hover:text-navy transition-colors"
-              >
-                {t('admin.generator.replaceNo')}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {researchUsed !== null && !showGenerator && (
-          <div className={`mb-5 flex items-center gap-2 text-[12px] ${researchUsed ? 'text-emerald-700' : 'text-accent-deep'}`}>
-            {researchUsed ? (
-              <>
-                <Search size={13} strokeWidth={2} className="shrink-0" />
-                <span>{t('admin.generator.researchUsed')}</span>
-              </>
-            ) : (
-              <>
-                <AlertTriangle size={13} strokeWidth={2} className="shrink-0" />
-                <span>{t('admin.generator.researchNotUsed')}</span>
-              </>
-            )}
-          </div>
-        )}
-
-        <div className={`grid gap-6 ${showPreview ? 'lg:grid-cols-2' : 'lg:grid-cols-1'}`}>
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="bg-white border border-navy/[0.08] rounded-3xl p-6 md:p-8 space-y-6"
+            {t('admin.editor.actions.saveDraft')}
+          </button>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => handleSave('published')}
+            className="rounded-full bg-accent text-white px-5 py-2 text-[13px] font-heading font-semibold shadow-[var(--shadow-cta)] hover:brightness-95 transition-all disabled:opacity-60"
           >
-            <Section title={t('admin.editor.sections.content')}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label={t('admin.editor.fields.titleFr')} required>
-                  <input
-                    type="text"
-                    value={form.title_fr}
-                    onChange={(e) => update('title_fr')(e.target.value)}
-                    onBlur={handleTitleFrBlur}
-                    className={inputClass}
-                    required
-                  />
-                </Field>
-                <Field label={t('admin.editor.fields.titleEn')}>
-                  <input
-                    type="text"
-                    value={form.title_en || ''}
-                    onChange={(e) => update('title_en')(e.target.value)}
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-
-              <Field
-                label={t('admin.editor.fields.slug')}
-                hint={t('admin.editor.fields.slugHint')}
-                error={slugError}
-              >
-                <input
-                  type="text"
-                  value={form.slug}
-                  onChange={(e) => update('slug')(slugify(e.target.value))}
-                  onBlur={handleSlugBlur}
-                  className={`${inputClass} font-mono text-[13px]`}
-                />
-              </Field>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label={t('admin.editor.fields.excerptFr')}>
-                  <textarea
-                    value={form.excerpt_fr || ''}
-                    onChange={(e) => update('excerpt_fr')(e.target.value)}
-                    rows={2}
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label={t('admin.editor.fields.excerptEn')}>
-                  <textarea
-                    value={form.excerpt_en || ''}
-                    onChange={(e) => update('excerpt_en')(e.target.value)}
-                    rows={2}
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-
-              <VisualAssetsSection
-                form={form}
-                update={update}
-                onApplyHeader={handleHeaderApply}
-                onClearHeader={handleHeaderClear}
-                onInsertInfographic={insertInfographic}
-                onInsertDiagram={insertDiagramMarkdown}
-                existingInfographics={existingInfographics}
-              />
-
-              <Field label={t('admin.editor.fields.contentFr')} required>
-                <textarea
-                  ref={contentFrRef}
-                  value={form.content_fr || ''}
-                  onChange={(e) => update('content_fr')(e.target.value)}
-                  rows={20}
-                  className={`${inputClass} font-mono text-[13px] leading-relaxed`}
-                  required
-                />
-              </Field>
-
-              <Field label={t('admin.editor.fields.contentEn')}>
-                <textarea
-                  ref={contentEnRef}
-                  value={form.content_en || ''}
-                  onChange={(e) => update('content_en')(e.target.value)}
-                  rows={20}
-                  className={`${inputClass} font-mono text-[13px] leading-relaxed`}
-                />
-              </Field>
-
-              <SocialPostsGenerator
-                contentFr={form.content_fr}
-                contentEn={form.content_en}
-                slug={form.slug}
-                socialPosts={{
-                  linkedin_fr: form.linkedin_fr,
-                  linkedin_en: form.linkedin_en,
-                  facebook_fr: form.facebook_fr,
-                  facebook_en: form.facebook_en,
-                  twitter_fr: form.twitter_fr,
-                  twitter_en: form.twitter_en,
-                }}
-                onUpdate={(field, value) => setForm((prev) => ({ ...prev, [field]: value }))}
-                onGenerated={(posts) => setForm((prev) => ({ ...prev, ...posts }))}
-              />
-            </Section>
-
-            <Section title={t('admin.editor.sections.meta')}>
-              <TagInput
-                value={form.tags}
-                onChange={update('tags')}
-                label={t('admin.editor.fields.tags')}
-                hint={t('admin.editor.fields.tagsHint')}
-                placeholder={t('admin.editor.fields.tagsPlaceholder')}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Field label={t('admin.editor.fields.readingTime')}>
-                  <input
-                    type="number"
-                    min="1"
-                    value={form.reading_time_minutes || ''}
-                    onChange={(e) => update('reading_time_minutes')(e.target.value)}
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label={t('admin.editor.fields.status')}>
-                  <select
-                    value={form.status}
-                    onChange={(e) => update('status')(e.target.value)}
-                    className={inputClass}
-                  >
-                    <option value="draft">{t('admin.posts.status.draft')}</option>
-                    <option value="published">{t('admin.posts.status.published')}</option>
-                    <option value="archived">{t('admin.posts.status.archived')}</option>
-                  </select>
-                </Field>
-                <Field label={t('admin.editor.fields.publishedAt')}>
-                  <input
-                    type="datetime-local"
-                    value={form.published_at || ''}
-                    onChange={(e) => update('published_at')(e.target.value)}
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-            </Section>
-
-            <Section title={t('admin.editor.sections.seo')}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label={t('admin.editor.fields.metaTitleFr')}>
-                  <input
-                    type="text"
-                    value={form.meta_title_fr || ''}
-                    onChange={(e) => update('meta_title_fr')(e.target.value)}
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label={t('admin.editor.fields.metaTitleEn')}>
-                  <input
-                    type="text"
-                    value={form.meta_title_en || ''}
-                    onChange={(e) => update('meta_title_en')(e.target.value)}
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label={t('admin.editor.fields.metaDescriptionFr')}>
-                  <textarea
-                    value={form.meta_description_fr || ''}
-                    onChange={(e) => update('meta_description_fr')(e.target.value)}
-                    rows={2}
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label={t('admin.editor.fields.metaDescriptionEn')}>
-                  <textarea
-                    value={form.meta_description_en || ''}
-                    onChange={(e) => update('meta_description_en')(e.target.value)}
-                    rows={2}
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-            </Section>
-
-            <div className="pt-4 border-t border-navy/[0.06] flex flex-wrap gap-3 justify-end">
-              <Button variant="outline" to="/admin/blog">
-                {t('admin.editor.actions.cancel')}
-              </Button>
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => handleSave('draft')}
-                className="rounded-full border border-navy/15 text-navy/75 bg-white px-7 py-3 text-[14px] font-heading font-semibold hover:bg-navy/[0.03] hover:border-navy/25 transition-colors disabled:opacity-60"
-              >
-                {t('admin.editor.actions.saveDraft')}
-              </button>
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => handleSave('published')}
-                className="rounded-full bg-accent text-white px-7 py-3 text-[14px] font-heading font-semibold shadow-[var(--shadow-cta)] hover:brightness-95 hover:shadow-[var(--shadow-cta-hover)] transition-all disabled:opacity-60"
-              >
-                {t('admin.editor.actions.publish')}
-              </button>
-            </div>
-          </form>
-
-          {showPreview && (
-            <PreviewPanel
-              form={form}
-              previewLang={previewLang}
-              setPreviewLang={setPreviewLang}
-              t={t}
-            />
-          )}
+            {t('admin.editor.actions.publish')}
+          </button>
         </div>
       </div>
+
+      {/* ── STUDIO BODY ── */}
+      <div className="flex flex-1" style={{ minHeight: 'calc(100vh - 7rem - 3rem)' }}>
+
+        {/* ─ LEFT PANEL ─ */}
+        <aside className="w-[360px] shrink-0 border-r border-navy/[0.08] bg-white flex flex-col overflow-y-auto">
+
+          {/* Format selector */}
+          <div className="p-4 border-b border-navy/[0.06]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-navy/40 mb-3">
+              {t('admin.studio.formatLabel')}
+            </p>
+            <FormatSelector
+              value={form.format}
+              onChange={(id, defaultType) => {
+                update('format')(id)
+                if (defaultType) update('article_type')(defaultType)
+              }}
+            />
+          </div>
+
+          {/* Author mode toggle — article only */}
+          {form.format === 'article' && (
+            <div className="px-4 pt-4">
+              <div className="inline-flex items-center gap-1 rounded-full border border-navy/10 bg-surface p-1">
+                <button
+                  type="button"
+                  onClick={() => setAuthorMode('manual')}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold uppercase tracking-[0.1em] transition-colors ${
+                    authorMode === 'manual' ? 'bg-navy text-white' : 'text-navy/55 hover:text-navy'
+                  }`}
+                >
+                  <PencilLine size={12} strokeWidth={2} />
+                  {t('admin.generator.manual')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAuthorMode('ai')}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold uppercase tracking-[0.1em] transition-colors ${
+                    authorMode === 'ai' ? 'bg-accent text-white' : 'text-navy/55 hover:text-navy'
+                  }`}
+                >
+                  <Sparkles size={12} strokeWidth={2} />
+                  {t('admin.generator.aiMode')}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Generation panel */}
+          <div className="flex-1 p-4 overflow-y-auto">
+            {form.format === 'article' ? (
+              <>
+                {authorMode === 'ai' ? (
+                  <ArticleGenerator
+                    initialTopic={isEdit ? form.title_fr : (topicFinderState.current?.topic || '')}
+                    seoData={seoData}
+                    initialArticleType={form.article_type || topicFinderState.current?.articleType || 'explainer'}
+                    initialInstructions={topicFinderState.current?.instructions || ''}
+                    onGenerated={handleGenerated}
+                    onCancel={() => setAuthorMode('manual')}
+                  />
+                ) : (
+                  <p className="text-[13px] text-navy/45 leading-relaxed pt-1">
+                    {t('admin.generator.manual')}
+                  </p>
+                )}
+                {authorMode === 'ai' && (
+                  <div className="mt-4 flex items-center gap-1.5 text-[11px] font-mono text-navy/35">
+                    <Cpu size={11} strokeWidth={2} />
+                    <span>{t('admin.studio.engines.label')} :</span>
+                    <span>{t('admin.studio.engines.article')}</span>
+                  </div>
+                )}
+                {researchUsed !== null && (
+                  <div className={`mt-2 flex items-center gap-1.5 text-[11px] ${researchUsed ? 'text-emerald-700' : 'text-accent-deep'}`}>
+                    {researchUsed ? (
+                      <>
+                        <Search size={12} strokeWidth={2} className="shrink-0" />
+                        <span>{t('admin.generator.researchUsed')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertTriangle size={12} strokeWidth={2} className="shrink-0" />
+                        <span>{t('admin.generator.researchNotUsed')}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="rounded-xl border border-dashed border-navy/15 bg-surface p-6 text-center mt-2">
+                <p className="font-heading font-semibold text-navy/70 text-[14px] mb-1">
+                  {t('admin.studio.comingSoon')}
+                </p>
+                <p className="text-[12px] text-navy/45 leading-relaxed">
+                  {t('admin.studio.comingSoonDesc')}
+                </p>
+              </div>
+            )}
+          </div>
+        </aside>
+
+        {/* ─ RIGHT PANEL ─ */}
+        <main className="flex-1 flex flex-col overflow-hidden min-w-0">
+
+          {/* Feedback banner */}
+          {feedback && (
+            <div className={`mx-6 mt-4 rounded-xl px-4 py-3 text-[14px] border ${
+              feedback.kind === 'success'
+                ? 'bg-steel/15 text-navy border-steel/30'
+                : 'bg-accent/10 text-accent-deep border-accent/30'
+            }`}>
+              {feedback.message}
+            </div>
+          )}
+
+          {/* Pending regen dialog */}
+          {pendingRegen && (
+            <div className="mx-6 mt-4 rounded-2xl border border-accent/30 bg-accent/5 p-5">
+              <div className="flex items-start gap-3 mb-3">
+                <Sparkles size={18} strokeWidth={2} className="text-accent mt-0.5 shrink-0" />
+                <div className="flex-1">
+                  <h3 className="font-heading font-bold text-navy text-[15px] mb-1">
+                    {t('admin.generator.replaceConfirm')}
+                  </h3>
+                  <p className="text-[13px] text-navy/70 leading-relaxed">
+                    {t('admin.generator.replaceHint')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3 pl-7">
+                <button
+                  type="button"
+                  onClick={() => { replaceGenerated(pendingRegen); setPendingRegen(null) }}
+                  className="rounded-full bg-accent text-white px-5 py-2 text-[13px] font-heading font-semibold hover:brightness-95 transition-all"
+                >
+                  {t('admin.generator.replaceYes')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPendingRegen(null)}
+                  className="rounded-full border border-navy/15 bg-white text-navy/75 px-5 py-2 text-[13px] font-medium hover:border-navy/25 hover:text-navy transition-colors"
+                >
+                  {t('admin.generator.replaceNo')}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Tabs */}
+          <div className="bg-white border-b border-navy/[0.08] px-6 pt-3 flex">
+            {['content', 'preview', 'seo'].map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2.5 text-[13px] font-medium border-b-2 -mb-px transition-colors ${
+                  activeTab === tab
+                    ? 'border-accent text-accent'
+                    : 'border-transparent text-navy/50 hover:text-navy'
+                }`}
+              >
+                {t('admin.studio.tabs.' + tab)}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          <div className="flex-1 overflow-y-auto">
+            <form onSubmit={(e) => e.preventDefault()} className="p-6 space-y-6 max-w-3xl">
+
+              {activeTab === 'content' && (
+                <>
+                  <Section title={t('admin.editor.sections.content')}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Field label={t('admin.editor.fields.titleFr')} required>
+                        <input
+                          type="text"
+                          value={form.title_fr}
+                          onChange={(e) => update('title_fr')(e.target.value)}
+                          onBlur={handleTitleFrBlur}
+                          className={inputClass}
+                          required
+                        />
+                      </Field>
+                      <Field label={t('admin.editor.fields.titleEn')}>
+                        <input
+                          type="text"
+                          value={form.title_en || ''}
+                          onChange={(e) => update('title_en')(e.target.value)}
+                          className={inputClass}
+                        />
+                      </Field>
+                    </div>
+
+                    <Field
+                      label={t('admin.editor.fields.slug')}
+                      hint={t('admin.editor.fields.slugHint')}
+                      error={slugError}
+                    >
+                      <input
+                        type="text"
+                        value={form.slug}
+                        onChange={(e) => update('slug')(slugify(e.target.value))}
+                        onBlur={handleSlugBlur}
+                        className={`${inputClass} font-mono text-[13px]`}
+                      />
+                    </Field>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Field label={t('admin.editor.fields.excerptFr')}>
+                        <textarea
+                          value={form.excerpt_fr || ''}
+                          onChange={(e) => update('excerpt_fr')(e.target.value)}
+                          rows={2}
+                          className={inputClass}
+                        />
+                      </Field>
+                      <Field label={t('admin.editor.fields.excerptEn')}>
+                        <textarea
+                          value={form.excerpt_en || ''}
+                          onChange={(e) => update('excerpt_en')(e.target.value)}
+                          rows={2}
+                          className={inputClass}
+                        />
+                      </Field>
+                    </div>
+
+                    <VisualAssetsSection
+                      form={form}
+                      update={update}
+                      onApplyHeader={handleHeaderApply}
+                      onClearHeader={handleHeaderClear}
+                      onInsertInfographic={insertInfographic}
+                      onInsertDiagram={insertDiagramMarkdown}
+                      existingInfographics={existingInfographics}
+                    />
+
+                    <Field label={t('admin.editor.fields.contentFr')} required>
+                      <textarea
+                        ref={contentFrRef}
+                        value={form.content_fr || ''}
+                        onChange={(e) => update('content_fr')(e.target.value)}
+                        rows={20}
+                        className={`${inputClass} font-mono text-[13px] leading-relaxed`}
+                        required
+                      />
+                    </Field>
+
+                    <Field label={t('admin.editor.fields.contentEn')}>
+                      <textarea
+                        ref={contentEnRef}
+                        value={form.content_en || ''}
+                        onChange={(e) => update('content_en')(e.target.value)}
+                        rows={20}
+                        className={`${inputClass} font-mono text-[13px] leading-relaxed`}
+                      />
+                    </Field>
+
+                    <SocialPostsGenerator
+                      contentFr={form.content_fr}
+                      contentEn={form.content_en}
+                      slug={form.slug}
+                      socialPosts={{
+                        linkedin_fr: form.linkedin_fr,
+                        linkedin_en: form.linkedin_en,
+                        facebook_fr: form.facebook_fr,
+                        facebook_en: form.facebook_en,
+                        twitter_fr: form.twitter_fr,
+                        twitter_en: form.twitter_en,
+                      }}
+                      onUpdate={(field, value) => setForm((prev) => ({ ...prev, [field]: value }))}
+                      onGenerated={(posts) => setForm((prev) => ({ ...prev, ...posts }))}
+                    />
+                  </Section>
+
+                  <Section title={t('admin.editor.sections.meta')}>
+                    <TagInput
+                      value={form.tags}
+                      onChange={update('tags')}
+                      label={t('admin.editor.fields.tags')}
+                      hint={t('admin.editor.fields.tagsHint')}
+                      placeholder={t('admin.editor.fields.tagsPlaceholder')}
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Field label={t('admin.editor.fields.readingTime')}>
+                        <input
+                          type="number"
+                          min="1"
+                          value={form.reading_time_minutes || ''}
+                          onChange={(e) => update('reading_time_minutes')(e.target.value)}
+                          className={inputClass}
+                        />
+                      </Field>
+                      <Field label={t('admin.editor.fields.status')}>
+                        <select
+                          value={form.status}
+                          onChange={(e) => update('status')(e.target.value)}
+                          className={inputClass}
+                        >
+                          <option value="draft">{t('admin.posts.status.draft')}</option>
+                          <option value="published">{t('admin.posts.status.published')}</option>
+                          <option value="archived">{t('admin.posts.status.archived')}</option>
+                        </select>
+                      </Field>
+                      <Field label={t('admin.editor.fields.publishedAt')}>
+                        <input
+                          type="datetime-local"
+                          value={form.published_at || ''}
+                          onChange={(e) => update('published_at')(e.target.value)}
+                          className={inputClass}
+                        />
+                      </Field>
+                    </div>
+                  </Section>
+
+                  <div className="pt-4 border-t border-navy/[0.06] flex flex-wrap gap-3 justify-end">
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={() => handleSave('draft')}
+                      className="rounded-full border border-navy/15 text-navy/75 bg-white px-7 py-3 text-[14px] font-heading font-semibold hover:bg-navy/[0.03] hover:border-navy/25 transition-colors disabled:opacity-60"
+                    >
+                      {saving ? '…' : t('admin.editor.actions.saveDraft')}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={() => handleSave('published')}
+                      className="rounded-full bg-accent text-white px-7 py-3 text-[14px] font-heading font-semibold shadow-[var(--shadow-cta)] hover:brightness-95 hover:shadow-[var(--shadow-cta-hover)] transition-all disabled:opacity-60"
+                    >
+                      {saving ? '…' : t('admin.editor.actions.publish')}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {activeTab === 'preview' && (
+                <PreviewPanel
+                  form={form}
+                  previewLang={previewLang}
+                  setPreviewLang={setPreviewLang}
+                  t={t}
+                />
+              )}
+
+              {activeTab === 'seo' && (
+                <Section title={t('admin.editor.sections.seo')}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Field label={t('admin.editor.fields.metaTitleFr')}>
+                      <input
+                        type="text"
+                        value={form.meta_title_fr || ''}
+                        onChange={(e) => update('meta_title_fr')(e.target.value)}
+                        className={inputClass}
+                      />
+                    </Field>
+                    <Field label={t('admin.editor.fields.metaTitleEn')}>
+                      <input
+                        type="text"
+                        value={form.meta_title_en || ''}
+                        onChange={(e) => update('meta_title_en')(e.target.value)}
+                        className={inputClass}
+                      />
+                    </Field>
+                    <Field label={t('admin.editor.fields.metaDescriptionFr')}>
+                      <textarea
+                        value={form.meta_description_fr || ''}
+                        onChange={(e) => update('meta_description_fr')(e.target.value)}
+                        rows={2}
+                        className={inputClass}
+                      />
+                    </Field>
+                    <Field label={t('admin.editor.fields.metaDescriptionEn')}>
+                      <textarea
+                        value={form.meta_description_en || ''}
+                        onChange={(e) => update('meta_description_en')(e.target.value)}
+                        rows={2}
+                        className={inputClass}
+                      />
+                    </Field>
+                  </div>
+                </Section>
+              )}
+
+            </form>
+          </div>
+        </main>
+
+      </div>
       <Lightbox />
-    </section>
+    </div>
   )
 }
 

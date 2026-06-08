@@ -15,6 +15,25 @@ import { markdownComponents } from '@/components/blog/markdownComponents'
 import Lightbox from '@/components/blog/Lightbox'
 import { stripDiagramArtifacts } from '@/lib/markdown'
 
+function ArticleRenderer({ content }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeRaw]}
+      components={markdownComponents}
+    >
+      {stripDiagramArtifacts(content)}
+    </ReactMarkdown>
+  )
+}
+
+const RENDERERS = {
+  article: ArticleRenderer,
+  news: ArticleRenderer,
+  cheatsheet: ArticleRenderer,
+  infographic: ArticleRenderer,
+}
+
 function formatDate(dateString, lang) {
   if (!dateString) return ''
   try {
@@ -116,6 +135,8 @@ export default function BlogPost() {
 
   const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`
   const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(title)}`
+
+  const ContentRenderer = RENDERERS[post.format] ?? ArticleRenderer
 
   return (
     <>
@@ -223,13 +244,7 @@ export default function BlogPost() {
           )}
 
           <div className="blog-prose">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw]}
-              components={markdownComponents}
-            >
-              {stripDiagramArtifacts(content)}
-            </ReactMarkdown>
+            <ContentRenderer content={content} />
           </div>
           <Lightbox />
 
