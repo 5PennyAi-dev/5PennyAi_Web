@@ -42,6 +42,7 @@ export const FORMATS = [
     badgeColor: 'bg-steel/20 text-steel-dark',
     iconName: 'Newspaper',
     defaultArticleType: 'news',
+    generationEndpoint: '/api/generate-news',
   },
   {
     id: 'cheatsheet',

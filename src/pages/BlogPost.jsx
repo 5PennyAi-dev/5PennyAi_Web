@@ -12,6 +12,7 @@ import ShaderBackground from '@/components/ui/ShaderBackground'
 import { fetchPostBySlug, fetchAdjacentPosts, resolveCoverImage, resolveCoverAlt } from '@/lib/posts'
 import { localizedField } from '@/lib/postI18n'
 import { markdownComponents } from '@/components/blog/markdownComponents'
+import NewsRenderer from '@/components/blog/NewsRenderer'
 import Lightbox from '@/components/blog/Lightbox'
 import { stripDiagramArtifacts } from '@/lib/markdown'
 
@@ -28,9 +29,9 @@ function ArticleRenderer({ content }) {
 }
 
 const RENDERERS = {
-  article: ArticleRenderer,
-  news: ArticleRenderer,
-  cheatsheet: ArticleRenderer,
+  article:     ArticleRenderer,
+  news:        NewsRenderer,
+  cheatsheet:  ArticleRenderer,
   infographic: ArticleRenderer,
 }
 

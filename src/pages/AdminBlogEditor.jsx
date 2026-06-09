@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm'
 import AdminGuard from '@/components/admin/AdminGuard'
 import Button from '@/components/ui/Button'
 import ArticleGenerator from '@/components/admin/ArticleGenerator'
+import NewsGenerator from '@/components/admin/NewsGenerator'
 import FormatSelector from '@/components/admin/FormatSelector'
 import VisualAssetsSection from '@/components/admin/VisualAssetsSection'
 import SocialPostsGenerator from '@/components/admin/SocialPostsGenerator'
@@ -533,6 +534,11 @@ function AdminBlogEditorInner() {
                   </div>
                 )}
               </>
+            ) : form.format === 'news' ? (
+              <NewsGenerator
+                initialTopic={isEdit ? form.title_fr : ''}
+                onGenerated={handleGenerated}
+              />
             ) : (
               <div className="rounded-xl border border-dashed border-navy/15 bg-surface p-6 text-center mt-2">
                 <p className="font-heading font-semibold text-navy/70 text-[14px] mb-1">

@@ -1081,8 +1081,33 @@
       "comingSoonDesc": "This format will be available soon.",
       "engines": {
         "label": "Engines",
-        "article": "Perplexity → Claude"
+        "article": "Perplexity → Claude",
+        "news": "Perplexity → Claude"
       }
+    },
+    "news": {
+      "title": "News Digest",
+      "subtitle": "Searches recent news via Perplexity, bilingual synthesis via Claude.",
+      "topic": "Topic",
+      "topicPlaceholder": "e.g. AI agents, GPT-4o, Mistral…",
+      "timeWindow": "Time window",
+      "timeWindow7d": "Last 7 days",
+      "timeWindow14d": "Last 14 days",
+      "timeWindow30d": "Last 30 days",
+      "count": "Number of items",
+      "countMin": "min. 3",
+      "instructions": "Angle / instructions",
+      "instructionsPlaceholder": "Optional — editorial angle, points to cover…",
+      "language": "Primary language",
+      "generate": "Generate digest",
+      "regenerate": "Regenerate",
+      "loading": "Generating…",
+      "loadingStep1": "Searching for recent news…",
+      "loadingStep2": "Bilingual synthesis in progress…",
+      "loadingHint": "The Perplexity + Claude call typically takes 20 to 60 seconds.",
+      "error": "Generation failed. Please try again.",
+      "errorTimeout": "Timeout (5 min). Try a shorter topic.",
+      "transparency": "{{count}} item(s) found · window: {{window}}"
     }
   }
 }
