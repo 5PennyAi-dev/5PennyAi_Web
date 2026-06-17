@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button'
 import ArticleGenerator from '@/components/admin/ArticleGenerator'
 import NewsGenerator from '@/components/admin/NewsGenerator'
 import InfographicResourceGenerator from '@/components/admin/InfographicResourceGenerator'
+import CheatSheetGenerator from '@/components/admin/CheatSheetGenerator'
 import FormatSelector from '@/components/admin/FormatSelector'
 import VisualAssetsSection from '@/components/admin/VisualAssetsSection'
 import SocialPostsGenerator from '@/components/admin/SocialPostsGenerator'
@@ -95,6 +96,7 @@ function AdminBlogEditorInner() {
   const [existingInfographics, setExistingInfographics] = useState([])
   const [researchUsed, setResearchUsed] = useState(null)
   const [infographicMeta, setInfographicMeta] = useState(null)
+  const [cheatsheetMeta, setCheatsheetMeta] = useState(null)
   const [topicId, setTopicId] = useState(null)
   const [seoData, setSeoData] = useState(null)
   const contentFrRef = useRef(null)
@@ -376,6 +378,34 @@ function AdminBlogEditorInner() {
     }
   }
 
+  const handleCheatsheetGenerated = (data) => {
+    setForm((prev) => ({
+      ...prev,
+      slug: prev.slug || slugify(data.slug || data.title_fr || ''),
+      title_fr: data.title_fr || '',
+      title_en: data.title_en || '',
+      excerpt_fr: data.excerpt_fr || '',
+      excerpt_en: data.excerpt_en || '',
+      content_fr: data.content_fr || '',
+      content_en: data.content_en || '',
+      tags: Array.isArray(data.tags) ? data.tags : [],
+      reading_time_minutes: data.reading_time_minutes || 2,
+      meta_title_fr: data.meta_title_fr || '',
+      meta_title_en: data.meta_title_en || '',
+      meta_description_fr: data.meta_description_fr || '',
+      meta_description_en: data.meta_description_en || '',
+      format: 'cheatsheet',
+      article_type: 'cheatsheet',
+      cover_image_fr: data.cover_image_fr || prev.cover_image_fr,
+      status: 'draft',
+      published_at: prev.published_at || toDatetimeLocal(new Date().toISOString()),
+    }))
+    setCheatsheetMeta({
+      layout_used: data.layout_used || '',
+      image_prompt: data.image_prompt || '',
+    })
+  }
+
   const handleHeaderApply = ({ urls, promptData }) => {
     setForm((prev) => ({
       ...prev,
@@ -573,6 +603,12 @@ function AdminBlogEditorInner() {
                 slug={form.slug}
                 onGenerated={handleInfographicGenerated}
               />
+            ) : form.format === 'cheatsheet' ? (
+              <CheatSheetGenerator
+                initialTopic={isEdit ? form.title_fr : ''}
+                slug={form.slug}
+                onGenerated={handleCheatsheetGenerated}
+              />
             ) : (
               <div className="rounded-xl border border-dashed border-navy/15 bg-surface p-6 text-center mt-2">
                 <p className="font-heading font-semibold text-navy/70 text-[14px] mb-1">
@@ -657,6 +693,39 @@ function AdminBlogEditorInner() {
 
               {activeTab === 'content' && (
                 <>
+                  {form.format === 'cheatsheet' && (
+                    <Section title={t('admin.cheatsheet.previewTitle')}>
+                      {form.cover_image_fr ? (
+                        <div className="space-y-3">
+                          <img
+                            src={form.cover_image_fr}
+                            alt={form.title_fr || ''}
+                            className="w-full max-w-xs mx-auto block rounded-xl border border-navy/10"
+                          />
+                          {cheatsheetMeta?.layout_used && (
+                            <p className="text-center text-[12px] text-navy/50">
+                              {t('admin.cheatsheet.layoutUsedLabel')} :{' '}
+                              <strong>{cheatsheetMeta.layout_used}</strong>
+                            </p>
+                          )}
+                          {cheatsheetMeta?.image_prompt && (
+                            <Field label={t('admin.cheatsheet.promptLabel')}>
+                              <textarea
+                                value={cheatsheetMeta.image_prompt}
+                                readOnly
+                                rows={3}
+                                className={`${inputClass} font-mono text-[11px] resize-none`}
+                              />
+                            </Field>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-[13px] text-navy/45 text-center py-4 leading-relaxed">
+                          {t('admin.cheatsheet.noImage')}
+                        </p>
+                      )}
+                    </Section>
+                  )}
                   {form.format === 'infographic' && (
                     <Section title={t('admin.infographicResource.previewTitle')}>
                       {form.cover_image_fr ? (
@@ -1023,7 +1092,7 @@ function PreviewPanel({ form, previewLang, setPreviewLang, t }) {
       </div>
 
       {coverUrl && (
-        form.format === 'infographic' ? (
+        (form.format === 'infographic' || form.format === 'cheatsheet') ? (
           <div className="flex justify-center mb-6">
             <img
               src={coverUrl}

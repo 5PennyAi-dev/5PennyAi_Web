@@ -7,6 +7,8 @@ import { FORMATS } from '@/lib/contentFormats'
 
 const FORMAT_ICONS = { FileText, Newspaper, ClipboardList, BarChart2 }
 
+const isImageFormat = (format) => format === 'infographic' || format === 'cheatsheet'
+
 function formatDate(dateString, lang) {
   if (!dateString) return ''
   try {
@@ -46,7 +48,7 @@ export default function FeaturedCard({ post }) {
             minor vertical crop. aspect-ratio on desktop would conflict with
             items-stretch and widen the column past its grid allotment. */}
         <div className={`relative md:col-span-2 w-full bg-warm-gray overflow-hidden ${
-          post.format === 'infographic'
+          isImageFormat(post.format)
             ? 'aspect-[2/3] md:aspect-auto md:h-[280px]'
             : 'aspect-[16/9] md:aspect-auto md:h-full'
         }`}>
@@ -56,7 +58,7 @@ export default function FeaturedCard({ post }) {
               alt={coverAlt}
               loading="lazy"
               className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
-                post.format === 'infographic' ? 'object-top' : 'object-left'
+                isImageFormat(post.format) ? 'object-top' : 'object-left'
               }`}
             />
           ) : (

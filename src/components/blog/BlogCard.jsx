@@ -7,6 +7,8 @@ import { FORMATS } from '@/lib/contentFormats'
 
 const FORMAT_ICONS = { FileText, Newspaper, ClipboardList, BarChart2 }
 
+const isImageFormat = (format) => format === 'infographic' || format === 'cheatsheet'
+
 function formatDate(dateString, lang) {
   if (!dateString) return ''
   try {
@@ -46,7 +48,7 @@ export default function BlogCard({ post }) {
             alt={coverAlt}
             loading="lazy"
             className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
-              post.format === 'infographic' ? 'object-top' : ''
+              isImageFormat(post.format) ? 'object-top' : ''
             }`}
           />
         ) : (

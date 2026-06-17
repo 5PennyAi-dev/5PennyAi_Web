@@ -50,6 +50,7 @@ export const FORMATS = [
     badgeColor: 'bg-teal-100 text-teal-700',
     iconName: 'ClipboardList',
     defaultArticleType: 'cheatsheet',
+    generationEndpoint: '/api/generate-cheatsheet',
   },
   {
     id: 'infographic',

@@ -622,10 +622,14 @@
       "next": "Next article",
       "back": "Back to blog",
       "metaInfographic": "Infographic",
+      "metaCheatsheet": "Cheat sheet",
       "enlarge": "Enlarge",
       "download": "Download",
       "infographic": {
         "essentialsTitle": "Key takeaways"
+      },
+      "cheatsheet": {
+        "referenceTitle": "Reference text"
       },
       "cta": {
         "title": "An opportunity or AI project?",
@@ -1089,7 +1093,8 @@
         "label": "Engines",
         "article": "Perplexity → Claude",
         "news": "Perplexity → Claude",
-        "infographicResource": "Claude Sonnet → gpt-image-2"
+        "infographicResource": "Claude Sonnet → gpt-image-2",
+        "cheatsheet": "Claude Sonnet → gpt-image-2"
       }
     },
     "infographicResource": {
@@ -1123,6 +1128,33 @@
       "layoutUsedLabel": "Layout",
       "promptLabel": "Image prompt (read-only)",
       "noImage": "No infographic yet — click \"Generate\" in the left panel."
+    },
+    "cheatsheet": {
+      "title": "Generate a cheat sheet",
+      "subtitle": "Claude generates the content, gpt-image-2 renders the visual portrait cheat sheet.",
+      "topic": "Topic",
+      "topicPlaceholder": "e.g. Claude Code, Generative AI glossary…",
+      "audience": "Target audience",
+      "audiencePlaceholder": "e.g. developers, beginners…",
+      "instructions": "Additional instructions",
+      "instructionsPlaceholder": "Optional — points to cover, style, focus…",
+      "language": "Primary language",
+      "generate": "Generate cheat sheet",
+      "regenerate": "Regenerate",
+      "loading": "Generating…",
+      "loadingStep1": "Claude generating verified bilingual content…",
+      "loadingStep2": "gpt-image-2 rendering the visual portrait cheat sheet…",
+      "loadingStep3": "Finalising response…",
+      "loadingHint": "Claude + gpt-image-2 — typically 30 to 90 seconds.",
+      "uploading": "Uploading image…",
+      "error": "Generation failed. Please try again.",
+      "errorTimeout": "Timeout (4 min). Try a shorter topic.",
+      "errorUpload": "Generation OK but upload failed. Please try again.",
+      "doneHint": "Cheat sheet generated and uploaded. Save to persist.",
+      "layoutUsedLabel": "Layout",
+      "promptLabel": "Image prompt (read-only)",
+      "previewTitle": "Generated cheat sheet",
+      "noImage": "No cheat sheet generated yet — click Generate in the left panel."
     },
     "news": {
       "title": "News Digest",

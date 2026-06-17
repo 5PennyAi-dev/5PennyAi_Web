@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { ArrowLeft, ArrowRight, Copy, Check, BarChart2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Copy, Check, BarChart2, ClipboardList } from 'lucide-react'
 import useScrollReveal from '@/hooks/useScrollReveal'
 import Button from '@/components/ui/Button'
 import ShaderBackground from '@/components/ui/ShaderBackground'
@@ -14,6 +14,7 @@ import { localizedField } from '@/lib/postI18n'
 import { markdownComponents } from '@/components/blog/markdownComponents'
 import NewsRenderer from '@/components/blog/NewsRenderer'
 import InfographicRenderer from '@/components/blog/InfographicRenderer'
+import CheatSheetRenderer from '@/components/blog/CheatSheetRenderer'
 import Lightbox from '@/components/blog/Lightbox'
 import { stripDiagramArtifacts } from '@/lib/markdown'
 
@@ -29,10 +30,13 @@ function ArticleRenderer({ content }) {
   )
 }
 
+// Formats whose cover is the primary content (image-first rendering).
+const isImageFormat = (format) => format === 'infographic' || format === 'cheatsheet'
+
 const RENDERERS = {
   article:     ArticleRenderer,
   news:        NewsRenderer,
-  cheatsheet:  ArticleRenderer,
+  cheatsheet:  CheatSheetRenderer,
   infographic: InfographicRenderer,
 }
 
@@ -169,7 +173,7 @@ export default function BlogPost() {
       </Helmet>
 
       {/* Hero */}
-      {post.format === 'infographic' ? (
+      {isImageFormat(post.format) ? (
         <section
           ref={heroRef}
           className="reveal pt-28 pb-8 md:pt-32 md:pb-10"
@@ -187,10 +191,17 @@ export default function BlogPost() {
             </Link>
 
             <div className="mb-4">
-              <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 text-violet-700 px-3 py-1 text-[11px] font-mono font-medium">
-                <BarChart2 size={11} strokeWidth={2} />
-                {t('blog.post.metaInfographic')}
-              </span>
+              {post.format === 'cheatsheet' ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-teal-100 text-teal-700 px-3 py-1 text-[11px] font-mono font-medium">
+                  <ClipboardList size={11} strokeWidth={2} />
+                  {t('blog.post.metaCheatsheet')}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 text-violet-700 px-3 py-1 text-[11px] font-mono font-medium">
+                  <BarChart2 size={11} strokeWidth={2} />
+                  {t('blog.post.metaInfographic')}
+                </span>
+              )}
             </div>
 
             <h1 className="text-display text-[2rem] md:text-[2.75rem] lg:text-[3.25rem] font-bold text-navy mb-5 leading-[1.1]">
@@ -200,7 +211,11 @@ export default function BlogPost() {
             <div className="flex items-center justify-center gap-2 text-[13px] text-navy/55 tnum">
               {post.published_at && <span>{formatDate(post.published_at, lang)}</span>}
               {post.published_at && <span aria-hidden="true">·</span>}
-              <span>{t('blog.post.metaInfographic')}</span>
+              <span>
+                {post.format === 'cheatsheet'
+                  ? t('blog.post.metaCheatsheet')
+                  : t('blog.post.metaInfographic')}
+              </span>
             </div>
           </div>
         </section>
@@ -261,7 +276,7 @@ export default function BlogPost() {
       {/* Body */}
       <article ref={bodyRef} className="reveal py-16 md:py-20">
         <div className="max-w-[820px] mx-auto px-4 sm:px-6">
-          {resolveCoverImage(post, lang) && post.format !== 'infographic' && (
+          {resolveCoverImage(post, lang) && !isImageFormat(post.format) && (
             <img
               src={resolveCoverImage(post, lang)}
               alt={resolveCoverAlt(post, lang) || title}
