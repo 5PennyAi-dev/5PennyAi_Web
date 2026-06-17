@@ -45,7 +45,9 @@ export default function BlogCard({ post }) {
             src={coverUrl}
             alt={coverAlt}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
+              post.format === 'infographic' ? 'object-top' : ''
+            }`}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">

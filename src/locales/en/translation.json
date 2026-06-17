@@ -621,6 +621,12 @@
       "prev": "Previous article",
       "next": "Next article",
       "back": "Back to blog",
+      "metaInfographic": "Infographic",
+      "enlarge": "Enlarge",
+      "download": "Download",
+      "infographic": {
+        "essentialsTitle": "Key takeaways"
+      },
       "cta": {
         "title": "An opportunity or AI project?",
         "subtitle": "Drop me a line — I'm open to a full-time role in applied AI or a consulting engagement.",
@@ -1082,8 +1088,41 @@
       "engines": {
         "label": "Engines",
         "article": "Perplexity → Claude",
-        "news": "Perplexity → Claude"
+        "news": "Perplexity → Claude",
+        "infographicResource": "Claude Sonnet → gpt-image-2"
       }
+    },
+    "infographicResource": {
+      "title": "Generate an infographic",
+      "subtitle": "Claude picks a layout · gpt-image-2 renders the portrait",
+      "concept": "Concept *",
+      "conceptPlaceholder": "e.g. How RAG works",
+      "layout": "Layout",
+      "layoutAuto": "Let the AI choose",
+      "layoutDefinition": "Definition / Concept",
+      "layoutProcess": "Process / Steps",
+      "layoutComparison": "Comparison",
+      "layoutAnatomy": "Anatomy / Layers",
+      "layoutTaxonomy": "Taxonomy / Families",
+      "audience": "Target audience",
+      "audiencePlaceholder": "e.g. beginners, developers…",
+      "keyPoints": "Key points to include",
+      "keyPointsPlaceholder": "e.g. RAG = retrieval + generation, 3 steps…",
+      "generate": "Generate infographic",
+      "regenerate": "Regenerate",
+      "loading": "Generating…",
+      "loadingStep1": "Claude is analysing the concept and picking a layout…",
+      "loadingStep2": "gpt-image-2 is rendering the portrait infographic…",
+      "loadingStep3": "Finalising the response…",
+      "uploading": "Uploading image…",
+      "error": "Generation failed. Please try again.",
+      "errorTimeout": "Timeout — generation can take 2-4 min. Please retry.",
+      "errorUpload": "Generation succeeded but upload failed. Please retry.",
+      "doneHint": "Infographic generated. Save to persist it.",
+      "previewTitle": "Generated infographic",
+      "layoutUsedLabel": "Layout",
+      "promptLabel": "Image prompt (read-only)",
+      "noImage": "No infographic yet — click \"Generate\" in the left panel."
     },
     "news": {
       "title": "News Digest",

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
-import { ArrowLeft, ArrowRight, Copy, Check } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Copy, Check, BarChart2 } from 'lucide-react'
 import useScrollReveal from '@/hooks/useScrollReveal'
 import Button from '@/components/ui/Button'
 import ShaderBackground from '@/components/ui/ShaderBackground'
@@ -13,6 +13,7 @@ import { fetchPostBySlug, fetchAdjacentPosts, resolveCoverImage, resolveCoverAlt
 import { localizedField } from '@/lib/postI18n'
 import { markdownComponents } from '@/components/blog/markdownComponents'
 import NewsRenderer from '@/components/blog/NewsRenderer'
+import InfographicRenderer from '@/components/blog/InfographicRenderer'
 import Lightbox from '@/components/blog/Lightbox'
 import { stripDiagramArtifacts } from '@/lib/markdown'
 
@@ -32,7 +33,7 @@ const RENDERERS = {
   article:     ArticleRenderer,
   news:        NewsRenderer,
   cheatsheet:  ArticleRenderer,
-  infographic: ArticleRenderer,
+  infographic: InfographicRenderer,
 }
 
 function formatDate(dateString, lang) {
@@ -168,62 +169,99 @@ export default function BlogPost() {
       </Helmet>
 
       {/* Hero */}
-      <section
-        ref={heroRef}
-        className="reveal relative pt-36 pb-16 md:pt-40 md:pb-20 overflow-hidden bg-grain"
-        style={{
-          backgroundColor: '#0D2240',
-          backgroundImage:
-            'radial-gradient(ellipse 80% 70% at 70% 20%, rgba(221,135,55,0.16), transparent 60%), ' +
-            'radial-gradient(ellipse 70% 70% at 20% 100%, rgba(129,174,215,0.20), transparent 60%), ' +
-            'radial-gradient(ellipse 100% 100% at 50% 50%, #143054 0%, #0D2240 80%)',
-        }}
-      >
-        <ShaderBackground />
-        <div className="absolute inset-0 bg-dot-grid-dark opacity-30 pointer-events-none" />
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
+      {post.format === 'infographic' ? (
+        <section
+          ref={heroRef}
+          className="reveal pt-28 pb-8 md:pt-32 md:pb-10"
+          style={{ backgroundColor: '#F7F5F2' }}
+        >
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-2 rounded-full border border-navy/20 px-4 py-1.5 mb-6 text-navy/60 hover:text-navy hover:border-navy/40 transition-colors"
+            >
+              <ArrowLeft size={12} strokeWidth={2} />
+              <span className="uppercase tracking-[0.2em] text-[11px] font-bold">
+                {t('blog.hero.overline')}
+              </span>
+            </Link>
 
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center z-10">
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/[0.14] rounded-full px-4 py-1.5 mb-6 backdrop-blur-md text-white/75 hover:text-white hover:border-white/30 transition-colors"
-          >
-            <ArrowLeft size={12} strokeWidth={2} />
-            <span className="uppercase tracking-[0.2em] text-[11px] font-bold">
-              {t('blog.hero.overline')}
-            </span>
-          </Link>
+            <div className="mb-4">
+              <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 text-violet-700 px-3 py-1 text-[11px] font-mono font-medium">
+                <BarChart2 size={11} strokeWidth={2} />
+                {t('blog.post.metaInfographic')}
+              </span>
+            </div>
 
-          <h1 className="text-display text-[2rem] md:text-[2.75rem] lg:text-[3.25rem] font-bold text-white mb-5 leading-[1.1]">
-            {title}
-          </h1>
+            <h1 className="text-display text-[2rem] md:text-[2.75rem] lg:text-[3.25rem] font-bold text-navy mb-5 leading-[1.1]">
+              {title}
+            </h1>
 
-          <div className="flex items-center justify-center gap-2 text-[13px] text-white/55 tnum">
-            {post.published_at && <span>{formatDate(post.published_at, lang)}</span>}
-            {post.reading_time_minutes ? (
-              <>
-                <span aria-hidden="true">·</span>
-                <span>
-                  {post.reading_time_minutes} {t('blog.card.minRead')}
-                </span>
-              </>
-            ) : null}
-            {post.author && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span>
-                  {t('blog.post.by')} {post.author}
-                </span>
-              </>
-            )}
+            <div className="flex items-center justify-center gap-2 text-[13px] text-navy/55 tnum">
+              {post.published_at && <span>{formatDate(post.published_at, lang)}</span>}
+              {post.published_at && <span aria-hidden="true">·</span>}
+              <span>{t('blog.post.metaInfographic')}</span>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section
+          ref={heroRef}
+          className="reveal relative pt-36 pb-16 md:pt-40 md:pb-20 overflow-hidden bg-grain"
+          style={{
+            backgroundColor: '#0D2240',
+            backgroundImage:
+              'radial-gradient(ellipse 80% 70% at 70% 20%, rgba(221,135,55,0.16), transparent 60%), ' +
+              'radial-gradient(ellipse 70% 70% at 20% 100%, rgba(129,174,215,0.20), transparent 60%), ' +
+              'radial-gradient(ellipse 100% 100% at 50% 50%, #143054 0%, #0D2240 80%)',
+          }}
+        >
+          <ShaderBackground />
+          <div className="absolute inset-0 bg-dot-grid-dark opacity-30 pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
+
+          <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center z-10">
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/[0.14] rounded-full px-4 py-1.5 mb-6 backdrop-blur-md text-white/75 hover:text-white hover:border-white/30 transition-colors"
+            >
+              <ArrowLeft size={12} strokeWidth={2} />
+              <span className="uppercase tracking-[0.2em] text-[11px] font-bold">
+                {t('blog.hero.overline')}
+              </span>
+            </Link>
+
+            <h1 className="text-display text-[2rem] md:text-[2.75rem] lg:text-[3.25rem] font-bold text-white mb-5 leading-[1.1]">
+              {title}
+            </h1>
+
+            <div className="flex items-center justify-center gap-2 text-[13px] text-white/55 tnum">
+              {post.published_at && <span>{formatDate(post.published_at, lang)}</span>}
+              {post.reading_time_minutes ? (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    {post.reading_time_minutes} {t('blog.card.minRead')}
+                  </span>
+                </>
+              ) : null}
+              {post.author && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    {t('blog.post.by')} {post.author}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Body */}
       <article ref={bodyRef} className="reveal py-16 md:py-20">
         <div className="max-w-[820px] mx-auto px-4 sm:px-6">
-          {resolveCoverImage(post, lang) && (
+          {resolveCoverImage(post, lang) && post.format !== 'infographic' && (
             <img
               src={resolveCoverImage(post, lang)}
               alt={resolveCoverAlt(post, lang) || title}
@@ -245,7 +283,7 @@ export default function BlogPost() {
           )}
 
           <div className="blog-prose">
-            <ContentRenderer content={content} />
+            <ContentRenderer content={content} post={post} lang={lang} />
           </div>
           <Lightbox />
 

@@ -45,13 +45,19 @@ export default function FeaturedCard({ post }) {
             height (avoiding whitespace bars). object-cover takes care of the
             minor vertical crop. aspect-ratio on desktop would conflict with
             items-stretch and widen the column past its grid allotment. */}
-        <div className="relative md:col-span-2 w-full aspect-[16/9] md:aspect-auto md:h-full bg-warm-gray overflow-hidden">
+        <div className={`relative md:col-span-2 w-full bg-warm-gray overflow-hidden ${
+          post.format === 'infographic'
+            ? 'aspect-[2/3] md:aspect-auto md:h-[280px]'
+            : 'aspect-[16/9] md:aspect-auto md:h-full'
+        }`}>
           {coverUrl ? (
             <img
               src={coverUrl}
               alt={coverAlt}
               loading="lazy"
-              className="w-full h-full object-cover object-left transition-transform duration-500 group-hover:scale-[1.03]"
+              className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
+                post.format === 'infographic' ? 'object-top' : 'object-left'
+              }`}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">

@@ -8,6 +8,7 @@ import AdminGuard from '@/components/admin/AdminGuard'
 import Button from '@/components/ui/Button'
 import ArticleGenerator from '@/components/admin/ArticleGenerator'
 import NewsGenerator from '@/components/admin/NewsGenerator'
+import InfographicResourceGenerator from '@/components/admin/InfographicResourceGenerator'
 import FormatSelector from '@/components/admin/FormatSelector'
 import VisualAssetsSection from '@/components/admin/VisualAssetsSection'
 import SocialPostsGenerator from '@/components/admin/SocialPostsGenerator'
@@ -93,6 +94,7 @@ function AdminBlogEditorInner() {
   const [pendingRegen, setPendingRegen] = useState(null)
   const [existingInfographics, setExistingInfographics] = useState([])
   const [researchUsed, setResearchUsed] = useState(null)
+  const [infographicMeta, setInfographicMeta] = useState(null)
   const [topicId, setTopicId] = useState(null)
   const [seoData, setSeoData] = useState(null)
   const contentFrRef = useRef(null)
@@ -398,6 +400,33 @@ function AdminBlogEditorInner() {
     }))
   }
 
+  const handleInfographicGenerated = (data) => {
+    setForm((prev) => ({
+      ...prev,
+      slug: prev.slug || slugify(data.slug || data.title_fr || ''),
+      title_fr: data.title_fr || '',
+      title_en: data.title_en || '',
+      excerpt_fr: data.excerpt_fr || '',
+      excerpt_en: data.excerpt_en || '',
+      content_fr: data.content_fr || '',
+      content_en: data.content_en || '',
+      tags: Array.isArray(data.tags) ? data.tags : [],
+      meta_title_fr: data.meta_title_fr || '',
+      meta_title_en: data.meta_title_en || '',
+      meta_description_fr: data.meta_description_fr || '',
+      meta_description_en: data.meta_description_en || '',
+      format: 'infographic',
+      cover_image_fr: data.cover_image_fr || prev.cover_image_fr,
+      cover_image_alt_fr: data.cover_image_alt_fr || prev.cover_image_alt_fr,
+      status: 'draft',
+      published_at: prev.published_at || toDatetimeLocal(new Date().toISOString()),
+    }))
+    setInfographicMeta({
+      layout_used: data.layout_used || '',
+      image_prompt: data.image_prompt || '',
+    })
+  }
+
   if (loading) {
     return <p className="pt-32 text-center text-muted">{t('blog.loading')}</p>
   }
@@ -539,6 +568,11 @@ function AdminBlogEditorInner() {
                 initialTopic={isEdit ? form.title_fr : ''}
                 onGenerated={handleGenerated}
               />
+            ) : form.format === 'infographic' ? (
+              <InfographicResourceGenerator
+                slug={form.slug}
+                onGenerated={handleInfographicGenerated}
+              />
             ) : (
               <div className="rounded-xl border border-dashed border-navy/15 bg-surface p-6 text-center mt-2">
                 <p className="font-heading font-semibold text-navy/70 text-[14px] mb-1">
@@ -623,6 +657,39 @@ function AdminBlogEditorInner() {
 
               {activeTab === 'content' && (
                 <>
+                  {form.format === 'infographic' && (
+                    <Section title={t('admin.infographicResource.previewTitle')}>
+                      {form.cover_image_fr ? (
+                        <div className="space-y-3">
+                          <img
+                            src={form.cover_image_fr}
+                            alt={form.cover_image_alt_fr || ''}
+                            className="w-full max-w-xs mx-auto block rounded-xl border border-navy/10"
+                          />
+                          {infographicMeta?.layout_used && (
+                            <p className="text-center text-[12px] text-navy/50">
+                              {t('admin.infographicResource.layoutUsedLabel')} :{' '}
+                              <strong>{infographicMeta.layout_used}</strong>
+                            </p>
+                          )}
+                          {infographicMeta?.image_prompt && (
+                            <Field label={t('admin.infographicResource.promptLabel')}>
+                              <textarea
+                                value={infographicMeta.image_prompt}
+                                readOnly
+                                rows={3}
+                                className={`${inputClass} font-mono text-[11px] resize-none`}
+                              />
+                            </Field>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-[13px] text-navy/45 text-center py-4 leading-relaxed">
+                          {t('admin.infographicResource.noImage')}
+                        </p>
+                      )}
+                    </Section>
+                  )}
                   <Section title={t('admin.editor.sections.content')}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field label={t('admin.editor.fields.titleFr')} required>
@@ -956,11 +1023,21 @@ function PreviewPanel({ form, previewLang, setPreviewLang, t }) {
       </div>
 
       {coverUrl && (
-        <img
-          src={coverUrl}
-          alt={coverAlt}
-          className="w-full aspect-video object-cover rounded-xl mb-6 border border-navy/[0.06]"
-        />
+        form.format === 'infographic' ? (
+          <div className="flex justify-center mb-6">
+            <img
+              src={coverUrl}
+              alt={coverAlt}
+              className="w-auto max-h-[380px] rounded-xl border border-navy/[0.06] shadow-sm"
+            />
+          </div>
+        ) : (
+          <img
+            src={coverUrl}
+            alt={coverAlt}
+            className="w-full aspect-video object-cover rounded-xl mb-6 border border-navy/[0.06]"
+          />
+        )
       )}
 
       {form.tags?.length > 0 && (
@@ -980,27 +1057,38 @@ function PreviewPanel({ form, previewLang, setPreviewLang, t }) {
         {title || '—'}
       </h1>
 
-      {(formattedDate || readingTime || author) && (
+      {(formattedDate || (readingTime && form.format !== 'infographic') || author) && (
         <div className="flex flex-wrap items-center gap-2 text-[12px] text-navy/55 mb-6">
           {formattedDate && <span>{formattedDate}</span>}
-          {formattedDate && readingTime && <span aria-hidden="true">·</span>}
-          {readingTime && <span>{readingTime}</span>}
-          {(formattedDate || readingTime) && author && <span aria-hidden="true">·</span>}
-          {author && (
-            <span>
-              {t('blog.post.by')} {author}
-            </span>
+          {form.format === 'infographic' ? (
+            <>
+              {formattedDate && <span aria-hidden="true">·</span>}
+              <span>{t('blog.post.metaInfographic')}</span>
+            </>
+          ) : (
+            <>
+              {formattedDate && readingTime && <span aria-hidden="true">·</span>}
+              {readingTime && <span>{readingTime}</span>}
+              {(formattedDate || readingTime) && author && <span aria-hidden="true">·</span>}
+              {author && <span>{t('blog.post.by')} {author}</span>}
+            </>
           )}
         </div>
       )}
 
-      {excerpt && (
+      {excerpt && form.format !== 'infographic' && (
         <p className="text-[15px] text-navy/75 leading-relaxed italic mb-6 border-l-2 border-accent/50 pl-4">
           {excerpt}
         </p>
       )}
 
-      <div className="blog-prose">
+      {form.format === 'infographic' && (
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-navy/55 mb-4">
+          {t('blog.post.infographic.essentialsTitle')}
+        </p>
+      )}
+
+      <div className={form.format === 'infographic' ? 'blog-prose opacity-80' : 'blog-prose'}>
         {content ? (
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
             {stripDiagramArtifacts(content)}

@@ -57,6 +57,7 @@ export const FORMATS = [
     badgeColor: 'bg-violet-100 text-violet-700',
     iconName: 'BarChart2',
     defaultArticleType: null,
+    generationEndpoint: '/api/generate-infographic-resource',
   },
 ]
 

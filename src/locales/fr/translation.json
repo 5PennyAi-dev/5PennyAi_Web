@@ -621,6 +621,12 @@
       "prev": "Article précédent",
       "next": "Article suivant",
       "back": "Retour au blog",
+      "metaInfographic": "Infographie",
+      "enlarge": "Agrandir",
+      "download": "Télécharger",
+      "infographic": {
+        "essentialsTitle": "L'essentiel en texte"
+      },
       "cta": {
         "title": "Une opportunité ou un projet IA?",
         "subtitle": "Écrivez-moi — je suis ouvert à un poste temps plein en IA appliquée ou à un mandat consultant.",
@@ -1082,8 +1088,41 @@
       "engines": {
         "label": "Moteurs",
         "article": "Perplexity → Claude",
-        "news": "Perplexity → Claude"
+        "news": "Perplexity → Claude",
+        "infographicResource": "Claude Sonnet → gpt-image-2"
       }
+    },
+    "infographicResource": {
+      "title": "Générer une infographie",
+      "subtitle": "Claude choisit un archétype · gpt-image-2 rend le portrait",
+      "concept": "Concept *",
+      "conceptPlaceholder": "ex. Comment fonctionne le RAG",
+      "layout": "Mise en page",
+      "layoutAuto": "Laisser l'IA choisir",
+      "layoutDefinition": "Définition / Concept",
+      "layoutProcess": "Processus / Étapes",
+      "layoutComparison": "Comparaison",
+      "layoutAnatomy": "Anatomie / Couches",
+      "layoutTaxonomy": "Taxonomie / Familles",
+      "audience": "Public cible",
+      "audiencePlaceholder": "ex. débutants, développeurs…",
+      "keyPoints": "Points clés à inclure",
+      "keyPointsPlaceholder": "ex. RAG = retrieval + generation, 3 étapes…",
+      "generate": "Générer l'infographie",
+      "regenerate": "Régénérer",
+      "loading": "Génération en cours…",
+      "loadingStep1": "Claude analyse le concept et choisit un archétype…",
+      "loadingStep2": "gpt-image-2 rend l'infographie portrait…",
+      "loadingStep3": "Finalisation de la réponse…",
+      "uploading": "Upload de l'image en cours…",
+      "error": "La génération a échoué. Réessayez.",
+      "errorTimeout": "Délai dépassé — la génération peut prendre 2-4 min. Réessayez.",
+      "errorUpload": "Génération OK mais upload échoué. Réessayez.",
+      "doneHint": "Infographie générée. Sauvegardez pour la persister.",
+      "previewTitle": "Infographie générée",
+      "layoutUsedLabel": "Mise en page",
+      "promptLabel": "Prompt image (lecture seule)",
+      "noImage": "Aucune infographie générée — cliquez « Générer » dans le panneau gauche."
     },
     "news": {
       "title": "Digest d'actualités",
