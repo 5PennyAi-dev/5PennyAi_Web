@@ -599,7 +599,8 @@
       "all": "Tous",
       "label": "Filtrer par thème",
       "showAll": "Voir tout",
-      "showLess": "Voir moins"
+      "showLess": "Voir moins",
+      "format": "Format"
     },
     "card": {
       "minRead": "min de lecture"
@@ -620,6 +621,16 @@
       "prev": "Article précédent",
       "next": "Article suivant",
       "back": "Retour au blog",
+      "metaInfographic": "Infographie",
+      "metaCheatsheet": "Cheat sheet",
+      "enlarge": "Agrandir",
+      "download": "Télécharger",
+      "infographic": {
+        "essentialsTitle": "L'essentiel en texte"
+      },
+      "cheatsheet": {
+        "referenceTitle": "La référence en texte"
+      },
       "cta": {
         "title": "Une opportunité ou un projet IA?",
         "subtitle": "Écrivez-moi — je suis ouvert à un poste temps plein en IA appliquée ou à un mandat consultant.",
@@ -651,6 +662,12 @@
     "articleCount_other": "{{count}} articles",
     "articleCountFor": "{{count}} article pour «\u00a0{{tag}}\u00a0»",
     "articleCountFor_other": "{{count}} articles pour «\u00a0{{tag}}\u00a0»"
+  },
+  "format": {
+    "article": "Article",
+    "news": "News",
+    "cheatsheet": "Cheat sheet",
+    "infographic": "Infographie"
   },
   "admin": {
     "login": {
@@ -1054,6 +1071,114 @@
         "CAS_DUSAGE": "Cas d'usage",
         "ACTUALITE": "Actualité"
       }
+    },
+    "studio": {
+      "breadcrumb": "Ressources IA",
+      "newContent": "Nouveau contenu",
+      "tabs": {
+        "preview": "Aperçu",
+        "content": "Contenu",
+        "seo": "SEO"
+      },
+      "formatLabel": "Format",
+      "formats": {
+        "article": "Article",
+        "news": "News",
+        "cheatsheet": "Cheat sheet",
+        "infographic": "Infographie"
+      },
+      "comingSoon": "Génération à venir",
+      "comingSoonDesc": "Ce format sera disponible prochainement.",
+      "engines": {
+        "label": "Moteurs",
+        "article": "Perplexity → Claude",
+        "news": "Perplexity → Claude",
+        "infographicResource": "Claude Sonnet → gpt-image-2",
+        "cheatsheet": "Claude Sonnet → gpt-image-2"
+      }
+    },
+    "infographicResource": {
+      "title": "Générer une infographie",
+      "subtitle": "Claude choisit un archétype · gpt-image-2 rend le portrait",
+      "concept": "Concept *",
+      "conceptPlaceholder": "ex. Comment fonctionne le RAG",
+      "layout": "Mise en page",
+      "layoutAuto": "Laisser l'IA choisir",
+      "layoutDefinition": "Définition / Concept",
+      "layoutProcess": "Processus / Étapes",
+      "layoutComparison": "Comparaison",
+      "layoutAnatomy": "Anatomie / Couches",
+      "layoutTaxonomy": "Taxonomie / Familles",
+      "audience": "Public cible",
+      "audiencePlaceholder": "ex. débutants, développeurs…",
+      "keyPoints": "Points clés à inclure",
+      "keyPointsPlaceholder": "ex. RAG = retrieval + generation, 3 étapes…",
+      "generate": "Générer l'infographie",
+      "regenerate": "Régénérer",
+      "loading": "Génération en cours…",
+      "loadingStep1": "Claude analyse le concept et choisit un archétype…",
+      "loadingStep2": "gpt-image-2 rend l'infographie portrait…",
+      "loadingStep3": "Finalisation de la réponse…",
+      "uploading": "Upload de l'image en cours…",
+      "error": "La génération a échoué. Réessayez.",
+      "errorTimeout": "Délai dépassé — la génération peut prendre 2-4 min. Réessayez.",
+      "errorUpload": "Génération OK mais upload échoué. Réessayez.",
+      "doneHint": "Infographie générée. Sauvegardez pour la persister.",
+      "previewTitle": "Infographie générée",
+      "layoutUsedLabel": "Mise en page",
+      "promptLabel": "Prompt image (lecture seule)",
+      "noImage": "Aucune infographie générée — cliquez « Générer » dans le panneau gauche."
+    },
+    "cheatsheet": {
+      "title": "Générer une fiche de référence",
+      "subtitle": "Claude génère le contenu, gpt-image-2 rend la fiche visuelle portrait.",
+      "topic": "Sujet",
+      "topicPlaceholder": "ex. Claude Code, Lexique de l'IA générative…",
+      "audience": "Public visé",
+      "audiencePlaceholder": "ex. développeurs, débutants…",
+      "instructions": "Instructions supplémentaires",
+      "instructionsPlaceholder": "Optionnel — points à couvrir, style, focus…",
+      "language": "Langue principale",
+      "generate": "Générer la fiche",
+      "regenerate": "Régénérer",
+      "loading": "Génération en cours…",
+      "loadingStep1": "Claude génère le contenu vérifié bilingue…",
+      "loadingStep2": "gpt-image-2 rend la fiche visuelle portrait…",
+      "loadingStep3": "Finalisation de la réponse…",
+      "loadingHint": "Claude + gpt-image-2 — généralement 30 à 90 secondes.",
+      "uploading": "Upload de l'image en cours…",
+      "error": "La génération a échoué. Réessayez.",
+      "errorTimeout": "Délai dépassé (4 min). Réessayez avec un sujet plus court.",
+      "errorUpload": "Génération OK mais upload échoué. Réessayez.",
+      "doneHint": "Fiche générée et uploadée. Sauvegardez pour persister.",
+      "layoutUsedLabel": "Mise en page",
+      "promptLabel": "Prompt image (lecture seule)",
+      "previewTitle": "Cheat sheet générée",
+      "noImage": "Aucune cheat sheet générée — cliquez « Générer » dans le panneau gauche."
+    },
+    "news": {
+      "title": "Digest d'actualités",
+      "subtitle": "Recherche d'actualités récentes via Perplexity, synthèse bilingue via Claude.",
+      "topic": "Sujet",
+      "topicPlaceholder": "ex. : agents IA, GPT-4o, Mistral…",
+      "timeWindow": "Fenêtre temporelle",
+      "timeWindow7d": "7 derniers jours",
+      "timeWindow14d": "14 derniers jours",
+      "timeWindow30d": "30 derniers jours",
+      "count": "Nombre d'actualités",
+      "countMin": "min. 3",
+      "instructions": "Angle / indications",
+      "instructionsPlaceholder": "Optionnel — angle éditorial, points à couvrir…",
+      "language": "Langue principale",
+      "generate": "Générer la news",
+      "regenerate": "Régénérer",
+      "loading": "Génération en cours…",
+      "loadingStep1": "Recherche d'actualités récentes…",
+      "loadingStep2": "Synthèse bilingue en cours…",
+      "loadingHint": "L'appel Perplexity + Claude prend généralement 20 à 60 secondes.",
+      "error": "La génération a échoué. Réessaie.",
+      "errorTimeout": "Délai dépassé (5 min). Réessaie avec un sujet plus court.",
+      "transparency": "{{count}} actualité(s) trouvée(s) · fenêtre : {{window}}"
     }
   }
 }

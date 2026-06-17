@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Image as ImageIcon } from 'lucide-react'
+import { Image as ImageIcon, FileText, Newspaper, ClipboardList, BarChart2 } from 'lucide-react'
 import { localizedField } from '@/lib/postI18n'
 import { resolveCoverImage, resolveCoverAlt } from '@/lib/posts'
+import { FORMATS } from '@/lib/contentFormats'
+
+const FORMAT_ICONS = { FileText, Newspaper, ClipboardList, BarChart2 }
+
+const isImageFormat = (format) => format === 'infographic' || format === 'cheatsheet'
 
 function formatDate(dateString, lang) {
   if (!dateString) return ''
@@ -26,6 +31,10 @@ export default function FeaturedCard({ post }) {
   const coverUrl = resolveCoverImage(post, lang)
   const coverAlt = resolveCoverAlt(post, lang) || title
   const visibleTags = (post.tags || []).slice(0, 3)
+  const formatDef = post.format && post.format !== 'article'
+    ? FORMATS.find(f => f.id === post.format)
+    : null
+  const FormatIcon = formatDef ? FORMAT_ICONS[formatDef.iconName] : null
 
   return (
     <Link
@@ -38,13 +47,19 @@ export default function FeaturedCard({ post }) {
             height (avoiding whitespace bars). object-cover takes care of the
             minor vertical crop. aspect-ratio on desktop would conflict with
             items-stretch and widen the column past its grid allotment. */}
-        <div className="relative md:col-span-2 w-full aspect-[16/9] md:aspect-auto md:h-full bg-warm-gray overflow-hidden">
+        <div className={`relative md:col-span-2 w-full bg-warm-gray overflow-hidden ${
+          isImageFormat(post.format)
+            ? 'aspect-[2/3] md:aspect-auto md:h-[280px]'
+            : 'aspect-[16/9] md:aspect-auto md:h-full'
+        }`}>
           {coverUrl ? (
             <img
               src={coverUrl}
               alt={coverAlt}
               loading="lazy"
-              className="w-full h-full object-cover object-left transition-transform duration-500 group-hover:scale-[1.03]"
+              className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
+                isImageFormat(post.format) ? 'object-top' : 'object-left'
+              }`}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -59,6 +74,14 @@ export default function FeaturedCard({ post }) {
 
         {/* Content — ~60% on desktop */}
         <div className="md:col-span-3 p-6 md:p-8 flex flex-col justify-center">
+          {formatDef && FormatIcon && (
+            <div className="mb-2">
+              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-mono font-medium ${formatDef.badgeColor}`}>
+                <FormatIcon size={10} strokeWidth={2} />
+                {t(formatDef.i18nKey)}
+              </span>
+            </div>
+          )}
           {visibleTags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-3">
               {visibleTags.map((tag) => (

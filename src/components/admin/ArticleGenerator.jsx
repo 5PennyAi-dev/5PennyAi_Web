@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sparkles, X, AlertCircle, ClipboardPaste, Check } from 'lucide-react'
 import { Field, inputClass } from '@/components/admin/editorPrimitives'
-
-const ARTICLE_TYPES = ['explainer', 'cheatsheet', 'news', 'comparison', 'tutorial', 'mythbusting', 'glossary', 'list']
+import { ARTICLE_TYPES, normalizeType } from '@/lib/contentFormats'
 const TIMEOUT_MS = 300_000
 
 const COMPETITION_LABELS = {
@@ -27,7 +26,7 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
   const { t } = useTranslation()
   const [topic, setTopic] = useState(initialTopic)
   const [articleType, setArticleType] = useState(
-    () => mapArticleType(initialArticleType)
+    () => normalizeType(initialArticleType)
   )
   const [instructions, setInstructions] = useState(initialInstructions)
   const [language, setLanguage] = useState('fr')
@@ -88,36 +87,9 @@ export default function ArticleGenerator({ onGenerated, onCancel, initialTopic =
     return { sujet, type, precisions }
   }
 
-  function mapArticleType(input) {
-    if (!input) return 'explainer'
-    const legacyCodes = { caseStudy: 'explainer', myth: 'mythbusting' }
-    if (ARTICLE_TYPES.includes(input)) return input
-    if (legacyCodes[input]) return legacyCodes[input]
-
-    const labelMap = {
-      'Liste (X façons de...)': 'list',
-      'Guide pratique': 'tutorial',
-      'Comparaison': 'comparison',
-      'Étude de cas': 'explainer',
-      'Opinion / Éditorial': 'news',
-      'Tutoriel pas-à-pas': 'tutorial',
-    }
-    if (labelMap[input]) return labelMap[input]
-
-    const n = String(input).toLowerCase()
-    if (n.includes('cheat') || n.includes('aide-mém')) return 'cheatsheet'
-    if (n.includes('compar')) return 'comparison'
-    if (n.includes('tutoriel') || n.includes('tutorial') || n.includes('guide')) return 'tutorial'
-    if (n.includes('démystif') || n.includes('myth')) return 'mythbusting'
-    if (n.includes('glossair') || n.includes('définition') || n.includes('glossary')) return 'glossary'
-    if (n.includes('actualité') || n.includes('news') || n.includes('opinion')) return 'news'
-    if (n.includes('liste') || n.includes('list')) return 'list'
-    return 'explainer'
-  }
-
   function applyParsedData(parsed) {
     setTopic(parsed.sujet)
-    if (parsed.type) setArticleType(mapArticleType(parsed.type))
+    if (parsed.type) setArticleType(normalizeType(parsed.type))
     setInstructions(parsed.precisions)
     setClipboardError(null)
     setShowManualPaste(false)

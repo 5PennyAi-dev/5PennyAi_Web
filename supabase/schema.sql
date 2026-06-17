@@ -1,7 +1,7 @@
 -- 5PennyAi blog schema
 -- Run this in the Supabase SQL editor (https://supabase.com/dashboard → your project → SQL Editor).
 
-create table posts (
+create table if not exists posts (
   id uuid default gen_random_uuid() primary key,
   slug text unique not null,
   status text default 'draft' check (status in ('draft', 'published', 'archived')),
@@ -185,3 +185,30 @@ create policy "Authenticated can manage article_infographics"
 create policy "Public can read validated article_infographics"
   on article_infographics for select
   using (status in ('validated', 'published'));
+
+-- =============================================================================
+-- MIGRATION — Step 0.1 : multi-format foundations + social posts drift fix
+-- =============================================================================
+-- IDEMPOTENT: safe to re-run. Copy this section into the Supabase SQL Editor.
+-- =============================================================================
+
+-- Drift fix: social post columns (exist in prod, missing from schema)
+alter table posts add column if not exists linkedin_fr  text;
+alter table posts add column if not exists linkedin_en  text;
+alter table posts add column if not exists facebook_fr  text;
+alter table posts add column if not exists facebook_en  text;
+alter table posts add column if not exists twitter_fr   text;
+alter table posts add column if not exists twitter_en   text;
+
+-- Multi-format: production medium
+alter table posts add column if not exists format text not null default 'article'
+  check (format in ('article', 'news', 'cheatsheet', 'infographic'));
+
+-- Editorial angle (nullable — meaningful mainly when format = 'article')
+alter table posts add column if not exists article_type text;
+
+-- Backfill (belt + suspenders even though the default covers new rows)
+update posts set format = 'article' where format is null;
+
+-- Index for public format filters (step 0.3+)
+create index if not exists idx_posts_format on posts (format);

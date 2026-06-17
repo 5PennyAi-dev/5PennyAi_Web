@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Image as ImageIcon } from 'lucide-react'
+import { Image as ImageIcon, FileText, Newspaper, ClipboardList, BarChart2 } from 'lucide-react'
 import { localizedField } from '@/lib/postI18n'
 import { resolveCoverImage, resolveCoverAlt } from '@/lib/posts'
+import { FORMATS } from '@/lib/contentFormats'
+
+const FORMAT_ICONS = { FileText, Newspaper, ClipboardList, BarChart2 }
+
+const isImageFormat = (format) => format === 'infographic' || format === 'cheatsheet'
 
 function formatDate(dateString, lang) {
   if (!dateString) return ''
@@ -26,6 +31,10 @@ export default function BlogCard({ post }) {
   const coverUrl = resolveCoverImage(post, lang)
   const coverAlt = resolveCoverAlt(post, lang) || title
   const visibleTags = (post.tags || []).slice(0, 2)
+  const formatDef = post.format && post.format !== 'article'
+    ? FORMATS.find(f => f.id === post.format)
+    : null
+  const FormatIcon = formatDef ? FORMAT_ICONS[formatDef.iconName] : null
 
   return (
     <Link
@@ -38,12 +47,20 @@ export default function BlogCard({ post }) {
             src={coverUrl}
             alt={coverAlt}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
+              isImageFormat(post.format) ? 'object-top' : ''
+            }`}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <ImageIcon size={36} strokeWidth={1.5} className="text-navy/25" />
           </div>
+        )}
+        {formatDef && FormatIcon && (
+          <span className={`absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-mono font-medium shadow-sm ${formatDef.badgeColor}`}>
+            <FormatIcon size={10} strokeWidth={2} />
+            {t(formatDef.i18nKey)}
+          </span>
         )}
       </div>
 
