@@ -7,7 +7,7 @@ import { slugify } from '@/lib/posts'
 import { FORMATS } from '@/lib/contentFormats'
 
 const BUCKET = 'blog-images'
-const TIMEOUT_MS = 270_000
+const TIMEOUT_MS = 290_000
 const ENDPOINT = FORMATS.find((f) => f.id === 'cheatsheet')?.generationEndpoint ?? '/api/generate-cheatsheet'
 
 async function base64ToBlob(base64) {

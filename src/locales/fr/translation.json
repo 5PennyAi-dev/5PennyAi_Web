@@ -1148,7 +1148,7 @@
       "loadingHint": "Claude + gpt-image-2 — généralement 30 à 90 secondes.",
       "uploading": "Upload de l'image en cours…",
       "error": "La génération a échoué. Réessayez.",
-      "errorTimeout": "Délai dépassé (4 min). Réessayez avec un sujet plus court.",
+      "errorTimeout": "Délai dépassé (5 min). Réessayez avec un sujet plus court.",
       "errorUpload": "Génération OK mais upload échoué. Réessayez.",
       "doneHint": "Fiche générée et uploadée. Sauvegardez pour persister.",
       "layoutUsedLabel": "Mise en page",

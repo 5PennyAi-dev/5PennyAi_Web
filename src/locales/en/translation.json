@@ -1148,7 +1148,7 @@
       "loadingHint": "Claude + gpt-image-2 — typically 30 to 90 seconds.",
       "uploading": "Uploading image…",
       "error": "Generation failed. Please try again.",
-      "errorTimeout": "Timeout (4 min). Try a shorter topic.",
+      "errorTimeout": "Timeout (5 min). Try a shorter topic.",
       "errorUpload": "Generation OK but upload failed. Please try again.",
       "doneHint": "Cheat sheet generated and uploaded. Save to persist.",
       "layoutUsedLabel": "Layout",
