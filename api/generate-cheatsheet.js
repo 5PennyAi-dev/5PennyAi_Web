@@ -83,6 +83,7 @@ ${CHEATSHEET_STYLE}
 - Si le contenu total dépasse la capacité visuelle : sélectionne les items les plus importants et cite-les verbatim dans le prompt. **Omettre > inventer.**
 - Mentionne explicitement les strings à rendre en monospace pills dans le prompt (entre guillemets ou préfixés d'un tiret).
 - Spécifie la couleur d'accent de chaque carte (steel #81AED7, cobalt #4F7CD4, violet #8B5CF6, teal #14B8A6).
+- **PILLS COLORÉS — OBLIGATOIRE** : chaque pill/tag monospace doit avoir un fond très clair + bordure fine + texte dans LA COULEUR DE SA SECTION. Exemple : section steel #81AED7 → pill fond #81AED7 pâle (15%), bordure #81AED7, texte #81AED7. JAMAIS de pill à fond sombre/noir avec texte blanc.
 - Bandeau orange #DD8737 UNIQUEMENT pour « À retenir » en pied — et UN SEUL.
 - Format portrait 2:3 (1024x1536), fond surface #F7F5F2.
 - **Jamais de taille en px dans le prompt** — utiliser des termes relatifs (titre grand, label small).

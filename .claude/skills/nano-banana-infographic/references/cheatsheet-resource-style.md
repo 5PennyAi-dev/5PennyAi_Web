@@ -51,11 +51,28 @@ Format **portrait 2:3** (1024×1536 px). Structure de haut en bas :
 
 ## Composants — Pills monospace (composant central)
 
-La cheat sheet se distingue de l'infographie par son usage intense de **pills monospace** :
+La cheat sheet se distingue de l'infographie par son usage intense de **pills monospace**.
 
-- **Pill commande/code** : fond `#1E293B` (dark slate), texte `#E2E8F0` (light), police monospace, coins arrondis `4-6px`, padding horizontal généreux. Exemples : `git commit`, `--no-ff`, `RAG`.
-- **Pill valeur/paramètre** : fond steel `#81AED7` 20%, texte navy, monospace, coins arrondis `4px`.
-- **Label catégorie** : fond lavender `#DBCFEE`, texte navy, sans-serif small caps, coins arrondis `20px`.
+### Règle de couleur des pills — OBLIGATOIRE
+
+**Chaque pill hérite de la couleur de sa section.** Pas de pill à fond sombre/noir.
+
+| Section | Fond du pill | Bordure | Texte |
+|---|---|---|---|
+| Steel `#81AED7` | `#81AED7` à 15% (très pâle bleu) | `#81AED7` (1px) | `#81AED7` ou navy `#143054` |
+| Cobalt `#4F7CD4` | `#4F7CD4` à 15% (très pâle cobalt) | `#4F7CD4` (1px) | `#4F7CD4` ou navy `#143054` |
+| Violet `#8B5CF6` | `#8B5CF6` à 15% (très pâle violet) | `#8B5CF6` (1px) | `#8B5CF6` ou navy `#143054` |
+| Teal `#14B8A6` | `#14B8A6` à 15% (très pâle teal) | `#14B8A6` (1px) | `#14B8A6` ou navy `#143054` |
+
+**Résultat visuel attendu** : pill léger, presque transparent, avec un contour coloré et du texte monospace lisible — comme les tags de Tailwind CSS, GitHub ou Linear.
+
+**INTERDIT** : fond sombre (`#1E293B` ou similaire) avec texte blanc. Ce style n'est pas celui de 5PennyAi.
+
+### Types de pills
+
+- **Pill commande/code** : police monospace, fond très clair de la couleur de section + bordure fine + texte coloré, coins arrondis petits, padding horizontal généreux.
+- **Pill valeur/paramètre** : même principe que commande/code, légèrement plus petit.
+- **Label catégorie** : fond lavender `#DBCFEE`, texte navy, sans-serif small caps, coins très arrondis (20px).
 - **Ligne de référence** (archétype lexique) : `[pill terme]  →  [description courte sans-serif]` sur une ligne.
 
 ## Archétypes de layout
@@ -93,6 +110,7 @@ Linéaires, simples, stroke 1.5px. Cohérentes dans un seul style. Optionnelles 
 - [ ] Chaque commande / terme visible est-il extrait verbatim de la source ?
 - [ ] L'orange apparaît-il une seule fois (bandeau « À retenir ») ?
 - [ ] Les pills monospace sont-elles utilisées pour toutes les commandes / termes ?
+- [ ] Les pills ont-ils un fond clair + bordure + texte dans la couleur de leur section (pas de fond sombre) ?
 - [ ] Le fond est-il surface `#F7F5F2` ?
 - [ ] Le prompt ne contient-il aucune taille en `px` adjacente à une chaîne ?
 - [ ] Y a-t-il 3-5 cartes de sections distinctes et riches ?
