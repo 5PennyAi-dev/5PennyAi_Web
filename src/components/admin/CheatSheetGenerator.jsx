@@ -7,8 +7,13 @@ import { slugify } from '@/lib/posts'
 import { FORMATS } from '@/lib/contentFormats'
 
 const BUCKET = 'blog-images'
-const TIMEOUT_MS = 290_000
-const ENDPOINT = FORMATS.find((f) => f.id === 'cheatsheet')?.generationEndpoint ?? '/api/generate-cheatsheet'
+// Phase 1: Claude content generation (up to ~175s for dense topics)
+const TIMEOUT_CONTENT_MS = 220_000
+// Phase 2: gpt-image-2 portrait rendering
+const TIMEOUT_IMAGE_MS   = 180_000
+
+const ENDPOINT       = FORMATS.find((f) => f.id === 'cheatsheet')?.generationEndpoint ?? '/api/generate-cheatsheet'
+const ENDPOINT_IMAGE = '/api/generate-cheatsheet-image'
 
 async function base64ToBlob(base64) {
   const res = await fetch(`data:image/png;base64,${base64}`)
@@ -28,6 +33,7 @@ async function uploadCheatsheet(base64, slug) {
   return pub.publicUrl
 }
 
+// status values: idle | loading | rendering | uploading | done | error
 export default function CheatSheetGenerator({ slug, onGenerated, initialTopic = '' }) {
   const { t } = useTranslation()
   const [topic, setTopic] = useState(initialTopic)
@@ -44,8 +50,10 @@ export default function CheatSheetGenerator({ slug, onGenerated, initialTopic = 
     setTopic(initialTopic)
   }, [initialTopic])
 
+  const isWorking = ['loading', 'rendering', 'uploading'].includes(status)
+
   useEffect(() => {
-    if (status === 'loading' || status === 'uploading') {
+    if (isWorking) {
       setLoadingIndex(0)
       intervalRef.current = setInterval(() => {
         setLoadingIndex((i) => i + 1)
@@ -60,17 +68,12 @@ export default function CheatSheetGenerator({ slug, onGenerated, initialTopic = 
         intervalRef.current = null
       }
     }
-  }, [status])
+  }, [isWorking])
 
-  const loadingMessages = [
-    t('admin.cheatsheet.loadingStep1'),
-    t('admin.cheatsheet.loadingStep2'),
-    t('admin.cheatsheet.loadingStep3'),
-  ]
   const currentLoadingMessage =
-    status === 'uploading'
-      ? t('admin.cheatsheet.uploading')
-      : loadingMessages[loadingIndex % loadingMessages.length]
+    status === 'uploading'  ? t('admin.cheatsheet.uploading') :
+    status === 'rendering'  ? t('admin.cheatsheet.loadingStep2') :
+                              t('admin.cheatsheet.loadingStep1')
 
   const handleSubmit = async () => {
     if (!topic.trim()) return
@@ -78,11 +81,12 @@ export default function CheatSheetGenerator({ slug, onGenerated, initialTopic = 
     setErrorKind(null)
     setGenerationResult(null)
 
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS)
-
     try {
-      const res = await fetch(ENDPOINT, {
+      // ── Phase 1 : Claude generates verified bilingual content + image_prompt ──
+      const ctrl1 = new AbortController()
+      const tid1  = setTimeout(() => ctrl1.abort(), TIMEOUT_CONTENT_MS)
+
+      const res1 = await fetch(ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -91,45 +95,63 @@ export default function CheatSheetGenerator({ slug, onGenerated, initialTopic = 
           instructions: instructions.trim() || undefined,
           language,
         }),
-        signal: controller.signal,
+        signal: ctrl1.signal,
       })
-      clearTimeout(timeoutId)
+      clearTimeout(tid1)
 
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok || data.error) throw new Error(data.error || `http_${res.status}`)
-      if (!data.image_fr_base64) throw new Error('empty_response')
+      const data1 = await res1.json().catch(() => ({}))
+      if (!res1.ok || data1.error) throw new Error(data1.error || `http_${res1.status}`)
+      if (!data1.image_prompt)     throw new Error('empty_content_response')
 
+      // ── Phase 2 : gpt-image-2 renders the portrait PNG ────────────────────────
+      setStatus('rendering')
+
+      const ctrl2 = new AbortController()
+      const tid2  = setTimeout(() => ctrl2.abort(), TIMEOUT_IMAGE_MS)
+
+      const res2 = await fetch(ENDPOINT_IMAGE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_prompt: data1.image_prompt }),
+        signal: ctrl2.signal,
+      })
+      clearTimeout(tid2)
+
+      const data2 = await res2.json().catch(() => ({}))
+      if (!res2.ok || data2.error)   throw new Error(data2.error || `http_${res2.status}`)
+      if (!data2.image_fr_base64)    throw new Error('empty_image_response')
+
+      // ── Phase 3 : upload to Supabase Storage ──────────────────────────────────
       setStatus('uploading')
-      const coverUrl = await uploadCheatsheet(data.image_fr_base64, slug || data.slug)
+      const coverUrl = await uploadCheatsheet(data2.image_fr_base64, slug || data1.slug)
 
       setGenerationResult({
-        layout_used: data.layout_used || '',
-        image_prompt: data.image_prompt || '',
+        layout_used: data1.layout_used || '',
+        image_prompt: data1.image_prompt || '',
       })
       setStatus('done')
 
       onGenerated({
-        slug:                data.slug || '',
-        title_fr:            data.title_fr || '',
-        title_en:            data.title_en || '',
-        excerpt_fr:          data.excerpt_fr || '',
-        excerpt_en:          data.excerpt_en || '',
-        content_fr:          data.content_fr || '',
-        content_en:          data.content_en || '',
-        tags:                data.tags || [],
-        reading_time_minutes: data.reading_time_minutes || 2,
-        meta_title_fr:       data.meta_title_fr || '',
-        meta_title_en:       data.meta_title_en || '',
-        meta_description_fr: data.meta_description_fr || '',
-        meta_description_en: data.meta_description_en || '',
+        slug:                data1.slug || '',
+        title_fr:            data1.title_fr || '',
+        title_en:            data1.title_en || '',
+        excerpt_fr:          data1.excerpt_fr || '',
+        excerpt_en:          data1.excerpt_en || '',
+        content_fr:          data1.content_fr || '',
+        content_en:          data1.content_en || '',
+        tags:                data1.tags || [],
+        reading_time_minutes: data1.reading_time_minutes || 2,
+        meta_title_fr:       data1.meta_title_fr || '',
+        meta_title_en:       data1.meta_title_en || '',
+        meta_description_fr: data1.meta_description_fr || '',
+        meta_description_en: data1.meta_description_en || '',
         format:              'cheatsheet',
         article_type:        'cheatsheet',
         cover_image_fr:      coverUrl,
-        layout_used:         data.layout_used || '',
-        image_prompt:        data.image_prompt || '',
+        layout_used:         data1.layout_used || '',
+        image_prompt:        data1.image_prompt || '',
       })
     } catch (err) {
-      clearTimeout(timeoutId)
       if (err.name === 'AbortError') {
         setErrorKind('timeout')
       } else if (String(err.message).startsWith('supabase_')) {
@@ -147,7 +169,7 @@ export default function CheatSheetGenerator({ slug, onGenerated, initialTopic = 
     setGenerationResult(null)
   }
 
-  if (status === 'loading' || status === 'uploading') {
+  if (isWorking) {
     return (
       <div className="bg-surface border border-navy/[0.08] rounded-3xl p-8 md:p-10">
         <div className="flex flex-col items-center text-center py-8">
@@ -164,7 +186,7 @@ export default function CheatSheetGenerator({ slug, onGenerated, initialTopic = 
             {t('admin.cheatsheet.loading')}
           </p>
           <p
-            key={loadingIndex}
+            key={status}
             className="text-[13px] text-navy/60 mb-5 min-h-[20px] transition-opacity duration-300"
           >
             {currentLoadingMessage}
@@ -305,7 +327,7 @@ export default function CheatSheetGenerator({ slug, onGenerated, initialTopic = 
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!topic.trim() || status === 'loading' || status === 'uploading'}
+          disabled={!topic.trim() || isWorking}
           className="inline-flex items-center gap-2 rounded-full bg-accent text-white px-6 py-2.5 text-[13px] font-heading font-semibold shadow-[var(--shadow-cta)] hover:brightness-95 hover:shadow-[var(--shadow-cta-hover)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Sparkles size={14} strokeWidth={2} />

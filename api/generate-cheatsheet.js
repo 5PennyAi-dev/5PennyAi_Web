@@ -1,7 +1,8 @@
 /* global process */
-// Vercel Serverless Function — cheat sheet IMAGE generator for the 5PennyAi blog admin.
-// Pipeline: Claude (tool use → verified bilingual content + image_prompt) → gpt-image-2 (portrait PNG).
-// No server-side upload; the studio (step 3.2bis) handles storage.
+// Vercel Serverless Function — cheat sheet CONTENT generator for the 5PennyAi blog admin.
+// Step 1 of 2: Claude (tool use) → verified bilingual content + image_prompt.
+// Step 2 is handled by /api/generate-cheatsheet-image (gpt-image-2, separate request).
+// Splitting avoids hitting Vercel's 300s limit for the combined pipeline.
 // Client calls POST /api/generate-cheatsheet.
 
 import { readFileSync } from 'node:fs'
@@ -11,10 +12,9 @@ export const config = {
   maxDuration: 300,
 }
 
-const ANTHROPIC_URL  = 'https://api.anthropic.com/v1/messages'
-const OPENAI_IMG_URL = 'https://api.openai.com/v1/images/generations'
-const MODEL          = 'claude-sonnet-4-6'
-const MAX_TOKENS     = 16000
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
+const MODEL         = 'claude-sonnet-4-6'
+const MAX_TOKENS    = 16000
 
 // ─── Style contract — loaded at cold start ────────────────────────────────────
 
@@ -296,46 +296,6 @@ async function callClaude({ topic, audience, instructions, language, apiKey }) {
   return toolBlock.input
 }
 
-// ─── OpenAI gpt-image-2 call ──────────────────────────────────────────────────
-
-async function callOpenAiImage({ prompt, apiKey }) {
-  const res = await fetch(OPENAI_IMG_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-image-2',
-      prompt,
-      size: '1024x1536',
-      n: 1,
-    }),
-  })
-
-  if (!res.ok) {
-    let detail = ''
-    try {
-      const errBody = await res.json()
-      detail = errBody?.error?.message || JSON.stringify(errBody).slice(0, 300)
-    } catch {
-      detail = await res.text().catch(() => '')
-    }
-    console.error(`[generate-cheatsheet] OpenAI image error: ${res.status} — ${detail}`)
-    throw new Error(`openai_${res.status}: ${detail}`)
-  }
-
-  const data = await res.json()
-  const b64 = data?.data?.[0]?.b64_json
-  if (!b64) {
-    const raw = JSON.stringify(data).slice(0, 300)
-    console.error('[generate-cheatsheet] OpenAI returned no b64_json:', raw)
-    throw new Error(`openai_no_image: ${raw}`)
-  }
-
-  return b64
-}
-
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
@@ -345,12 +305,8 @@ export default async function handler(req, res) {
   }
 
   const anthropicKey = process.env.ANTHROPIC_API_KEY
-  const openaiKey    = process.env.OPENAI_API_KEY
-  if (!anthropicKey || !openaiKey) {
-    console.error(
-      '[generate-cheatsheet] server not configured. hasAnthropic=',
-      Boolean(anthropicKey), 'hasOpenAI=', Boolean(openaiKey),
-    )
+  if (!anthropicKey) {
+    console.error('[generate-cheatsheet] ANTHROPIC_API_KEY is not set')
     return res.status(500).json({ error: 'Server is not configured' })
   }
 
@@ -365,7 +321,7 @@ export default async function handler(req, res) {
   const started = Date.now()
 
   try {
-    // Step 1 — Claude: verified bilingual content + image_prompt (tool use)
+    // Claude: verified bilingual content + image_prompt (tool use)
     const structured = await callClaude({
       topic:        topic.trim(),
       audience:     typeof audience === 'string' ? audience.trim() : undefined,
@@ -376,22 +332,14 @@ export default async function handler(req, res) {
 
     const cheatsheet = postProcess(structured)
 
-    const claudeElapsed = Math.round((Date.now() - started) / 1000)
+    const elapsed = Math.round((Date.now() - started) / 1000)
     console.log(
-      `[generate-cheatsheet] Claude done in ${claudeElapsed}s layout=${cheatsheet.layout_used} slug=${cheatsheet.slug}`,
+      `[generate-cheatsheet] Claude done in ${elapsed}s layout=${cheatsheet.layout_used} slug=${cheatsheet.slug}`,
     )
 
-    // Step 2 — gpt-image-2: render cheat sheet portrait PNG (FR only)
-    const image_fr_base64 = await callOpenAiImage({
-      prompt: structured.image_prompt,
-      apiKey: openaiKey,
-    })
-
-    const elapsed = Math.round((Date.now() - started) / 1000)
-    console.log(`[generate-cheatsheet] total elapsed=${elapsed}s`)
-
+    // Return content + image_prompt. The studio calls /api/generate-cheatsheet-image
+    // separately to render the portrait PNG (avoids hitting the 300s Vercel limit).
     return res.status(200).json({
-      image_fr_base64,
       image_prompt:        structured.image_prompt,
       layout_used:         cheatsheet.layout_used,
       slug:                cheatsheet.slug,
@@ -417,9 +365,6 @@ export default async function handler(req, res) {
 
     if (code.startsWith('anthropic_')) {
       return res.status(502).json({ error: `Content generation failed (${code})` })
-    }
-    if (code.startsWith('openai_')) {
-      return res.status(502).json({ error: `Image generation failed — ${code}` })
     }
     return res.status(500).json({ error: 'Cheat sheet generation failed' })
   }
