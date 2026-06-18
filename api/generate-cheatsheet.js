@@ -14,7 +14,7 @@ export const config = {
 const ANTHROPIC_URL  = 'https://api.anthropic.com/v1/messages'
 const OPENAI_IMG_URL = 'https://api.openai.com/v1/images/generations'
 const MODEL          = 'claude-sonnet-4-6'
-const MAX_TOKENS     = 8000
+const MAX_TOKENS     = 16000
 
 // ─── Style contract — loaded at cold start ────────────────────────────────────
 
@@ -43,24 +43,33 @@ MISSION — DEUX PRODUITS EN UNE SEULE RÉPONSE
 ÉTAPE 1 — CONTENU VÉRIFIÉ (sections)
 ════════════════════════════════════════════════════════
 
-STRUCTURE LIBRE — DICTÉE PAR LE SUJET
-Choisis la structure la plus utile. Exemples :
-- Référence de commandes/flags → listes de commandes exactes
-- Lexique de termes → entrées terme → définition
-- Comparaison d'options → attributs côte à côte
-- Workflow → séquence d'étapes avec commandes
-Deux fiches ne doivent pas avoir la même organisation.
+DENSITÉ ET COMPLÉTUDE — c'est l'objectif n°1
+Produire une fiche de référence EXHAUSTIVE, comme une fiche imprimée premium qui maximise l'information utile par page.
 
-COMPACITÉ — chaque item doit apporter quelque chose. Pas de remplissage.
-Nombre d'items par section : 4-10 items denses. Maximum 6-7 sections.
+COUVERTURE : inclure tout ce qui est réellement utile selon le sujet — définition, composants, API / méthodes clés, patterns d'usage, exemples de code courts, intégrations, bonnes pratiques, pièges fréquents, comparaisons pertinentes.
+
+NOMBRE DE SECTIONS : adapté au sujet, jamais artificiel.
+- Framework ou outil riche (LlamaIndex, LangChain, Git avancé, Claude Code) : viser 8–12 sections denses.
+- Lexique ou sujet concentré : autant de sections qu'il y a de contenu réel utile.
+- Règle : couvrir tout le sujet, ne pas s'arrêter arbitrairement. Ne pas padder non plus.
+
+CHAQUE SECTION : 4–8 items minimum, denses. Chaque item doit apporter quelque chose de concret.
+
+STRUCTURE LIBRE — adaptée au sujet, deux fiches ne se ressemblent pas.
+- CLI / API : tableaux commandes + descriptions
+- Framework : installation → concepts → API → patterns → pièges
+- Lexique : terme → définition compacte
+- Workflow : étapes numérotées avec commandes
+- Comparaison : colonnes côte à côte
 
 BILINGUE ALIGNÉ — mêmes sections, même ordre, FR et EN.
 Termes techniques conservés tels quels (git commit, RAG, token…).
 Code non traduit.
 
 EXACTITUDE TECHNIQUE — RÈGLE IMPÉRATIVE
-- N'inclure QUE des commandes / API / termes réels et exacts.
-- En cas de doute : OMETTRE plutôt qu'inventer.
+- N'inclure QUE des commandes / API / termes réels et exacts issus de ta connaissance.
+- "Pas certain" ne signifie pas "omettre" pour un sujet bien connu — ça signifie vérifier mentalement.
+- Omettre UNIQUEMENT si vraiment incertain sur la syntaxe exacte, pas par excès de prudence.
 - Pas de valeurs fictives ni de syntaxe approximative.
 
 FORMAT DES SECTIONS (pour content_fr/en)
@@ -88,7 +97,8 @@ ${CHEATSHEET_STYLE}
 - Format portrait 2:3 (1024x1536), fond surface #F7F5F2.
 - **Jamais de taille en px dans le prompt** — utiliser des termes relatifs (titre grand, label small).
 - **Jamais de footer, URL, filigrane, signature dans l'image.**
-- Longueur du prompt : 300-500 mots, suffisamment détaillé pour guider gpt-image-2 section par section.
+- **DENSITÉ VISUELLE** : l'image doit rendre une fiche DENSE et COMPLÈTE — toutes les sections présentes, façon reference card professionnelle riche. Pour chaque section, sélectionner les 3–5 items les plus importants (verbatim) pour rester lisible ; les autres items restent dans le texte d'accompagnement.
+- Longueur du prompt : 500-800 mots pour une fiche dense (8-12 sections). Décrire chaque section nommément, avec ses items clés.
 
 SEO
 - slug : kebab-case sans accents, sans stop words
