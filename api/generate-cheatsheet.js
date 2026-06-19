@@ -90,26 +90,48 @@ FORMAT DES SECTIONS (pour content_fr/en)
 - key_takeaway (si pertinent) : corps = > {citation}
 
 ════════════════════════════════════════════════════════
-ÉTAPE 2 — IMAGE PROMPT (verbatim du contenu)
+ÉTAPE 2 — IMAGE PROMPT (composition libre et dense)
 ════════════════════════════════════════════════════════
+
+PIVOT : l'image n'est PLUS une transcription verbatim carte par carte.
+Elle est une composition libre et maximalement dense — façon fiche de référence pro
+(Docker, VS Code, Linux commands). gpt-image choisit la mise en page ;
+tu fournis les ancrages vérifiés et le style de marque.
 
 # Contrat de style — CHEAT SHEET RESSOURCE (OBLIGATOIRE)
 
 ${CHEATSHEET_STYLE}
 
-# Règles pour image_prompt
+# Stratégie image_prompt — 3 blocs à inclure
 
-- **VERBATIM ABSOLU** : chaque commande, terme ou valeur courte rendu dans l'image DOIT être copié mot-pour-mot depuis les sections. Jamais de paraphrase, jamais de raccourci inventé.
-- Si le contenu total dépasse la capacité visuelle : sélectionne les items les plus importants et cite-les verbatim dans le prompt. **Omettre > inventer.**
-- Mentionne explicitement les strings à rendre en monospace pills dans le prompt (entre guillemets ou préfixés d'un tiret).
-- Spécifie la couleur d'accent de chaque carte (steel #81AED7, cobalt #4F7CD4, violet #8B5CF6, teal #14B8A6).
-- **PILLS COLORÉS — OBLIGATOIRE** : chaque pill/tag monospace doit avoir un fond très clair + bordure fine + texte dans LA COULEUR DE SA SECTION. Exemple : section steel #81AED7 → pill fond #81AED7 pâle (15%), bordure #81AED7, texte #81AED7. JAMAIS de pill à fond sombre/noir avec texte blanc.
-- Bandeau orange #DD8737 UNIQUEMENT pour « À retenir » en pied — et UN SEUL.
-- Format portrait 2:3 (1024x1536), fond surface #F7F5F2.
-- **Jamais de taille en px dans le prompt** — utiliser des termes relatifs (titre grand, label small).
-- **Jamais de footer, URL, filigrane, signature dans l'image.**
-- **DENSITÉ VISUELLE** : l'image doit rendre une fiche DENSE et COMPLÈTE — toutes les sections présentes, façon reference card professionnelle riche. Pour chaque section, sélectionner les 3–5 items les plus importants (verbatim) pour rester lisible ; les autres items restent dans le texte d'accompagnement.
-- Longueur du prompt : 500-800 mots pour une fiche dense (8-12 sections). Décrire chaque section nommément, avec ses items clés.
+## BLOC 1 — DENSITÉ ET LAYOUT (le plus important)
+
+Demande à gpt-image une cheat sheet EXTRÊMEMENT DENSE :
+- Layout : grille multi-colonnes (2-3 colonnes), portrait 2:3 (1024x1536)
+- Densité : maximiser le nombre de sections et d'items — viser 12-16 sections pour un framework riche ; chaque section = 4-8 items compacts
+- Style de référence : "professional developer cheat sheet, like Docker quick reference or VS Code keyboard shortcuts"
+- Remplir tout l'espace vertical sans marges inutiles ; texte petit mais lisible
+- Header navy en haut, bandeau orange "À retenir" en bas, grille dense entre les deux
+
+## BLOC 2 — ANCRAGES VÉRIFIÉS (exactitude)
+
+À partir de tes sections générées en Étape 1, extraire :
+- Les DOMAINES PRINCIPAUX couverts (ex : "Installation, Models, Chains, RAG, Agents, Memory, Tools, Callbacks")
+- Quelques COMMANDES / API CLÉS par domaine (verbatim, vérifiées)
+
+Formuler dans le prompt : "Cover at least these verified domains with their real commands/APIs : [liste des domaines + commandes clés]"
+Ajouter : "Use only REAL commands and API names from [sujet] ; do NOT invent any function names or syntax"
+
+## BLOC 3 — STYLE 5PennyAi (conserver intégralement)
+
+- Fond de page : surface #F7F5F2
+- Header band : fond navy #143054, titre blanc, label "CHEAT SHEET" monospace
+- Pills/tags : fond très clair de la couleur de section + bordure fine + texte coloré (steel #81AED7, cobalt #4F7CD4, violet #8B5CF6, teal #14B8A6 alternés par section)
+- JAMAIS de pill à fond sombre ; JAMAIS de taille en px
+- Orange #DD8737 UNIQUEMENT pour le bandeau "À retenir" — UN SEUL élément orange
+- Pas de footer, URL, logo, filigrane dans l'image
+
+Longueur du prompt : 250-400 mots — consignes densité + ancrages + style. NE PAS décrire chaque carte explicitement.
 
 SEO
 - slug : kebab-case sans accents, sans stop words
@@ -162,7 +184,7 @@ const EMIT_TOOL = {
       },
       image_prompt: {
         type: 'string',
-        description: 'Prompt complet pour gpt-image-2 : style cheat sheet on-brand, verbatim du contenu des sections, portrait 2:3, sans footer ni URL. FR uniquement.',
+        description: 'Prompt de composition libre pour gpt-image-2 : demande une fiche dense multi-colonnes (12-16 sections), fournit les domaines/commandes vérifiés comme ancrages, spécifie le style 5PennyAi (pills colorés, orange unique, header navy). NE PAS décrire les cartes une par une. Portrait 2:3, sans footer ni URL.',
       },
     },
     required: [
