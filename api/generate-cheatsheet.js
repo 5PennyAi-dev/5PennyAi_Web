@@ -14,6 +14,10 @@ export const config = {
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages'
 const MODEL         = 'claude-sonnet-4-6'
+// 16000 = limite prouvée sur claude-sonnet-4-6. La limite exacte du modèle
+// n'est pas testable sans crédits API ; 16000 a fonctionné en pratique.
+// Si stop_reason=max_tokens revient après le patch planification, passer à
+// 32000 ou ajouter le header anthropic-beta d'output étendu.
 const MAX_TOKENS    = 16000
 
 // ─── Style contract — loaded at cold start ────────────────────────────────────
@@ -43,17 +47,24 @@ MISSION — DEUX PRODUITS EN UNE SEULE RÉPONSE
 ÉTAPE 1 — CONTENU VÉRIFIÉ (sections)
 ════════════════════════════════════════════════════════
 
+PLANIFICATION OBLIGATOIRE — AVANT de remplir les sections, tu DOIS d'abord dresser la liste complète des titres de sections qui couvrent exhaustivement le sujet (comme si tu préparais une fiche professionnelle imprimée vendue en librairie).
+
+Pour un sujet riche (framework, CLI avancé, protocole complet) : au moins 10 sections. Tu n'as pas le droit de te contenter de moins si le sujet le justifie.
+
+Pour un sujet restreint (petit outil, lexique court) : autant de sections que le sujet le permet réellement — mais sans padding.
+
+Cette planification est mentale (tu ne l'écris pas), mais elle détermine le tableau sections[] que tu soumets : engage-toi d'abord sur le nombre, remplis ensuite.
+
 DENSITÉ ET COMPLÉTUDE — c'est l'objectif n°1
 Produire une fiche de référence EXHAUSTIVE, comme une fiche imprimée premium qui maximise l'information utile par page.
 
-COUVERTURE : inclure tout ce qui est réellement utile selon le sujet — définition, composants, API / méthodes clés, patterns d'usage, exemples de code courts, intégrations, bonnes pratiques, pièges fréquents, comparaisons pertinentes.
+COUVERTURE : pour chaque section planifiée, inclure ce qui est réellement utile — définition, composants, API / méthodes clés, patterns d'usage, exemples de code courts, intégrations, bonnes pratiques, pièges fréquents, comparaisons pertinentes.
 
-NOMBRE DE SECTIONS : adapté au sujet, jamais artificiel.
-- Framework ou outil riche (LlamaIndex, LangChain, Git avancé, Claude Code) : viser 8–12 sections denses.
-- Lexique ou sujet concentré : autant de sections qu'il y a de contenu réel utile.
-- Règle : couvrir tout le sujet, ne pas s'arrêter arbitrairement. Ne pas padder non plus.
+CHAQUE SECTION : 5–8 items minimum, denses. Chaque item doit apporter quelque chose de concret.
 
-CHAQUE SECTION : 4–8 items minimum, denses. Chaque item doit apporter quelque chose de concret.
+NOMBRE DE SECTIONS MINIMUM :
+- Framework ou outil riche (LlamaIndex, LangChain, Git, Docker, Claude Code…) : au moins 10 sections, idéalement 12.
+- Lexique / sujet concentré : couvrir tout le contenu réel, pas moins.
 
 STRUCTURE LIBRE — adaptée au sujet, deux fiches ne se ressemblent pas.
 - CLI / API : tableaux commandes + descriptions
@@ -281,8 +292,19 @@ async function callClaude({ topic, audience, instructions, language, apiKey }) {
   }
 
   const data = await res.json()
-  const stopReason = data?.stop_reason || 'unknown'
-  console.log(`[generate-cheatsheet] Claude stop_reason=${stopReason}`)
+  const stopReason    = data?.stop_reason || 'unknown'
+  const outputTokens  = data?.usage?.output_tokens ?? '?'
+  const inputTokens   = data?.usage?.input_tokens ?? '?'
+
+  if (stopReason === 'max_tokens') {
+    console.error(
+      `[generate-cheatsheet] TRUNCATION: stop_reason=max_tokens output_tokens=${outputTokens} input_tokens=${inputTokens} max_tokens=${MAX_TOKENS}`,
+    )
+  } else {
+    console.log(
+      `[generate-cheatsheet] stop_reason=${stopReason} output_tokens=${outputTokens} input_tokens=${inputTokens}`,
+    )
+  }
 
   const toolBlock = (data.content || []).find(
     (b) => b.type === 'tool_use' && b.name === 'emit_cheatsheet',
@@ -291,6 +313,10 @@ async function callClaude({ topic, audience, instructions, language, apiKey }) {
   if (!toolBlock) {
     console.error('[generate-cheatsheet] No tool_use block. stop_reason=', stopReason)
     throw new Error('anthropic_no_tool_output')
+  }
+
+  if (stopReason === 'max_tokens') {
+    console.warn('[generate-cheatsheet] Tool input may be truncated — sections count could be lower than expected')
   }
 
   return toolBlock.input
