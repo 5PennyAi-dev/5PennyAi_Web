@@ -106,12 +106,14 @@ ${CHEATSHEET_STYLE}
 
 ## BLOC 1 — DENSITÉ ET LAYOUT (le plus important)
 
-Demande à gpt-image une cheat sheet EXTRÊMEMENT DENSE :
-- Layout : grille multi-colonnes (2-3 colonnes), portrait 2:3 (1024x1536)
-- Densité : maximiser le nombre de sections et d'items — viser 12-16 sections pour un framework riche ; chaque section = 4-8 items compacts
-- Style de référence : "professional developer cheat sheet, like Docker quick reference or VS Code keyboard shortcuts"
-- Remplir tout l'espace vertical sans marges inutiles ; texte petit mais lisible
-- Header navy en haut, bandeau orange "À retenir" en bas, grille dense entre les deux
+Demande à gpt-image une cheat sheet ÉQUILIBRÉE et LISIBLE :
+- Layout : grille 2-3 colonnes, portrait 2:3 (1024x1536)
+- Sections : 8-10 (grands domaines couverts, sans excès)
+- Items par section : 3-5 items essentiels — privilégier la clarté sur l'exhaustivité
+- Snippets : UNE SEULE LIGNE par exemple de code (forme essentielle uniquement, ex. ChatOpenAI(model="gpt-4o")). PAS de blocs de code multi-lignes (import + instanciation sur 3 lignes). C'est le levier principal de lisibilité.
+- Espacement confortable entre les sections ; texte lisible sans loupe
+- Style de référence : "balanced professional reference card, readable at a glance"
+- Header navy en haut, bandeau orange "À retenir" en bas
 
 ## BLOC 2 — ANCRAGES VÉRIFIÉS (exactitude)
 
