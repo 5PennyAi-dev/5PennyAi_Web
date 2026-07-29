@@ -169,6 +169,26 @@
     "technologies_label": "Core technologies",
     "technologies": ["C#", "Python", "SQL", "Azure", "Azure AI", "React", "Power BI"]
   },
+  "career_summary": {
+    "title": "Career at a glance",
+    "introduction": "My background combines extensive experience in software development and analysis with a specialization in data science and artificial intelligence. This combination allows me to approach projects from technical, functional and practical perspectives.",
+    "items": [
+      {
+        "title": "More than 20 years in IT",
+        "description": "Software development, functional analysis, data integration and solution design."
+      },
+      {
+        "title": "Multidisciplinary education",
+        "description": "Bachelor’s degrees in computer science and bioinformatics, complemented by data science training."
+      },
+      {
+        "title": "Specialization in AI and data",
+        "description": "Microsoft certifications in artificial intelligence, data science and analytics."
+      }
+    ],
+    "cta": "View my full background",
+    "cta_link": "/about"
+  },
   "home_contact": {
     "overline": "CONTACT",
     "title": "Let's work together",

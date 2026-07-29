@@ -2,8 +2,9 @@ import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import Hero from '@/components/sections/Hero'
 import PragmaticApproach from '@/components/sections/PragmaticApproach'
-import Realisations from '@/components/sections/Realisations'
 import Tools from '@/components/sections/Tools'
+import CareerSummary from '@/components/sections/CareerSummary'
+import Realisations from '@/components/sections/Realisations'
 import LatestPosts from '@/components/sections/LatestPosts'
 import HomeContact from '@/components/sections/HomeContact'
 
@@ -32,8 +33,9 @@ export default function Home() {
       </Helmet>
       <Hero />
       <PragmaticApproach />
-      <Realisations />
       <Tools />
+      <CareerSummary />
+      <Realisations />
       <LatestPosts />
       <HomeContact />
     </>

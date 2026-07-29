@@ -169,6 +169,26 @@
     "technologies_label": "Technologies principales",
     "technologies": ["C#", "Python", "SQL", "Azure", "Azure AI", "React", "Power BI"]
   },
+  "career_summary": {
+    "title": "Parcours en bref",
+    "introduction": "Mon parcours relie une longue expérience en développement et en analyse à une spécialisation en science des données et en intelligence artificielle. Cette combinaison me permet d’aborder les projets avec une vision à la fois technique, fonctionnelle et pragmatique.",
+    "items": [
+      {
+        "title": "Plus de 20 ans en TI",
+        "description": "Développement logiciel, analyse fonctionnelle, intégration de données et conception de solutions."
+      },
+      {
+        "title": "Formation multidisciplinaire",
+        "description": "Baccalauréats en informatique et en bio-informatique, complétés par une formation en science des données."
+      },
+      {
+        "title": "Spécialisation en IA et données",
+        "description": "Certifications Microsoft en intelligence artificielle, science des données et analytique."
+      }
+    ],
+    "cta": "Voir mon parcours complet",
+    "cta_link": "/about"
+  },
   "home_contact": {
     "overline": "CONTACT",
     "title": "Travaillons ensemble",
