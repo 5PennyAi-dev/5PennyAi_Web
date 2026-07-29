@@ -150,23 +150,25 @@
     ]
   },
   "tools": {
-    "overline": "STACK",
-    "title": "Mes outils quotidiens",
-    "subtitle": "Stack avec laquelle je construis et déploie au quotidien.",
-    "groups": [
+    "overline": "COMPÉTENCES",
+    "title": "Compétences clés",
+    "subtitle": "Mon profil combine l’analyse, le développement logiciel, les données et l’intelligence artificielle appliquée. Je peux contribuer depuis la compréhension d’un besoin jusqu’à la conception et à la réalisation d’une solution concrète.",
+    "items": [
       {
-        "label": "IA & LLMs",
-        "items": ["Claude API", "Gemini", "OpenAI", "Perplexity", "MCP", "Pinecone"]
+        "title": "Analyse et conception de solutions",
+        "description": "Analyse des besoins, modélisation des processus, conception fonctionnelle et technique, et collaboration avec les parties prenantes."
       },
       {
-        "label": "Développement",
-        "items": ["React 19", "Node.js", "TypeScript", "Python", "Tailwind CSS"]
+        "title": "Développement logiciel et données",
+        "description": "Développement d’applications et d’intégrations, SQL, Python, C#, traitement et exploitation des données."
       },
       {
-        "label": "Cloud & Architecture",
-        "items": ["Vercel Serverless", "Supabase", "Azure AI", "n8n"]
+        "title": "IA appliquée et automatisation",
+        "description": "IA générative, apprentissage automatique, RAG, agents, services Azure AI et automatisation de processus."
       }
-    ]
+    ],
+    "technologies_label": "Technologies principales",
+    "technologies": ["C#", "Python", "SQL", "Azure", "Azure AI", "React", "Power BI"]
   },
   "home_contact": {
     "overline": "CONTACT",

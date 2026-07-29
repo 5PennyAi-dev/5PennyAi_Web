@@ -150,23 +150,25 @@
     ]
   },
   "tools": {
-    "overline": "STACK",
-    "title": "My daily tools",
-    "subtitle": "The stack I use to build and ship every day.",
-    "groups": [
+    "overline": "COMPETENCIES",
+    "title": "Core competencies",
+    "subtitle": "My profile combines analysis, software development, data and applied artificial intelligence. I can contribute from understanding a need through the design and delivery of a practical solution.",
+    "items": [
       {
-        "label": "AI & LLMs",
-        "items": ["Claude API", "Gemini", "OpenAI", "Perplexity", "MCP", "Pinecone"]
+        "title": "Analysis and solution design",
+        "description": "Requirements analysis, process modelling, functional and technical design, and collaboration with stakeholders."
       },
       {
-        "label": "Development",
-        "items": ["React 19", "Node.js", "TypeScript", "Python", "Tailwind CSS"]
+        "title": "Software development and data",
+        "description": "Application and integration development, SQL, Python, C#, and the processing and use of data."
       },
       {
-        "label": "Cloud & Architecture",
-        "items": ["Vercel Serverless", "Supabase", "Azure AI", "n8n"]
+        "title": "Applied AI and automation",
+        "description": "Generative AI, machine learning, RAG, agents, Azure AI services and process automation."
       }
-    ]
+    ],
+    "technologies_label": "Core technologies",
+    "technologies": ["C#", "Python", "SQL", "Azure", "Azure AI", "React", "Power BI"]
   },
   "home_contact": {
     "overline": "CONTACT",
