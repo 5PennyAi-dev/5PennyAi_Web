@@ -136,18 +136,17 @@
     "tags": ["React", "Supabase", "Gemini AI", "Vercel"]
   },
   "realisations": {
-    "overline": "WORK",
-    "title": "Projects shipped to production",
-    "items": [
-      {
-        "title": "PennySEO — AI SEO optimization SaaS",
-        "description": "App that turns a simple Etsy product photo into an SEO-optimized listing in under 60 seconds. Multi-model AI pipeline, serverless full-stack architecture. Designed, built and deployed solo.",
-        "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
-        "image": "/images/portfolio/dashboard-full.png",
-        "link": "/portfolio/pennyseo",
-        "cta": "View case study"
-      }
-    ]
+    "overline": "FEATURED WORK",
+    "title": "Featured project",
+    "subtitle": "A practical project that demonstrates my ability to turn an idea into a working web application, from requirements analysis through deployment.",
+    "project": {
+      "title": "PennySEO",
+      "description": "An operational web application designed to help Etsy sellers explore and organize their keyword research.",
+      "professional_description": "This project allowed me to take ownership of the complete delivery cycle: understanding the need, designing the experience, developing the application, integrating data and deploying the product.",
+      "image": "/images/portfolio/dashboard-full.png",
+      "link": "/portfolio/pennyseo",
+      "cta": "Explore the case study"
+    }
   },
   "tools": {
     "overline": "COMPETENCIES",

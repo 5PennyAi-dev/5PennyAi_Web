@@ -8,7 +8,7 @@ export default function Realisations() {
   const { t } = useTranslation()
   const ref = useScrollReveal()
 
-  const items = t('realisations.items', { returnObjects: true }) || []
+  const project = t('realisations.project', { returnObjects: true }) || {}
 
   return (
     <section
@@ -22,55 +22,38 @@ export default function Realisations() {
         <SectionHeader
           overline={t('realisations.overline')}
           title={t('realisations.title')}
+          subtitle={t('realisations.subtitle')}
           className="text-center"
         />
 
-        <div className="grid grid-cols-1 gap-6 max-w-2xl mx-auto stagger-children">
-          {items.map((item, i) => (
+        <article className="max-w-5xl mx-auto bg-white rounded-2xl border border-navy/[0.08] card-elevated overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+          <div className="aspect-[16/10] lg:aspect-auto bg-navy/[0.03] border-b lg:border-b-0 lg:border-r border-navy/[0.06]">
+            <img
+              src={project.image}
+              alt={project.title}
+              className="w-full h-full object-contain"
+              loading="lazy"
+            />
+          </div>
+          <div className="p-7 sm:p-9 flex flex-col justify-center">
+            <h3 className="font-heading font-bold text-navy text-2xl tracking-tight mb-4">
+              {project.title}
+            </h3>
+            <p className="text-navy text-[16px] leading-relaxed mb-5">
+              {project.description}
+            </p>
+            <p className="text-muted text-[14px] leading-relaxed mb-7">
+              {project.professional_description}
+            </p>
             <Link
-              key={i}
-              to={item.link}
-              className="group relative bg-white rounded-2xl border border-navy/[0.08] card-elevated hover:border-steel/40 hover:-translate-y-0.5 transition-all duration-200 overflow-hidden flex flex-col"
+              to={project.link}
+              className="inline-flex self-start items-center gap-1.5 bg-accent text-white font-heading font-semibold text-[14px] px-5 py-3 rounded-full hover:bg-accent/90 transition-colors duration-200"
             >
-              {item.image && (
-                <div className="aspect-[16/9] overflow-hidden bg-navy/[0.03] border-b border-navy/[0.06]">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-contain"
-                    loading="lazy"
-                  />
-                </div>
-              )}
-              <div className="p-7 flex flex-col flex-1">
-                <h3 className="font-heading font-bold text-navy text-[18px] mb-3 tracking-tight">
-                  {item.title}
-                </h3>
-                <p className="text-muted text-[14px] leading-relaxed mb-5 flex-1">
-                  {item.description}
-                </p>
-                <div className="flex flex-wrap gap-2 mb-5">
-                  {(item.tags || []).map((tag, j) => (
-                    <span
-                      key={j}
-                      className="bg-warm-gray border border-navy/10 text-navy/65 text-[11px] font-bold uppercase tracking-[0.12em] px-2.5 py-1 rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <span className="inline-flex items-center gap-1.5 text-accent font-heading font-semibold text-[14px] mt-auto">
-                  {item.cta}
-                  <ArrowUpRight
-                    size={16}
-                    strokeWidth={2}
-                    className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200"
-                  />
-                </span>
-              </div>
+              {project.cta}
+              <ArrowUpRight size={16} strokeWidth={2} aria-hidden="true" />
             </Link>
-          ))}
-        </div>
+          </div>
+        </article>
       </div>
     </section>
   )
