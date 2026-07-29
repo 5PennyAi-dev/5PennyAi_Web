@@ -8,8 +8,7 @@ import AboutPage from '@/pages/AboutPage'
 import Contact from '@/pages/Contact'
 import Portfolio from '@/pages/Portfolio'
 import PortfolioIndex from '@/pages/PortfolioIndex'
-import Blog from '@/pages/Blog'
-import BlogPost from '@/pages/BlogPost'
+import BlogComingSoon from '@/pages/BlogComingSoon'
 import AdminBlog from '@/pages/AdminBlog'
 import AdminBlogEditor from '@/pages/AdminBlogEditor'
 import { initCal } from '@/lib/cal'
@@ -52,8 +51,8 @@ function App() {
           <Route path="/portfolio" element={<PortfolioIndex />} />
           <Route path="/portfolio/pennyseo" element={<Portfolio />} />
           <Route path="/portfolio/pipeline-editorial" element={<Navigate to="/portfolio" replace />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/blog" element={<BlogComingSoon />} />
+          <Route path="/blog/:slug" element={<Navigate to="/blog" replace />} />
           <Route path="/admin/blog" element={<AdminBlog />} />
           <Route path="/admin/blog/topics" element={<AdminBlog />} />
           <Route path="/admin/blog/new" element={<AdminBlogEditor />} />

@@ -5,7 +5,6 @@ import PragmaticApproach from '@/components/sections/PragmaticApproach'
 import Tools from '@/components/sections/Tools'
 import CareerSummary from '@/components/sections/CareerSummary'
 import Realisations from '@/components/sections/Realisations'
-import LatestPosts from '@/components/sections/LatestPosts'
 import HomeContact from '@/components/sections/HomeContact'
 
 export default function Home() {
@@ -36,7 +35,6 @@ export default function Home() {
       <Tools />
       <CareerSummary />
       <Realisations />
-      <LatestPosts />
       <HomeContact />
     </>
   )

@@ -213,6 +213,18 @@
     "viewAll": "View all articles",
     "minRead": "min read"
   },
+  "blog_coming_soon": {
+    "seo": {
+      "title": "AI articles and resources coming soon | 5PennyAi",
+      "description": "A new section dedicated to articles, guides and resources about applied artificial intelligence is being prepared."
+    },
+    "eyebrow": "AI articles and resources",
+    "title": "A new section is being prepared",
+    "description": "I am preparing a new version of this section to share quality articles, practical guides and resources about applied artificial intelligence.",
+    "additional_text": "Content will be published progressively. In the meantime, you can explore my professional profile and projects.",
+    "cta_primary": "View my profile",
+    "cta_secondary": "Explore PennySEO"
+  },
   "faq": {
     "overline": "FAQ",
     "title": "Frequently asked questions",
