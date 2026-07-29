@@ -363,32 +363,32 @@
     },
     "timeline": {
       "overline": "EXPERIENCE",
-      "title": "Professional experience",
+      "title": "Professional experience and personal projects",
       "items": [
         {
-          "period": "2025 – present",
-          "role": "Founder & AI Consultant — 5PennyAi",
-          "description": "Development of PennySEO, AI consulting, prototyping intelligent applications."
-        },
-        {
-          "period": "2023 – 2025",
+          "period": "2023 – present",
           "role": "Functional Analyst — CGI",
           "description": "Requirements analysis and functional documentation for the SEAO system."
         },
         {
+          "period": "2025 – present",
+          "role": "Personal applied AI projects — 5PennyAi",
+          "description": "Design and development of PennySEO, an operational web application, along with the prototyping of solutions using artificial intelligence."
+        },
+        {
           "period": "2019 – 2023",
           "role": "Functional Analyst — Quebec public sector",
-          "description": "SQI, Ministry of Justice, CHU de Québec. Financial, healthcare, and justice applications."
+          "description": "Assignments with the SQI, Ministry of Justice and CHU de Québec in financial, healthcare and justice contexts."
         },
         {
           "period": "2012 – 2019",
-          "role": "Analyst-programmer — INSPQ & Université du Québec",
-          "description": "Bioinformatics application development, Oracle/C# systems, genomic data processing."
+          "role": "Analyst-Programmer — INSPQ and Université du Québec",
+          "description": "Development of bioinformatics applications, Oracle and C# systems, and genomic data processing solutions."
         },
         {
           "period": "2002 – 2012",
-          "role": "Developer & analyst — CGI, SIQ, MRN",
-          "description": "Early career in software development and analysis in the public sector."
+          "role": "Developer and Analyst — CGI, SIQ and MRN",
+          "description": "Software development and systems analysis for Quebec public-sector organizations."
         }
       ]
     },

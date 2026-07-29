@@ -363,32 +363,32 @@
     },
     "timeline": {
       "overline": "PARCOURS",
-      "title": "Expérience professionnelle",
+      "title": "Expérience professionnelle et projets personnels",
       "items": [
         {
-          "period": "2025 – présent",
-          "role": "Fondateur & Consultant AI — 5PennyiA",
-          "description": "Développement de PennySEO, consultation en IA, prototypage d'applications intelligentes."
+          "period": "2023 – présent",
+          "role": "Analyste fonctionnel — CGI",
+          "description": "Analyse des besoins et production de documentation fonctionnelle pour le système SEAO."
         },
         {
-          "period": "2023 – 2025",
-          "role": "Analyste fonctionnel — CGI",
-          "description": "Analyse des besoins et documentation fonctionnelle pour le système SEAO."
+          "period": "2025 – présent",
+          "role": "Projets personnels en IA appliquée — 5PennyAi",
+          "description": "Conception et développement de PennySEO, une application Web opérationnelle, ainsi que prototypage de solutions utilisant l’intelligence artificielle."
         },
         {
           "period": "2019 – 2023",
-          "role": "Analyste fonctionnel — Secteur public QC",
-          "description": "SQI, Ministère de la Justice, CHU de Québec. Applications financières, santé, justice."
+          "role": "Analyste fonctionnel — secteur public québécois",
+          "description": "Mandats auprès de la SQI, du ministère de la Justice et du CHU de Québec, dans des contextes financiers, de santé et de justice."
         },
         {
           "period": "2012 – 2019",
-          "role": "Analyste-programmeur — INSPQ & Université du Québec",
-          "description": "Développement d'applications bioinformatique, systèmes Oracle/C#, traitement de données génomiques."
+          "role": "Analyste-programmeur — INSPQ et Université du Québec",
+          "description": "Développement d’applications en bioinformatique, de systèmes Oracle et C#, et de traitements de données génomiques."
         },
         {
           "period": "2002 – 2012",
-          "role": "Développeur & analyste — CGI, SIQ, MRN",
-          "description": "Début de carrière en développement logiciel et analyse dans le secteur public."
+          "role": "Développeur et analyste — CGI, SIQ et MRN",
+          "description": "Développement logiciel et analyse de systèmes pour des organisations du secteur public québécois."
         }
       ]
     },
