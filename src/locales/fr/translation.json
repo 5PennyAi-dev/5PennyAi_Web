@@ -127,14 +127,6 @@
         "image": "/images/portfolio/dashboard-full.png",
         "link": "/portfolio/pennyseo",
         "cta": "Voir l'étude de cas"
-      },
-      {
-        "title": "Pipeline éditorial automatisé — Génération de contenu IA multimodale",
-        "description": "Pipeline complet de génération d'articles SEO-optimisés pour le blog 5pennyai.com. Trois LLMs orchestrés : recherche web, rédaction structurée par skill custom, génération d'images et infographies. Une dizaine d'articles publiés.",
-        "tags": ["Perplexity", "Claude API", "Gemini Image", "Skills custom"],
-        "image": "/images/portfolio/pipeline-automatise.png",
-        "link": "/portfolio/pipeline-editorial",
-        "cta": "Voir l'étude de cas"
       }
     ]
   },
@@ -246,7 +238,7 @@
         "title": "Intégration LLM & orchestration multi-modèles",
         "description": "J'intègre des modèles IA (Claude, Gemini, OpenAI, Perplexity) dans des systèmes existants ou en pipelines orchestrés. API, webhooks, bases vectorielles, MCP, n8n.",
         "tags": ["Multi-LLM", "MCP", "Pinecone", "n8n", "Webhooks"],
-        "case": "Pipeline éditorial automatisé — orchestration de 3 LLMs en cascade pour générer articles + illustrations en production."
+        "case": "Intégration de modèles IA dans des systèmes existants et des pipelines orchestrés."
       },
       "prompt": {
         "title": "Prompt engineering & qualité IA",
@@ -302,7 +294,7 @@
       "section1_p2": "Pendant plus de 20 ans, j'ai livré du logiciel dans des environnements complexes — santé publique (INSPQ, CHU de Québec), justice (Ministère de la Justice), gouvernement, secteur institutionnel (Russell Investments, CGI). Cette discipline d'exécution est aujourd'hui ce qui distingue ma pratique en IA générative appliquée : je ne fais pas que des prototypes, je livre en production.",
       "section2_title": "Ce que je construis aujourd'hui",
       "section2_p1": "Aujourd'hui, je conçois et déploie des produits IA de bout en bout — analyse, architecture, développement, déploiement. RAG, agents, orchestration multi-LLM, automatisation de processus.",
-      "section2_p2": "5pennyai.com est mon <strong>laboratoire personnel</strong> : c'est là que j'expérimente, que je publie ce que j'apprends, et que je documente les projets que je construis. <strong>PennySEO</strong> (SaaS d'optimisation SEO par IA) et le <strong>pipeline éditorial automatisé</strong> qui alimente ce site sont mes deux réalisations principales — <portfolioLink>voir la section Réalisations</portfolioLink> pour les détails techniques."
+      "section2_p2": "5pennyai.com est mon <strong>laboratoire personnel</strong> : c'est là que j'expérimente, que je publie ce que j'apprends, et que je documente les projets que je construis. <strong>PennySEO</strong>, un SaaS d'optimisation SEO par IA, illustre cette démarche — <portfolioLink>voir la section Réalisations</portfolioLink> pour les détails techniques."
     },
     "expertise": {
       "overline": "EXPERTISE",
@@ -434,7 +426,7 @@
   "portfolio_index": {
     "seo": {
       "title": "Portfolio — Christian Couillard",
-      "description": "Études de cas de produits IA conçus, développés et déployés en solo : SaaS SEO multi-modèles, pipeline éditorial automatisé."
+      "description": "Étude de cas d'un produit IA conçu, développé et déployé en solo : PennySEO, un SaaS SEO multi-modèles."
     },
     "hero": {
       "overline": "PORTFOLIO",
@@ -448,14 +440,6 @@
         "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
         "image": "/images/portfolio/dashboard-full.png",
         "link": "/portfolio/pennyseo",
-        "cta": "Voir l'étude de cas"
-      },
-      {
-        "title": "Pipeline éditorial automatisé — Génération de contenu IA multimodale",
-        "description": "Pipeline complet de génération d'articles SEO-optimisés pour le blog 5pennyai.com. Trois LLMs orchestrés : recherche web, rédaction structurée par skill custom, génération d'images et infographies. Une dizaine d'articles publiés.",
-        "tags": ["Perplexity", "Claude API", "Gemini Image", "Skills custom"],
-        "image": "/images/portfolio/pipeline-automatise.png",
-        "link": "/portfolio/pipeline-editorial",
         "cta": "Voir l'étude de cas"
       }
     ]

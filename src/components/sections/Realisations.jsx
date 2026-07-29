@@ -25,7 +25,7 @@ export default function Realisations() {
           className="text-center"
         />
 
-        <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto stagger-children">
+        <div className="grid grid-cols-1 gap-6 max-w-2xl mx-auto stagger-children">
           {items.map((item, i) => (
             <Link
               key={i}

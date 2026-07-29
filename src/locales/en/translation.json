@@ -127,14 +127,6 @@
         "image": "/images/portfolio/dashboard-full.png",
         "link": "/portfolio/pennyseo",
         "cta": "View case study"
-      },
-      {
-        "title": "Automated editorial pipeline — Multimodal AI content generation",
-        "description": "End-to-end pipeline generating SEO-optimized articles for the 5pennyai.com blog. Three orchestrated LLMs: real-time web research, structured writing via a custom skill, image and infographic generation. A dozen articles already published.",
-        "tags": ["Perplexity", "Claude API", "Gemini Image", "Custom skills"],
-        "image": "/images/portfolio/pipeline-automatise.png",
-        "link": "/portfolio/pipeline-editorial",
-        "cta": "View case study"
       }
     ]
   },
@@ -246,7 +238,7 @@
         "title": "LLM integration & multi-model orchestration",
         "description": "I integrate AI models (Claude, Gemini, OpenAI, Perplexity) into existing systems or orchestrated pipelines. APIs, webhooks, vector stores, MCP, n8n.",
         "tags": ["Multi-LLM", "MCP", "Pinecone", "n8n", "Webhooks"],
-        "case": "Automated editorial pipeline — orchestration of 3 cascading LLMs to generate articles + illustrations in production."
+        "case": "AI model integration in existing systems and orchestrated pipelines."
       },
       "prompt": {
         "title": "Prompt engineering & AI quality",
@@ -302,7 +294,7 @@
       "section1_p2": "For more than 20 years, I've shipped software in demanding environments — public health (INSPQ, CHU de Québec), justice (Quebec Ministry of Justice), government, institutional (Russell Investments, CGI). That delivery discipline is what sets my applied generative-AI practice apart today: I don't just prototype, I ship to production.",
       "section2_title": "What I'm building today",
       "section2_p1": "Today, I design and ship AI products end-to-end — analysis, architecture, development, deployment. RAG, agents, multi-LLM orchestration, process automation.",
-      "section2_p2": "5pennyai.com is my <strong>personal lab</strong>: where I experiment, publish what I learn, and document the projects I build. <strong>PennySEO</strong> (AI SEO optimization SaaS) and the <strong>automated editorial pipeline</strong> that powers this site are my two main case studies — <portfolioLink>see the Portfolio section</portfolioLink> for the technical details."
+      "section2_p2": "5pennyai.com is my <strong>personal lab</strong>: where I experiment, publish what I learn, and document the projects I build. <strong>PennySEO</strong>, an AI SEO optimization SaaS, illustrates this approach — <portfolioLink>see the Portfolio section</portfolioLink> for technical details."
     },
     "expertise": {
       "overline": "EXPERTISE",
@@ -434,7 +426,7 @@
   "portfolio_index": {
     "seo": {
       "title": "Portfolio — Christian Couillard",
-      "description": "Case studies of AI products designed, built and shipped solo: multi-model SEO SaaS, automated editorial pipeline."
+      "description": "Case study of an AI product designed, built and shipped solo: PennySEO, a multi-model SEO SaaS."
     },
     "hero": {
       "overline": "PORTFOLIO",
@@ -448,14 +440,6 @@
         "tags": ["React", "Supabase", "Gemini AI", "Vercel"],
         "image": "/images/portfolio/dashboard-full.png",
         "link": "/portfolio/pennyseo",
-        "cta": "View case study"
-      },
-      {
-        "title": "Automated editorial pipeline — Multimodal AI content generation",
-        "description": "End-to-end pipeline generating SEO-optimized articles for the 5pennyai.com blog. Three orchestrated LLMs: real-time web research, structured writing via a custom skill, image and infographic generation. A dozen articles already published.",
-        "tags": ["Perplexity", "Claude API", "Gemini Image", "Custom skills"],
-        "image": "/images/portfolio/pipeline-automatise.png",
-        "link": "/portfolio/pipeline-editorial",
         "cta": "View case study"
       }
     ]

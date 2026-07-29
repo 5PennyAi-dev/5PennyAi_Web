@@ -54,7 +54,7 @@ export default function PortfolioIndex() {
       {/* Case studies grid */}
       <section ref={listRef} className="reveal py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto stagger-children">
+          <div className="grid grid-cols-1 gap-6 max-w-2xl mx-auto stagger-children">
             {items.map((item, i) => (
               <Link
                 key={i}
