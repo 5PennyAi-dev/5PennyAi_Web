@@ -399,7 +399,7 @@
     },
     "credentials": {
       "overline": "EDUCATION",
-      "title": "Education & certifications",
+      "title": "Education and certifications",
       "education_title": "Academic education",
       "education": [
         { "label": "Data Science Program — TÉLUQ", "year": "2022" },
@@ -408,12 +408,12 @@
       ],
       "certifications_title": "Professional certifications",
       "certifications": [
+        { "label": "Generative AI with LLMs — Coursera", "year": "2025", "vendor": "coursera" },
         { "label": "Microsoft AI Engineer Associate (AI-102)", "year": "2024", "vendor": "microsoft" },
         { "label": "Microsoft Data Scientist Associate (DP-100)", "year": "2024", "vendor": "microsoft" },
         { "label": "Microsoft Power BI Data Analyst (PL-300)", "year": "2024", "vendor": "microsoft" },
-        { "label": "Microsoft AI Fundamentals (AI-900)", "year": "2023", "vendor": "microsoft" },
-        { "label": "Generative AI with LLMs — Coursera", "year": "2025", "vendor": "coursera" },
         { "label": "Machine Learning Specialization — Coursera", "year": "2024", "vendor": "coursera" },
+        { "label": "Microsoft AI Fundamentals (AI-900)", "year": "2023", "vendor": "microsoft" },
         { "label": "Google Advanced Data Analytics", "year": "2023", "vendor": "google" }
       ]
     },

@@ -281,13 +281,13 @@ export default function AboutPage() {
                 return (
                   <div
                     key={i}
-                    className="bg-white border border-navy/[0.08] rounded-xl px-4 py-4 flex flex-col items-center text-center gap-2.5 card-elevated"
+                    className="bg-white border border-navy/[0.08] rounded-xl px-3 py-3 flex items-center text-left gap-3 card-elevated md:px-4 md:py-4 md:flex-col md:items-center md:text-center md:gap-2.5"
                   >
-                    <div className={`w-10 h-10 rounded-lg ${iconTone.bg} flex items-center justify-center`}>
+                    <div className={`w-9 h-9 rounded-lg ${iconTone.bg} shrink-0 flex items-center justify-center md:w-10 md:h-10`}>
                       <Icon size={20} className={iconTone.text} strokeWidth={1.8} />
                     </div>
-                    <p className="text-navy text-[12px] font-medium leading-snug">{item.label}</p>
-                    <span className="text-navy/45 text-[11px] font-bold tnum">{item.year}</span>
+                    <p className="min-w-0 flex-1 text-navy text-[12px] font-medium leading-snug md:flex-none">{item.label}</p>
+                    <span className="shrink-0 text-navy/45 text-[11px] font-bold tnum md:shrink">{item.year}</span>
                   </div>
                 )
               })}
