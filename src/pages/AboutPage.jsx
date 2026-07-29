@@ -105,7 +105,7 @@ export default function AboutPage() {
               />
               <div className="text-center md:text-left max-w-[280px] mx-auto md:mx-0">
                 <h2 className="font-heading font-bold text-navy text-[18px] mb-1 tracking-tight">
-                  {t('about_page.profile.name')}
+                  {t('about_page.story.section1_title')}
                 </h2>
                 <p className="text-muted text-[14px] mb-4">
                   {t('about_page.profile.role')}
@@ -151,7 +151,7 @@ export default function AboutPage() {
       </section>
 
       {/* Expertise */}
-      <section ref={expertiseRef} className="reveal py-24 md:py-32 bg-warm-gray relative overflow-hidden">
+      <section ref={expertiseRef} className="reveal py-16 md:py-32 bg-warm-gray relative overflow-hidden">
         <div className="absolute inset-0 bg-dot-grid opacity-40 pointer-events-none" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
           <SectionHeader
@@ -202,7 +202,7 @@ export default function AboutPage() {
       </section>
 
       {/* Timeline */}
-      <section ref={timelineRef} className="reveal py-24 md:py-32">
+      <section ref={timelineRef} className="reveal py-16 md:py-32">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <SectionHeader
             overline={t('about_page.timeline.overline')}
@@ -237,7 +237,7 @@ export default function AboutPage() {
       </section>
 
       {/* Credentials */}
-      <section ref={credentialsRef} className="reveal py-24 md:py-32 bg-warm-gray relative overflow-hidden">
+      <section ref={credentialsRef} className="reveal py-16 md:py-32 bg-warm-gray relative overflow-hidden">
         <div className="absolute inset-0 bg-dot-grid opacity-40 pointer-events-none" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
           <SectionHeader
@@ -297,7 +297,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA final */}
-      <section ref={ctaRef} className="reveal py-24 md:py-32">
+      <section ref={ctaRef} className="reveal py-16 md:py-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div
             className="relative rounded-3xl p-12 md:p-16 text-center overflow-hidden bg-grain ring-inner-highlight"

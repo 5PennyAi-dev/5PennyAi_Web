@@ -11,7 +11,7 @@ export default function Logo({ variant = 'light', className = '', height = 32 })
   return (
     <img
       src={`/images/logos/${file}`}
-      alt={isFr ? '5PennyiA' : '5PennyAi'}
+      alt={isFr ? '5PennyAi' : '5PennyAi'}
       style={{ height }}
       className={className}
     />
