@@ -258,8 +258,8 @@
   },
   "footer": {
     "copyright": "© 2026 Christian Couillard. Tous droits réservés.",
-    "made_with": "Basé à Québec, QC · 5pennyai.com — laboratoire personnel d'IA appliquée",
-    "tagline": "AI Solutions Engineer",
+    "made_with": "Basé à Québec, QC · IA appliquée, données et automatisation",
+    "tagline": "Professionnel en technologies de l’information",
     "admin": "Admin"
   },
   "seo": {
@@ -519,6 +519,35 @@
       "title": "La solution",
       "text": "Un SaaS qui transforme une simple photo de produit en fiche SEO optimisée grâce à la Vision AI et au NLP."
     },
+    "workflow": {
+      "overline": "PARCOURS PRODUIT",
+      "title": "De la fiche produit à une décision éditoriale",
+      "subtitle": "Un flux guidé qui laisse au vendeur le contrôle des choix et de la publication.",
+      "items": [
+        {
+          "title": "Importer ou démarrer d’une image",
+          "description": "Le vendeur peut importer une fiche Etsy existante ou partir d’une photo produit. Les informations importées servent de point de départ au travail d’optimisation."
+        },
+        {
+          "title": "Comprendre le produit",
+          "description": "L’analyse visuelle aide à documenter le style, les couleurs, l’audience et la taxonomie du produit; le type de produit et des notes de contexte complètent cette lecture."
+        },
+        {
+          "title": "Explorer et choisir les mots-clés",
+          "description": "Les suggestions sont enrichies par des données de recherche et comparées selon le volume, la concurrence, l’intention d’achat et la pertinence. La sélection finale reste ajustable."
+        },
+        {
+          "title": "Générer, réviser et publier",
+          "description": "Le système prépare un titre, une description et des tags à partir du contexte retenu. Une prévisualisation permet de réviser le contenu avant sa copie ou son export vers Etsy."
+        }
+      ]
+    },
+    "scope": {
+      "overline": "PORTÉE DE LA RÉALISATION",
+      "title": "Un produit conçu et livré de bout en bout",
+      "text": "PennySEO a été conçu comme un produit complet : compréhension du besoin, parcours utilisateur, interface Web, intégration de services d’IA et de données, connexion à Etsy, puis déploiement. Le projet met en pratique une approche qui relie analyse fonctionnelle, expérience utilisateur, développement et intégration de systèmes.",
+      "note": "Les scores présentés dans l’application sont des repères d’aide à la décision construits à partir des signaux disponibles. Ils servent à comparer des choix de mots-clés et de contenu; ils ne constituent pas une promesse de positionnement, de ventes ou de résultats commerciaux."
+    },
     "architecture": {
       "overline": "ARCHITECTURE",
       "title": "Architecture technique",
@@ -545,14 +574,26 @@
         }
       ]
     },
-    "results": {
-      "overline": "RÉSULTATS",
-      "title": "Résultats & Chiffres clés",
+    "highlights": {
+      "overline": "CE QUE LE PROJET DÉMONTRE",
+      "title": "Des compétences appliquées dans un produit concret",
       "items": [
-        { "value": "8", "label": "Routes API serverless" },
-        { "value": "5", "label": "Appels AI parallèles par analyse" },
-        { "value": "100+", "label": "Exemples de calibration prompt" },
-        { "value": "4", "label": "Paliers de scoring composite" }
+        {
+          "title": "Analyse et conception",
+          "description": "Transformer un besoin métier en parcours utilisateur clair, depuis l’information produit jusqu’à la décision éditoriale."
+        },
+        {
+          "title": "IA et données intégrées",
+          "description": "Faire dialoguer analyse visuelle, génération assistée et données de recherche dans un même flux."
+        },
+        {
+          "title": "Contrôle utilisateur",
+          "description": "Présenter des recommandations ajustables et une prévisualisation avant toute publication vers Etsy."
+        },
+        {
+          "title": "Livraison de bout en bout",
+          "description": "Prendre en charge la conception, l’interface, les intégrations et le déploiement d’une application Web."
+        }
       ]
     },
     "cta": {

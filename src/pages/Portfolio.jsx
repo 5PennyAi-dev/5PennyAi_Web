@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { ExternalLink, ArrowRight } from 'lucide-react'
+import { ExternalLink, ArrowRight, ClipboardCheck, Sparkles, SlidersHorizontal, Rocket } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import SectionHeader from '@/components/ui/SectionHeader'
 import ShaderBackground from '@/components/ui/ShaderBackground'
@@ -11,6 +11,8 @@ export default function Portfolio() {
   const heroRef = useScrollReveal()
   const challengeRef = useScrollReveal()
   const solutionRef = useScrollReveal()
+  const workflowRef = useScrollReveal()
+  const scopeRef = useScrollReveal()
   const archRef = useScrollReveal()
   const screenshotsRef = useScrollReveal()
   const resultsRef = useScrollReveal()
@@ -18,8 +20,10 @@ export default function Portfolio() {
 
   const tags = t('portfolio.hero.tags', { returnObjects: true }) || []
   const archSteps = t('portfolio.architecture.steps', { returnObjects: true }) || []
+  const workflowItems = t('portfolio.workflow.items', { returnObjects: true }) || []
   const screenshotItems = t('portfolio.screenshots.items', { returnObjects: true }) || []
-  const resultItems = t('portfolio.results.items', { returnObjects: true }) || []
+  const highlightItems = t('portfolio.highlights.items', { returnObjects: true }) || []
+  const highlightIcons = [ClipboardCheck, Sparkles, SlidersHorizontal, Rocket]
 
   return (
     <>
@@ -57,6 +61,8 @@ export default function Portfolio() {
             alt="PennySEO"
             className="w-[280px] md:w-[360px] mx-auto mb-5 brightness-[1.15] drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
           />
+
+          <h1 className="sr-only">{t('portfolio.hero.title')}</h1>
 
           <p className="text-white/60 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
             {t('portfolio.hero.subtitle')}
@@ -115,7 +121,51 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* ─── 4. ARCHITECTURE TECHNIQUE ─── */}
+      {/* ─── 4. PARCOURS PRODUIT ─── */}
+      <section ref={workflowRef} className="reveal py-24 md:py-32">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <SectionHeader
+            overline={t('portfolio.workflow.overline')}
+            title={t('portfolio.workflow.title')}
+            subtitle={t('portfolio.workflow.subtitle')}
+            className="text-center"
+          />
+
+          <div className="grid sm:grid-cols-2 gap-4 max-w-4xl mx-auto stagger-children">
+            {workflowItems.map((item, i) => (
+              <article key={i} className="bg-white border border-navy/[0.08] rounded-2xl p-6 md:p-7 card-elevated">
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-accent/12 text-accent text-[12px] font-bold mb-4 tnum">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 className="font-heading font-bold text-navy text-[17px] mb-2 tracking-tight">
+                  {item.title}
+                </h3>
+                <p className="text-muted text-[14px] leading-relaxed">
+                  {item.description}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 5. PORTÉE DU PROJET ─── */}
+      <section ref={scopeRef} className="reveal py-24 md:py-32 bg-warm-gray relative overflow-hidden">
+        <div className="absolute inset-0 bg-dot-grid opacity-40 pointer-events-none" />
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          <SectionHeader
+            overline={t('portfolio.scope.overline')}
+            title={t('portfolio.scope.title')}
+            className="text-center !mb-8"
+          />
+          <div className="space-y-4 text-muted text-[16px] md:text-[17px] leading-relaxed">
+            <p>{t('portfolio.scope.text')}</p>
+            <p>{t('portfolio.scope.note')}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 6. ARCHITECTURE TECHNIQUE ─── */}
       <section ref={archRef} className="reveal py-24 md:py-32">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <SectionHeader
@@ -140,7 +190,7 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* ─── 5. SCREENSHOTS ─── */}
+      {/* ─── 7. SCREENSHOTS ─── */}
       <section ref={screenshotsRef} className="reveal py-24 md:py-32 bg-warm-gray relative overflow-hidden">
         <div className="absolute inset-0 bg-dot-grid opacity-40 pointer-events-none" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
@@ -175,28 +225,18 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* ─── 6. RÉSULTATS & CHIFFRES CLÉS ─── */}
+      {/* ─── 8. CE QUE LE PROJET DÉMONTRE ─── */}
       <section ref={resultsRef} className="reveal py-24 md:py-32">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <SectionHeader
-            overline={t('portfolio.results.overline')}
-            title={t('portfolio.results.title')}
+            overline={t('portfolio.highlights.overline')}
+            title={t('portfolio.highlights.title')}
             className="text-center"
           />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto stagger-children">
-            {resultItems.map((item, i) => (
-              <div
-                key={i}
-                className="bg-white border border-navy/[0.08] rounded-2xl p-6 md:p-8 text-center card-elevated"
-              >
-                <div className="text-accent font-bold text-[2rem] md:text-[2.5rem] leading-none tracking-tight tnum mb-2">
-                  {item.value}
-                </div>
-                <div className="text-muted text-[12px] md:text-[13px] leading-snug">
-                  {item.label}
-                </div>
-              </div>
+            {highlightItems.map((item, i) => (
+              <HighlightCard key={i} item={item} Icon={highlightIcons[i]} />
             ))}
           </div>
         </div>
@@ -231,5 +271,21 @@ export default function Portfolio() {
         </div>
       </section>
     </>
+  )
+}
+
+function HighlightCard({ item, Icon }) {
+  return (
+    <article className="bg-white border border-navy/[0.08] rounded-2xl p-6 md:p-7 card-elevated">
+      <span className="flex w-11 h-11 items-center justify-center rounded-xl bg-accent/[0.10] text-accent mb-5">
+        <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
+      </span>
+      <h3 className="font-heading font-bold text-navy text-[15px] md:text-[16px] leading-snug tracking-tight mb-2">
+        {item.title}
+      </h3>
+      <p className="text-muted text-[13px] md:text-[14px] leading-relaxed">
+        {item.description}
+      </p>
+    </article>
   )
 }

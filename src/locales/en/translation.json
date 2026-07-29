@@ -258,8 +258,8 @@
   },
   "footer": {
     "copyright": "© 2026 Christian Couillard. All rights reserved.",
-    "made_with": "Based in Québec, QC · 5pennyai.com — personal applied-AI lab",
-    "tagline": "AI Solutions Engineer",
+    "made_with": "Based in Québec City, QC · Applied AI, data and automation",
+    "tagline": "Information Technology Professional",
     "admin": "Admin"
   },
   "seo": {
@@ -519,6 +519,35 @@
       "title": "The solution",
       "text": "A SaaS that turns a simple product photo into an optimized SEO listing using Vision AI and NLP."
     },
+    "workflow": {
+      "overline": "PRODUCT WORKFLOW",
+      "title": "From product listing to editorial decisions",
+      "subtitle": "A guided workflow that keeps the seller in control of choices and publication.",
+      "items": [
+        {
+          "title": "Import or start from an image",
+          "description": "Sellers can import an existing Etsy listing or begin with a product photo. Imported information provides a starting point for the optimization work."
+        },
+        {
+          "title": "Understand the product",
+          "description": "Visual analysis helps document product style, colours, audience and taxonomy; product type and contextual notes complete that interpretation."
+        },
+        {
+          "title": "Explore and choose keywords",
+          "description": "Suggestions are enriched with search data and compared by volume, competition, buyer intent and relevance. The final selection remains adjustable."
+        },
+        {
+          "title": "Generate, review and publish",
+          "description": "The system prepares a title, description and tags from the selected context. A preview lets sellers review content before copying or exporting it to Etsy."
+        }
+      ]
+    },
+    "scope": {
+      "overline": "DELIVERY SCOPE",
+      "title": "A product designed and delivered end to end",
+      "text": "PennySEO was designed as a complete product: requirements discovery, user workflow, web interface, integration of AI and data services, Etsy connectivity, and deployment. The project puts into practice an approach that connects functional analysis, user experience, development and systems integration.",
+      "note": "The scores shown in the application are decision-support indicators built from available signals. They help compare keyword and content choices; they are not a promise of ranking, sales or commercial results."
+    },
     "architecture": {
       "overline": "ARCHITECTURE",
       "title": "Technical architecture",
@@ -545,14 +574,26 @@
         }
       ]
     },
-    "results": {
-      "overline": "RESULTS",
-      "title": "Results & Key figures",
+    "highlights": {
+      "overline": "WHAT THE PROJECT DEMONSTRATES",
+      "title": "Applied skills in a concrete product",
       "items": [
-        { "value": "8", "label": "Serverless API routes" },
-        { "value": "5", "label": "Parallel AI calls per analysis" },
-        { "value": "100+", "label": "Prompt calibration examples" },
-        { "value": "4", "label": "Composite scoring tiers" }
+        {
+          "title": "Analysis and solution design",
+          "description": "Turning a business need into a clear user workflow, from product information to editorial decisions."
+        },
+        {
+          "title": "Integrated AI and data",
+          "description": "Bringing visual analysis, assisted generation and search data together in one workflow."
+        },
+        {
+          "title": "User control",
+          "description": "Presenting adjustable recommendations and a preview before any content is published to Etsy."
+        },
+        {
+          "title": "End-to-end delivery",
+          "description": "Owning the design, interface, integrations and deployment of a web application."
+        }
       ]
     },
     "cta": {
