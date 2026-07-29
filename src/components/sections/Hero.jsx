@@ -67,15 +67,19 @@ export default function Hero() {
               {t('hero.role')}
             </p>
 
+            <p className="text-steel text-base md:text-lg font-medium max-w-xl mx-auto lg:mx-0 mb-4 leading-snug">
+              {t('hero.specialization')}
+            </p>
+
             <p className="text-white/65 text-base md:text-lg max-w-xl mx-auto lg:mx-0 mb-10 leading-[1.6]">
               {t('hero.description')}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3">
-              <Button href="#realisations" variant="primary" className="px-8 py-3.5 text-[15px]">
+              <Button to="/about" variant="primary" className="px-8 py-3.5 text-[15px]">
                 {t('hero.cta_primary')}
               </Button>
-              <Button to="/contact" variant="ghost" className="px-8 py-3.5 text-[15px]">
+              <Button to="/portfolio/pennyseo" variant="ghost" className="px-8 py-3.5 text-[15px]">
                 {t('hero.cta_secondary')}
               </Button>
             </div>

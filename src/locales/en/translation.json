@@ -14,10 +14,11 @@
   "hero": {
     "overline": "PERSONAL PORTFOLIO",
     "name": "Christian Couillard",
-    "role": "AI Solutions Engineer · Builder & applied-AI consultant",
-    "description": "I design and ship end-to-end AI products. 20+ years of software delivery experience in service of applied generative AI — RAG, agents, automation. Based in Québec City.",
-    "cta_primary": "See my work",
-    "cta_secondary": "Get in touch",
+    "role": "Information Technology Professional",
+    "specialization": "Applied AI · Data · Automation",
+    "description": "With more than twenty years of experience in software development and analysis, I now focus on the practical use of artificial intelligence, data and automation. I design and experiment with solutions that turn real needs into useful tools.",
+    "cta_primary": "Explore my background",
+    "cta_secondary": "View PennySEO",
     "metrics": [
       { "value": "20+", "label": "Years in software delivery" },
       { "value": "5", "label": "AI & Data certifications" },

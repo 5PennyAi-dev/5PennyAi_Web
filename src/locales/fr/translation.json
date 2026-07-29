@@ -14,10 +14,11 @@
   "hero": {
     "overline": "PORTFOLIO PERSONNEL",
     "name": "Christian Couillard",
-    "role": "AI Solutions Engineer · Builder & Consultant IA appliquée",
-    "description": "Je construis et déploie des produits IA de bout en bout. 20+ ans d'expérience en livraison logicielle au service de l'IA générative appliquée — RAG, agents, automatisation. Basé à Québec.",
-    "cta_primary": "Voir mes réalisations",
-    "cta_secondary": "Me contacter",
+    "role": "Professionnel en technologies de l’information",
+    "specialization": "IA appliquée · Données · Automatisation",
+    "description": "Fort de plus de vingt ans d’expérience en développement et en analyse, je me spécialise aujourd’hui dans l’utilisation concrète de l’intelligence artificielle, des données et de l’automatisation. Je conçois et j’expérimente des solutions qui transforment des besoins réels en outils utiles.",
+    "cta_primary": "Découvrir mon parcours",
+    "cta_secondary": "Voir PennySEO",
     "metrics": [
       { "value": "20+", "label": "Années en livraison logicielle" },
       { "value": "5", "label": "Certifications IA & Data" },
