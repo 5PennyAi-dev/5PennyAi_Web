@@ -317,28 +317,27 @@
   },
   "about_page": {
     "seo": {
-      "title": "About — 5PennyAi",
-      "description": "Christian Couillard, founder of 5PennyAi. 20+ years of IT experience, passionate AI developer based in Québec."
+      "title": "About | Christian Couillard — IT Professional and Applied AI",
+      "description": "Discover the background of Christian Couillard, an IT professional with more than twenty years of experience in development, analysis, data and applied artificial intelligence."
     },
     "hero": {
       "overline": "ABOUT",
-      "title": "AI in service of your business.",
-      "subtitle": "Behind 5PennyAi, a passionate developer with 20+ years of IT experience."
+      "name": "Christian Couillard",
+      "title": "Information Technology Professional",
+      "specialization": "Applied AI · Data · Automation",
+      "introduction": "I draw on more than twenty years of experience in software development, analysis and data to design useful solutions and integrate artificial intelligence in practical, realistic and responsible ways."
     },
     "profile": {
       "photo_placeholder": "Photo coming soon",
       "name": "Christian Couillard",
-      "role": "Founder, 5PennyAi",
+      "role": "Information Technology Professional",
       "location": "Québec, QC",
       "email": "christian.couillard@5pennyai.com"
     },
     "story": {
-      "section1_title": "My background",
-      "section1_p1": "My academic path reflects broad curiosity: philosophy, computer science, bioinformatics, and data science. I've always enjoyed exploring multiple fields in depth, because good ideas often emerge at the intersection of disciplines. That drive to learn is still active today — I spend part of my time experimenting with the latest AI tools and documenting what I learn on this site.",
-      "section1_p2": "For more than 20 years, I've shipped software in demanding environments — public health (INSPQ, CHU de Québec), justice (Quebec Ministry of Justice), government, institutional (Russell Investments, CGI). That delivery discipline is what sets my applied generative-AI practice apart today: I don't just prototype, I ship to production.",
-      "section2_title": "What I'm building today",
-      "section2_p1": "Today, I design and ship AI products end-to-end — analysis, architecture, development, deployment. RAG, agents, multi-LLM orchestration, process automation.",
-      "section2_p2": "5pennyai.com is my <strong>personal lab</strong>: where I experiment, publish what I learn, and document the projects I build. <strong>PennySEO</strong>, an AI SEO optimization SaaS, illustrates this approach — <portfolioLink>see the Portfolio section</portfolioLink> for technical details."
+      "section1_title": "A career spanning development, analysis and artificial intelligence",
+      "section1_p1": "Since 2002, I have held various roles in software development and functional analysis within public and private organizations. These experiences have allowed me to work on complex systems, understand user needs and contribute to solutions designed for real-world contexts.",
+      "section1_p2": "In recent years, I have expanded my expertise in data science, machine learning and generative artificial intelligence. I now apply this knowledge through practical projects and experimentation, including PennySEO, an operational web application that demonstrates my ability to move from requirements analysis through design, development and deployment. <portfolioLink>Explore PennySEO</portfolioLink>"
     },
     "expertise": {
       "overline": "EXPERTISE",

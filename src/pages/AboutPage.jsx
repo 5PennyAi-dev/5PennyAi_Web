@@ -76,10 +76,16 @@ export default function AboutPage() {
             </span>
           </div>
           <h1 className="text-display text-[2.25rem] md:text-[3.25rem] lg:text-[4rem] font-bold text-white mb-5">
-            {t('about_page.hero.title')}
+            {t('about_page.hero.name')}
           </h1>
+          <p className="font-heading text-white/90 text-lg md:text-2xl font-semibold mb-2">
+            {t('about_page.hero.title')}
+          </p>
+          <p className="text-steel text-[14px] md:text-base font-medium tracking-wide mb-5">
+            {t('about_page.hero.specialization')}
+          </p>
           <p className="text-white/65 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            {t('about_page.hero.subtitle')}
+            {t('about_page.hero.introduction')}
           </p>
         </div>
       </section>
@@ -125,24 +131,13 @@ export default function AboutPage() {
               <p className="text-muted text-[15px] leading-relaxed mb-4">
                 {t('about_page.story.section1_p1')}
               </p>
-              <p className="text-muted text-[15px] leading-relaxed mb-10">
-                {t('about_page.story.section1_p2')}
-              </p>
-
-              <h3 className="font-heading font-bold text-navy text-[22px] md:text-[26px] mb-4 leading-tight tracking-tight">
-                {t('about_page.story.section2_title')}
-              </h3>
-              <p className="text-muted text-[15px] leading-relaxed mb-4">
-                {t('about_page.story.section2_p1')}
-              </p>
               <p className="text-muted text-[15px] leading-relaxed">
                 <Trans
-                  i18nKey="about_page.story.section2_p2"
+                  i18nKey="about_page.story.section1_p2"
                   components={{
-                    strong: <strong className="font-semibold text-navy" />,
                     portfolioLink: (
                       <Link
-                        to="/portfolio"
+                        to="/portfolio/pennyseo"
                         className="text-accent hover:brightness-90 underline underline-offset-2 decoration-accent/30 hover:decoration-accent transition-all"
                       />
                     ),

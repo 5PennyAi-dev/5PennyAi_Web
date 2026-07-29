@@ -317,28 +317,27 @@
   },
   "about_page": {
     "seo": {
-      "title": "À propos — 5PennyAi",
-      "description": "Christian Couillard, fondateur de 5PennyAi. 20+ ans d'expérience en TI, développeur AI passionné basé à Québec."
+      "title": "À propos | Christian Couillard — Professionnel TI et IA appliquée",
+      "description": "Découvrez le parcours de Christian Couillard, professionnel en TI comptant plus de vingt ans d’expérience en développement, analyse, données et intelligence artificielle appliquée."
     },
     "hero": {
       "overline": "À PROPOS",
-      "title": "L'IA au service de votre entreprise.",
-      "subtitle": "Derrière 5PennyiA, un développeur passionné avec 20+ ans d'expérience en TI."
+      "name": "Christian Couillard",
+      "title": "Professionnel en technologies de l’information",
+      "specialization": "IA appliquée · Données · Automatisation",
+      "introduction": "Je mets à profit plus de vingt ans d’expérience en développement logiciel, en analyse et en données pour concevoir des solutions utiles et intégrer l’intelligence artificielle de façon concrète, réaliste et responsable."
     },
     "profile": {
       "photo_placeholder": "Photo à venir",
       "name": "Christian Couillard",
-      "role": "Fondateur, 5PennyiA",
+      "role": "Professionnel en technologies de l’information",
       "location": "Québec, QC",
       "email": "christian.couillard@gmail.com"
     },
     "story": {
-      "section1_title": "Mon parcours",
-      "section1_p1": "Mon parcours académique reflète une curiosité large : philosophie, informatique, bioinformatique, et sciences des données. J'ai toujours aimé explorer plusieurs domaines en profondeur, parce que les bonnes idées naissent souvent à l'intersection de plusieurs disciplines. Cette envie d'apprendre continue aujourd'hui — je passe une partie de mon temps à expérimenter avec les outils IA les plus récents, et je documente ce que j'apprends sur ce site.",
-      "section1_p2": "Pendant plus de 20 ans, j'ai livré du logiciel dans des environnements complexes — santé publique (INSPQ, CHU de Québec), justice (Ministère de la Justice), gouvernement, secteur institutionnel (Russell Investments, CGI). Cette discipline d'exécution est aujourd'hui ce qui distingue ma pratique en IA générative appliquée : je ne fais pas que des prototypes, je livre en production.",
-      "section2_title": "Ce que je construis aujourd'hui",
-      "section2_p1": "Aujourd'hui, je conçois et déploie des produits IA de bout en bout — analyse, architecture, développement, déploiement. RAG, agents, orchestration multi-LLM, automatisation de processus.",
-      "section2_p2": "5pennyai.com est mon <strong>laboratoire personnel</strong> : c'est là que j'expérimente, que je publie ce que j'apprends, et que je documente les projets que je construis. <strong>PennySEO</strong>, un SaaS d'optimisation SEO par IA, illustre cette démarche — <portfolioLink>voir la section Réalisations</portfolioLink> pour les détails techniques."
+      "section1_title": "Un parcours entre développement, analyse et intelligence artificielle",
+      "section1_p1": "Depuis 2002, j’ai occupé différents rôles en développement logiciel et en analyse fonctionnelle, au sein d’organisations publiques et privées. Ces expériences m’ont permis de travailler sur des systèmes complexes, de comprendre les besoins des utilisateurs et de contribuer à la conception de solutions adaptées à des contextes réels.",
+      "section1_p2": "Au cours des dernières années, j’ai approfondi mes compétences en science des données, en apprentissage automatique et en intelligence artificielle générative. J’applique aujourd’hui ces connaissances dans mes projets et mes expérimentations, notamment avec PennySEO, une application Web opérationnelle qui illustre ma capacité à passer de l’analyse d’un besoin à la conception, au développement et au déploiement d’une solution. <portfolioLink>Découvrir PennySEO</portfolioLink>"
     },
     "expertise": {
       "overline": "EXPERTISE",
