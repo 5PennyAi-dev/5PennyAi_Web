@@ -263,56 +263,48 @@
   "services_page": {
     "seo": {
       "title": "Expertise — Christian Couillard",
-      "description": "AI areas of expertise: full-stack applications, LLM integration, prompt engineering, RAG/agents, advisory & architecture. Backed by concrete projects."
+      "description": "Christian Couillard’s professional skills in functional analysis, software development, data and applied artificial intelligence."
     },
     "hero": {
       "overline": "EXPERTISE",
-      "title": "My areas of expertise",
-      "subtitle": "These are the areas where I bring the most value, illustrated with concrete projects."
+      "title": "Skills and expertise",
+      "subtitle": "My background allows me to connect requirements analysis, software development, data and artificial intelligence to contribute to useful, reliable solutions suited to organizational realities."
     },
-    "case_label": "Flagship project:",
+    "items_title": "Areas of contribution",
+    "case_label": "Example:",
     "items": {
-      "app": {
-        "title": "Full-stack AI applications",
-        "description": "I design and build end-to-end AI applications, from concept to deployed product. Serverless architecture, multi-model pipelines, production-grade LLM integration.",
-        "tags": ["SaaS", "AI pipelines", "Serverless architecture", "Production"],
-        "case": "PennySEO — SaaS SEO analysis platform with AI scoring and image analysis. Designed and shipped solo."
+      "analysis": {
+        "title": "Functional analysis and solution design",
+        "description": "Understand needs, analyze processes and business rules, produce clear documentation and contribute to solutions suited to users and organizations.",
+        "tags": ["Requirements analysis", "Processes", "Specifications", "Collaboration"]
       },
-      "integration": {
-        "title": "LLM integration & multi-model orchestration",
-        "description": "I integrate AI models (Claude, Gemini, OpenAI, Perplexity) into existing systems or orchestrated pipelines. APIs, webhooks, vector stores, MCP, n8n.",
-        "tags": ["Multi-LLM", "MCP", "Pinecone", "n8n", "Webhooks"],
-        "case": "AI model integration in existing systems and orchestrated pipelines."
+      "development": {
+        "title": "Software development and integration",
+        "description": "Design, develop and evolve applications, integrations and data flows across varied technical environments.",
+        "tags": ["C#", "SQL", "Python", "React", "APIs"]
       },
-      "prompt": {
-        "title": "Prompt engineering & AI quality",
-        "description": "I calibrate complex prompts, design scoring pipelines and evaluation systems to guarantee AI quality in production. The detail that makes the difference between a POC and a reliable product.",
-        "tags": ["Calibration", "Scoring", "Pipelines", "Evaluation"],
-        "case": "PennySEO — calibrated on 100+ examples, 4-tier composite scoring, multi-prompt pipelines."
+      "data": {
+        "title": "Data and analytics",
+        "description": "Prepare, transform and analyze data to produce useful information, support decision-making and contribute to intelligent solutions.",
+        "tags": ["SQL", "Python", "Power BI", "Data science"]
       },
-      "mvp": {
-        "title": "RAG, Agents & automation",
-        "description": "I build RAG (retrieval-augmented generation) systems, autonomous agents and process automations in production. Custom Claude skills, MCP, multi-tool orchestration.",
-        "tags": ["RAG", "Agents", "MCP", "Custom skills", "Automation"],
-        "case": "PennyAudit — AI audit system orchestrated by 5–6 custom Claude skills (in progress)."
-      },
-      "audit": {
-        "title": "Advisory & AI architecture",
-        "description": "I bring architectural expertise to organizations moving from AI POC to production. Model selection, pipeline design, cost estimation, governance.",
-        "tags": ["Architecture", "Model selection", "API costs", "Governance"],
-        "case": "20 years of software delivery experience in complex environments (government, healthcare, public sector)."
+      "ai": {
+        "title": "Applied artificial intelligence and automation",
+        "description": "Evaluate and integrate machine learning, generative AI, Azure AI services and automation into solutions addressing practical needs.",
+        "tags": ["Azure AI", "Generative AI", "RAG", "Agents", "Automation"],
+        "case": "PennySEO demonstrates the practical application of several of these skills in an operational web application."
       }
     },
     "tech": {
-      "title": "Technologies mastered",
+      "title": "Core technologies",
       "label": "TOOLKIT"
     },
     "counter": "5 areas",
     "intro_label": "Index",
     "cta": {
-      "title": "Curious or interested?",
-      "subtitle": "I'm open to a full-time role in applied AI or a consulting engagement. Reach out at christian.couillard@gmail.com or find me on LinkedIn.",
-      "button": "Get in touch"
+      "title": "Let’s discuss a professional opportunity",
+      "subtitle": "I am open to discussing roles and projects where my experience in analysis, development, data and artificial intelligence can make a practical contribution.",
+      "button": "Contact me"
     }
   },
   "about_page": {

@@ -263,55 +263,47 @@
   "services_page": {
     "seo": {
       "title": "Expertise — Christian Couillard",
-      "description": "Domaines d'expertise IA : applications fullstack, intégration LLM, prompt engineering, RAG/agents, conseil & architecture. Illustrés par des projets concrets."
+      "description": "Compétences professionnelles de Christian Couillard en analyse fonctionnelle, développement logiciel, données et intelligence artificielle appliquée."
     },
     "hero": {
       "overline": "EXPERTISE",
-      "title": "Mes domaines d'expertise",
-      "subtitle": "Voici les domaines où j'apporte le plus de valeur, illustrés par des projets concrets."
+      "title": "Compétences et expertise",
+      "subtitle": "Mon parcours me permet de relier l’analyse des besoins, le développement logiciel, les données et l’intelligence artificielle afin de contribuer à des solutions utiles, fiables et adaptées aux réalités des organisations."
     },
-    "case_label": "Projet phare :",
+    "items_title": "Domaines de contribution",
+    "case_label": "Exemple :",
     "items": {
-      "app": {
-        "title": "Applications IA fullstack",
-        "description": "Je conçois et développe des applications IA de bout en bout, du concept au produit déployé. Architecture serverless, pipelines multi-modèles, intégration LLM en production.",
-        "tags": ["SaaS", "Pipelines IA", "Architecture serverless", "Production"],
-        "case": "PennySEO — plateforme SaaS d'analyse SEO avec scoring IA et analyse d'images. Conçu et déployé en solo."
+      "analysis": {
+        "title": "Analyse fonctionnelle et conception de solutions",
+        "description": "Comprendre les besoins, analyser les processus et les règles d’affaires, produire une documentation claire et contribuer à la conception de solutions adaptées aux utilisateurs et aux organisations.",
+        "tags": ["Analyse des besoins", "Processus", "Spécifications", "Collaboration"]
       },
-      "integration": {
-        "title": "Intégration LLM & orchestration multi-modèles",
-        "description": "J'intègre des modèles IA (Claude, Gemini, OpenAI, Perplexity) dans des systèmes existants ou en pipelines orchestrés. API, webhooks, bases vectorielles, MCP, n8n.",
-        "tags": ["Multi-LLM", "MCP", "Pinecone", "n8n", "Webhooks"],
-        "case": "Intégration de modèles IA dans des systèmes existants et des pipelines orchestrés."
+      "development": {
+        "title": "Développement logiciel et intégration",
+        "description": "Concevoir, développer et faire évoluer des applications, des intégrations et des flux de données dans des environnements techniques variés.",
+        "tags": ["C#", "SQL", "Python", "React", "APIs"]
       },
-      "prompt": {
-        "title": "Prompt engineering & qualité IA",
-        "description": "Je calibre des prompts complexes, conçois des pipelines de scoring et systèmes d'évaluation pour garantir la qualité IA en production. Le détail qui fait la différence entre un POC et un produit fiable.",
-        "tags": ["Calibration", "Scoring", "Pipelines", "Évaluation"],
-        "case": "PennySEO — calibration sur 100+ exemples, scoring composite à 4 paliers, pipelines multi-prompts."
+      "data": {
+        "title": "Données et analytique",
+        "description": "Préparer, transformer et analyser les données afin de produire des informations utiles, soutenir la prise de décision et alimenter des solutions intelligentes.",
+        "tags": ["SQL", "Python", "Power BI", "Science des données"]
       },
-      "mvp": {
-        "title": "RAG, Agents & automatisation",
-        "description": "Je construis des systèmes RAG (retrieval-augmented generation), des agents autonomes et des automatisations de processus en production. Skills Claude custom, MCP, orchestration multi-outils.",
-        "tags": ["RAG", "Agents", "MCP", "Skills custom", "Automatisation"],
-        "case": "PennyAudit — système d'audit IA orchestré par 5-6 skills Claude custom (en construction)."
-      },
-      "audit": {
-        "title": "Conseil & architecture IA",
-        "description": "J'apporte une expertise d'architecture pour les organisations qui veulent passer du POC IA à la production. Choix de modèles, design de pipelines, estimation des coûts, gouvernance.",
-        "tags": ["Architecture", "Choix de modèles", "Coûts API", "Gouvernance"],
-        "case": "20 ans d'expérience en livraison logicielle dans des environnements complexes (gouvernement, santé, institutionnel)."
+      "ai": {
+        "title": "Intelligence artificielle appliquée et automatisation",
+        "description": "Évaluer et intégrer l’apprentissage automatique, l’IA générative, les services Azure AI et l’automatisation dans des solutions répondant à des besoins concrets.",
+        "tags": ["Azure AI", "IA générative", "RAG", "Agents", "Automatisation"],
+        "case": "PennySEO illustre l’application concrète de plusieurs de ces compétences dans une application Web opérationnelle."
       }
     },
     "tech": {
-      "title": "Technologies maîtrisées",
+      "title": "Technologies principales",
       "label": "TOOLKIT"
     },
     "counter": "5 domaines",
     "intro_label": "Sommaire",
     "cta": {
-      "title": "Curieux ou intéressé?",
-      "subtitle": "Je suis ouvert à un poste temps plein en IA appliquée ou à un mandat consultant. Écrivez-moi à christian.couillard@gmail.com ou trouvez-moi sur LinkedIn.",
+      "title": "Échangeons sur une occasion professionnelle",
+      "subtitle": "Je suis ouvert à discuter de rôles et de projets où mon expérience en analyse, développement, données et intelligence artificielle peut contribuer concrètement.",
       "button": "Me contacter"
     }
   },

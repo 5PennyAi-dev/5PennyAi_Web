@@ -1,29 +1,28 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Sparkles, Workflow, LineChart, Bot, Search } from 'lucide-react'
+import { FileText, Code2, BarChart3, Bot } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import ShaderBackground from '@/components/ui/ShaderBackground'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
 const services = [
-  { key: 'app', icon: Sparkles, tone: 'accent' },
-  { key: 'integration', icon: Workflow, tone: 'steel' },
-  { key: 'prompt', icon: LineChart, tone: 'accent' },
-  { key: 'mvp', icon: Bot, tone: 'steel' },
-  { key: 'audit', icon: Search, tone: 'accent' },
+  { key: 'analysis', icon: FileText, tone: 'steel' },
+  { key: 'development', icon: Code2, tone: 'accent' },
+  { key: 'data', icon: BarChart3, tone: 'steel' },
+  { key: 'ai', icon: Bot, tone: 'accent' },
 ]
 
 const technologies = [
-  'React / Vite',
-  'Supabase',
-  'Vercel',
-  'Gemini API',
-  'Claude API',
-  'OpenAI API',
-  'Node.js',
+  'C#',
   'Python',
-  'DataForSEO',
-  'Tailwind CSS',
+  'SQL',
+  'React',
+  'Node.js',
+  'Azure',
+  'Azure AI',
+  'Power BI',
+  'Supabase',
+  'REST APIs',
 ]
 
 export default function ServicesPage() {
@@ -72,10 +71,13 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Services list */}
+      {/* Areas of contribution */}
       <section ref={listRef} className="reveal py-20 md:py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="space-y-4 stagger-children">
+          <h2 className="font-heading font-bold text-navy text-[1.75rem] md:text-[2rem] text-center mb-10 tracking-tight">
+            {t('services_page.items_title')}
+          </h2>
+          <div className="grid md:grid-cols-2 gap-4 stagger-children">
             {services.map(({ key, icon: Icon, tone }) => {
               const tags = t(`services_page.items.${key}.tags`, { returnObjects: true }) || []
               const iconBg = tone === 'accent' ? 'bg-accent/12' : 'bg-steel/12'
@@ -110,10 +112,12 @@ export default function ServicesPage() {
                       ))}
                     </div>
 
-                    <p className="text-[14px] text-muted leading-relaxed">
-                      <span className="font-bold text-navy">{t('services_page.case_label')}</span>{' '}
-                      {t(`services_page.items.${key}.case`)}
-                    </p>
+                    {t(`services_page.items.${key}.case`, { defaultValue: '' }) && (
+                      <p className="text-[14px] text-muted leading-relaxed">
+                        <span className="font-bold text-navy">{t('services_page.case_label')}</span>{' '}
+                        {t(`services_page.items.${key}.case`)}
+                      </p>
+                    )}
                   </div>
                 </article>
               )
@@ -128,9 +132,9 @@ export default function ServicesPage() {
           <div className="bg-warm-gray rounded-3xl p-10 md:p-14 text-center border border-navy/[0.06] relative overflow-hidden">
             <div className="absolute inset-0 bg-dot-grid opacity-50 pointer-events-none" />
             <div className="relative">
-              <p className="text-navy/55 text-[11px] font-bold uppercase tracking-[0.18em] mb-7">
+              <h2 className="font-heading font-bold text-navy text-[1.75rem] md:text-[2rem] mb-7 tracking-tight">
                 {t('services_page.tech.title')}
-              </p>
+              </h2>
               <div className="flex flex-wrap justify-center gap-2">
                 {technologies.map((tech) => (
                   <span
