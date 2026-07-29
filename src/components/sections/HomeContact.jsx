@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { Mail } from 'lucide-react'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
@@ -77,6 +78,21 @@ export default function HomeContact() {
         <p className="text-white/65 text-base md:text-lg mb-12 max-w-xl mx-auto leading-relaxed">
           {t('home_contact.subtitle')}
         </p>
+
+        <div className="flex flex-col sm:flex-row justify-center gap-3 mb-10">
+          <Link
+            to={t('home_contact.cta_primary_link')}
+            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-heading font-semibold text-[14px] text-white hover:bg-accent/90 transition-colors duration-200"
+          >
+            {t('home_contact.cta_primary')}
+          </Link>
+          <Link
+            to={t('home_contact.cta_secondary_link')}
+            className="inline-flex items-center justify-center rounded-full border border-white/25 px-5 py-3 font-heading font-semibold text-[14px] text-white hover:border-white/50 hover:bg-white/[0.06] transition-colors duration-200"
+          >
+            {t('home_contact.cta_secondary')}
+          </Link>
+        </div>
 
         <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 max-w-2xl mx-auto">
           {links.map((link) => {
