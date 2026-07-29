@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation, Trans } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { Code2, FileText, BarChart3, MapPin, Mail, ShieldCheck, BrainCircuit, BarChart2, Award } from 'lucide-react'
+import { Code2, FileText, BarChart3, Bot, MapPin, Mail, ShieldCheck, BrainCircuit, BarChart2, Award } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import SectionHeader from '@/components/ui/SectionHeader'
 import ShaderBackground from '@/components/ui/ShaderBackground'
@@ -11,7 +11,7 @@ const expertiseItems = [
   { key: 'analysis', icon: FileText, tone: 'steel' },
   { key: 'development', icon: Code2, tone: 'accent' },
   { key: 'data', icon: BarChart3, tone: 'steel' },
-  { key: 'ai', icon: BrainCircuit, tone: 'accent' },
+  { key: 'ai', icon: Bot, tone: 'accent' },
 ]
 
 function certVendorIcon(vendor) {
@@ -42,7 +42,8 @@ export default function AboutPage() {
   const ctaRef = useScrollReveal()
 
   const timelineItems = t('about_page.timeline.items', { returnObjects: true }) || []
-  const expertise = t('about_page.expertise.items', { returnObjects: true }) || {}
+  const expertise = t('services_page.items', { returnObjects: true }) || {}
+  const technologies = t('services_page.tech.items', { returnObjects: true }) || []
   const education = t('about_page.credentials.education', { returnObjects: true }) || []
   const certifications = t('about_page.credentials.certifications', { returnObjects: true }) || []
 
@@ -151,13 +152,12 @@ export default function AboutPage() {
       </section>
 
       {/* Expertise */}
-      <section ref={expertiseRef} className="reveal py-16 md:py-32 bg-warm-gray relative overflow-hidden">
+      <section id="expertise" ref={expertiseRef} className="reveal py-16 md:py-32 bg-warm-gray relative overflow-hidden">
         <div className="absolute inset-0 bg-dot-grid opacity-40 pointer-events-none" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
           <SectionHeader
-            overline={t('about_page.expertise.overline')}
-            title={t('about_page.expertise.title')}
-            subtitle={t('about_page.expertise.introduction')}
+            overline={t('services_page.hero.overline')}
+            title={t('services_page.items_title')}
             className="text-center"
           />
 
@@ -184,7 +184,7 @@ export default function AboutPage() {
                       {item.description}
                     </p>
                     <div className="flex flex-wrap gap-1.5 mt-4">
-                      {(item.terms || []).map((term) => (
+                      {(item.tags || []).map((term) => (
                         <span
                           key={term}
                           className="bg-warm-gray border border-navy/10 text-navy/65 text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded-full"
@@ -193,10 +193,32 @@ export default function AboutPage() {
                         </span>
                       ))}
                     </div>
+                    {item.case && (
+                      <p className="text-[14px] text-muted leading-relaxed mt-4">
+                        <span className="font-bold text-navy">{t('services_page.case_label')}</span>{' '}
+                        {item.case}
+                      </p>
+                    )}
                   </div>
                 </article>
               )
             })}
+          </div>
+
+          <div className="max-w-4xl mx-auto mt-10 text-center">
+            <h3 className="font-heading font-bold text-navy text-[1.25rem] mb-5 tracking-tight">
+              {t('services_page.tech.title')}
+            </h3>
+            <div className="flex flex-wrap justify-center gap-2">
+              {technologies.map((technology) => (
+                <span
+                  key={technology}
+                  className="bg-white border border-navy/[0.08] rounded-full px-3 py-1.5 text-[12px] font-medium text-navy/75"
+                >
+                  {technology}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>

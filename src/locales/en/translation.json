@@ -2,7 +2,7 @@
   "nav": {
     "services": "Services",
     "expertise": "Expertise",
-    "about": "About",
+    "about": "Background",
     "portfolio": "Portfolio",
     "blog": "Blog",
     "faq": "FAQ",
@@ -297,7 +297,8 @@
     },
     "tech": {
       "title": "Core technologies",
-      "label": "TOOLKIT"
+      "label": "TOOLKIT",
+      "items": ["C#", "Python", "SQL", "React", "Node.js", "Azure", "Azure AI", "Power BI", "Supabase", "REST APIs"]
     },
     "counter": "5 areas",
     "intro_label": "Index",

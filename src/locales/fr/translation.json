@@ -2,7 +2,7 @@
   "nav": {
     "services": "Services",
     "expertise": "Expertise",
-    "about": "À propos",
+    "about": "Parcours",
     "portfolio": "Portfolio",
     "blog": "Blog",
     "faq": "FAQ",
@@ -297,7 +297,8 @@
     },
     "tech": {
       "title": "Technologies principales",
-      "label": "TOOLKIT"
+      "label": "TOOLKIT",
+      "items": ["C#", "Python", "SQL", "React", "Node.js", "Azure", "Azure AI", "Power BI", "Supabase", "APIs REST"]
     },
     "counter": "5 domaines",
     "intro_label": "Sommaire",

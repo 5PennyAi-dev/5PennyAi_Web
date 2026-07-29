@@ -5,7 +5,6 @@ import { Menu, X } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 
 const navLinks = [
-  { key: 'nav.expertise', to: '/expertise' },
   { key: 'nav.about', to: '/about' },
   { key: 'nav.portfolio', to: '/portfolio' },
   { key: 'nav.blog', to: '/blog' },

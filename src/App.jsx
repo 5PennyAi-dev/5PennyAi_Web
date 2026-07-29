@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Home from '@/pages/Home'
-import ServicesPage from '@/pages/ServicesPage'
 import AboutPage from '@/pages/AboutPage'
 import Contact from '@/pages/Contact'
 import Portfolio from '@/pages/Portfolio'
@@ -46,8 +45,8 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/expertise" element={<ServicesPage />} />
-          <Route path="/services" element={<Navigate to="/expertise" replace />} />
+          <Route path="/expertise" element={<Navigate to="/about" replace />} />
+          <Route path="/services" element={<Navigate to="/about" replace />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/portfolio" element={<PortfolioIndex />} />
