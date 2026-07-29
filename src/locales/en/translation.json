@@ -111,6 +111,24 @@
       }
     ]
   },
+  "pragmatic_approach": {
+    "title": "AI as a practical tool",
+    "introduction": "My interest in artificial intelligence is a continuation of my background in software development, analysis and data. I focus on how these technologies can be integrated usefully, realistically and responsibly into existing applications and processes.",
+    "items": [
+      {
+        "title": "Understand the need",
+        "description": "Start with the problem to solve rather than the technology to use."
+      },
+      {
+        "title": "Experiment in practice",
+        "description": "Build prototypes and working tools to validate both possibilities and limitations."
+      },
+      {
+        "title": "Integrate with judgment",
+        "description": "Combine AI with data, software development and reliable processes."
+      }
+    ]
+  },
   "case_study": {
     "overline": "CASE STUDY",
     "title": "PennySEO",

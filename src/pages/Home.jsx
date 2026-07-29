@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import Hero from '@/components/sections/Hero'
+import PragmaticApproach from '@/components/sections/PragmaticApproach'
 import Realisations from '@/components/sections/Realisations'
 import Tools from '@/components/sections/Tools'
 import LatestPosts from '@/components/sections/LatestPosts'
@@ -30,6 +31,7 @@ export default function Home() {
         <meta name="twitter:image:alt" content="Christian Couillard - AI Solutions Engineer" />
       </Helmet>
       <Hero />
+      <PragmaticApproach />
       <Realisations />
       <Tools />
       <LatestPosts />

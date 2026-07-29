@@ -111,6 +111,24 @@
       }
     ]
   },
+  "pragmatic_approach": {
+    "title": "L’IA comme outil concret",
+    "introduction": "Mon intérêt pour l’intelligence artificielle s’inscrit dans la continuité de mon parcours en développement logiciel, en analyse et en données. Je cherche à comprendre comment ces technologies peuvent être intégrées de manière utile, réaliste et responsable dans des applications et des processus existants.",
+    "items": [
+      {
+        "title": "Comprendre le besoin",
+        "description": "Partir du problème à résoudre plutôt que de la technologie à utiliser."
+      },
+      {
+        "title": "Expérimenter concrètement",
+        "description": "Construire des prototypes et des outils fonctionnels pour valider les possibilités et les limites."
+      },
+      {
+        "title": "Intégrer avec discernement",
+        "description": "Combiner l’IA avec les données, le développement logiciel et des processus fiables."
+      }
+    ]
+  },
   "case_study": {
     "overline": "RÉALISATION",
     "title": "PennySEO",
