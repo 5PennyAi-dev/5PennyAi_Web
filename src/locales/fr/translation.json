@@ -341,23 +341,28 @@
     },
     "expertise": {
       "overline": "EXPERTISE",
-      "title": "Ce que je maîtrise",
+      "title": "Domaines d’expertise",
+      "introduction": "Une combinaison de compétences fonctionnelles et techniques développées au fil de mon parcours, puis enrichies par une spécialisation en données et en intelligence artificielle.",
       "items": {
-        "fullstack": {
-          "title": "Développement AI fullstack",
-          "description": "Architecture complète d'applications AI : React, Node.js, Supabase, Vercel. Du frontend au pipeline AI en passant par les APIs serverless."
-        },
-        "integration": {
-          "title": "Intégration de modèles",
-          "description": "Gemini, Claude, OpenAI — je travaille avec les principales plateformes AI et je m'adapte rapidement aux environnements techniques de mes clients."
-        },
         "analysis": {
-          "title": "Analyse fonctionnelle",
-          "description": "20 ans à traduire des besoins d'affaires en solutions techniques. Je comprends votre métier avant de coder."
+          "title": "Analyse fonctionnelle et conception",
+          "description": "Compréhension des besoins, analyse des processus, documentation fonctionnelle et conception de solutions adaptées aux réalités des organisations.",
+          "terms": ["Besoins d’affaires", "Processus", "Spécifications", "Collaboration"]
+        },
+        "development": {
+          "title": "Développement logiciel",
+          "description": "Conception et développement d’applications, intégrations de systèmes et évolution de solutions dans des environnements techniques variés.",
+          "terms": ["C#", "SQL", "Python", "React", "APIs"]
         },
         "data": {
-          "title": "Sciences des données",
-          "description": "Formation universitaire en informatique, bioinformatique et sciences des données. Certifications Microsoft (AI-102, DP-100, PL-300) et Coursera (ML, IA générative)."
+          "title": "Données et analytique",
+          "description": "Traitement, transformation et analyse de données afin de produire des informations utiles et de soutenir la prise de décision.",
+          "terms": ["SQL", "Python", "Power BI", "Science des données"]
+        },
+        "ai": {
+          "title": "Intelligence artificielle appliquée",
+          "description": "Expérimentation et intégration de l’apprentissage automatique, de l’IA générative et des services Azure AI dans des solutions concrètes.",
+          "terms": ["Azure AI", "IA générative", "RAG", "Agents", "Automatisation"]
         }
       }
     },

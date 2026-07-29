@@ -341,23 +341,28 @@
     },
     "expertise": {
       "overline": "EXPERTISE",
-      "title": "What I master",
+      "title": "Areas of expertise",
+      "introduction": "A combination of functional and technical skills developed throughout my career and strengthened by a specialization in data and artificial intelligence.",
       "items": {
-        "fullstack": {
-          "title": "Fullstack AI development",
-          "description": "Complete architecture of AI applications: React, Node.js, Supabase, Vercel. From frontend to AI pipeline through serverless APIs."
-        },
-        "integration": {
-          "title": "Model integration",
-          "description": "Gemini, Claude, OpenAI — I work with the main AI platforms and adapt quickly to my clients' technical environments."
-        },
         "analysis": {
-          "title": "Functional analysis",
-          "description": "20 years translating business needs into technical solutions. I understand your business before I code."
+          "title": "Functional analysis and solution design",
+          "description": "Understanding needs, analyzing processes, producing functional documentation and designing solutions suited to organizational realities.",
+          "terms": ["Business needs", "Processes", "Specifications", "Collaboration"]
+        },
+        "development": {
+          "title": "Software development",
+          "description": "Designing and developing applications, integrating systems and evolving solutions across varied technical environments.",
+          "terms": ["C#", "SQL", "Python", "React", "APIs"]
         },
         "data": {
-          "title": "Data science",
-          "description": "University training in computer science, bioinformatics and data science. Microsoft (AI-102, DP-100, PL-300) and Coursera (ML, generative AI) certifications."
+          "title": "Data and analytics",
+          "description": "Processing, transforming and analyzing data to produce useful information and support decision-making.",
+          "terms": ["SQL", "Python", "Power BI", "Data science"]
+        },
+        "ai": {
+          "title": "Applied artificial intelligence",
+          "description": "Experimenting with and integrating machine learning, generative AI and Azure AI services into practical solutions.",
+          "terms": ["Azure AI", "Generative AI", "RAG", "Agents", "Automation"]
         }
       }
     },

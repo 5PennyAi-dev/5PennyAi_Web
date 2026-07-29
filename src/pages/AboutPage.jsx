@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation, Trans } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { Code2, Plug, FileText, BarChart3, MapPin, Mail, ShieldCheck, BrainCircuit, BarChart2, Award } from 'lucide-react'
+import { Code2, FileText, BarChart3, MapPin, Mail, ShieldCheck, BrainCircuit, BarChart2, Award } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import SectionHeader from '@/components/ui/SectionHeader'
 import ShaderBackground from '@/components/ui/ShaderBackground'
 import useScrollReveal from '@/hooks/useScrollReveal'
 
 const expertiseItems = [
-  { key: 'fullstack', icon: Code2, tone: 'accent' },
-  { key: 'integration', icon: Plug, tone: 'steel' },
   { key: 'analysis', icon: FileText, tone: 'steel' },
-  { key: 'data', icon: BarChart3, tone: 'accent' },
+  { key: 'development', icon: Code2, tone: 'accent' },
+  { key: 'data', icon: BarChart3, tone: 'steel' },
+  { key: 'ai', icon: BrainCircuit, tone: 'accent' },
 ]
 
 function certVendorIcon(vendor) {
@@ -42,6 +42,7 @@ export default function AboutPage() {
   const ctaRef = useScrollReveal()
 
   const timelineItems = t('about_page.timeline.items', { returnObjects: true }) || []
+  const expertise = t('about_page.expertise.items', { returnObjects: true }) || {}
   const education = t('about_page.credentials.education', { returnObjects: true }) || []
   const certifications = t('about_page.credentials.certifications', { returnObjects: true }) || []
 
@@ -156,11 +157,13 @@ export default function AboutPage() {
           <SectionHeader
             overline={t('about_page.expertise.overline')}
             title={t('about_page.expertise.title')}
+            subtitle={t('about_page.expertise.introduction')}
             className="text-center"
           />
 
           <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto stagger-children">
             {expertiseItems.map(({ key, icon: Icon, tone }) => {
+              const item = expertise[key] || {}
               const iconBg = tone === 'accent' ? 'bg-accent/12' : 'bg-steel/12'
               const iconColor = tone === 'accent' ? 'text-accent' : 'text-steel'
               return (
@@ -175,11 +178,21 @@ export default function AboutPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-heading font-bold text-navy text-[16px] mb-2 tracking-tight">
-                      {t(`about_page.expertise.items.${key}.title`)}
+                      {item.title}
                     </h3>
                     <p className="text-muted text-[14px] leading-relaxed">
-                      {t(`about_page.expertise.items.${key}.description`)}
+                      {item.description}
                     </p>
+                    <div className="flex flex-wrap gap-1.5 mt-4">
+                      {(item.terms || []).map((term) => (
+                        <span
+                          key={term}
+                          className="bg-warm-gray border border-navy/10 text-navy/65 text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded-full"
+                        >
+                          {term}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </article>
               )
