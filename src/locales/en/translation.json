@@ -750,7 +750,7 @@
   "admin": {
     "login": {
       "title": "Admin login",
-      "subtitle": "Access restricted to blog administrators.",
+      "subtitle": "Access restricted to the 5PennyAi administration.",
       "email": "Email",
       "password": "Password",
       "submit": "Sign in",
@@ -767,6 +767,51 @@
     "nav": {
       "logout": "Sign out",
       "back": "Back to list"
+    },
+    "resourcesAi": {
+      "brand": "5PennyAi Administration",
+      "navigationLabel": "Administration navigation",
+      "group": "AI Resources",
+      "infographics": {
+        "navLabel": "Infographics",
+        "title": "Infographics",
+        "subtitle": "Manage the educational infographics intended for the AI Resources section.",
+        "add": "Add an infographic",
+        "addUnavailable": "Creation will be available in a future increment.",
+        "emptyTitle": "No infographics",
+        "emptyDescription": "No infographics exist yet. They will appear here once they have been added.",
+        "untitled": "Untitled infographic",
+        "episode": "Episode {{number}}",
+        "thumbnailAlt": "{{title}} thumbnail",
+        "updatedLabel": "Updated:",
+        "edit": "Edit",
+        "actionsUnavailable": "Adding and editing will be available in the next increment.",
+        "loading": "Loading infographics…",
+        "errorTitle": "Unable to load infographics",
+        "errorDescription": "An error occurred. Check your connection and try again.",
+        "retry": "Try again",
+        "filteredEmptyTitle": "No infographics in this filter",
+        "filteredEmptyDescription": "The other infographics remain available in the All view.",
+        "showAll": "View all infographics",
+        "filters": {
+          "label": "Filter infographics",
+          "all": "All",
+          "draft": "Drafts",
+          "published": "Published"
+        },
+        "columns": {
+          "infographic": "Infographic",
+          "title": "Title",
+          "theme": "Theme",
+          "status": "Status",
+          "updated": "Updated",
+          "actions": "Actions"
+        },
+        "status": {
+          "draft": "Draft",
+          "published": "Published"
+        }
+      }
     },
     "posts": {
       "title": "Blog posts",

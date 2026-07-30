@@ -750,7 +750,7 @@
   "admin": {
     "login": {
       "title": "Connexion admin",
-      "subtitle": "Accès réservé à l'administration du blog.",
+      "subtitle": "Accès réservé à l'administration 5PennyAi.",
       "email": "Courriel",
       "password": "Mot de passe",
       "submit": "Se connecter",
@@ -767,6 +767,51 @@
     "nav": {
       "logout": "Déconnexion",
       "back": "Retour à la liste"
+    },
+    "resourcesAi": {
+      "brand": "Administration 5PennyAi",
+      "navigationLabel": "Navigation de l'administration",
+      "group": "Ressources IA",
+      "infographics": {
+        "navLabel": "Infographies",
+        "title": "Infographies",
+        "subtitle": "Gérez les infographies pédagogiques destinées à la section Ressources IA.",
+        "add": "Ajouter une infographie",
+        "addUnavailable": "La création sera disponible dans un prochain incrément.",
+        "emptyTitle": "Aucune infographie",
+        "emptyDescription": "Aucune infographie n'existe encore. Elles apparaîtront ici lorsqu'elles auront été ajoutées.",
+        "untitled": "Infographie sans titre",
+        "episode": "Épisode {{number}}",
+        "thumbnailAlt": "Miniature de {{title}}",
+        "updatedLabel": "Mise à jour :",
+        "edit": "Modifier",
+        "actionsUnavailable": "L'ajout et la modification seront disponibles au prochain incrément.",
+        "loading": "Chargement des infographies…",
+        "errorTitle": "Impossible de charger les infographies",
+        "errorDescription": "Une erreur est survenue. Vérifiez votre connexion et réessayez.",
+        "retry": "Réessayer",
+        "filteredEmptyTitle": "Aucune infographie dans ce filtre",
+        "filteredEmptyDescription": "Les autres infographies restent disponibles dans la vue Toutes.",
+        "showAll": "Voir toutes les infographies",
+        "filters": {
+          "label": "Filtrer les infographies",
+          "all": "Toutes",
+          "draft": "Brouillons",
+          "published": "Publiées"
+        },
+        "columns": {
+          "infographic": "Infographie",
+          "title": "Titre",
+          "theme": "Thème",
+          "status": "Statut",
+          "updated": "Mise à jour",
+          "actions": "Actions"
+        },
+        "status": {
+          "draft": "Brouillon",
+          "published": "Publiée"
+        }
+      }
     },
     "posts": {
       "title": "Articles du blog",

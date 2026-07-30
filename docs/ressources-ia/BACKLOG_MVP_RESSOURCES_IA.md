@@ -159,9 +159,9 @@ Utiliser seulement les états suivants :
 
 | Incrément | Résultat fonctionnel | État | Commit |
 |---|---|---|---|
-| 0 | Inspection technique du dépôt | À faire | — |
-| 1 | Accès administrateur et stockage minimal | À faire | — |
-| 2 | Liste administrative des infographies | À faire | — |
+| 0 | Inspection technique du dépôt | Accepté | — (aucun commit de code) |
+| 1 | Accès administrateur et stockage minimal | Accepté | — |
+| 2 | Liste administrative des infographies | Accepté | — |
 | 3 | Formulaire manuel et cycle de publication | À faire | — |
 | 4 | Import JSON permissif | À faire | — |
 | 5 | Section publique Ressources IA | À faire | — |
@@ -990,6 +990,33 @@ Validation :
 Limite connue :
 Prochaine étape :
 ```
+
+### 2026-07-30 — Incrément 0
+
+État : Accepté
+Commit : aucun commit de code
+Résultat : dépôt inspecté, architecture et contraintes documentées
+Validation : état Git identique avant et après l’inspection
+Limite connue : état Supabase distant à vérifier manuellement
+Prochaine étape : Incrément 1 — Accès administrateur et stockage minimal
+
+### 2026-07-30 — Incrément 1
+
+État : Accepté
+Commit : —
+Résultat : route protégée et stockage Supabase minimal opérationnels
+Validation : route, authentification, table et bucket vérifiés par Christian
+Limite connue : aucune pour le périmètre accepté
+Prochaine étape : Incrément 2 — Liste administrative des infographies
+
+### 2026-07-30 — Incrément 2
+
+État : Accepté
+Commit : —
+Résultat : liste Supabase, filtres, tableau bureau, cartes mobiles et états d’interface fonctionnels
+Validation : build, lint ciblé, traductions JSON, `git diff --check` et vérification manuelle authentifiée
+Limite connue : Ajouter et Modifier restent reportés à l’incrément 3
+Prochaine étape : Incrément 3 — Formulaire manuel et cycle de publication
 
 ---
 
