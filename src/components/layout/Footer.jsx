@@ -87,7 +87,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-3">
               {[
-                { icon: <LinkedinIcon />, href: 'https://www.linkedin.com/in/christian-couillard-86705146/', label: 'LinkedIn' },
+                { icon: <LinkedinIcon />, href: t('home_contact.linkedin_url'), label: 'LinkedIn' },
                 { icon: <FacebookIcon />, href: 'https://www.facebook.com/profile.php?id=61576445489064', label: 'Facebook' },
                 { icon: <Mail size={18} aria-hidden="true" />, href: 'mailto:christian.couillard@gmail.com', label: 'Email' },
               ].map((social) => (
