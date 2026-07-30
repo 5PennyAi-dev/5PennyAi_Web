@@ -5,6 +5,7 @@
     "about": "Profile",
     "portfolio": "Portfolio",
     "blog": "Blog",
+    "resourcesAi": "AI Resources",
     "faq": "FAQ",
     "contact": "Contact",
     "cta": "Book a call",
@@ -747,6 +748,51 @@
     "cheatsheet": "Cheat sheet",
     "infographic": "Infographic"
   },
+  "resourcesAi": {
+    "seo": {
+      "listTitle": "AI Resources | 5PennyAi",
+      "listDescription": "Educational infographics for understanding artificial intelligence and its uses.",
+      "detailTitle": "{{title}} | AI Resources",
+      "unavailableTitle": "Infographic unavailable | AI Resources"
+    },
+    "eyebrow": "Learning library",
+    "title": "AI Resources",
+    "subtitle": "Clear, practical infographics to help you understand artificial intelligence.",
+    "type": "Infographic",
+    "typeWithTheme": "Infographic · {{theme}}",
+    "episode": "Episode {{number}}",
+    "readingTime": "{{count}} min",
+    "view": "View infographic",
+    "imageAlt": "Educational infographic",
+    "imageUnavailable": "Image unavailable",
+    "loading": "Loading infographics…",
+    "errorTitle": "Unable to load resources",
+    "errorDescription": "An error occurred. Check your connection and try again.",
+    "retry": "Try again",
+    "emptyTitle": "Resources are coming soon",
+    "emptyDescription": "New educational infographics will be published shortly.",
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "detail": {
+      "breadcrumbLabel": "Breadcrumb",
+      "imageSection": "Infographic image",
+      "enlarge": "Enlarge",
+      "close": "Close",
+      "keyPoints": "Key points",
+      "takeaway": "Takeaway",
+      "sources": "Sources",
+      "back": "Back to AI Resources",
+      "loading": "Loading infographic…",
+      "unavailableSeoTitle": "Infographic unavailable | AI Resources",
+      "unavailableTitle": "Infographic unavailable",
+      "unavailableDescription": "This resource does not exist or is no longer available.",
+      "errorTitle": "Unable to load infographic",
+      "errorDescription": "An error occurred. Return to AI Resources and try again."
+    }
+  },
   "admin": {
     "login": {
       "title": "Admin login",
@@ -784,6 +830,7 @@
         "thumbnailAlt": "{{title}} thumbnail",
         "updatedLabel": "Updated:",
         "edit": "Edit",
+        "view": "View",
         "loading": "Loading infographics…",
         "errorTitle": "Unable to load infographics",
         "errorDescription": "An error occurred. Check your connection and try again.",
@@ -928,6 +975,7 @@
           "saveChanges": "Save changes",
           "publish": "Publish",
           "unpublish": "Move back to draft",
+          "view": "View public page",
           "saving": "Saving…",
           "uploading": "Uploading…"
         },

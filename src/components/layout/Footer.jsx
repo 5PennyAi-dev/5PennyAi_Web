@@ -26,6 +26,7 @@ const footerLinks = [
   { key: 'nav.about', to: '/about' },
   { key: 'nav.portfolio', to: '/portfolio' },
   { key: 'nav.blog', to: '/blog' },
+  { key: 'nav.resourcesAi', to: '/ressources-ia' },
   { key: 'nav.contact', to: '/contact' },
 ]
 
@@ -111,7 +112,7 @@ export default function Footer() {
             {t('footer.copyright')}
           </p>
           <Link
-            to="/admin/blog"
+            to="/admin/ressources-ia/infographies"
             className="text-white/25 hover:text-white/60 text-[11px] uppercase tracking-[0.14em] font-bold transition-colors"
           >
             {t('footer.admin')}

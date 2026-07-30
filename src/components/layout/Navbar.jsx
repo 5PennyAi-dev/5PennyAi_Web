@@ -8,6 +8,7 @@ const navLinks = [
   { key: 'nav.about', to: '/about' },
   { key: 'nav.portfolio', to: '/portfolio' },
   { key: 'nav.blog', to: '/blog' },
+  { key: 'nav.resourcesAi', to: '/ressources-ia' },
   { key: 'nav.contact', to: '/contact' },
 ]
 
@@ -36,6 +37,7 @@ export default function Navbar() {
     if (!link.to) return false
     if (pathname === link.to) return true
     if (link.to === '/blog' && pathname.startsWith('/blog/')) return true
+    if (link.to === '/ressources-ia' && pathname.startsWith('/ressources-ia/')) return true
     return false
   }
 
@@ -116,7 +118,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {import.meta.env.DEV && (
             <Link
-              to="/admin/blog"
+              to="/admin/ressources-ia/infographies"
               className={`text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 ${
                 scrolled
                   ? 'text-navy/40 hover:text-navy/75'
@@ -156,7 +158,7 @@ export default function Navbar() {
             <div className="flex flex-wrap items-center gap-3 pt-4 mt-3 border-t border-navy/5">
               {import.meta.env.DEV && (
                 <Link
-                  to="/admin/blog"
+                  to="/admin/ressources-ia/infographies"
                   onClick={() => setMobileOpen(false)}
                   className="text-[11px] font-bold uppercase tracking-[0.14em] text-navy/40 hover:text-navy/75 transition-colors"
                 >

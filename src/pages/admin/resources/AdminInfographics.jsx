@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Image as ImageIcon, Images, Pencil, Plus, RotateCw } from 'lucide-react'
+import { Eye, Image as ImageIcon, Images, Pencil, Plus, RotateCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
@@ -197,7 +197,7 @@ function InfographicList({ infographics, locale, t }) {
   return (
     <>
       <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:block">
-        <div className="grid grid-cols-[76px_minmax(180px,1.5fr)_minmax(100px,0.8fr)_110px_130px_94px] items-center gap-4 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
+        <div className="grid grid-cols-[76px_minmax(180px,1.5fr)_minmax(100px,0.8fr)_110px_130px_170px] items-center gap-4 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
           <span>{t('admin.resourcesAi.infographics.columns.infographic')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.title')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.theme')}</span>
@@ -210,7 +210,7 @@ function InfographicList({ infographics, locale, t }) {
           {infographics.map((infographic) => (
             <li
               key={infographic.id}
-              className="grid grid-cols-[76px_minmax(180px,1.5fr)_minmax(100px,0.8fr)_110px_130px_94px] items-center gap-4 px-5 py-4"
+              className="grid grid-cols-[76px_minmax(180px,1.5fr)_minmax(100px,0.8fr)_110px_130px_170px] items-center gap-4 px-5 py-4"
             >
               <InfographicThumbnail infographic={infographic} t={t} />
               <InfographicIdentity infographic={infographic} t={t} />
@@ -223,7 +223,7 @@ function InfographicList({ infographics, locale, t }) {
                 {formatDate(infographic.updated_at, locale)}
               </time>
               <div className="text-right">
-                <EditButton id={infographic.id} t={t} />
+                <AdminActions infographic={infographic} t={t} />
               </div>
             </li>
           ))}
@@ -257,7 +257,7 @@ function InfographicList({ infographics, locale, t }) {
                   {formatDate(infographic.updated_at, locale)}
                 </time>
               </p>
-              <EditButton id={infographic.id} t={t} />
+              <AdminActions infographic={infographic} t={t} />
             </div>
           </li>
         ))}
@@ -319,15 +319,26 @@ function StatusBadge({ status, t }) {
   )
 }
 
-function EditButton({ id, t }) {
+function AdminActions({ infographic, t }) {
   return (
-    <Link
-      to={`${INFOGRAPHICS_PATH}/${id}/modifier`}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-accent hover:text-accent-deep"
-    >
-      <Pencil size={13} strokeWidth={1.8} aria-hidden="true" />
-      {t('admin.resourcesAi.infographics.edit')}
-    </Link>
+    <div className="flex flex-wrap justify-end gap-2">
+      {infographic.status === 'published' && (
+        <Link
+          to={`/ressources-ia/infographies/${infographic.id}`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-accent hover:text-accent-deep"
+        >
+          <Eye size={13} strokeWidth={1.8} aria-hidden="true" />
+          {t('admin.resourcesAi.infographics.view')}
+        </Link>
+      )}
+      <Link
+        to={`${INFOGRAPHICS_PATH}/${infographic.id}/modifier`}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-accent hover:text-accent-deep"
+      >
+        <Pencil size={13} strokeWidth={1.8} aria-hidden="true" />
+        {t('admin.resourcesAi.infographics.edit')}
+      </Link>
+    </div>
   )
 }
 

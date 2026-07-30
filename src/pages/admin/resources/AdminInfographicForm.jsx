@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ArrowUp,
   CheckCircle2,
+  Eye,
   Image as ImageIcon,
   LoaderCircle,
   Plus,
@@ -628,6 +629,7 @@ function AdminInfographicFormPage() {
                 isEditing={isEditing}
                 onCancel={handleCancel}
                 onSave={handleSave}
+                resourceId={resourceId}
                 savePhase={savePhase}
                 saving={saving}
                 status={status}
@@ -1043,7 +1045,16 @@ function ImagePreview({ className = '', metadata, previewUrl, t, title }) {
   )
 }
 
-function ActionBar({ isEditing, onCancel, onSave, savePhase, saving, status, t }) {
+function ActionBar({
+  isEditing,
+  onCancel,
+  onSave,
+  resourceId,
+  savePhase,
+  saving,
+  status,
+  t,
+}) {
   const saveLabel = !isEditing
     ? t('admin.resourcesAi.infographicForm.actions.saveDraft')
     : t('admin.resourcesAi.infographicForm.actions.saveChanges')
@@ -1059,6 +1070,15 @@ function ActionBar({ isEditing, onCancel, onSave, savePhase, saving, status, t }
         <p>{t('admin.resourcesAi.infographicForm.incompleteWarning')}</p>
       </div>
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
+        {status === 'published' && resourceId && (
+          <Link
+            to={`/ressources-ia/infographies/${resourceId}`}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-navy/15 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent hover:text-accent-deep"
+          >
+            <Eye size={15} aria-hidden="true" />
+            {t('admin.resourcesAi.infographicForm.actions.view')}
+          </Link>
+        )}
         <button
           type="button"
           disabled={saving}

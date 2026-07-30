@@ -5,6 +5,7 @@
     "about": "Profil",
     "portfolio": "Portfolio",
     "blog": "Blog",
+    "resourcesAi": "Ressources IA",
     "faq": "FAQ",
     "contact": "Contact",
     "cta": "Réserver un appel",
@@ -747,6 +748,51 @@
     "cheatsheet": "Cheat sheet",
     "infographic": "Infographie"
   },
+  "resourcesAi": {
+    "seo": {
+      "listTitle": "Ressources IA | 5PennyAi",
+      "listDescription": "Des infographies pédagogiques pour comprendre l'intelligence artificielle et ses usages.",
+      "detailTitle": "{{title}} | Ressources IA",
+      "unavailableTitle": "Infographie non disponible | Ressources IA"
+    },
+    "eyebrow": "Bibliothèque pédagogique",
+    "title": "Ressources IA",
+    "subtitle": "Des infographies claires et pratiques pour mieux comprendre l'intelligence artificielle.",
+    "type": "Infographie",
+    "typeWithTheme": "Infographie · {{theme}}",
+    "episode": "Épisode {{number}}",
+    "readingTime": "{{count}} min",
+    "view": "Voir l'infographie",
+    "imageAlt": "Infographie pédagogique",
+    "imageUnavailable": "Image non disponible",
+    "loading": "Chargement des infographies…",
+    "errorTitle": "Impossible de charger les ressources",
+    "errorDescription": "Une erreur est survenue. Vérifiez votre connexion et réessayez.",
+    "retry": "Réessayer",
+    "emptyTitle": "Les ressources arrivent bientôt",
+    "emptyDescription": "De nouvelles infographies pédagogiques seront publiées prochainement.",
+    "levels": {
+      "beginner": "Débutant",
+      "intermediate": "Intermédiaire",
+      "advanced": "Avancé"
+    },
+    "detail": {
+      "breadcrumbLabel": "Fil d'Ariane",
+      "imageSection": "Image de l'infographie",
+      "enlarge": "Agrandir",
+      "close": "Fermer",
+      "keyPoints": "Points essentiels",
+      "takeaway": "À retenir",
+      "sources": "Sources",
+      "back": "Retour aux Ressources IA",
+      "loading": "Chargement de l'infographie…",
+      "unavailableSeoTitle": "Infographie non disponible | Ressources IA",
+      "unavailableTitle": "Infographie non disponible",
+      "unavailableDescription": "Cette ressource n'existe pas ou n'est plus disponible.",
+      "errorTitle": "Impossible de charger l'infographie",
+      "errorDescription": "Une erreur est survenue. Revenez aux Ressources IA et réessayez."
+    }
+  },
   "admin": {
     "login": {
       "title": "Connexion admin",
@@ -784,6 +830,7 @@
         "thumbnailAlt": "Miniature de {{title}}",
         "updatedLabel": "Mise à jour :",
         "edit": "Modifier",
+        "view": "Voir",
         "loading": "Chargement des infographies…",
         "errorTitle": "Impossible de charger les infographies",
         "errorDescription": "Une erreur est survenue. Vérifiez votre connexion et réessayez.",
@@ -928,6 +975,7 @@
           "saveChanges": "Enregistrer les modifications",
           "publish": "Publier",
           "unpublish": "Repasser en brouillon",
+          "view": "Voir la page publique",
           "saving": "Enregistrement…",
           "uploading": "Téléversement…"
         },
