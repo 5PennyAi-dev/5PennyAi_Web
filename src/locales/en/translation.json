@@ -820,6 +820,7 @@
         "incompleteWarning": "Some information may be missing. The corresponding sections will not be displayed on the site.",
         "sections": {
           "image": "Infographic image",
+          "jsonImport": "JSON metadata",
           "general": "General information",
           "classification": "Classification",
           "series": "Series",
@@ -875,6 +876,46 @@
           "type": "Type",
           "size": "Size",
           "dimensions": "Dimensions"
+        },
+        "jsonImport": {
+          "help": "Select a JSON file or paste its contents. The analysis only prefills usable metadata and never changes the image.",
+          "fileLabel": "JSON file",
+          "noFile": "No file selected",
+          "chooseFile": "Choose a .json file",
+          "readingFile": "Reading file…",
+          "pasteLabel": "JSON content",
+          "placeholder": "Paste the JSON produced by the GPT here.",
+          "analyze": "Analyze and prefill the form",
+          "replaceConfirm": "The form already contains metadata. Replace only the valid fields included in this JSON? Other values and the image will remain unchanged.",
+          "result": {
+            "success": "Analysis succeeded and the usable metadata was applied.",
+            "empty": "Analysis succeeded, but no usable metadata was found.",
+            "cancelled": "Analysis succeeded, but prefilling was cancelled. The form is unchanged.",
+            "failure": "Analysis failed. The form is unchanged.",
+            "importedFields": "Imported fields",
+            "detectedFields": "Usable fields detected",
+            "warnings": "Warnings",
+            "unknown": "Unknown properties ignored",
+            "notSaved": "Nothing has been saved or published yet.",
+            "unchanged": "No value, image, save, or publication was changed."
+          },
+          "errors": {
+            "invalidJson": "The content is not syntactically valid JSON.",
+            "invalidRoot": "The JSON content must be an object, not null, an array, or another value.",
+            "invalidFileType": "Choose a file whose name ends in .json.",
+            "fileReadError": "Unable to read this JSON file. You can paste its contents directly."
+          },
+          "warnings": {
+            "unsupportedSchemaVersion": "version is outside v1 support; other recognized properties were still analyzed",
+            "expectedString": "expected a string; value ignored",
+            "invalidLevel": "expected beginner, intermediate, or advanced; value ignored",
+            "expectedPositiveInteger": "expected a positive integer; value ignored",
+            "expectedObject": "expected an object; value ignored",
+            "expectedArray": "expected an array; value ignored",
+            "emptyString": "empty string ignored",
+            "invalidUrl": "expected a valid HTTP or HTTPS URL; URL ignored",
+            "unusableItem": "item ignored because it contains no usable content"
+          }
         },
         "preview": {
           "title": "Image preview",

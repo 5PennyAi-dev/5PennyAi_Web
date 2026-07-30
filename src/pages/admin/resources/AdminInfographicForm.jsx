@@ -14,11 +14,31 @@ import {
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
+import {
+  hasInfographicMetadata,
+  importInfographicJson,
+} from '@/lib/infographicJsonImport'
 import { supabase } from '@/lib/supabase'
 
 const LIST_PATH = '/admin/ressources-ia/infographies'
 const BUCKET = 'infographics'
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp']
+const IMPORT_FIELD_TRANSLATION_KEYS = {
+  title: 'fields.title',
+  subtitle: 'fields.subtitle',
+  summary: 'fields.summary',
+  introduction: 'fields.introduction',
+  imageAlt: 'fields.imageAlt',
+  theme: 'fields.theme',
+  level: 'fields.level',
+  readingTimeMinutes: 'fields.readingTime',
+  'series.name': 'fields.seriesName',
+  'series.episodeNumber': 'fields.episodeNumber',
+  keyPoints: 'sections.keyPoints',
+  takeaway: 'sections.takeaway',
+  keywords: 'sections.keywords',
+  sources: 'sections.sources',
+}
 const EDIT_COLUMNS =
   'id, status, published_at, image_path, image_metadata, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, keywords, sources'
 
@@ -65,6 +85,10 @@ function AdminInfographicFormPage() {
   const [savePhase, setSavePhase] = useState(null)
   const [dirty, setDirty] = useState(false)
   const [notice, setNotice] = useState(null)
+  const [jsonInput, setJsonInput] = useState('')
+  const [jsonFileName, setJsonFileName] = useState('')
+  const [jsonReport, setJsonReport] = useState(null)
+  const [readingJsonFile, setReadingJsonFile] = useState(false)
   const localCreationRef = useRef(null)
   const restoringHistoryRef = useRef(false)
 
@@ -197,6 +221,52 @@ function AdminInfographicFormPage() {
     setRemoveImage(Boolean(imagePath))
     setDirty(true)
     setNotice(null)
+  }
+
+  const handleJsonFileSelection = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    if (!file.name.toLowerCase().endsWith('.json')) {
+      setJsonFileName('')
+      setJsonReport({ success: false, error: 'invalidFileType' })
+      return
+    }
+
+    setReadingJsonFile(true)
+    setJsonReport(null)
+    try {
+      setJsonInput(await file.text())
+      setJsonFileName(file.name)
+    } catch {
+      setJsonFileName('')
+      setJsonReport({ success: false, error: 'fileReadError' })
+    } finally {
+      setReadingJsonFile(false)
+    }
+  }
+
+  const handleJsonImport = () => {
+    const result = importInfographicJson(jsonInput, form)
+
+    if (!result.success || result.imported.length === 0) {
+      setJsonReport(result)
+      return
+    }
+
+    if (
+      hasInfographicMetadata(form) &&
+      !window.confirm(t('admin.resourcesAi.infographicForm.jsonImport.replaceConfirm'))
+    ) {
+      setJsonReport({ ...result, cancelled: true, applied: false })
+      return
+    }
+
+    setForm(result.nextForm)
+    setDirty(true)
+    setNotice(null)
+    setJsonReport({ ...result, applied: true })
   }
 
   const handleCancel = () => {
@@ -389,6 +459,26 @@ function AdminInfographicFormPage() {
 
             <FormSection
               number="2"
+              title={t('admin.resourcesAi.infographicForm.sections.jsonImport')}
+            >
+              <JsonImportSection
+                fileName={jsonFileName}
+                input={jsonInput}
+                onFileChange={handleJsonFileSelection}
+                onInputChange={(value) => {
+                  setJsonInput(value)
+                  setJsonFileName('')
+                  setJsonReport(null)
+                }}
+                onImport={handleJsonImport}
+                readingFile={readingJsonFile}
+                report={jsonReport}
+                t={t}
+              />
+            </FormSection>
+
+            <FormSection
+              number="3"
               title={t('admin.resourcesAi.infographicForm.sections.general')}
             >
               <div className="grid gap-4">
@@ -425,7 +515,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <FormSection
-              number="3"
+              number="4"
               title={t('admin.resourcesAi.infographicForm.sections.classification')}
             >
               <div className="grid gap-4 sm:grid-cols-2">
@@ -457,7 +547,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <FormSection
-              number="4"
+              number="5"
               title={t('admin.resourcesAi.infographicForm.sections.series')}
             >
               <div className="grid gap-4 sm:grid-cols-2">
@@ -478,7 +568,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <RepeatableSection
-              number="5"
+              number="6"
               title={t('admin.resourcesAi.infographicForm.sections.keyPoints')}
               items={form.key_points}
               emptyItem={{ title: '', description: '' }}
@@ -492,7 +582,7 @@ function AdminInfographicFormPage() {
             />
 
             <FormSection
-              number="6"
+              number="7"
               title={t('admin.resourcesAi.infographicForm.sections.takeaway')}
             >
               <Field
@@ -505,7 +595,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <RepeatableSection
-              number="7"
+              number="8"
               title={t('admin.resourcesAi.infographicForm.sections.sources')}
               items={form.sources}
               emptyItem={{ title: '', url: '' }}
@@ -519,7 +609,7 @@ function AdminInfographicFormPage() {
             />
 
             <FormSection
-              number="8"
+              number="9"
               title={t('admin.resourcesAi.infographicForm.sections.keywords')}
             >
               <Field
@@ -531,7 +621,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <FormSection
-              number="9"
+              number="10"
               title={t('admin.resourcesAi.infographicForm.sections.actions')}
             >
               <ActionBar
@@ -570,6 +660,177 @@ function FormSection({ children, number, title }) {
       </div>
       {children}
     </section>
+  )
+}
+
+function JsonImportSection({
+  fileName,
+  input,
+  onFileChange,
+  onImport,
+  onInputChange,
+  readingFile,
+  report,
+  t,
+}) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted">
+        {t('admin.resourcesAi.infographicForm.jsonImport.help')}
+      </p>
+
+      <div className="flex flex-col gap-3 rounded-xl border border-navy/10 bg-surface/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-bold text-navy/70">
+            {t('admin.resourcesAi.infographicForm.jsonImport.fileLabel')}
+          </p>
+          <p className="mt-1 truncate text-xs text-muted">
+            {fileName || t('admin.resourcesAi.infographicForm.jsonImport.noFile')}
+          </p>
+        </div>
+        <label className="inline-flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg border border-navy/15 bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-accent hover:text-accent-deep sm:w-auto">
+          {readingFile ? (
+            <LoaderCircle className="animate-spin" size={15} aria-hidden="true" />
+          ) : (
+            <Upload size={15} aria-hidden="true" />
+          )}
+          {readingFile
+            ? t('admin.resourcesAi.infographicForm.jsonImport.readingFile')
+            : t('admin.resourcesAi.infographicForm.jsonImport.chooseFile')}
+          <input
+            type="file"
+            accept=".json,application/json"
+            disabled={readingFile}
+            onChange={onFileChange}
+            className="sr-only"
+          />
+        </label>
+      </div>
+
+      <Field
+        as="textarea"
+        rows={8}
+        label={t('admin.resourcesAi.infographicForm.jsonImport.pasteLabel')}
+        placeholder={t('admin.resourcesAi.infographicForm.jsonImport.placeholder')}
+        value={input}
+        onChange={onInputChange}
+      />
+
+      <button
+        type="button"
+        disabled={readingFile}
+        onClick={onImport}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-deep disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+      >
+        {t('admin.resourcesAi.infographicForm.jsonImport.analyze')}
+      </button>
+
+      {report && <JsonImportReport report={report} t={t} />}
+    </div>
+  )
+}
+
+function JsonImportReport({ report, t }) {
+  const successful = report.success && !report.cancelled
+  const hasImportedFields = report.imported?.length > 0
+
+  return (
+    <div
+      role={report.success ? 'status' : 'alert'}
+      className={`rounded-xl border p-4 text-sm ${
+        successful
+          ? 'border-steel/40 bg-steel/10 text-navy'
+          : 'border-accent/35 bg-accent/10 text-navy'
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        {successful ? (
+          <CheckCircle2 className="mt-0.5 shrink-0 text-steel" size={18} aria-hidden="true" />
+        ) : (
+          <AlertTriangle className="mt-0.5 shrink-0 text-accent" size={18} aria-hidden="true" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold">
+            {report.success
+              ? report.cancelled
+                ? t('admin.resourcesAi.infographicForm.jsonImport.result.cancelled')
+                : hasImportedFields
+                  ? t('admin.resourcesAi.infographicForm.jsonImport.result.success')
+                  : t('admin.resourcesAi.infographicForm.jsonImport.result.empty')
+              : t('admin.resourcesAi.infographicForm.jsonImport.result.failure')}
+          </p>
+
+          {!report.success && (
+            <p className="mt-1 text-navy/75">
+              {t(`admin.resourcesAi.infographicForm.jsonImport.errors.${report.error}`)}
+            </p>
+          )}
+
+          {hasImportedFields && (
+            <div className="mt-3">
+              <p className="text-xs font-bold uppercase tracking-wide text-navy/55">
+                {t(
+                  `admin.resourcesAi.infographicForm.jsonImport.result.${
+                    report.applied ? 'importedFields' : 'detectedFields'
+                  }`,
+                )}
+              </p>
+              <p className="mt-1 text-navy/80">
+                {report.imported
+                  .map((field) =>
+                    t(
+                      `admin.resourcesAi.infographicForm.${
+                        IMPORT_FIELD_TRANSLATION_KEYS[field]
+                      }`,
+                    ),
+                  )
+                  .join(', ')}
+              </p>
+            </div>
+          )}
+
+          {report.warnings?.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-bold uppercase tracking-wide text-navy/55">
+                {t('admin.resourcesAi.infographicForm.jsonImport.result.warnings')}
+              </p>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-navy/80">
+                {report.warnings.map((warning, index) => (
+                  <li key={`${warning.path}-${warning.code}-${index}`}>
+                    <code className="text-xs">{warning.path}</code>
+                    {' — '}
+                    {t(
+                      `admin.resourcesAi.infographicForm.jsonImport.warnings.${warning.code}`,
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {report.unknown?.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-bold uppercase tracking-wide text-navy/55">
+                {t('admin.resourcesAi.infographicForm.jsonImport.result.unknown')}
+              </p>
+              <p className="mt-1 break-words text-navy/80">
+                {report.unknown.map((property) => (
+                  <code key={property} className="mr-2 text-xs">
+                    {property}
+                  </code>
+                ))}
+              </p>
+            </div>
+          )}
+
+          <p className="mt-3 text-xs font-medium text-navy/65">
+            {report.success
+              ? t('admin.resourcesAi.infographicForm.jsonImport.result.notSaved')
+              : t('admin.resourcesAi.infographicForm.jsonImport.result.unchanged')}
+          </p>
+        </div>
+      </div>
+    </div>
   )
 }
 

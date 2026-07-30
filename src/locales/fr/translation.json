@@ -820,6 +820,7 @@
         "incompleteWarning": "Certaines informations sont peut-être absentes. Les sections correspondantes ne seront pas affichées sur le site.",
         "sections": {
           "image": "Image de l'infographie",
+          "jsonImport": "Métadonnées JSON",
           "general": "Informations générales",
           "classification": "Classification",
           "series": "Série",
@@ -875,6 +876,46 @@
           "type": "Type",
           "size": "Poids",
           "dimensions": "Dimensions"
+        },
+        "jsonImport": {
+          "help": "Sélectionnez un fichier JSON ou collez son contenu. L'analyse préremplit seulement les métadonnées utilisables et ne touche jamais à l'image.",
+          "fileLabel": "Fichier JSON",
+          "noFile": "Aucun fichier sélectionné",
+          "chooseFile": "Choisir un fichier .json",
+          "readingFile": "Lecture du fichier…",
+          "pasteLabel": "Contenu JSON",
+          "placeholder": "Collez ici le JSON produit par le GPT.",
+          "analyze": "Analyser et préremplir le formulaire",
+          "replaceConfirm": "Le formulaire contient déjà des métadonnées. Voulez-vous remplacer uniquement les champs valides présents dans ce JSON? Les autres valeurs et l'image resteront inchangées.",
+          "result": {
+            "success": "L'analyse a réussi et les métadonnées utilisables ont été appliquées.",
+            "empty": "L'analyse a réussi, mais aucune métadonnée exploitable n'a été trouvée.",
+            "cancelled": "L'analyse a réussi, mais le préremplissage a été annulé. Le formulaire est inchangé.",
+            "failure": "L'analyse a échoué. Le formulaire est inchangé.",
+            "importedFields": "Champs importés",
+            "detectedFields": "Champs utilisables détectés",
+            "warnings": "Avertissements",
+            "unknown": "Propriétés inconnues ignorées",
+            "notSaved": "Aucune sauvegarde ni publication n'a encore été effectuée.",
+            "unchanged": "Aucune valeur, image, sauvegarde ou publication n'a été modifiée."
+          },
+          "errors": {
+            "invalidJson": "Le contenu n'est pas un JSON syntaxiquement valide.",
+            "invalidRoot": "Le contenu JSON doit être un objet, et non null, un tableau ou une autre valeur.",
+            "invalidFileType": "Choisissez un fichier dont le nom se termine par .json.",
+            "fileReadError": "Impossible de lire ce fichier JSON. Vous pouvez coller son contenu directement."
+          },
+          "warnings": {
+            "unsupportedSchemaVersion": "version absente de la prise en charge v1; les autres propriétés reconnues ont tout de même été analysées",
+            "expectedString": "chaîne de caractères attendue; valeur ignorée",
+            "invalidLevel": "niveau attendu : beginner, intermediate ou advanced; valeur ignorée",
+            "expectedPositiveInteger": "nombre entier positif attendu; valeur ignorée",
+            "expectedObject": "objet attendu; valeur ignorée",
+            "expectedArray": "tableau attendu; valeur ignorée",
+            "emptyString": "chaîne vide ignorée",
+            "invalidUrl": "URL HTTP ou HTTPS valide attendue; URL ignorée",
+            "unusableItem": "élément ignoré, car il ne contient aucun contenu utilisable"
+          }
         },
         "preview": {
           "title": "Aperçu de l'image",
