@@ -11,6 +11,7 @@ import PortfolioIndex from '@/pages/PortfolioIndex'
 import BlogComingSoon from '@/pages/BlogComingSoon'
 import AdminBlog from '@/pages/AdminBlog'
 import AdminBlogEditor from '@/pages/AdminBlogEditor'
+import AdminInfographics from '@/pages/admin/resources/AdminInfographics'
 import { initCal } from '@/lib/cal'
 
 function ScrollToTop() {
@@ -57,6 +58,10 @@ function App() {
           <Route path="/admin/blog/topics" element={<AdminBlog />} />
           <Route path="/admin/blog/new" element={<AdminBlogEditor />} />
           <Route path="/admin/blog/edit/:id" element={<AdminBlogEditor />} />
+          <Route
+            path="/admin/ressources-ia/infographies"
+            element={<AdminInfographics />}
+          />
         </Routes>
       </main>
       <Footer />
