@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Eye, Image as ImageIcon, Images, Pencil, Plus, RotateCw } from 'lucide-react'
+import {
+  Eye,
+  Image as ImageIcon,
+  Images,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  RotateCw,
+  Trash2,
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
@@ -26,6 +35,9 @@ function AdminInfographicsPage() {
   const [activeFilter, setActiveFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [deleting, setDeleting] = useState(false)
+  const [notice, setNotice] = useState(null)
 
   const loadInfographics = useCallback(async () => {
     setLoading(true)
@@ -77,6 +89,56 @@ function AdminInfographicsPage() {
   }, [activeFilter, infographics])
 
   const locale = i18n.language?.startsWith('en') ? 'en-CA' : 'fr-CA'
+
+  const confirmDelete = async () => {
+    if (!deleteTarget || deleting) return
+
+    setDeleting(true)
+    setNotice(null)
+    let failureType = 'general'
+
+    try {
+      if (deleteTarget.image_path) {
+        failureType = 'image'
+        const storage = supabase.storage.from(BUCKET)
+        const { data: imageExists, error: existsError } = await storage.exists(
+          deleteTarget.image_path,
+        )
+
+        if (existsError) throw existsError
+
+        if (imageExists) {
+          const { error: removeError } = await storage.remove([deleteTarget.image_path])
+          if (removeError) throw removeError
+        }
+      }
+
+      failureType = 'row'
+      const { error: deleteError } = await supabase
+        .from('infographics')
+        .delete()
+        .eq('id', deleteTarget.id)
+
+      if (deleteError) throw deleteError
+
+      const deletedTitle =
+        deleteTarget.title || t('admin.resourcesAi.infographics.delete.fallbackTitle')
+      setInfographics((current) => current.filter((item) => item.id !== deleteTarget.id))
+      setDeleteTarget(null)
+      setNotice({
+        type: 'success',
+        text: t('admin.resourcesAi.infographics.delete.success', { title: deletedTitle }),
+      })
+    } catch (deleteError) {
+      console.error(`Unable to delete infographic (${failureType}):`, deleteError.message)
+      setNotice({
+        type: 'error',
+        text: t(`admin.resourcesAi.infographics.delete.errors.${failureType}`),
+      })
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   return (
     <section className="min-h-[90vh] bg-warm-gray pt-24 pb-16 md:pt-28 md:pb-20">
@@ -138,6 +200,8 @@ function AdminInfographicsPage() {
               />
             )}
 
+            {notice && <DeletionNotice notice={notice} />}
+
             {loading ? (
               <LoadingState t={t} />
             ) : error ? (
@@ -147,11 +211,26 @@ function AdminInfographicsPage() {
             ) : filteredInfographics.length === 0 ? (
               <FilteredEmptyState onShowAll={() => setActiveFilter('all')} t={t} />
             ) : (
-              <InfographicList infographics={filteredInfographics} locale={locale} t={t} />
+              <InfographicList
+                infographics={filteredInfographics}
+                locale={locale}
+                onDelete={setDeleteTarget}
+                t={t}
+              />
             )}
           </div>
         </div>
       </div>
+
+      {deleteTarget && (
+        <DeleteDialog
+          deleting={deleting}
+          infographic={deleteTarget}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={confirmDelete}
+          t={t}
+        />
+      )}
     </section>
   )
 }
@@ -193,7 +272,7 @@ function InfographicFilters({ activeFilter, counts, onChange, t }) {
   )
 }
 
-function InfographicList({ infographics, locale, t }) {
+function InfographicList({ infographics, locale, onDelete, t }) {
   return (
     <>
       <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:block">
@@ -223,7 +302,7 @@ function InfographicList({ infographics, locale, t }) {
                 {formatDate(infographic.updated_at, locale)}
               </time>
               <div className="text-right">
-                <AdminActions infographic={infographic} t={t} />
+                <AdminActions infographic={infographic} onDelete={onDelete} t={t} />
               </div>
             </li>
           ))}
@@ -257,7 +336,7 @@ function InfographicList({ infographics, locale, t }) {
                   {formatDate(infographic.updated_at, locale)}
                 </time>
               </p>
-              <AdminActions infographic={infographic} t={t} />
+              <AdminActions infographic={infographic} mobile onDelete={onDelete} t={t} />
             </div>
           </li>
         ))}
@@ -319,7 +398,42 @@ function StatusBadge({ status, t }) {
   )
 }
 
-function AdminActions({ infographic, t }) {
+function AdminActions({ infographic, mobile = false, onDelete, t }) {
+  if (mobile) {
+    return (
+      <div className="flex shrink-0 items-center justify-end gap-2">
+        <EditAction infographic={infographic} t={t} />
+        <details className="group relative">
+          <summary
+            className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-lg border border-gray-200 text-navy transition-colors hover:border-accent hover:text-accent-deep [&::-webkit-details-marker]:hidden"
+            aria-label={t('admin.resourcesAi.infographics.moreActions')}
+          >
+            <MoreHorizontal size={16} strokeWidth={1.9} aria-hidden="true" />
+          </summary>
+          <div className="absolute right-0 z-20 mt-2 min-w-36 rounded-lg border border-gray-200 bg-white p-1.5 text-left shadow-lg">
+            {infographic.status === 'published' && (
+              <Link
+                to={`/ressources-ia/infographies/${infographic.id}`}
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-navy transition-colors hover:bg-surface hover:text-accent-deep"
+              >
+                <Eye size={13} strokeWidth={1.8} aria-hidden="true" />
+                {t('admin.resourcesAi.infographics.view')}
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => onDelete(infographic)}
+              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-red-700 transition-colors hover:bg-red-50"
+            >
+              <Trash2 size={13} strokeWidth={1.8} aria-hidden="true" />
+              {t('admin.resourcesAi.infographics.delete.action')}
+            </button>
+          </div>
+        </details>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-wrap justify-end gap-2">
       {infographic.status === 'published' && (
@@ -331,13 +445,105 @@ function AdminActions({ infographic, t }) {
           {t('admin.resourcesAi.infographics.view')}
         </Link>
       )}
-      <Link
-        to={`${INFOGRAPHICS_PATH}/${infographic.id}/modifier`}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-accent hover:text-accent-deep"
+      <EditAction infographic={infographic} t={t} />
+      <button
+        type="button"
+        onClick={() => onDelete(infographic)}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:border-red-300 hover:bg-red-50"
       >
-        <Pencil size={13} strokeWidth={1.8} aria-hidden="true" />
-        {t('admin.resourcesAi.infographics.edit')}
-      </Link>
+        <Trash2 size={13} strokeWidth={1.8} aria-hidden="true" />
+        {t('admin.resourcesAi.infographics.delete.action')}
+      </button>
+    </div>
+  )
+}
+
+function EditAction({ infographic, t }) {
+  return (
+    <Link
+      to={`${INFOGRAPHICS_PATH}/${infographic.id}/modifier`}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-accent hover:text-accent-deep"
+    >
+      <Pencil size={13} strokeWidth={1.8} aria-hidden="true" />
+      {t('admin.resourcesAi.infographics.edit')}
+    </Link>
+  )
+}
+
+function DeletionNotice({ notice }) {
+  const success = notice.type === 'success'
+
+  return (
+    <div
+      role={success ? 'status' : 'alert'}
+      className={`mb-5 rounded-xl border px-4 py-3 text-sm ${
+        success
+          ? 'border-green-200 bg-green-50 text-green-800'
+          : 'border-red-200 bg-red-50 text-red-800'
+      }`}
+    >
+      {notice.text}
+    </div>
+  )
+}
+
+function DeleteDialog({ deleting, infographic, onCancel, onConfirm, t }) {
+  const title = infographic.title || t('admin.resourcesAi.infographics.delete.fallbackTitle')
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-navy/55 p-4"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (!deleting && event.target === event.currentTarget) onCancel()
+      }}
+    >
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="delete-infographic-title"
+        aria-describedby="delete-infographic-description"
+        className="my-auto w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl sm:p-6"
+      >
+        <h2
+          id="delete-infographic-title"
+          className="font-heading text-xl font-bold tracking-tight text-navy"
+        >
+          {t('admin.resourcesAi.infographics.delete.title', { title })}
+        </h2>
+        <div id="delete-infographic-description" className="mt-3 space-y-2 text-sm text-muted">
+          <p>{t('admin.resourcesAi.infographics.delete.permanent')}</p>
+          {infographic.image_path && (
+            <p>{t('admin.resourcesAi.infographics.delete.withImage')}</p>
+          )}
+        </div>
+        {deleting && (
+          <p className="mt-4 text-sm font-medium text-accent-deep" role="status">
+            {t('admin.resourcesAi.infographics.delete.deleting')}
+          </p>
+        )}
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={deleting}
+            className="rounded-full border border-gray-300 px-5 py-2.5 text-sm font-medium text-navy transition-colors hover:border-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {t('admin.resourcesAi.infographics.delete.cancel')}
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={deleting}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-red-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
+            {deleting
+              ? t('admin.resourcesAi.infographics.delete.deleting')
+              : t('admin.resourcesAi.infographics.delete.action')}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

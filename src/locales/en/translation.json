@@ -831,6 +831,22 @@
         "updatedLabel": "Updated:",
         "edit": "Edit",
         "view": "View",
+        "moreActions": "More actions",
+        "delete": {
+          "action": "Delete",
+          "cancel": "Cancel",
+          "fallbackTitle": "Infographic",
+          "title": "Delete “{{title}}”?",
+          "permanent": "This deletion is permanent and cannot be undone.",
+          "withImage": "The associated image will also be deleted.",
+          "deleting": "Deleting…",
+          "success": "“{{title}}” was deleted.",
+          "errors": {
+            "general": "Unable to delete the infographic. Check your connection and try again.",
+            "image": "The associated image could not be deleted. The infographic was kept and you can try again.",
+            "row": "The infographic row could not be deleted. The resource remains listed and you can try again."
+          }
+        },
         "loading": "Loading infographics…",
         "errorTitle": "Unable to load infographics",
         "errorDescription": "An error occurred. Check your connection and try again.",

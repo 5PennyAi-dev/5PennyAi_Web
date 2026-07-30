@@ -831,6 +831,22 @@
         "updatedLabel": "Mise à jour :",
         "edit": "Modifier",
         "view": "Voir",
+        "moreActions": "Autres actions",
+        "delete": {
+          "action": "Supprimer",
+          "cancel": "Annuler",
+          "fallbackTitle": "Infographie",
+          "title": "Supprimer « {{title}} »?",
+          "permanent": "Cette suppression est définitive et ne peut pas être annulée.",
+          "withImage": "L'image associée sera également supprimée.",
+          "deleting": "Suppression…",
+          "success": "« {{title}} » a été supprimée.",
+          "errors": {
+            "general": "Impossible de supprimer l'infographie. Vérifiez votre connexion et réessayez.",
+            "image": "L'image associée n'a pas pu être supprimée. L'infographie a été conservée et vous pouvez réessayer.",
+            "row": "La ligne de l'infographie n'a pas pu être supprimée. La ressource reste affichée et vous pouvez réessayer."
+          }
+        },
         "loading": "Chargement des infographies…",
         "errorTitle": "Impossible de charger les infographies",
         "errorDescription": "Une erreur est survenue. Vérifiez votre connexion et réessayez.",
