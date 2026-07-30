@@ -25,7 +25,6 @@ function FacebookIcon() {
 const footerLinks = [
   { key: 'nav.about', to: '/about' },
   { key: 'nav.portfolio', to: '/portfolio' },
-  { key: 'nav.blog', to: '/blog' },
   { key: 'nav.resourcesAi', to: '/ressources-ia' },
   { key: 'nav.contact', to: '/contact' },
 ]

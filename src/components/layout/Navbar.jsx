@@ -7,7 +7,6 @@ import Logo from '@/components/ui/Logo'
 const navLinks = [
   { key: 'nav.about', to: '/about' },
   { key: 'nav.portfolio', to: '/portfolio' },
-  { key: 'nav.blog', to: '/blog' },
   { key: 'nav.resourcesAi', to: '/ressources-ia' },
   { key: 'nav.contact', to: '/contact' },
 ]
@@ -36,7 +35,6 @@ export default function Navbar() {
   const isActive = (link) => {
     if (!link.to) return false
     if (pathname === link.to) return true
-    if (link.to === '/blog' && pathname.startsWith('/blog/')) return true
     if (link.to === '/ressources-ia' && pathname.startsWith('/ressources-ia/')) return true
     return false
   }

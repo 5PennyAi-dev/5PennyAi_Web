@@ -13,8 +13,6 @@ import AdminBlog from '@/pages/AdminBlog'
 import AdminBlogEditor from '@/pages/AdminBlogEditor'
 import AdminInfographics from '@/pages/admin/resources/AdminInfographics'
 import AdminInfographicForm from '@/pages/admin/resources/AdminInfographicForm'
-import ResourcesAI from '@/pages/ResourcesAI'
-import InfographicDetail from '@/pages/InfographicDetail'
 import { initCal } from '@/lib/cal'
 
 function ScrollToTop() {
@@ -57,11 +55,8 @@ function App() {
           <Route path="/portfolio/pipeline-editorial" element={<Navigate to="/portfolio" replace />} />
           <Route path="/blog" element={<BlogComingSoon />} />
           <Route path="/blog/:slug" element={<Navigate to="/blog" replace />} />
-          <Route path="/ressources-ia" element={<ResourcesAI />} />
-          <Route
-            path="/ressources-ia/infographies/:id"
-            element={<InfographicDetail />}
-          />
+          <Route path="/ressources-ia" element={<BlogComingSoon />} />
+          <Route path="/ressources-ia/infographies/:id" element={<Navigate to="/ressources-ia" replace />} />
           <Route path="/admin/blog" element={<AdminBlog />} />
           <Route path="/admin/blog/topics" element={<AdminBlog />} />
           <Route path="/admin/blog/new" element={<AdminBlogEditor />} />
