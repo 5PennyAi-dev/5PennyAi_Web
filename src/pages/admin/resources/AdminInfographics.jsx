@@ -7,6 +7,7 @@ import Card from '@/components/ui/Card'
 import { supabase } from '@/lib/supabase'
 
 const INFOGRAPHICS_PATH = '/admin/ressources-ia/infographies'
+const NEW_INFOGRAPHIC_PATH = `${INFOGRAPHICS_PATH}/nouvelle`
 const BUCKET = 'infographics'
 const LIST_COLUMNS =
   'id, status, title, theme, series_name, episode_number, updated_at, image_path, image_metadata'
@@ -118,21 +119,13 @@ function AdminInfographicsPage() {
               </div>
 
               <div className="sm:text-right">
-                <button
-                  type="button"
-                  disabled
-                  aria-describedby="add-infographic-unavailable"
+                <Link
+                  to={NEW_INFOGRAPHIC_PATH}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Plus size={16} strokeWidth={2.2} aria-hidden="true" />
                   {t('admin.resourcesAi.infographics.add')}
-                </button>
-                <p
-                  id="add-infographic-unavailable"
-                  className="mt-2 max-w-xs text-xs leading-relaxed text-muted sm:ml-auto"
-                >
-                  {t('admin.resourcesAi.infographics.addUnavailable')}
-                </p>
+                </Link>
               </div>
             </div>
 
@@ -230,7 +223,7 @@ function InfographicList({ infographics, locale, t }) {
                 {formatDate(infographic.updated_at, locale)}
               </time>
               <div className="text-right">
-                <EditButton t={t} />
+                <EditButton id={infographic.id} t={t} />
               </div>
             </li>
           ))}
@@ -264,15 +257,11 @@ function InfographicList({ infographics, locale, t }) {
                   {formatDate(infographic.updated_at, locale)}
                 </time>
               </p>
-              <EditButton t={t} />
+              <EditButton id={infographic.id} t={t} />
             </div>
           </li>
         ))}
       </ul>
-
-      <p className="mt-3 text-right text-xs text-muted">
-        {t('admin.resourcesAi.infographics.actionsUnavailable')}
-      </p>
     </>
   )
 }
@@ -330,16 +319,15 @@ function StatusBadge({ status, t }) {
   )
 }
 
-function EditButton({ t }) {
+function EditButton({ id, t }) {
   return (
-    <button
-      type="button"
-      disabled
-      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-400 disabled:cursor-not-allowed disabled:opacity-70"
+    <Link
+      to={`${INFOGRAPHICS_PATH}/${id}/modifier`}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-navy transition-colors hover:border-accent hover:text-accent-deep"
     >
       <Pencil size={13} strokeWidth={1.8} aria-hidden="true" />
       {t('admin.resourcesAi.infographics.edit')}
-    </button>
+    </Link>
   )
 }
 
@@ -411,6 +399,13 @@ function GlobalEmptyState({ t }) {
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted">
         {t('admin.resourcesAi.infographics.emptyDescription')}
       </p>
+      <Link
+        to={NEW_INFOGRAPHIC_PATH}
+        className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white"
+      >
+        <Plus size={15} aria-hidden="true" />
+        {t('admin.resourcesAi.infographics.add')}
+      </Link>
     </Card>
   )
 }

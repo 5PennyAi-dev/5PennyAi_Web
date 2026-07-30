@@ -777,7 +777,6 @@
         "title": "Infographies",
         "subtitle": "Gérez les infographies pédagogiques destinées à la section Ressources IA.",
         "add": "Ajouter une infographie",
-        "addUnavailable": "La création sera disponible dans un prochain incrément.",
         "emptyTitle": "Aucune infographie",
         "emptyDescription": "Aucune infographie n'existe encore. Elles apparaîtront ici lorsqu'elles auront été ajoutées.",
         "untitled": "Infographie sans titre",
@@ -785,7 +784,6 @@
         "thumbnailAlt": "Miniature de {{title}}",
         "updatedLabel": "Mise à jour :",
         "edit": "Modifier",
-        "actionsUnavailable": "L'ajout et la modification seront disponibles au prochain incrément.",
         "loading": "Chargement des infographies…",
         "errorTitle": "Impossible de charger les infographies",
         "errorDescription": "Une erreur est survenue. Vérifiez votre connexion et réessayez.",
@@ -810,6 +808,103 @@
         "status": {
           "draft": "Brouillon",
           "published": "Publiée"
+        }
+      },
+      "infographicForm": {
+        "addTitle": "Ajouter une infographie",
+        "editTitle": "Modifier l'infographie",
+        "back": "Retour aux infographies",
+        "loading": "Chargement de l'infographie…",
+        "unsavedConfirm": "Des modifications ne sont pas enregistrées. Voulez-vous vraiment quitter cette page?",
+        "unpublishConfirm": "Repasser cette infographie en brouillon? Elle ne sera plus accessible publiquement.",
+        "incompleteWarning": "Certaines informations sont peut-être absentes. Les sections correspondantes ne seront pas affichées sur le site.",
+        "sections": {
+          "image": "Image de l'infographie",
+          "general": "Informations générales",
+          "classification": "Classification",
+          "series": "Série",
+          "keyPoints": "Points essentiels",
+          "takeaway": "À retenir",
+          "sources": "Sources",
+          "keywords": "Mots-clés",
+          "actions": "Actions"
+        },
+        "fields": {
+          "title": "Titre",
+          "subtitle": "Sous-titre",
+          "summary": "Résumé",
+          "introduction": "Introduction",
+          "imageAlt": "Texte alternatif",
+          "theme": "Thème",
+          "level": "Niveau",
+          "readingTime": "Temps de consultation en minutes",
+          "seriesName": "Nom de la série",
+          "episodeNumber": "Numéro d'épisode",
+          "pointTitle": "Titre du point",
+          "pointDescription": "Description",
+          "takeaway": "Texte à retenir",
+          "sourceTitle": "Titre de la source",
+          "sourceUrl": "URL",
+          "keywords": "Mots-clés",
+          "keywordsHint": "Séparez les mots-clés par des virgules."
+        },
+        "levels": {
+          "empty": "Aucun niveau",
+          "beginner": "Débutant",
+          "intermediate": "Intermédiaire",
+          "advanced": "Avancé"
+        },
+        "keyPoints": {
+          "add": "Ajouter un point essentiel"
+        },
+        "sources": {
+          "add": "Ajouter une source"
+        },
+        "list": {
+          "moveUp": "Monter",
+          "moveDown": "Descendre",
+          "remove": "Supprimer"
+        },
+        "image": {
+          "help": "Formats acceptés : PNG, JPG/JPEG et WebP. L'image reste facultative.",
+          "choose": "Choisir une image",
+          "replace": "Remplacer l'image",
+          "remove": "Retirer l'image",
+          "invalidType": "Choisissez une image PNG, JPG/JPEG ou WebP.",
+          "name": "Nom",
+          "type": "Type",
+          "size": "Poids",
+          "dimensions": "Dimensions"
+        },
+        "preview": {
+          "title": "Aperçu de l'image",
+          "empty": "L'aperçu apparaîtra ici après la sélection d'une image.",
+          "alt": "Aperçu de l'infographie"
+        },
+        "actions": {
+          "cancel": "Annuler",
+          "saveDraft": "Enregistrer en brouillon",
+          "saveChanges": "Enregistrer les modifications",
+          "publish": "Publier",
+          "unpublish": "Repasser en brouillon",
+          "saving": "Enregistrement…",
+          "uploading": "Téléversement…"
+        },
+        "messages": {
+          "save": "Les modifications ont été enregistrées.",
+          "publish": "L'infographie a été publiée.",
+          "unpublish": "L'infographie est maintenant en brouillon.",
+          "savedCleanupWarning": "Les modifications sont enregistrées, mais l'ancienne image n'a pas pu être supprimée du stockage.",
+          "saveError": "Impossible d'enregistrer l'infographie. Vérifiez votre connexion et réessayez.",
+          "uploadError": "L'image n'a pas pu être téléversée. Le statut actuel est inchangé et vous pouvez réessayer depuis ce formulaire."
+        },
+        "missing": {
+          "title": "Infographie introuvable",
+          "description": "Cette ressource n'existe pas ou n'est plus disponible."
+        },
+        "error": {
+          "title": "Impossible de charger l'infographie",
+          "description": "Une erreur est survenue. Revenez à la liste et réessayez."
         }
       }
     },

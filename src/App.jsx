@@ -12,6 +12,7 @@ import BlogComingSoon from '@/pages/BlogComingSoon'
 import AdminBlog from '@/pages/AdminBlog'
 import AdminBlogEditor from '@/pages/AdminBlogEditor'
 import AdminInfographics from '@/pages/admin/resources/AdminInfographics'
+import AdminInfographicForm from '@/pages/admin/resources/AdminInfographicForm'
 import { initCal } from '@/lib/cal'
 
 function ScrollToTop() {
@@ -61,6 +62,14 @@ function App() {
           <Route
             path="/admin/ressources-ia/infographies"
             element={<AdminInfographics />}
+          />
+          <Route
+            path="/admin/ressources-ia/infographies/nouvelle"
+            element={<AdminInfographicForm />}
+          />
+          <Route
+            path="/admin/ressources-ia/infographies/:id/modifier"
+            element={<AdminInfographicForm />}
           />
         </Routes>
       </main>

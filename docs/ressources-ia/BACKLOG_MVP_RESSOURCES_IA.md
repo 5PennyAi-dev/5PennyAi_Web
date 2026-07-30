@@ -162,7 +162,7 @@ Utiliser seulement les états suivants :
 | 0 | Inspection technique du dépôt | Accepté | — (aucun commit de code) |
 | 1 | Accès administrateur et stockage minimal | Accepté | — |
 | 2 | Liste administrative des infographies | Accepté | — |
-| 3 | Formulaire manuel et cycle de publication | À faire | — |
+| 3 | Formulaire manuel et cycle de publication | Accepté | — |
 | 4 | Import JSON permissif | À faire | — |
 | 5 | Section publique Ressources IA | À faire | — |
 | 6 | Suppression et finalisation du MVP | À faire | — |
@@ -269,7 +269,7 @@ Aucun code ne doit être modifié.
 
 # 9. Incrément 1 — Accès administrateur et stockage minimal
 
-**État :** À faire
+**État :** Accepté
 
 ## Objectif
 
@@ -351,7 +351,7 @@ Principes obligatoires :
 
 # 10. Incrément 2 — Liste administrative des infographies
 
-**État :** À faire
+**État :** Accepté
 
 ## Objectif
 
@@ -420,7 +420,7 @@ Permettre à Christian de consulter les infographies enregistrées et d’ouvrir
 
 # 11. Incrément 3 — Formulaire manuel et cycle de publication
 
-**État :** À faire
+**État :** Accepté
 
 ## Objectif
 
@@ -1017,6 +1017,15 @@ Résultat : liste Supabase, filtres, tableau bureau, cartes mobiles et états d�
 Validation : build, lint ciblé, traductions JSON, `git diff --check` et vérification manuelle authentifiée
 Limite connue : Ajouter et Modifier restent reportés à l’incrément 3
 Prochaine étape : Incrément 3 — Formulaire manuel et cycle de publication
+
+### 2026-07-30 — Incrément 3
+
+État : Accepté
+Commit : —
+Résultat : formulaire partagé Ajouter/Modifier, champs facultatifs, listes structurées, téléversement et gestion d’image, brouillon, publication et retour en brouillon fonctionnels
+Validation : build, ESLint ciblé, traductions JSON, `git diff --check` et vérification manuelle authentifiée
+Limite connue : import JSON reporté à l’incrément 4, pages publiques à l’incrément 5 et suppression à l’incrément 6
+Prochaine étape : Incrément 4 — Import JSON permissif
 
 ---
 

@@ -777,7 +777,6 @@
         "title": "Infographics",
         "subtitle": "Manage the educational infographics intended for the AI Resources section.",
         "add": "Add an infographic",
-        "addUnavailable": "Creation will be available in a future increment.",
         "emptyTitle": "No infographics",
         "emptyDescription": "No infographics exist yet. They will appear here once they have been added.",
         "untitled": "Untitled infographic",
@@ -785,7 +784,6 @@
         "thumbnailAlt": "{{title}} thumbnail",
         "updatedLabel": "Updated:",
         "edit": "Edit",
-        "actionsUnavailable": "Adding and editing will be available in the next increment.",
         "loading": "Loading infographics…",
         "errorTitle": "Unable to load infographics",
         "errorDescription": "An error occurred. Check your connection and try again.",
@@ -810,6 +808,103 @@
         "status": {
           "draft": "Draft",
           "published": "Published"
+        }
+      },
+      "infographicForm": {
+        "addTitle": "Add an infographic",
+        "editTitle": "Edit infographic",
+        "back": "Back to infographics",
+        "loading": "Loading infographic…",
+        "unsavedConfirm": "You have unsaved changes. Are you sure you want to leave this page?",
+        "unpublishConfirm": "Move this infographic back to draft? It will no longer be publicly accessible.",
+        "incompleteWarning": "Some information may be missing. The corresponding sections will not be displayed on the site.",
+        "sections": {
+          "image": "Infographic image",
+          "general": "General information",
+          "classification": "Classification",
+          "series": "Series",
+          "keyPoints": "Key points",
+          "takeaway": "Takeaway",
+          "sources": "Sources",
+          "keywords": "Keywords",
+          "actions": "Actions"
+        },
+        "fields": {
+          "title": "Title",
+          "subtitle": "Subtitle",
+          "summary": "Summary",
+          "introduction": "Introduction",
+          "imageAlt": "Alternative text",
+          "theme": "Theme",
+          "level": "Level",
+          "readingTime": "Reading time in minutes",
+          "seriesName": "Series name",
+          "episodeNumber": "Episode number",
+          "pointTitle": "Point title",
+          "pointDescription": "Description",
+          "takeaway": "Takeaway text",
+          "sourceTitle": "Source title",
+          "sourceUrl": "URL",
+          "keywords": "Keywords",
+          "keywordsHint": "Separate keywords with commas."
+        },
+        "levels": {
+          "empty": "No level",
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        },
+        "keyPoints": {
+          "add": "Add a key point"
+        },
+        "sources": {
+          "add": "Add a source"
+        },
+        "list": {
+          "moveUp": "Move up",
+          "moveDown": "Move down",
+          "remove": "Remove"
+        },
+        "image": {
+          "help": "Accepted formats: PNG, JPG/JPEG, and WebP. The image is optional.",
+          "choose": "Choose an image",
+          "replace": "Replace image",
+          "remove": "Remove image",
+          "invalidType": "Choose a PNG, JPG/JPEG, or WebP image.",
+          "name": "Name",
+          "type": "Type",
+          "size": "Size",
+          "dimensions": "Dimensions"
+        },
+        "preview": {
+          "title": "Image preview",
+          "empty": "The preview will appear here after you select an image.",
+          "alt": "Infographic preview"
+        },
+        "actions": {
+          "cancel": "Cancel",
+          "saveDraft": "Save as draft",
+          "saveChanges": "Save changes",
+          "publish": "Publish",
+          "unpublish": "Move back to draft",
+          "saving": "Saving…",
+          "uploading": "Uploading…"
+        },
+        "messages": {
+          "save": "The changes have been saved.",
+          "publish": "The infographic has been published.",
+          "unpublish": "The infographic is now a draft.",
+          "savedCleanupWarning": "The changes were saved, but the previous image could not be removed from storage.",
+          "saveError": "Unable to save the infographic. Check your connection and try again.",
+          "uploadError": "The image could not be uploaded. The current status is unchanged and you can try again from this form."
+        },
+        "missing": {
+          "title": "Infographic not found",
+          "description": "This resource does not exist or is no longer available."
+        },
+        "error": {
+          "title": "Unable to load infographic",
+          "description": "An error occurred. Return to the list and try again."
         }
       }
     },
