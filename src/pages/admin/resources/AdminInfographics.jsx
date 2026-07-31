@@ -13,13 +13,14 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
 import Card from '@/components/ui/Card'
+import { isInfographicThumbnailPathForResource } from '@/lib/infographicThumbnails'
 import { supabase } from '@/lib/supabase'
 
 const INFOGRAPHICS_PATH = '/admin/ressources-ia/infographies'
 const NEW_INFOGRAPHIC_PATH = `${INFOGRAPHICS_PATH}/nouvelle`
 const BUCKET = 'infographics'
 const LIST_COLUMNS =
-  'id, status, title, theme, series_name, episode_number, updated_at, image_path, image_metadata'
+  'id, status, title, theme, series_name, episode_number, updated_at, image_path, image_metadata, thumbnail_path'
 
 export default function AdminInfographics() {
   return (
@@ -121,13 +122,31 @@ function AdminInfographicsPage() {
 
       if (deleteError) throw deleteError
 
+      let cleanupWarning = false
+      if (deleteTarget.thumbnail_path) {
+        if (isInfographicThumbnailPathForResource(deleteTarget.thumbnail_path, deleteTarget.id)) {
+          const { error: thumbnailRemoveError } = await supabase.storage
+            .from(BUCKET)
+            .remove([deleteTarget.thumbnail_path])
+          cleanupWarning = Boolean(thumbnailRemoveError)
+          if (thumbnailRemoveError) {
+            console.warn('Unable to remove infographic thumbnail:', thumbnailRemoveError.message)
+          }
+        } else {
+          cleanupWarning = true
+          console.warn('Infographic thumbnail path was outside the resource prefix.')
+        }
+      }
+
       const deletedTitle =
         deleteTarget.title || t('admin.resourcesAi.infographics.delete.fallbackTitle')
       setInfographics((current) => current.filter((item) => item.id !== deleteTarget.id))
       setDeleteTarget(null)
       setNotice({
-        type: 'success',
-        text: t('admin.resourcesAi.infographics.delete.success', { title: deletedTitle }),
+        type: cleanupWarning ? 'warning' : 'success',
+        text: cleanupWarning
+          ? t('admin.resourcesAi.infographics.delete.successCleanupWarning', { title: deletedTitle })
+          : t('admin.resourcesAi.infographics.delete.success', { title: deletedTitle }),
       })
     } catch (deleteError) {
       console.error(`Unable to delete infographic (${failureType}):`, deleteError.message)
@@ -472,14 +491,17 @@ function EditAction({ infographic, t }) {
 
 function DeletionNotice({ notice }) {
   const success = notice.type === 'success'
+  const warning = notice.type === 'warning'
 
   return (
     <div
-      role={success ? 'status' : 'alert'}
+      role={success || warning ? 'status' : 'alert'}
       className={`mb-5 rounded-xl border px-4 py-3 text-sm ${
         success
           ? 'border-green-200 bg-green-50 text-green-800'
-          : 'border-red-200 bg-red-50 text-red-800'
+          : warning
+            ? 'border-amber-200 bg-amber-50 text-amber-900'
+            : 'border-red-200 bg-red-50 text-red-800'
       }`}
     >
       {notice.text}
@@ -515,6 +537,9 @@ function DeleteDialog({ deleting, infographic, onCancel, onConfirm, t }) {
           <p>{t('admin.resourcesAi.infographics.delete.permanent')}</p>
           {infographic.image_path && (
             <p>{t('admin.resourcesAi.infographics.delete.withImage')}</p>
+          )}
+          {infographic.thumbnail_path && (
+            <p>{t('admin.resourcesAi.infographics.delete.withThumbnail')}</p>
           )}
         </div>
         {deleting && (

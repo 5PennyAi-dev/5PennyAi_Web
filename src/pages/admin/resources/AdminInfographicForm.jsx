@@ -15,10 +15,18 @@ import {
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
+import InfographicThumbnailField from '@/components/admin/resources/InfographicThumbnailField'
 import {
   hasInfographicMetadata,
   importInfographicJson,
 } from '@/lib/infographicJsonImport'
+import {
+  buildInfographicThumbnailPath,
+  isAllowedThumbnailMime,
+  isInfographicThumbnailPathForResource,
+  isThumbnailSizeAllowed,
+  validateInfographicThumbnail,
+} from '@/lib/infographicThumbnails'
 import { supabase } from '@/lib/supabase'
 
 const LIST_PATH = '/admin/ressources-ia/infographies'
@@ -41,7 +49,7 @@ const IMPORT_FIELD_TRANSLATION_KEYS = {
   sources: 'sections.sources',
 }
 const EDIT_COLUMNS =
-  'id, status, published_at, image_path, image_metadata, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, keywords, sources'
+  'id, status, published_at, image_path, image_metadata, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, keywords, sources'
 
 const EMPTY_FORM = {
   title: '',
@@ -80,6 +88,10 @@ function AdminInfographicFormPage() {
   const [imageMetadata, setImageMetadata] = useState(null)
   const [pendingImage, setPendingImage] = useState(null)
   const [removeImage, setRemoveImage] = useState(false)
+  const [thumbnailPath, setThumbnailPath] = useState(null)
+  const [pendingThumbnail, setPendingThumbnail] = useState(null)
+  const [removeThumbnail, setRemoveThumbnail] = useState(false)
+  const [thumbnailFeedback, setThumbnailFeedback] = useState(null)
   const [loading, setLoading] = useState(Boolean(routeId))
   const [loadState, setLoadState] = useState('ready')
   const [saving, setSaving] = useState(false)
@@ -128,6 +140,7 @@ function AdminInfographicFormPage() {
         setPublishedAt(data.published_at)
         setImagePath(data.image_path)
         setImageMetadata(data.image_metadata)
+        setThumbnailPath(data.thumbnail_path)
         setForm(toFormState(data))
         setDirty(false)
       })
@@ -186,6 +199,16 @@ function AdminInfographicFormPage() {
   const pendingImageUrl = useObjectUrl(pendingImage?.file)
   const previewUrl = pendingImageUrl || (!removeImage ? existingImageUrl : null)
   const previewMetadata = pendingImage?.metadata || (!removeImage ? imageMetadata : null)
+  const existingThumbnailUrl = useMemo(
+    () =>
+      thumbnailPath
+        ? supabase.storage.from(BUCKET).getPublicUrl(thumbnailPath).data.publicUrl
+        : null,
+    [thumbnailPath],
+  )
+  const pendingThumbnailUrl = useObjectUrl(pendingThumbnail?.file)
+  const thumbnailPreviewUrl =
+    pendingThumbnailUrl || (!removeThumbnail ? existingThumbnailUrl : null) || previewUrl
 
   const updateField = (name, value) => {
     setForm((current) => ({ ...current, [name]: value }))
@@ -222,6 +245,80 @@ function AdminInfographicFormPage() {
     setRemoveImage(Boolean(imagePath))
     setDirty(true)
     setNotice(null)
+  }
+
+  const handleThumbnailSelection = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    if (!isAllowedThumbnailMime(file.type)) {
+      setThumbnailFeedback({
+        type: 'error',
+        text: t('admin.resourcesAi.infographicForm.thumbnail.errors.unsupportedType'),
+      })
+      return
+    }
+    if (!isThumbnailSizeAllowed(file.size)) {
+      setThumbnailFeedback({
+        type: 'error',
+        text: t('admin.resourcesAi.infographicForm.thumbnail.errors.tooLarge'),
+      })
+      return
+    }
+
+    const dimensions = await readImageDimensions(file)
+    const validation = validateInfographicThumbnail({
+      mimeType: file.type,
+      sizeBytes: file.size,
+      ...dimensions,
+    })
+    if (!validation.valid) {
+      setThumbnailFeedback({
+        type: 'error',
+        text: t(`admin.resourcesAi.infographicForm.thumbnail.errors.${validation.error}`),
+      })
+      return
+    }
+
+    setPendingThumbnail({
+      file,
+      metadata: {
+        originalName: file.name,
+        mimeType: file.type,
+        sizeBytes: file.size,
+        ...dimensions,
+      },
+    })
+    setRemoveThumbnail(false)
+    setDirty(true)
+    setThumbnailFeedback({
+      type: 'status',
+      text: validation.warning
+        ? t('admin.resourcesAi.infographicForm.thumbnail.performanceWarning')
+        : t('admin.resourcesAi.infographicForm.thumbnail.ready'),
+    })
+    setNotice(null)
+  }
+
+  const handleCancelThumbnailSelection = () => {
+    setPendingThumbnail(null)
+    setThumbnailFeedback(null)
+    setDirty(true)
+  }
+
+  const handleRemoveThumbnail = () => {
+    setPendingThumbnail(null)
+    setRemoveThumbnail(true)
+    setThumbnailFeedback(null)
+    setDirty(true)
+    setNotice(null)
+  }
+
+  const handleUndoThumbnailRemoval = () => {
+    setRemoveThumbnail(false)
+    setThumbnailFeedback(null)
+    setDirty(true)
   }
 
   const handleJsonFileSelection = async (event) => {
@@ -290,7 +387,9 @@ function AdminInfographicFormPage() {
     setNotice(null)
     let savedId = resourceId
     let createdNow = false
-    let uploadedPath = null
+    let uploadedImagePath = null
+    let uploadedThumbnailPath = null
+    let databaseUpdated = false
     let activePhase = 'saving'
 
     try {
@@ -326,16 +425,36 @@ function AdminInfographicFormPage() {
         activePhase = 'uploading'
         setSavePhase('uploading')
         const extension = extensionForFile(pendingImage.file)
-        uploadedPath = `${savedId}/${crypto.randomUUID()}.${extension}`
+        uploadedImagePath = `${savedId}/${crypto.randomUUID()}.${extension}`
         const { error: uploadError } = await supabase.storage
           .from(BUCKET)
-          .upload(uploadedPath, pendingImage.file, {
+          .upload(uploadedImagePath, pendingImage.file, {
             contentType: pendingImage.file.type,
             upsert: false,
           })
         if (uploadError) throw uploadError
-        nextImagePath = uploadedPath
+        nextImagePath = uploadedImagePath
         nextImageMetadata = pendingImage.metadata
+      }
+
+      let nextThumbnailPath = removeThumbnail ? null : thumbnailPath
+
+      if (pendingThumbnail) {
+        activePhase = 'thumbnailUploading'
+        setSavePhase('uploading')
+        uploadedThumbnailPath = buildInfographicThumbnailPath(
+          savedId,
+          crypto.randomUUID(),
+          pendingThumbnail.file.type,
+        )
+        const { error: thumbnailUploadError } = await supabase.storage
+          .from(BUCKET)
+          .upload(uploadedThumbnailPath, pendingThumbnail.file, {
+            contentType: pendingThumbnail.file.type,
+            upsert: false,
+          })
+        if (thumbnailUploadError) throw thumbnailUploadError
+        nextThumbnailPath = uploadedThumbnailPath
       }
 
       activePhase = 'saving'
@@ -348,12 +467,11 @@ function AdminInfographicFormPage() {
           published_at: nextPublishedAt,
           image_path: nextImagePath,
           image_metadata: nextImageMetadata,
+          thumbnail_path: nextThumbnailPath,
         })
         .eq('id', savedId)
-      if (updateError) {
-        if (uploadedPath) await supabase.storage.from(BUCKET).remove([uploadedPath])
-        throw updateError
-      }
+      if (updateError) throw updateError
+      databaseUpdated = true
 
       let cleanupWarning = false
       if (imagePath && imagePath !== nextImagePath) {
@@ -361,13 +479,31 @@ function AdminInfographicFormPage() {
         cleanupWarning = Boolean(removeError)
         if (removeError) console.warn('Unable to remove previous infographic image:', removeError.message)
       }
+      if (thumbnailPath && thumbnailPath !== nextThumbnailPath) {
+        if (isInfographicThumbnailPathForResource(thumbnailPath, savedId)) {
+          const { error: removeError } = await supabase.storage.from(BUCKET).remove([thumbnailPath])
+          cleanupWarning = cleanupWarning || Boolean(removeError)
+          if (removeError) console.warn('Unable to remove previous infographic thumbnail:', removeError.message)
+        } else {
+          cleanupWarning = true
+          console.warn('Previous infographic thumbnail path was outside the resource prefix.')
+        }
+      }
 
       setStatus(nextStatus)
       setPublishedAt(nextPublishedAt)
       setImagePath(nextImagePath)
       setImageMetadata(nextImageMetadata)
+      setThumbnailPath(nextThumbnailPath)
       setPendingImage(null)
       setRemoveImage(false)
+      setPendingThumbnail(null)
+      setRemoveThumbnail(false)
+      setThumbnailFeedback(
+        uploadedThumbnailPath
+          ? { type: 'status', text: t('admin.resourcesAi.infographicForm.thumbnail.uploadSuccess') }
+          : null,
+      )
       setDirty(false)
       setNotice({
         type: cleanupWarning ? 'warning' : 'success',
@@ -382,6 +518,13 @@ function AdminInfographicFormPage() {
       }
     } catch (saveError) {
       console.error('Unable to save infographic:', saveError.message)
+      if (!databaseUpdated) {
+        const uploadedAssets = [uploadedImagePath, uploadedThumbnailPath].filter(Boolean)
+        if (uploadedAssets.length > 0) {
+          const { error: cleanupError } = await supabase.storage.from(BUCKET).remove(uploadedAssets)
+          if (cleanupError) console.warn('Unable to clean up uploaded assets:', cleanupError.message)
+        }
+      }
       if (createdNow && savedId) {
         localCreationRef.current = savedId
         navigate(`${LIST_PATH}/${savedId}/modifier`, { replace: true })
@@ -389,8 +532,10 @@ function AdminInfographicFormPage() {
       setNotice({
         type: 'error',
         text:
-          activePhase === 'uploading'
-            ? t('admin.resourcesAi.infographicForm.messages.uploadError')
+          activePhase === 'thumbnailUploading'
+            ? t('admin.resourcesAi.infographicForm.thumbnail.uploadError')
+            : activePhase === 'uploading'
+              ? t('admin.resourcesAi.infographicForm.messages.uploadError')
             : t('admin.resourcesAi.infographicForm.messages.saveError'),
       })
     } finally {
@@ -460,6 +605,25 @@ function AdminInfographicFormPage() {
 
             <FormSection
               number="2"
+              title={t('admin.resourcesAi.infographicForm.sections.thumbnail')}
+            >
+              <InfographicThumbnailField
+                feedback={thumbnailFeedback}
+                metadata={pendingThumbnail?.metadata}
+                onCancelSelection={handleCancelThumbnailSelection}
+                onChange={handleThumbnailSelection}
+                onRemove={handleRemoveThumbnail}
+                onUndoRemove={handleUndoThumbnailRemoval}
+                pending={Boolean(pendingThumbnail)}
+                previewUrl={thumbnailPreviewUrl}
+                removalPending={removeThumbnail}
+                savedThumbnail={Boolean(thumbnailPath)}
+                t={t}
+              />
+            </FormSection>
+
+            <FormSection
+              number="3"
               title={t('admin.resourcesAi.infographicForm.sections.jsonImport')}
             >
               <JsonImportSection
@@ -479,7 +643,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <FormSection
-              number="3"
+              number="4"
               title={t('admin.resourcesAi.infographicForm.sections.general')}
             >
               <div className="grid gap-4">
@@ -516,7 +680,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <FormSection
-              number="4"
+              number="5"
               title={t('admin.resourcesAi.infographicForm.sections.classification')}
             >
               <div className="grid gap-4 sm:grid-cols-2">
@@ -548,7 +712,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <FormSection
-              number="5"
+              number="6"
               title={t('admin.resourcesAi.infographicForm.sections.series')}
             >
               <div className="grid gap-4 sm:grid-cols-2">
@@ -569,7 +733,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <RepeatableSection
-              number="6"
+              number="7"
               title={t('admin.resourcesAi.infographicForm.sections.keyPoints')}
               items={form.key_points}
               emptyItem={{ title: '', description: '' }}
@@ -583,7 +747,7 @@ function AdminInfographicFormPage() {
             />
 
             <FormSection
-              number="7"
+              number="8"
               title={t('admin.resourcesAi.infographicForm.sections.takeaway')}
             >
               <Field
@@ -596,7 +760,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <RepeatableSection
-              number="8"
+              number="9"
               title={t('admin.resourcesAi.infographicForm.sections.sources')}
               items={form.sources}
               emptyItem={{ title: '', url: '' }}
@@ -610,7 +774,7 @@ function AdminInfographicFormPage() {
             />
 
             <FormSection
-              number="9"
+              number="10"
               title={t('admin.resourcesAi.infographicForm.sections.keywords')}
             >
               <Field
@@ -622,7 +786,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <FormSection
-              number="10"
+              number="11"
               title={t('admin.resourcesAi.infographicForm.sections.actions')}
             >
               <ActionBar

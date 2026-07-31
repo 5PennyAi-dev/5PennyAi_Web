@@ -888,8 +888,10 @@
           "title": "Supprimer « {{title}} »?",
           "permanent": "Cette suppression est définitive et ne peut pas être annulée.",
           "withImage": "L'image associée sera également supprimée.",
+          "withThumbnail": "Le thumbnail du catalogue sera également supprimé.",
           "deleting": "Suppression…",
           "success": "« {{title}} » a été supprimée.",
+          "successCleanupWarning": "« {{title}} » a été supprimée, mais le nettoyage du thumbnail est incomplet.",
           "errors": {
             "general": "Impossible de supprimer l'infographie. Vérifiez votre connexion et réessayez.",
             "image": "L'image associée n'a pas pu être supprimée. L'infographie a été conservée et vous pouvez réessayer.",
@@ -932,6 +934,7 @@
         "incompleteWarning": "Certaines informations sont peut-être absentes. Les sections correspondantes ne seront pas affichées sur le site.",
         "sections": {
           "image": "Image de l'infographie",
+          "thumbnail": "Thumbnail du catalogue",
           "jsonImport": "Métadonnées JSON",
           "general": "Informations générales",
           "classification": "Classification",
@@ -988,6 +991,34 @@
           "type": "Type",
           "size": "Poids",
           "dimensions": "Dimensions"
+        },
+        "thumbnail": {
+          "none": "Aucun thumbnail dédié",
+          "pending": "Fichier sélectionné, non enregistré",
+          "saved": "Thumbnail enregistré",
+          "removalPending": "Suppression en attente",
+          "fallbackUsed": "Le fallback fondé sur l'infographie originale est utilisé.",
+          "fallbackAfterSave": "Le fallback sera rétabli après la sauvegarde.",
+          "help": "Couverture horizontale utilisée uniquement dans le catalogue public.",
+          "formats": "Formats acceptés : PNG, JPEG ou WebP.",
+          "maxSize": "Taille maximale : 5 Mo.",
+          "expectedRatio": "Format 16:9 attendu (1280 × 720 px recommandé).",
+          "noPreview": "Aucune image de fallback disponible.",
+          "upload": "Téléverser un thumbnail",
+          "replace": "Remplacer le thumbnail",
+          "remove": "Supprimer le thumbnail",
+          "cancelSelection": "Annuler la sélection",
+          "cancelRemoval": "Annuler la suppression",
+          "ready": "Le thumbnail est valide et prêt à être enregistré.",
+          "performanceWarning": "Cette image dépasse environ 500 Ko. Elle est valide, mais un fichier plus léger améliorerait la performance du catalogue.",
+          "uploadSuccess": "Le thumbnail a été téléversé avec succès.",
+          "uploadError": "Échec du téléversement du thumbnail. L'ancien thumbnail et la base de données sont inchangés.",
+          "errors": {
+            "unsupportedType": "Type non pris en charge. Choisissez une image PNG, JPEG ou WebP.",
+            "tooLarge": "Image trop lourde. La taille maximale est de 5 Mo.",
+            "unreadable": "Image illisible. Choisissez un fichier image qui peut être décodé.",
+            "invalidRatio": "Ratio invalide. Choisissez une image dont le format est proche du 16:9."
+          }
         },
         "jsonImport": {
           "help": "Sélectionnez un fichier JSON ou collez son contenu. L'analyse préremplit seulement les métadonnées utilisables et ne touche jamais à l'image.",
@@ -1048,7 +1079,7 @@
           "save": "Les modifications ont été enregistrées.",
           "publish": "L'infographie a été publiée.",
           "unpublish": "L'infographie est maintenant en brouillon.",
-          "savedCleanupWarning": "Les modifications sont enregistrées, mais l'ancienne image n'a pas pu être supprimée du stockage.",
+          "savedCleanupWarning": "Les modifications sont enregistrées, mais le nettoyage d'un ancien fichier est incomplet.",
           "saveError": "Impossible d'enregistrer l'infographie. Vérifiez votre connexion et réessayez.",
           "uploadError": "L'image n'a pas pu être téléversée. Le statut actuel est inchangé et vous pouvez réessayer depuis ce formulaire."
         },

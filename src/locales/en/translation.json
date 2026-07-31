@@ -888,8 +888,10 @@
           "title": "Delete “{{title}}”?",
           "permanent": "This deletion is permanent and cannot be undone.",
           "withImage": "The associated image will also be deleted.",
+          "withThumbnail": "The catalog thumbnail will also be deleted.",
           "deleting": "Deleting…",
           "success": "“{{title}}” was deleted.",
+          "successCleanupWarning": "“{{title}}” was deleted, but thumbnail cleanup is incomplete.",
           "errors": {
             "general": "Unable to delete the infographic. Check your connection and try again.",
             "image": "The associated image could not be deleted. The infographic was kept and you can try again.",
@@ -932,6 +934,7 @@
         "incompleteWarning": "Some information may be missing. The corresponding sections will not be displayed on the site.",
         "sections": {
           "image": "Infographic image",
+          "thumbnail": "Catalog thumbnail",
           "jsonImport": "JSON metadata",
           "general": "General information",
           "classification": "Classification",
@@ -988,6 +991,34 @@
           "type": "Type",
           "size": "Size",
           "dimensions": "Dimensions"
+        },
+        "thumbnail": {
+          "none": "No dedicated thumbnail",
+          "pending": "Selected file, not yet saved",
+          "saved": "Saved thumbnail",
+          "removalPending": "Deletion pending",
+          "fallbackUsed": "The fallback based on the original infographic is being used.",
+          "fallbackAfterSave": "The fallback will be restored after saving.",
+          "help": "Horizontal cover used only in the public catalog.",
+          "formats": "Accepted formats: PNG, JPEG, or WebP.",
+          "maxSize": "Maximum size: 5 MB.",
+          "expectedRatio": "A 16:9 format is expected (1280 × 720 px recommended).",
+          "noPreview": "No fallback image is available.",
+          "upload": "Upload a thumbnail",
+          "replace": "Replace thumbnail",
+          "remove": "Delete thumbnail",
+          "cancelSelection": "Cancel selection",
+          "cancelRemoval": "Cancel deletion",
+          "ready": "The thumbnail is valid and ready to be saved.",
+          "performanceWarning": "This image is larger than about 500 KB. It is valid, but a smaller file would improve catalog performance.",
+          "uploadSuccess": "The thumbnail was uploaded successfully.",
+          "uploadError": "Thumbnail upload failed. The previous thumbnail and database are unchanged.",
+          "errors": {
+            "unsupportedType": "Unsupported type. Choose a PNG, JPEG, or WebP image.",
+            "tooLarge": "The image is too large. The maximum size is 5 MB.",
+            "unreadable": "The image is unreadable. Choose an image file that can be decoded.",
+            "invalidRatio": "Invalid ratio. Choose an image with a format close to 16:9."
+          }
         },
         "jsonImport": {
           "help": "Select a JSON file or paste its contents. The analysis only prefills usable metadata and never changes the image.",
@@ -1048,7 +1079,7 @@
           "save": "The changes have been saved.",
           "publish": "The infographic has been published.",
           "unpublish": "The infographic is now a draft.",
-          "savedCleanupWarning": "The changes were saved, but the previous image could not be removed from storage.",
+          "savedCleanupWarning": "The changes were saved, but cleanup of a previous file is incomplete.",
           "saveError": "Unable to save the infographic. Check your connection and try again.",
           "uploadError": "The image could not be uploaded. The current status is unchanged and you can try again from this form."
         },

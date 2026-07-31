@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { ArrowRight, Clock3, Image as ImageIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { getInfographicImageUrl } from '@/lib/publicInfographics'
+import { getInfographicPreviewSources } from '@/lib/publicInfographics'
 
 const DETAIL_PATH = '/ressources-ia/infographies'
 
 export default function InfographicCard({ infographic, showSeriesName = true, t }) {
-  const [imageFailed, setImageFailed] = useState(false)
-  const imageUrl = getInfographicImageUrl(infographic.image_path)
+  const previewSources = getInfographicPreviewSources(infographic)
   const title = infographic.title || t('resourcesAi.type')
   const seriesName =
     typeof infographic.series_name === 'string' ? infographic.series_name.trim() : ''
@@ -21,22 +20,12 @@ export default function InfographicCard({ infographic, showSeriesName = true, t 
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-navy/[0.09] bg-white shadow-[var(--shadow-card)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-navy/15 hover:shadow-[var(--shadow-card-hover)]">
-      <div className="aspect-[4/3] overflow-hidden border-b border-navy/[0.06] bg-surface">
-        {imageUrl && !imageFailed ? (
-          <img
-            src={imageUrl}
-            alt=""
-            className="h-full w-full object-cover object-top"
-            loading="lazy"
-            decoding="async"
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-3 rounded-xl bg-navy/[0.025] text-center text-navy/35">
-            <ImageIcon size={32} strokeWidth={1.4} aria-hidden="true" />
-            <span className="text-xs font-medium">{t('resourcesAi.imageUnavailable')}</span>
-          </div>
-        )}
+      <div className="aspect-video overflow-hidden border-b border-navy/[0.06] bg-surface">
+        <InfographicPreview
+          key={previewSources.map(({ path }) => path).join('|')}
+          sources={previewSources}
+          t={t}
+        />
       </div>
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
@@ -104,6 +93,31 @@ export default function InfographicCard({ infographic, showSeriesName = true, t 
         </Link>
       </div>
     </article>
+  )
+}
+
+function InfographicPreview({ sources, t }) {
+  const [sourceIndex, setSourceIndex] = useState(0)
+  const source = sources[sourceIndex]
+
+  if (!source?.url) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 rounded-xl bg-navy/[0.025] text-center text-navy/35">
+        <ImageIcon size={32} strokeWidth={1.4} aria-hidden="true" />
+        <span className="text-xs font-medium">{t('resourcesAi.imageUnavailable')}</span>
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={source.url}
+      alt=""
+      className={`h-full w-full object-cover ${source.kind === 'thumbnail' ? 'object-center' : 'object-top'}`}
+      loading="lazy"
+      decoding="async"
+      onError={() => setSourceIndex((index) => index + 1)}
+    />
   )
 }
 

@@ -1,11 +1,12 @@
 import { supabase } from './supabase.js'
+import { getInfographicImageCandidates } from './infographicThumbnails.js'
 import { applyPublishedFilter } from './publicInfographicQuery.js'
 
 const BUCKET = 'infographics'
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const PUBLIC_COLUMNS =
-  'id, published_at, image_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, sources'
+  'id, published_at, image_path, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, sources'
 
 export async function fetchPublishedInfographics(client = supabase) {
   const query = client.from('infographics').select(PUBLIC_COLUMNS)
@@ -30,4 +31,15 @@ export async function fetchPublishedInfographic(id, client = supabase) {
 export function getInfographicImageUrl(imagePath, client = supabase) {
   if (!imagePath) return null
   return client.storage.from(BUCKET).getPublicUrl(imagePath).data.publicUrl
+}
+
+export function getInfographicPreviewSources(resource, client = supabase) {
+  const thumbnailPath =
+    typeof resource?.thumbnail_path === 'string' ? resource.thumbnail_path.trim() : ''
+
+  return getInfographicImageCandidates(resource).map((path) => ({
+    path,
+    url: getInfographicImageUrl(path, client),
+    kind: path === thumbnailPath ? 'thumbnail' : 'fallback',
+  }))
 }

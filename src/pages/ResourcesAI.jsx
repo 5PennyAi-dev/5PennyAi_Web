@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 import InfographicCard from '@/components/resources/InfographicCard'
 import {
   fetchPublishedInfographics,
-  getInfographicImageUrl,
+  getInfographicPreviewSources,
 } from '@/lib/publicInfographics'
 import {
   groupResourcesBySeries,
@@ -424,26 +424,31 @@ function SeriesPreviewGrid({ resources, t }) {
   return (
     <div className={`grid gap-2 sm:gap-3 ${columnClass}`} aria-hidden="true">
       {resources.map((resource) => (
-        <SeriesPreview key={resource.id} resource={resource} t={t} />
+        <SeriesPreview
+          key={`${resource.id}-${resource.thumbnail_path || ''}-${resource.image_path || ''}`}
+          resource={resource}
+          t={t}
+        />
       ))}
     </div>
   )
 }
 
 function SeriesPreview({ resource, t }) {
-  const [imageFailed, setImageFailed] = useState(false)
-  const imageUrl = getInfographicImageUrl(resource.image_path)
+  const [sourceIndex, setSourceIndex] = useState(0)
+  const sources = getInfographicPreviewSources(resource)
+  const source = sources[sourceIndex]
 
   return (
-    <div className="aspect-[4/3] min-w-0 overflow-hidden rounded-xl border border-white/15 bg-surface shadow-sm">
-      {imageUrl && !imageFailed ? (
+    <div className="aspect-video min-w-0 overflow-hidden rounded-xl border border-white/15 bg-surface shadow-sm">
+      {source?.url ? (
         <img
-          src={imageUrl}
+          src={source.url}
           alt=""
-          className="h-full w-full object-cover object-top"
+          className={`h-full w-full object-cover ${source.kind === 'thumbnail' ? 'object-center' : 'object-top'}`}
           loading="lazy"
           decoding="async"
-          onError={() => setImageFailed(true)}
+          onError={() => setSourceIndex((index) => index + 1)}
         />
       ) : (
         <div className="flex h-full items-center justify-center bg-navy/[0.035] text-navy/30">

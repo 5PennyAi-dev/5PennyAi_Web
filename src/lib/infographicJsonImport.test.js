@@ -93,3 +93,25 @@ test('un JSON syntaxiquement invalide laisse intactes les données présentes', 
     key_points: [{ title: 'Point existant' }],
   })
 })
+
+test('ignore les propriétés de thumbnail contrôlées par l’application', () => {
+  const currentForm = { title: 'Titre actuel' }
+  const result = importInfographicJson(
+    JSON.stringify({
+      title: 'Titre importé',
+      thumbnail_path: 'foreign/path.webp',
+      thumbnailUrl: 'https://example.com/thumbnail.webp',
+      thumbnail: 'thumbnail.webp',
+      thumbnailGeneratedAt: '2026-07-31T00:00:00Z',
+    }),
+    currentForm,
+  )
+
+  assert.deepEqual(result.nextForm, { title: 'Titre importé' })
+  assert.deepEqual(result.unknown, [
+    'thumbnail_path',
+    'thumbnailUrl',
+    'thumbnail',
+    'thumbnailGeneratedAt',
+  ])
+})
