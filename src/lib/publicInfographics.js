@@ -1,6 +1,7 @@
 import { supabase } from './supabase.js'
 import { getInfographicImageCandidates } from './infographicThumbnails.js'
 import { applyPublishedFilter } from './publicInfographicQuery.js'
+import { loadPublishedCatalog, querySeriesThumbnailRows } from './publicResourceCatalog.js'
 
 const BUCKET = 'infographics'
 const UUID_PATTERN =
@@ -26,6 +27,14 @@ export async function fetchPublishedInfographic(id, client = supabase) {
 
   if (error) throw error
   return data || null
+}
+
+export async function fetchSeriesThumbnailRows(slugs, client = supabase) {
+  return querySeriesThumbnailRows(slugs, client)
+}
+
+export async function fetchPublishedCatalog(client = supabase, logger = console) {
+  return loadPublishedCatalog({ client, fetchInfographics: fetchPublishedInfographics, logger })
 }
 
 export function getInfographicImageUrl(imagePath, client = supabase) {

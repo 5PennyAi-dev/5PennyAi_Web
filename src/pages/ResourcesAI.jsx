@@ -11,13 +11,15 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import InfographicCard from '@/components/resources/InfographicCard'
 import {
-  fetchPublishedInfographics,
+  fetchPublishedCatalog,
+  getInfographicImageUrl,
   getInfographicPreviewSources,
 } from '@/lib/publicInfographics'
 import {
   groupResourcesBySeries,
   selectFeaturedSeries,
 } from '@/lib/resourceSeries'
+import { attachSeriesThumbnails } from '@/lib/seriesThumbnails'
 
 const DETAIL_PATH = '/ressources-ia/infographies'
 const SERIES_PATH = '/ressources-ia/series'
@@ -26,8 +28,12 @@ export default function ResourcesAI() {
   const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [infographics, setInfographics] = useState([])
+  const [seriesThumbnailRows, setSeriesThumbnailRows] = useState([])
   const [state, setState] = useState('loading')
-  const series = useMemo(() => groupResourcesBySeries(infographics), [infographics])
+  const series = useMemo(
+    () => attachSeriesThumbnails(groupResourcesBySeries(infographics), seriesThumbnailRows),
+    [infographics, seriesThumbnailRows],
+  )
   const isSeriesView = searchParams.get('vue') === 'series'
   const selectedSeriesSlug = isSeriesView ? '' : searchParams.get('serie') || ''
   const selectedSeries = useMemo(
@@ -39,7 +45,9 @@ export default function ResourcesAI() {
   const loadInfographics = useCallback(async () => {
     setState('loading')
     try {
-      setInfographics(await fetchPublishedInfographics())
+      const catalog = await fetchPublishedCatalog()
+      setInfographics(catalog.infographics)
+      setSeriesThumbnailRows(catalog.seriesThumbnailRows)
       setState('ready')
     } catch (error) {
       console.error('Unable to load published infographics:', error.message)
@@ -50,10 +58,11 @@ export default function ResourcesAI() {
   useEffect(() => {
     let cancelled = false
 
-    fetchPublishedInfographics()
-      .then((data) => {
+    fetchPublishedCatalog()
+      .then((catalog) => {
         if (!cancelled) {
-          setInfographics(data)
+          setInfographics(catalog.infographics)
+          setSeriesThumbnailRows(catalog.seriesThumbnailRows)
           setState('ready')
         }
       })
@@ -346,7 +355,7 @@ function FeaturedSeries({ series, t }) {
         </div>
 
         <div className="min-w-0 bg-white/[0.055] p-5 sm:p-7 lg:p-8">
-          <SeriesPreviewGrid resources={series.previews} t={t} />
+          <SeriesArtwork series={series} t={t} />
         </div>
       </div>
     </section>
@@ -381,7 +390,7 @@ function SeriesCard({ series, t }) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-navy/[0.1] bg-white shadow-[var(--shadow-card)]">
       <div className="border-b border-navy/[0.06] bg-navy/[0.035] p-4 sm:p-5">
-        <SeriesPreviewGrid resources={series.previews} t={t} />
+        <SeriesArtwork series={series} t={t} />
       </div>
       <div className="flex flex-1 flex-col p-6 sm:p-7">
         <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent">
@@ -411,6 +420,30 @@ function SeriesCard({ series, t }) {
       </div>
     </article>
   )
+}
+
+function SeriesArtwork({ series, t }) {
+  const [failedPath, setFailedPath] = useState(null)
+  const thumbnailUrl = series.thumbnailPath
+    ? getInfographicImageUrl(series.thumbnailPath)
+    : null
+
+  if (thumbnailUrl && failedPath !== series.thumbnailPath) {
+    return (
+      <div className="aspect-video overflow-hidden rounded-xl border border-white/15 bg-surface shadow-sm">
+        <img
+          src={thumbnailUrl}
+          alt=""
+          className="h-full w-full object-contain object-center"
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailedPath(series.thumbnailPath)}
+        />
+      </div>
+    )
+  }
+
+  return <SeriesPreviewGrid resources={series.previews} t={t} />
 }
 
 function SeriesPreviewGrid({ resources, t }) {

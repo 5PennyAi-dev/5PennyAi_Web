@@ -16,6 +16,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
 import InfographicThumbnailField from '@/components/admin/resources/InfographicThumbnailField'
+import SeriesThumbnailField from '@/components/admin/resources/SeriesThumbnailField'
 import {
   hasInfographicMetadata,
   importInfographicJson,
@@ -84,6 +85,7 @@ function AdminInfographicFormPage() {
   const [status, setStatus] = useState('draft')
   const [publishedAt, setPublishedAt] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [persistedSeriesName, setPersistedSeriesName] = useState('')
   const [imagePath, setImagePath] = useState(null)
   const [imageMetadata, setImageMetadata] = useState(null)
   const [pendingImage, setPendingImage] = useState(null)
@@ -142,6 +144,7 @@ function AdminInfographicFormPage() {
         setImagePath(data.image_path)
         setImageMetadata(data.image_metadata)
         setThumbnailPath(data.thumbnail_path)
+        setPersistedSeriesName(data.series_name || '')
         setForm(toFormState(data))
         setDirty(false)
       })
@@ -554,6 +557,7 @@ function AdminInfographicFormPage() {
       setImagePath(nextImagePath)
       setImageMetadata(nextImageMetadata)
       setThumbnailPath(nextThumbnailPath)
+      setPersistedSeriesName(editorial.series_name || '')
       setPendingImage(null)
       setRemoveImage(false)
       setPendingThumbnail(null)
@@ -794,8 +798,23 @@ function AdminInfographicFormPage() {
               </div>
             </FormSection>
 
+            {resourceId && persistedSeriesName && (
+              <FormSection
+                number="7"
+                title={t('admin.resourcesAi.infographicForm.sections.seriesThumbnail')}
+              >
+                <SeriesThumbnailField
+                  currentSeriesName={form.series_name}
+                  fallbackUrl={existingThumbnailUrl || existingImageUrl}
+                  persistedSeriesName={persistedSeriesName}
+                  resourceId={resourceId}
+                  t={t}
+                />
+              </FormSection>
+            )}
+
             <RepeatableSection
-              number="7"
+              number="8"
               title={t('admin.resourcesAi.infographicForm.sections.keyPoints')}
               items={form.key_points}
               emptyItem={{ title: '', description: '' }}
@@ -809,7 +828,7 @@ function AdminInfographicFormPage() {
             />
 
             <FormSection
-              number="8"
+              number="9"
               title={t('admin.resourcesAi.infographicForm.sections.takeaway')}
             >
               <Field
@@ -822,7 +841,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <RepeatableSection
-              number="9"
+              number="10"
               title={t('admin.resourcesAi.infographicForm.sections.sources')}
               items={form.sources}
               emptyItem={{ title: '', url: '' }}
@@ -836,7 +855,7 @@ function AdminInfographicFormPage() {
             />
 
             <FormSection
-              number="10"
+              number="11"
               title={t('admin.resourcesAi.infographicForm.sections.keywords')}
             >
               <Field
@@ -848,7 +867,7 @@ function AdminInfographicFormPage() {
             </FormSection>
 
             <FormSection
-              number="11"
+              number="12"
               title={t('admin.resourcesAi.infographicForm.sections.actions')}
             >
               <ActionBar
