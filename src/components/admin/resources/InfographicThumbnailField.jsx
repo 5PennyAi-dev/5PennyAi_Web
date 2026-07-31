@@ -1,21 +1,25 @@
-import { Image as ImageIcon, Trash2, Undo2, Upload, X } from 'lucide-react'
+import { Image as ImageIcon, LoaderCircle, Sparkles, Trash2, Undo2, Upload, X } from 'lucide-react'
 
 const INPUT_ID = 'infographic-thumbnail-file'
 
 export default function InfographicThumbnailField({
   feedback,
+  generating,
   metadata,
   onCancelSelection,
   onChange,
+  onGenerate,
   onRemove,
   onUndoRemove,
   pending,
   previewUrl,
   removalPending,
+  resourceSaved,
   savedThumbnail,
   t,
 }) {
   const usesFallback = !pending && (!savedThumbnail || removalPending)
+  const manualChangePending = pending || removalPending
 
   return (
     <div className="space-y-4">
@@ -25,7 +29,7 @@ export default function InfographicThumbnailField({
             <img
               src={previewUrl}
               alt=""
-              className={`h-full w-full object-cover ${usesFallback ? 'object-top' : 'object-center'}`}
+              className={`h-full w-full ${usesFallback ? 'object-cover object-top' : 'object-contain object-center'}`}
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-2 px-5 text-center text-navy/40">
@@ -97,6 +101,24 @@ export default function InfographicThumbnailField({
       )}
 
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+        <button
+          type="button"
+          onClick={onGenerate}
+          disabled={!resourceSaved || manualChangePending || generating}
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+        >
+          {generating ? (
+            <LoaderCircle size={15} className="animate-spin" aria-hidden="true" />
+          ) : (
+            <Sparkles size={15} aria-hidden="true" />
+          )}
+          {generating
+            ? t('admin.resourcesAi.infographicForm.thumbnail.generating')
+            : savedThumbnail
+              ? t('admin.resourcesAi.infographicForm.thumbnail.regenerate')
+              : t('admin.resourcesAi.infographicForm.thumbnail.generate')}
+        </button>
+
         {!removalPending && (
           <label
             htmlFor={INPUT_ID}
@@ -149,6 +171,17 @@ export default function InfographicThumbnailField({
           </button>
         )}
       </div>
+
+      {!resourceSaved && (
+        <p className="text-xs font-medium text-navy/65" role="status">
+          {t('admin.resourcesAi.infographicForm.thumbnail.saveFirst')}
+        </p>
+      )}
+      {resourceSaved && manualChangePending && (
+        <p className="text-xs font-medium text-navy/65" role="status">
+          {t('admin.resourcesAi.infographicForm.thumbnail.resolveManualChange')}
+        </p>
+      )}
     </div>
   )
 }

@@ -113,7 +113,7 @@ function InfographicPreview({ sources, t }) {
     <img
       src={source.url}
       alt=""
-      className={`h-full w-full object-cover ${source.kind === 'thumbnail' ? 'object-center' : 'object-top'}`}
+      className={`h-full w-full ${source.kind === 'thumbnail' ? 'object-contain object-center' : 'object-cover object-top'}`}
       loading="lazy"
       decoding="async"
       onError={() => setSourceIndex((index) => index + 1)}

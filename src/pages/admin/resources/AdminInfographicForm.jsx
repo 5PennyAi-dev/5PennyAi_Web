@@ -92,6 +92,7 @@ function AdminInfographicFormPage() {
   const [pendingThumbnail, setPendingThumbnail] = useState(null)
   const [removeThumbnail, setRemoveThumbnail] = useState(false)
   const [thumbnailFeedback, setThumbnailFeedback] = useState(null)
+  const [generatingThumbnail, setGeneratingThumbnail] = useState(false)
   const [loading, setLoading] = useState(Boolean(routeId))
   const [loadState, setLoadState] = useState('ready')
   const [saving, setSaving] = useState(false)
@@ -319,6 +320,64 @@ function AdminInfographicFormPage() {
     setRemoveThumbnail(false)
     setThumbnailFeedback(null)
     setDirty(true)
+  }
+
+  const handleGenerateThumbnail = async () => {
+    if (generatingThumbnail || !resourceId || pendingThumbnail || removeThumbnail) return
+    if (
+      thumbnailPath &&
+      !window.confirm(t('admin.resourcesAi.infographicForm.thumbnail.regenerateConfirm'))
+    ) {
+      return
+    }
+
+    setGeneratingThumbnail(true)
+    setThumbnailFeedback({
+      type: 'status',
+      text: t('admin.resourcesAi.infographicForm.thumbnail.generating'),
+    })
+
+    try {
+      const { data } = await supabase.auth.getSession()
+      const accessToken = data.session?.access_token
+      if (!accessToken) throw new Error('unauthenticated')
+
+      const response = await fetch('/api/generate-resource-thumbnail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ resourceId }),
+      })
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok || typeof result.thumbnailPath !== 'string') {
+        throw new Error(result.error || 'generation_failed')
+      }
+
+      setThumbnailPath(result.thumbnailPath)
+      setPendingThumbnail(null)
+      setRemoveThumbnail(false)
+      setThumbnailFeedback({
+        type: 'status',
+        text: result.cleanupWarning
+          ? t('admin.resourcesAi.infographicForm.thumbnail.generatedCleanupWarning')
+          : t('admin.resourcesAi.infographicForm.thumbnail.generated'),
+      })
+    } catch (error) {
+      console.error('Unable to generate infographic thumbnail:', error.message)
+      const referenceUnavailable = error.message.startsWith('reference_')
+      setThumbnailFeedback({
+        type: 'error',
+        text: t(
+          `admin.resourcesAi.infographicForm.thumbnail.${
+            referenceUnavailable ? 'referenceUnavailable' : 'generationFailed'
+          }`,
+        ),
+      })
+    } finally {
+      setGeneratingThumbnail(false)
+    }
   }
 
   const handleJsonFileSelection = async (event) => {
@@ -609,14 +668,17 @@ function AdminInfographicFormPage() {
             >
               <InfographicThumbnailField
                 feedback={thumbnailFeedback}
+                generating={generatingThumbnail}
                 metadata={pendingThumbnail?.metadata}
                 onCancelSelection={handleCancelThumbnailSelection}
                 onChange={handleThumbnailSelection}
+                onGenerate={handleGenerateThumbnail}
                 onRemove={handleRemoveThumbnail}
                 onUndoRemove={handleUndoThumbnailRemoval}
                 pending={Boolean(pendingThumbnail)}
                 previewUrl={thumbnailPreviewUrl}
                 removalPending={removeThumbnail}
+                resourceSaved={Boolean(resourceId)}
                 savedThumbnail={Boolean(thumbnailPath)}
                 t={t}
               />

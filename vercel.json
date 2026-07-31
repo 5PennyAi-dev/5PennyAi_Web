@@ -8,6 +8,9 @@
     },
     "api/generate-header.js": {
       "maxDuration": 120
+    },
+    "api/generate-resource-thumbnail.js": {
+      "maxDuration": 300
     }
   },
   "redirects": [
