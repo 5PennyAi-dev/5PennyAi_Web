@@ -751,18 +751,19 @@
   "resourcesAi": {
     "seo": {
       "listTitle": "AI Resources | 5PennyAi",
-      "listDescription": "Educational infographics for understanding artificial intelligence and its uses.",
+      "listDescription": "Clear, practical educational resources to help you better understand artificial intelligence.",
       "detailTitle": "{{title}} | AI Resources",
       "unavailableTitle": "Infographic unavailable | AI Resources"
     },
     "eyebrow": "Learning library",
     "title": "AI Resources",
-    "subtitle": "Clear, practical infographics to help you understand artificial intelligence.",
+    "subtitle": "Clear, practical educational resources to help you better understand artificial intelligence.",
     "type": "Infographic",
     "typeWithTheme": "Infographic · {{theme}}",
     "episode": "Episode {{number}}",
     "readingTime": "{{count}} min",
-    "view": "View infographic",
+    "view": "View resource",
+    "viewLabel": "View resource: {{title}}",
     "imageAlt": "Educational infographic",
     "imageUnavailable": "Image unavailable",
     "loading": "Loading infographics…",

@@ -751,18 +751,19 @@
   "resourcesAi": {
     "seo": {
       "listTitle": "Ressources IA | 5PennyAi",
-      "listDescription": "Des infographies pédagogiques pour comprendre l'intelligence artificielle et ses usages.",
+      "listDescription": "Des ressources pédagogiques claires et pratiques pour mieux comprendre l'intelligence artificielle.",
       "detailTitle": "{{title}} | Ressources IA",
       "unavailableTitle": "Infographie non disponible | Ressources IA"
     },
     "eyebrow": "Bibliothèque pédagogique",
     "title": "Ressources IA",
-    "subtitle": "Des infographies claires et pratiques pour mieux comprendre l'intelligence artificielle.",
+    "subtitle": "Des ressources pédagogiques claires et pratiques pour mieux comprendre l'intelligence artificielle.",
     "type": "Infographie",
     "typeWithTheme": "Infographie · {{theme}}",
     "episode": "Épisode {{number}}",
     "readingTime": "{{count}} min",
-    "view": "Voir l'infographie",
+    "view": "Consulter",
+    "viewLabel": "Consulter : {{title}}",
     "imageAlt": "Infographie pédagogique",
     "imageUnavailable": "Image non disponible",
     "loading": "Chargement des infographies…",

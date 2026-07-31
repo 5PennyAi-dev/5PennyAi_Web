@@ -92,17 +92,27 @@ function InfographicCard({ infographic, t }) {
   const [imageFailed, setImageFailed] = useState(false)
   const imageUrl = getInfographicImageUrl(infographic.image_path)
   const title = infographic.title || t('resourcesAi.type')
-  const series = formatSeries(infographic, t)
+  const seriesName =
+    typeof infographic.series_name === 'string' ? infographic.series_name.trim() : ''
+  const episodeNumber = formatEpisodeNumber(infographic.episode_number)
+  const episodeLabel =
+    seriesName && episodeNumber
+      ? t('resourcesAi.episode', { number: episodeNumber })
+      : ''
+  const typeLabel = infographic.theme
+    ? t('resourcesAi.typeWithTheme', { theme: infographic.theme })
+    : t('resourcesAi.type')
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-navy/[0.09] bg-white shadow-[var(--shadow-card)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-navy/15 hover:shadow-[var(--shadow-card-hover)]">
-      <div className="aspect-[4/5] overflow-hidden border-b border-navy/[0.06] bg-surface p-3 sm:p-4">
+      <div className="aspect-[4/3] overflow-hidden border-b border-navy/[0.06] bg-surface">
         {imageUrl && !imageFailed ? (
           <img
             src={imageUrl}
-            alt={infographic.image_alt || t('resourcesAi.imageAlt')}
-            className="h-full w-full object-contain"
+            alt=""
+            className="h-full w-full object-cover object-top"
             loading="lazy"
+            decoding="async"
             onError={() => setImageFailed(true)}
           />
         ) : (
@@ -114,21 +124,40 @@ function InfographicCard({ infographic, t }) {
       </div>
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">
-          {infographic.theme
-            ? t('resourcesAi.typeWithTheme', { theme: infographic.theme })
-            : t('resourcesAi.type')}
-        </p>
-        {series && <p className="mt-2 text-xs font-medium text-navy/55">{series}</p>}
-        <h2 className="mt-3 font-heading text-xl font-bold leading-snug text-navy">{title}</h2>
+        {seriesName ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="min-w-0 text-xs font-bold leading-snug text-navy/70">
+              {seriesName}
+            </p>
+            {episodeLabel && (
+              <span className="shrink-0 rounded-full bg-steel/18 px-2.5 py-1 text-[11px] font-bold tracking-wide text-navy">
+                {episodeLabel}
+              </span>
+            )}
+          </div>
+        ) : (
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">
+            {typeLabel}
+          </p>
+        )}
+
+        <h2 className="mt-3 line-clamp-3 font-heading text-xl font-bold leading-snug text-navy">
+          {title}
+        </h2>
         {infographic.summary && (
           <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted">
             {infographic.summary}
           </p>
         )}
 
+        {seriesName && (
+          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-accent">
+            {typeLabel}
+          </p>
+        )}
+
         {(infographic.level || infographic.reading_time_minutes != null) && (
-          <div className="mt-5 flex flex-wrap gap-2 text-xs font-medium text-navy/65">
+          <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-navy/65">
             {infographic.level && (
               <span className="rounded-full bg-lavender/35 px-3 py-1">
                 {t(`resourcesAi.levels.${infographic.level}`, {
@@ -149,6 +178,7 @@ function InfographicCard({ infographic, t }) {
 
         <Link
           to={`${DETAIL_PATH}/${infographic.id}`}
+          aria-label={t('resourcesAi.viewLabel', { title })}
           className="mt-auto inline-flex w-fit items-center gap-2 pt-6 text-sm font-bold text-accent-deep transition-colors hover:text-navy"
         >
           {t('resourcesAi.view')}
@@ -169,7 +199,7 @@ function LoadingGrid({ t }) {
             key={item}
             className="overflow-hidden rounded-2xl border border-navy/[0.07] bg-white"
           >
-            <div className="aspect-[4/5] animate-pulse bg-gray-200" />
+            <div className="aspect-[4/3] animate-pulse bg-gray-200" />
             <div className="space-y-3 p-6">
               <div className="h-3 w-1/3 animate-pulse rounded bg-gray-100" />
               <div className="h-6 w-4/5 animate-pulse rounded bg-gray-200" />
@@ -209,11 +239,7 @@ function EmptyState({ t }) {
   )
 }
 
-function formatSeries(infographic, t) {
-  const episode =
-    infographic.episode_number != null
-      ? t('resourcesAi.episode', { number: infographic.episode_number })
-      : ''
-  if (infographic.series_name && episode) return `${infographic.series_name} · ${episode}`
-  return infographic.series_name || episode
+function formatEpisodeNumber(value) {
+  if (!Number.isInteger(value) || value <= 0) return null
+  return String(value).padStart(2, '0')
 }
