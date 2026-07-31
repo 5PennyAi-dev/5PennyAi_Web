@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight,
   BookOpen,
-  Clock3,
   Image as ImageIcon,
   Layers3,
   RotateCw,
@@ -10,6 +9,7 @@ import {
 import { Helmet } from 'react-helmet-async'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import InfographicCard from '@/components/resources/InfographicCard'
 import {
   fetchPublishedInfographics,
   getInfographicImageUrl,
@@ -20,6 +20,7 @@ import {
 } from '@/lib/resourceSeries'
 
 const DETAIL_PATH = '/ressources-ia/infographies'
+const SERIES_PATH = '/ressources-ia/series'
 
 export default function ResourcesAI() {
   const { t } = useTranslation()
@@ -130,7 +131,6 @@ export default function ResourcesAI() {
               {isSeriesView ? (
                 <SeriesView
                   onShowResources={showResourcesView}
-                  onViewEpisodes={filterBySeries}
                   series={series}
                   t={t}
                 />
@@ -139,7 +139,6 @@ export default function ResourcesAI() {
                   featuredSeries={selectedSeriesSlug ? null : featuredSeries}
                   infographics={selectedSeriesSlug ? selectedSeries?.resources || [] : infographics}
                   onClearFilter={() => filterBySeries('')}
-                  onViewEpisodes={filterBySeries}
                   selectedSeries={selectedSeries}
                   selectedSeriesSlug={selectedSeriesSlug}
                   t={t}
@@ -250,7 +249,6 @@ function ResourcesView({
   featuredSeries,
   infographics,
   onClearFilter,
-  onViewEpisodes,
   selectedSeries,
   selectedSeriesSlug,
   t,
@@ -262,7 +260,7 @@ function ResourcesView({
   return (
     <>
       {featuredSeries && (
-        <FeaturedSeries series={featuredSeries} onViewEpisodes={onViewEpisodes} t={t} />
+        <FeaturedSeries series={featuredSeries} t={t} />
       )}
 
       <section aria-labelledby="resources-list-title">
@@ -296,7 +294,7 @@ function ResourcesView({
   )
 }
 
-function FeaturedSeries({ onViewEpisodes, series, t }) {
+function FeaturedSeries({ series, t }) {
   const firstEpisodeTitle = series.firstEpisode?.title || t('resourcesAi.type')
 
   return (
@@ -336,15 +334,14 @@ function FeaturedSeries({ onViewEpisodes, series, t }) {
                 {t('resourcesAi.catalog.startSeries')}
               </Link>
             )}
-            <button
-              type="button"
-              onClick={() => onViewEpisodes(series.slug)}
+            <Link
+              to={`${SERIES_PATH}/${series.slug}`}
               aria-label={t('resourcesAi.catalog.viewEpisodesLabel', { series: series.name })}
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
             >
               {t('resourcesAi.catalog.viewEpisodes')}
               <ArrowRight size={16} aria-hidden="true" />
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -356,7 +353,7 @@ function FeaturedSeries({ onViewEpisodes, series, t }) {
   )
 }
 
-function SeriesView({ onShowResources, onViewEpisodes, series, t }) {
+function SeriesView({ onShowResources, series, t }) {
   if (series.length === 0) {
     return <NoSeriesState onShowResources={onShowResources} t={t} />
   }
@@ -372,7 +369,7 @@ function SeriesView({ onShowResources, onViewEpisodes, series, t }) {
       >
         {series.map((item) => (
           <li key={item.name}>
-            <SeriesCard series={item} onViewEpisodes={onViewEpisodes} t={t} />
+            <SeriesCard series={item} t={t} />
           </li>
         ))}
       </ul>
@@ -380,7 +377,7 @@ function SeriesView({ onShowResources, onViewEpisodes, series, t }) {
   )
 }
 
-function SeriesCard({ onViewEpisodes, series, t }) {
+function SeriesCard({ series, t }) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-navy/[0.1] bg-white shadow-[var(--shadow-card)]">
       <div className="border-b border-navy/[0.06] bg-navy/[0.035] p-4 sm:p-5">
@@ -403,15 +400,14 @@ function SeriesCard({ onViewEpisodes, series, t }) {
             </span>
           )}
         </div>
-        <button
-          type="button"
-          onClick={() => onViewEpisodes(series.slug)}
+        <Link
+          to={`${SERIES_PATH}/${series.slug}`}
           aria-label={t('resourcesAi.catalog.viewEpisodesLabel', { series: series.name })}
           className="mt-auto inline-flex w-fit items-center gap-2 pt-7 text-sm font-bold text-accent-deep hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4"
         >
           {t('resourcesAi.catalog.viewEpisodes')}
           <ArrowRight size={16} aria-hidden="true" />
-        </button>
+        </Link>
       </div>
     </article>
   )
@@ -470,107 +466,6 @@ function ResourceGrid({ infographics, t }) {
         </li>
       ))}
     </ul>
-  )
-}
-
-function InfographicCard({ infographic, t }) {
-  const [imageFailed, setImageFailed] = useState(false)
-  const imageUrl = getInfographicImageUrl(infographic.image_path)
-  const title = infographic.title || t('resourcesAi.type')
-  const seriesName =
-    typeof infographic.series_name === 'string' ? infographic.series_name.trim() : ''
-  const episodeNumber = formatEpisodeNumber(infographic.episode_number)
-  const episodeLabel =
-    seriesName && episodeNumber
-      ? t('resourcesAi.episode', { number: episodeNumber })
-      : ''
-  const typeLabel = infographic.theme
-    ? t('resourcesAi.typeWithTheme', { theme: infographic.theme })
-    : t('resourcesAi.type')
-
-  return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-navy/[0.09] bg-white shadow-[var(--shadow-card)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-navy/15 hover:shadow-[var(--shadow-card-hover)]">
-      <div className="aspect-[4/3] overflow-hidden border-b border-navy/[0.06] bg-surface">
-        {imageUrl && !imageFailed ? (
-          <img
-            src={imageUrl}
-            alt=""
-            className="h-full w-full object-cover object-top"
-            loading="lazy"
-            decoding="async"
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-3 rounded-xl bg-navy/[0.025] text-center text-navy/35">
-            <ImageIcon size={32} strokeWidth={1.4} aria-hidden="true" />
-            <span className="text-xs font-medium">{t('resourcesAi.imageUnavailable')}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        {seriesName ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="min-w-0 text-xs font-bold leading-snug text-navy/70">
-              {seriesName}
-            </p>
-            {episodeLabel && (
-              <span className="shrink-0 rounded-full bg-steel/18 px-2.5 py-1 text-[11px] font-bold tracking-wide text-navy">
-                {episodeLabel}
-              </span>
-            )}
-          </div>
-        ) : (
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">
-            {typeLabel}
-          </p>
-        )}
-
-        <h2 className="mt-3 line-clamp-3 font-heading text-xl font-bold leading-snug text-navy">
-          {title}
-        </h2>
-        {infographic.summary && (
-          <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted">
-            {infographic.summary}
-          </p>
-        )}
-
-        {seriesName && (
-          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-accent">
-            {typeLabel}
-          </p>
-        )}
-
-        {(infographic.level || infographic.reading_time_minutes != null) && (
-          <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-navy/65">
-            {infographic.level && (
-              <span className="rounded-full bg-lavender/35 px-3 py-1">
-                {t(`resourcesAi.levels.${infographic.level}`, {
-                  defaultValue: infographic.level,
-                })}
-              </span>
-            )}
-            {infographic.reading_time_minutes != null && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-steel/15 px-3 py-1">
-                <Clock3 size={13} aria-hidden="true" />
-                {t('resourcesAi.readingTime', {
-                  count: infographic.reading_time_minutes,
-                })}
-              </span>
-            )}
-          </div>
-        )}
-
-        <Link
-          to={`${DETAIL_PATH}/${infographic.id}`}
-          aria-label={t('resourcesAi.viewLabel', { title })}
-          className="mt-auto inline-flex w-fit items-center gap-2 pt-6 text-sm font-bold text-accent-deep transition-colors hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4"
-        >
-          {t('resourcesAi.view')}
-          <ArrowRight size={16} aria-hidden="true" />
-        </Link>
-      </div>
-    </article>
   )
 }
 
@@ -676,9 +571,4 @@ function EmptyState({ t }) {
       <p className="mt-3 text-sm leading-relaxed text-muted">{t('resourcesAi.emptyDescription')}</p>
     </div>
   )
-}
-
-function formatEpisodeNumber(value) {
-  if (!Number.isInteger(value) || value <= 0) return null
-  return String(value).padStart(2, '0')
 }

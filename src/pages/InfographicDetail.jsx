@@ -1,20 +1,35 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, Clock3, ExternalLink, Maximize2, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Clock3, ExternalLink, Maximize2, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   fetchPublishedInfographic,
+  fetchPublishedInfographics,
   getInfographicImageUrl,
 } from '@/lib/publicInfographics'
+import {
+  createSeriesSlug,
+  findSeriesBySlug,
+  getAdjacentEpisodes,
+  groupResourcesBySeries,
+} from '@/lib/resourceSeries'
 
 const RESOURCES_PATH = '/ressources-ia'
+const SERIES_PATH = '/ressources-ia/series'
+const DETAIL_PATH = '/ressources-ia/infographies'
 
 export default function InfographicDetail() {
   const { id } = useParams()
+
+  return <InfographicDetailById key={id} id={id} />
+}
+
+function InfographicDetailById({ id }) {
   const { t } = useTranslation()
   const [infographic, setInfographic] = useState(null)
+  const [seriesContext, setSeriesContext] = useState(null)
   const [state, setState] = useState('loading')
 
   useEffect(() => {
@@ -22,10 +37,29 @@ export default function InfographicDetail() {
 
     fetchPublishedInfographic(id)
       .then((data) => {
-        if (!cancelled) {
-          setInfographic(data)
-          setState(data ? 'ready' : 'missing')
-        }
+        if (cancelled) return
+        setInfographic(data)
+        setState(data ? 'ready' : 'missing')
+
+        if (!data?.series_name) return
+
+        fetchPublishedInfographics()
+          .then((resources) => {
+            if (cancelled) return
+            const series = findSeriesBySlug(
+              groupResourcesBySeries(resources),
+              createSeriesSlug(data.series_name),
+            )
+            if (!series || !series.resources.some((resource) => resource.id === data.id)) return
+
+            setSeriesContext({
+              series,
+              ...getAdjacentEpisodes(series.resources, data.id),
+            })
+          })
+          .catch((error) => {
+            console.warn('Unable to load infographic series navigation:', error.message)
+          })
       })
       .catch((error) => {
         console.error('Unable to load published infographic:', error.message)
@@ -41,10 +75,17 @@ export default function InfographicDetail() {
   if (state === 'missing') return <UnavailableState t={t} />
   if (state === 'error') return <UnavailableState isError t={t} />
 
-  return <InfographicContent infographic={infographic} t={t} />
+  return (
+    <InfographicContent
+      key={infographic.id}
+      infographic={infographic}
+      seriesContext={seriesContext}
+      t={t}
+    />
+  )
 }
 
-function InfographicContent({ infographic, t }) {
+function InfographicContent({ infographic, seriesContext, t }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [imageFailed, setImageFailed] = useState(false)
   const imageUrl = getInfographicImageUrl(infographic.image_path)
@@ -71,6 +112,17 @@ function InfographicContent({ infographic, t }) {
               {t('resourcesAi.title')}
             </Link>
             <span aria-hidden="true">/</span>
+            {seriesContext && (
+              <>
+                <Link
+                  to={`${SERIES_PATH}/${seriesContext.series.slug}`}
+                  className="max-w-full truncate font-medium hover:text-accent-deep"
+                >
+                  {seriesContext.series.name}
+                </Link>
+                <span aria-hidden="true">/</span>
+              </>
+            )}
             <span aria-current="page" className="max-w-full truncate text-navy/75">
               {title}
             </span>
@@ -203,6 +255,10 @@ function InfographicContent({ infographic, t }) {
             </section>
           )}
 
+          {seriesContext && (
+            <SeriesNavigation context={seriesContext} t={t} />
+          )}
+
           <div className="mx-auto mt-16 max-w-4xl border-t border-navy/[0.1] pt-8">
             <Link
               to={RESOURCES_PATH}
@@ -224,6 +280,80 @@ function InfographicContent({ infographic, t }) {
         />
       )}
     </>
+  )
+}
+
+function SeriesNavigation({ context, t }) {
+  const { next, previous, series } = context
+
+  return (
+    <nav
+      aria-label={t('resourcesAi.detail.seriesNavigationLabel', { series: series.name })}
+      className="mx-auto mt-16 max-w-4xl border-t border-navy/[0.1] pt-8"
+    >
+      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent">
+        {t('resourcesAi.detail.continueSeries')}
+      </p>
+      <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
+        {previous ? (
+          <EpisodeNavigationLink direction="previous" resource={previous} t={t} />
+        ) : (
+          <span aria-hidden="true" className="hidden md:block" />
+        )}
+
+        <Link
+          to={`${SERIES_PATH}/${series.slug}`}
+          className="inline-flex items-center justify-center rounded-2xl border border-navy/15 bg-white px-5 py-4 text-center text-sm font-bold text-accent-deep hover:border-accent hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        >
+          {t('resourcesAi.detail.allSeriesEpisodes')}
+        </Link>
+
+        {next ? (
+          <EpisodeNavigationLink direction="next" resource={next} t={t} />
+        ) : (
+          <span aria-hidden="true" className="hidden md:block" />
+        )}
+      </div>
+    </nav>
+  )
+}
+
+function EpisodeNavigationLink({ direction, resource, t }) {
+  const isPrevious = direction === 'previous'
+  const title = resource.title || t('resourcesAi.type')
+  const episodeNumber = formatEpisodeNumber(resource.episode_number)
+  const episode = episodeNumber
+    ? t('resourcesAi.episode', { number: episodeNumber })
+    : t('resourcesAi.detail.unnumberedEpisode')
+
+  return (
+    <Link
+      to={`${DETAIL_PATH}/${resource.id}`}
+      aria-label={t(
+        isPrevious
+          ? 'resourcesAi.detail.previousEpisodeLabel'
+          : 'resourcesAi.detail.nextEpisodeLabel',
+        { episode, title },
+      )}
+      className={`flex min-w-0 items-center gap-3 rounded-2xl bg-navy px-5 py-4 text-white hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+        isPrevious ? '' : 'md:justify-end md:text-right'
+      }`}
+    >
+      {isPrevious && <ArrowLeft className="shrink-0" size={18} aria-hidden="true" />}
+      <span className="min-w-0">
+        <span className="block text-xs font-bold uppercase tracking-wide text-white/65">
+          {t(
+            isPrevious
+              ? 'resourcesAi.detail.previousEpisode'
+              : 'resourcesAi.detail.nextEpisode',
+          )}
+        </span>
+        <span className="mt-1 block text-sm font-bold leading-snug">
+          {episode} · {title}
+        </span>
+      </span>
+      {!isPrevious && <ArrowRight className="shrink-0" size={18} aria-hidden="true" />}
+    </Link>
   )
 }
 
@@ -328,12 +458,17 @@ function UnavailableState({ isError = false, t }) {
 }
 
 function formatSeries(infographic, t) {
-  const episode =
-    infographic.episode_number != null
-      ? t('resourcesAi.episode', { number: infographic.episode_number })
-      : ''
+  const episodeNumber = formatEpisodeNumber(infographic.episode_number)
+  const episode = episodeNumber
+    ? t('resourcesAi.episode', { number: episodeNumber })
+    : ''
   if (infographic.series_name && episode) return `${infographic.series_name} · ${episode}`
   return infographic.series_name || episode
+}
+
+function formatEpisodeNumber(value) {
+  if (!Number.isInteger(value) || value <= 0) return null
+  return String(value).padStart(2, '0')
 }
 
 function usableKeyPoints(points) {

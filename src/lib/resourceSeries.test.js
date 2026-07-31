@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   createSeriesSlug,
+  findSeriesBySlug,
+  getAdjacentEpisodes,
   getCommonSeriesLevel,
   groupResourcesBySeries,
   selectFeaturedSeries,
@@ -109,6 +111,64 @@ test('sélectionne la série dont l’activité publiée est la plus récente', 
   ])
 
   assert.equal(selectFeaturedSeries(groups).name, 'Bêta')
+})
+
+test('résout une série par son slug', () => {
+  const groups = groupResourcesBySeries([
+    createResource('alpha', { series_name: 'Série Alpha' }),
+    createResource('beta', { series_name: 'Série Bêta' }),
+  ])
+
+  assert.equal(findSeriesBySlug(groups, 'serie-beta')?.name, 'Série Bêta')
+  assert.equal(findSeriesBySlug(groups, 'serie-inconnue'), null)
+  assert.equal(findSeriesBySlug(null, 'serie-beta'), null)
+})
+
+test('résout les épisodes adjacents au début, au milieu et à la fin', () => {
+  const episodes = [createResource('one'), createResource('two'), createResource('three')]
+
+  assert.deepEqual(getAdjacentEpisodes(episodes, 'one'), {
+    previous: null,
+    next: episodes[1],
+  })
+  assert.deepEqual(getAdjacentEpisodes(episodes, 'two'), {
+    previous: episodes[0],
+    next: episodes[2],
+  })
+  assert.deepEqual(getAdjacentEpisodes(episodes, 'three'), {
+    previous: episodes[1],
+    next: null,
+  })
+})
+
+test('retourne des voisins vides pour un épisode inconnu ou une liste vide', () => {
+  const episodes = [createResource('one')]
+
+  assert.deepEqual(getAdjacentEpisodes(episodes, 'unknown'), {
+    previous: null,
+    next: null,
+  })
+  assert.deepEqual(getAdjacentEpisodes([], 'one'), { previous: null, next: null })
+  assert.deepEqual(getAdjacentEpisodes(null, 'one'), { previous: null, next: null })
+})
+
+test('respecte l’ordre fourni, y compris un épisode non numéroté placé à la fin', () => {
+  const episodes = [
+    createResource('one', { episode_number: 1 }),
+    createResource('two', { episode_number: 2 }),
+    createResource('unnumbered', { episode_number: null }),
+  ]
+  const originalOrder = episodes.map(({ id }) => id)
+
+  assert.deepEqual(getAdjacentEpisodes(episodes, 'two'), {
+    previous: episodes[0],
+    next: episodes[2],
+  })
+  assert.deepEqual(getAdjacentEpisodes(episodes, 'unnumbered'), {
+    previous: episodes[1],
+    next: null,
+  })
+  assert.deepEqual(episodes.map(({ id }) => id), originalOrder)
 })
 
 function createResource(id, overrides = {}) {

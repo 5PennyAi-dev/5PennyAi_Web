@@ -97,6 +97,28 @@ export function selectFeaturedSeries(series) {
   return sortSeriesByActivity(series)[0] || null
 }
 
+export function findSeriesBySlug(series, slug) {
+  if (!Array.isArray(series) || typeof slug !== 'string') return null
+  return series.find((item) => item?.slug === slug) || null
+}
+
+export function getAdjacentEpisodes(orderedEpisodes, currentId) {
+  if (!Array.isArray(orderedEpisodes) || orderedEpisodes.length === 0) {
+    return { previous: null, next: null }
+  }
+
+  const currentIndex = orderedEpisodes.findIndex((episode) => episode?.id === currentId)
+  if (currentIndex === -1) return { previous: null, next: null }
+
+  return {
+    previous: currentIndex > 0 ? orderedEpisodes[currentIndex - 1] : null,
+    next:
+      currentIndex < orderedEpisodes.length - 1
+        ? orderedEpisodes[currentIndex + 1]
+        : null,
+  }
+}
+
 function getSeriesName(value) {
   return typeof value === 'string' ? value.trim() : ''
 }
