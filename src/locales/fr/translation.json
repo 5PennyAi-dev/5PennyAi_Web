@@ -924,6 +924,296 @@
           "published": "Publiée"
         }
       },
+      "articles": {
+        "navLabel": "Articles",
+        "title": "Articles",
+        "subtitle": "Importez, corrigez et gérez les brouillons d’articles éducatifs.",
+        "add": "Ajouter un article",
+        "untitled": "Article",
+        "episode": "Épisode {{number}}",
+        "edit": "Modifier",
+        "locked": "Verrouillé",
+        "publishedLocked": "Les articles publiés sont visibles ici, mais ne sont pas modifiables dans cet incrément.",
+        "delete": {
+          "action": "Supprimer",
+          "cancel": "Annuler",
+          "title": "Supprimer « {{title}} »?",
+          "description": "Seule la ligne du brouillon sera supprimée. Aucun asset ou fichier n’est associé aux articles dans cet incrément.",
+          "deleting": "Suppression…",
+          "success": "« {{title}} » a été supprimé."
+        },
+        "loading": "Chargement des articles…",
+        "errorTitle": "Impossible de charger les articles",
+        "retry": "Réessayer",
+        "emptyTitle": "Aucun article",
+        "emptyDescription": "Aucun brouillon n’existe encore. Importez un fichier Articles v1 ou commencez avec un formulaire vide.",
+        "filteredEmptyTitle": "Aucun article dans ce filtre",
+        "showAll": "Voir tous les articles",
+        "filters": {
+          "label": "Filtrer les articles",
+          "all": "Tous",
+          "draft": "Brouillons",
+          "published": "Publiés"
+        },
+        "columns": {
+          "title": "Titre",
+          "status": "Statut",
+          "language": "Langue",
+          "level": "Niveau",
+          "series": "Série",
+          "updated": "Modification",
+          "actions": "Actions"
+        },
+        "status": {
+          "draft": "Brouillon",
+          "published": "Publié"
+        },
+        "levels": {
+          "beginner": "Débutant",
+          "intermediate": "Intermédiaire",
+          "advanced": "Avancé"
+        },
+        "errors": {
+          "migrationRequired": "La table articles n’existe pas encore. Appliquez d’abord la migration Supabase de l’incrément 1.",
+          "load": "Une erreur est survenue. Vérifiez la connexion et réessayez.",
+          "delete": "Le brouillon n’a pas pu être supprimé. Réessayez.",
+          "draftOnly": "Seul un brouillon peut être supprimé dans cet incrément."
+        }
+      },
+      "articleForm": {
+        "addTitle": "Ajouter un article",
+        "editTitle": "Modifier l’article",
+        "subtitle": "Toutes les données restent administratives et seront enregistrées uniquement comme brouillon.",
+        "back": "Retour aux articles",
+        "loading": "Chargement de l’article…",
+        "unsavedConfirm": "Des modifications ne sont pas enregistrées. Voulez-vous vraiment quitter cette page?",
+        "selectEmpty": "Aucune valeur",
+        "unknownOption": "Valeur importée inconnue : {{value}}",
+        "sections": {
+          "import": "Import JSON",
+          "general": "Métadonnées générales",
+          "series": "Série",
+          "learning": "Objectifs et prérequis",
+          "markdown": "Contenu Markdown",
+          "media": "Manifeste des médias",
+          "cover": "Métadonnées de couverture",
+          "sources": "Sources",
+          "keywords": "Mots-clés",
+          "seo": "SEO éditorial",
+          "warnings": "Avertissements",
+          "save": "Enregistrement du brouillon"
+        },
+        "fields": {
+          "schemaVersion": "Version du schéma",
+          "contentType": "Type de contenu",
+          "language": "Langue du contenu",
+          "level": "Niveau",
+          "title": "Titre",
+          "subtitle": "Sous-titre",
+          "summary": "Résumé",
+          "theme": "Thème",
+          "slug": "Slug technique",
+          "slugHint": "Distinct du slug suggéré SEO. Facultatif pour un brouillon et normalisé lors de la sauvegarde.",
+          "seriesName": "Nom de la série",
+          "episodeNumber": "Numéro d’épisode",
+          "learningObjectives": "Objectifs d’apprentissage",
+          "prerequisites": "Prérequis",
+          "takeaway": "À retenir",
+          "contentMarkdown": "Markdown brut",
+          "markdownHint": "Aucun aperçu rendu n’est produit dans cet incrément.",
+          "mediaKey": "Clé du média",
+          "mediaKind": "Type de média",
+          "mediaTitle": "Titre du média",
+          "caption": "Légende",
+          "altText": "Texte alternatif",
+          "generationBrief": "Brief de génération",
+          "aspectRatio": "Ratio préféré",
+          "required": "Média requis dans l’intention éditoriale",
+          "sourceKeys": "Clés de sources",
+          "sourceKey": "Clé de source",
+          "sourceTitle": "Titre de la source",
+          "authors": "Auteurs",
+          "organization": "Organisation",
+          "sourceType": "Type de source",
+          "publicationDate": "Date de publication",
+          "accessDate": "Date de consultation",
+          "url": "URL",
+          "keywords": "Mots-clés",
+          "primaryQuery": "Requête principale",
+          "secondaryQueries": "Requêtes secondaires",
+          "searchIntent": "Intention de recherche",
+          "seoTitle": "Titre SEO suggéré",
+          "metaDescription": "Meta description suggérée",
+          "suggestedSlug": "Slug suggéré SEO",
+          "suggestedSlugHint": "Cette suggestion peut proposer le slug technique initial, mais ne l’écrase jamais directement.",
+          "internalLinks": "Suggestions de liens internes",
+          "targetTopic": "Sujet cible",
+          "suggestedAnchor": "Ancre suggérée",
+          "placementHint": "Emplacement suggéré"
+        },
+        "contentTypes": {
+          "article": "Article"
+        },
+        "languages": {
+          "fr": "Français",
+          "en": "Anglais"
+        },
+        "levels": {
+          "beginner": "Débutant",
+          "intermediate": "Intermédiaire",
+          "advanced": "Avancé"
+        },
+        "mediaKinds": {
+          "diagram": "Diagramme",
+          "illustration": "Illustration",
+          "infographic": "Infographie",
+          "chart": "Graphique",
+          "screenshot": "Capture d’écran"
+        },
+        "sourceTypes": {
+          "official_documentation": "Documentation officielle",
+          "research_paper": "Article scientifique",
+          "standard": "Norme",
+          "government": "Source gouvernementale",
+          "book": "Livre",
+          "technical_article": "Article technique",
+          "other": "Autre"
+        },
+        "searchIntents": {
+          "informational": "Informationnelle",
+          "comparative": "Comparative",
+          "tutorial": "Tutoriel"
+        },
+        "list": {
+          "empty": "Aucune entrée.",
+          "remove": "Retirer",
+          "addObjective": "Ajouter un objectif",
+          "addPrerequisite": "Ajouter un prérequis",
+          "addSourceKey": "Ajouter une clé",
+          "addAuthor": "Ajouter un auteur",
+          "addKeyword": "Ajouter un mot-clé",
+          "addSecondaryQuery": "Ajouter une requête",
+          "addInternalLink": "Ajouter une suggestion"
+        },
+        "media": {
+          "help": "Le manifeste décrit les médias prévus. Aucun fichier, upload ou chemin de stockage n’est géré ici.",
+          "add": "Ajouter un média",
+          "item": "Média {{number}}"
+        },
+        "cover": {
+          "help": "Ces métadonnées décrivent la future couverture. Aucun fichier de couverture n’est téléversé dans cet incrément."
+        },
+        "sources": {
+          "add": "Ajouter une source",
+          "item": "Source {{number}}"
+        },
+        "import": {
+          "help": "Choisissez un fichier .article.json ou collez un objet JSON. L’analyse applique seulement un patch au formulaire et ne sauvegarde rien.",
+          "pasteLabel": "Contenu JSON",
+          "placeholder": "Collez ici un objet Articles v1 complet ou partiel.",
+          "chooseFile": "Choisir un fichier .article.json",
+          "noFile": "Aucun fichier sélectionné",
+          "reading": "Lecture du fichier…",
+          "analyze": "Analyser et préremplir",
+          "replaceConfirm": "Le formulaire contient déjà des données éditoriales. Appliquer seulement les propriétés valides présentes dans ce JSON?",
+          "result": {
+            "success": "Analyse réussie; les propriétés utilisables ont été appliquées.",
+            "cancelled": "Analyse réussie, mais l’application du patch a été annulée. Le formulaire est inchangé.",
+            "notSaved": "Aucune sauvegarde ou publication n’a été effectuée.",
+            "imported": "Propriétés importées",
+            "warnings": "Avertissements d’import"
+          },
+          "errors": {
+            "invalidJson": "Le contenu n’est pas un JSON syntaxiquement valide. Le formulaire est inchangé.",
+            "invalidRoot": "La racine doit être un objet JSON, et non null, un tableau ou une valeur primitive.",
+            "invalidFileType": "Choisissez un fichier dont le nom se termine par .article.json.",
+            "fileReadError": "Le fichier n’a pas pu être lu. Vous pouvez coller son contenu directement."
+          },
+          "warnings": {
+            "unknownProperty": "propriété inconnue ignorée",
+            "forbiddenProperty": "propriété technique interdite ignorée",
+            "expectedInteger": "nombre entier attendu; valeur ignorée",
+            "unsupportedSchemaVersion": "version différente de v1; valeur conservée",
+            "expectedString": "chaîne attendue; valeur ignorée",
+            "unexpectedContentType": "type de contenu inattendu; valeur conservée",
+            "unknownLanguage": "langue inconnue; valeur conservée",
+            "unknownLevel": "niveau inconnu; valeur conservée",
+            "expectedObject": "objet attendu; valeur ignorée",
+            "expectedPositiveInteger": "entier positif attendu; valeur conservée pour correction",
+            "expectedArray": "tableau attendu; valeur ignorée",
+            "expectedBoolean": "booléen attendu; valeur ignorée",
+            "unknownMediaKind": "type de média inconnu; valeur conservée",
+            "unknownAspectRatio": "ratio inconnu; valeur conservée",
+            "unknownSourceType": "type de source inconnu; valeur conservée",
+            "unknownSearchIntent": "intention inconnue; valeur conservée",
+            "unusableItem": "élément sans propriété utilisable ignoré"
+          }
+        },
+        "warnings": {
+          "none": "Aucun avertissement déterministe.",
+          "help": "{{count}} avertissement(s). Ils n’empêchent pas l’enregistrement du brouillon.",
+          "codes": {
+            "missingTitle": "Le titre est absent.",
+            "missingSummary": "Le résumé est absent.",
+            "missingTheme": "Le thème est absent.",
+            "unknownLanguage": "La langue « {{value}} » n’est pas reconnue.",
+            "unknownLevel": "Le niveau « {{value}} » n’est pas reconnu.",
+            "unexpectedContentType": "Le type « {{value}} » n’est pas article.",
+            "invalidEpisodeNumber": "Le numéro d’épisode doit être un entier positif.",
+            "unusualSuggestedSlug": "Le slug suggéré contient une forme inhabituelle.",
+            "invalidMediaKey": "La clé de média ne respecte pas le format attendu.",
+            "duplicateMediaKey": "La clé de média « {{key}} » est dupliquée.",
+            "invalidSourceKey": "La clé de source ne respecte pas le format attendu.",
+            "duplicateSourceKey": "La clé de source « {{key}} » est dupliquée.",
+            "unresolvedCitation": "La citation « {{key}} » ne correspond à aucune source.",
+            "unresolvedMedia": "Le marqueur média « {{key}} » ne correspond à aucun manifeste.",
+            "unusedMedia": "Le média « {{key}} » n’est utilisé par aucun marqueur.",
+            "requiredMediaDeclared": "Ce média est déclaré requis; aucun contrôle de fichier n’est effectué dans cet incrément.",
+            "missingMediaAltText": "Le média ne possède pas de texte alternatif.",
+            "unknownAspectRatio": "Le ratio « {{value}} » n’est pas reconnu.",
+            "unknownMediaKind": "Le type de média « {{value}} » n’est pas reconnu.",
+            "unknownMediaSourceKey": "La clé de source « {{key}} » n’existe pas.",
+            "unusedSource": "La source « {{key}} » n’est jamais citée.",
+            "invalidSourceUrl": "L’URL doit utiliser HTTP ou HTTPS.",
+            "invalidPublicationDate": "La date de publication est invalide.",
+            "invalidAccessDate": "La date de consultation doit suivre YYYY-MM-DD.",
+            "unknownSourceType": "Le type de source « {{value}} » n’est pas reconnu.",
+            "emptyMarkdown": "Le contenu Markdown est vide.",
+            "markdownH1": "Un titre Markdown de niveau 1 a été détecté.",
+            "rawHtml": "Du HTML brut a été détecté.",
+            "unsafeHtmlElement": "Un iframe, script ou formulaire a été détecté.",
+            "externalMarkdownImage": "Une image Markdown externe a été détectée.",
+            "unclosedCodeFence": "Un bloc de code clôturé semble non fermé.",
+            "missingSeo": "Le bloc SEO est absent ou vide.",
+            "incompleteSeo": "Le bloc SEO est incomplet.",
+            "missingPrimaryQuery": "La requête principale est absente.",
+            "unknownSearchIntent": "L’intention « {{value}} » n’est pas reconnue.",
+            "unusualSeoTitleLength": "Le titre SEO possède une longueur inhabituelle ({{length}} caractères).",
+            "unusualMetaDescriptionLength": "La meta description possède une longueur inhabituelle ({{length}} caractères).",
+            "invalidSuggestedSlug": "Le slug suggéré ne respecte pas le format attendu."
+          }
+        },
+        "draftOnly": "Cette action enregistre uniquement un brouillon et force la date de publication à vide.",
+        "actions": {
+          "cancel": "Annuler",
+          "saveDraft": "Enregistrer le brouillon",
+          "saving": "Enregistrement…"
+        },
+        "messages": {
+          "saved": "Le brouillon a été enregistré."
+        },
+        "loadErrorTitle": "Impossible de charger l’article",
+        "publishedLockedTitle": "Article publié en lecture seule",
+        "publishedLockedDescription": "Cet incrément est limité aux brouillons. L’article reste listé, mais aucune modification de ses données ou de son état de publication n’est offerte.",
+        "errors": {
+          "migrationRequired": "La table articles n’existe pas encore. Appliquez la migration Supabase de l’incrément 1.",
+          "notFound": "Cet article n’existe pas ou n’est plus accessible.",
+          "draftOnly": "Seul un brouillon peut être modifié dans cet incrément.",
+          "slugConflict": "Ce slug technique est déjà utilisé. Choisissez-en un autre ou laissez-le vide.",
+          "load": "Une erreur est survenue pendant le chargement.",
+          "save": "Le brouillon n’a pas pu être enregistré. Vérifiez la connexion et réessayez."
+        }
+      },
       "infographicForm": {
         "addTitle": "Ajouter une infographie",
         "editTitle": "Modifier l'infographie",

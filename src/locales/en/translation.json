@@ -924,6 +924,296 @@
           "published": "Published"
         }
       },
+      "articles": {
+        "navLabel": "Articles",
+        "title": "Articles",
+        "subtitle": "Import, correct, and manage educational article drafts.",
+        "add": "Add an article",
+        "untitled": "Article",
+        "episode": "Episode {{number}}",
+        "edit": "Edit",
+        "locked": "Locked",
+        "publishedLocked": "Published articles are visible here, but cannot be edited in this increment.",
+        "delete": {
+          "action": "Delete",
+          "cancel": "Cancel",
+          "title": "Delete “{{title}}”?",
+          "description": "Only the draft row will be deleted. Articles have no associated asset or file in this increment.",
+          "deleting": "Deleting…",
+          "success": "“{{title}}” was deleted."
+        },
+        "loading": "Loading articles…",
+        "errorTitle": "Unable to load articles",
+        "retry": "Try again",
+        "emptyTitle": "No articles",
+        "emptyDescription": "No draft exists yet. Import an Articles v1 file or start with an empty form.",
+        "filteredEmptyTitle": "No articles in this filter",
+        "showAll": "View all articles",
+        "filters": {
+          "label": "Filter articles",
+          "all": "All",
+          "draft": "Drafts",
+          "published": "Published"
+        },
+        "columns": {
+          "title": "Title",
+          "status": "Status",
+          "language": "Language",
+          "level": "Level",
+          "series": "Series",
+          "updated": "Updated",
+          "actions": "Actions"
+        },
+        "status": {
+          "draft": "Draft",
+          "published": "Published"
+        },
+        "levels": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        },
+        "errors": {
+          "migrationRequired": "The articles table does not exist yet. Apply the increment 1 Supabase migration first.",
+          "load": "An error occurred. Check your connection and try again.",
+          "delete": "The draft could not be deleted. Try again.",
+          "draftOnly": "Only a draft can be deleted in this increment."
+        }
+      },
+      "articleForm": {
+        "addTitle": "Add an article",
+        "editTitle": "Edit article",
+        "subtitle": "All data remains administrative and will only be saved as a draft.",
+        "back": "Back to articles",
+        "loading": "Loading article…",
+        "unsavedConfirm": "You have unsaved changes. Are you sure you want to leave this page?",
+        "selectEmpty": "No value",
+        "unknownOption": "Unknown imported value: {{value}}",
+        "sections": {
+          "import": "JSON import",
+          "general": "General metadata",
+          "series": "Series",
+          "learning": "Objectives and prerequisites",
+          "markdown": "Markdown content",
+          "media": "Media manifest",
+          "cover": "Cover metadata",
+          "sources": "Sources",
+          "keywords": "Keywords",
+          "seo": "Editorial SEO",
+          "warnings": "Warnings",
+          "save": "Save draft"
+        },
+        "fields": {
+          "schemaVersion": "Schema version",
+          "contentType": "Content type",
+          "language": "Content language",
+          "level": "Level",
+          "title": "Title",
+          "subtitle": "Subtitle",
+          "summary": "Summary",
+          "theme": "Theme",
+          "slug": "Technical slug",
+          "slugHint": "Separate from the suggested SEO slug. Optional for a draft and normalized when saved.",
+          "seriesName": "Series name",
+          "episodeNumber": "Episode number",
+          "learningObjectives": "Learning objectives",
+          "prerequisites": "Prerequisites",
+          "takeaway": "Takeaway",
+          "contentMarkdown": "Raw Markdown",
+          "markdownHint": "No rendered preview is produced in this increment.",
+          "mediaKey": "Media key",
+          "mediaKind": "Media type",
+          "mediaTitle": "Media title",
+          "caption": "Caption",
+          "altText": "Alternative text",
+          "generationBrief": "Generation brief",
+          "aspectRatio": "Preferred aspect ratio",
+          "required": "Media is required by the editorial intent",
+          "sourceKeys": "Source keys",
+          "sourceKey": "Source key",
+          "sourceTitle": "Source title",
+          "authors": "Authors",
+          "organization": "Organization",
+          "sourceType": "Source type",
+          "publicationDate": "Publication date",
+          "accessDate": "Access date",
+          "url": "URL",
+          "keywords": "Keywords",
+          "primaryQuery": "Primary query",
+          "secondaryQueries": "Secondary queries",
+          "searchIntent": "Search intent",
+          "seoTitle": "Suggested SEO title",
+          "metaDescription": "Suggested meta description",
+          "suggestedSlug": "Suggested SEO slug",
+          "suggestedSlugHint": "This suggestion can seed the initial technical slug, but never overwrites it directly.",
+          "internalLinks": "Internal link suggestions",
+          "targetTopic": "Target topic",
+          "suggestedAnchor": "Suggested anchor",
+          "placementHint": "Placement hint"
+        },
+        "contentTypes": {
+          "article": "Article"
+        },
+        "languages": {
+          "fr": "French",
+          "en": "English"
+        },
+        "levels": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        },
+        "mediaKinds": {
+          "diagram": "Diagram",
+          "illustration": "Illustration",
+          "infographic": "Infographic",
+          "chart": "Chart",
+          "screenshot": "Screenshot"
+        },
+        "sourceTypes": {
+          "official_documentation": "Official documentation",
+          "research_paper": "Research paper",
+          "standard": "Standard",
+          "government": "Government source",
+          "book": "Book",
+          "technical_article": "Technical article",
+          "other": "Other"
+        },
+        "searchIntents": {
+          "informational": "Informational",
+          "comparative": "Comparative",
+          "tutorial": "Tutorial"
+        },
+        "list": {
+          "empty": "No entries.",
+          "remove": "Remove",
+          "addObjective": "Add an objective",
+          "addPrerequisite": "Add a prerequisite",
+          "addSourceKey": "Add a key",
+          "addAuthor": "Add an author",
+          "addKeyword": "Add a keyword",
+          "addSecondaryQuery": "Add a query",
+          "addInternalLink": "Add a suggestion"
+        },
+        "media": {
+          "help": "The manifest describes planned media. No file, upload, or storage path is managed here.",
+          "add": "Add media",
+          "item": "Media {{number}}"
+        },
+        "cover": {
+          "help": "This metadata describes the future cover. No cover file is uploaded in this increment."
+        },
+        "sources": {
+          "add": "Add a source",
+          "item": "Source {{number}}"
+        },
+        "import": {
+          "help": "Choose an .article.json file or paste a JSON object. Analysis only applies a patch to the form and saves nothing.",
+          "pasteLabel": "JSON content",
+          "placeholder": "Paste a complete or partial Articles v1 object here.",
+          "chooseFile": "Choose an .article.json file",
+          "noFile": "No file selected",
+          "reading": "Reading file…",
+          "analyze": "Analyze and prefill",
+          "replaceConfirm": "The form already contains editorial data. Apply only the valid properties present in this JSON?",
+          "result": {
+            "success": "Analysis succeeded; usable properties were applied.",
+            "cancelled": "Analysis succeeded, but applying the patch was cancelled. The form is unchanged.",
+            "notSaved": "No save or publication occurred.",
+            "imported": "Imported properties",
+            "warnings": "Import warnings"
+          },
+          "errors": {
+            "invalidJson": "The content is not syntactically valid JSON. The form is unchanged.",
+            "invalidRoot": "The root must be a JSON object, not null, an array, or a primitive value.",
+            "invalidFileType": "Choose a file whose name ends in .article.json.",
+            "fileReadError": "The file could not be read. You can paste its contents directly."
+          },
+          "warnings": {
+            "unknownProperty": "unknown property ignored",
+            "forbiddenProperty": "forbidden technical property ignored",
+            "expectedInteger": "expected an integer; value ignored",
+            "unsupportedSchemaVersion": "version differs from v1; value kept",
+            "expectedString": "expected a string; value ignored",
+            "unexpectedContentType": "unexpected content type; value kept",
+            "unknownLanguage": "unknown language; value kept",
+            "unknownLevel": "unknown level; value kept",
+            "expectedObject": "expected an object; value ignored",
+            "expectedPositiveInteger": "expected a positive integer; value kept for correction",
+            "expectedArray": "expected an array; value ignored",
+            "expectedBoolean": "expected a boolean; value ignored",
+            "unknownMediaKind": "unknown media type; value kept",
+            "unknownAspectRatio": "unknown aspect ratio; value kept",
+            "unknownSourceType": "unknown source type; value kept",
+            "unknownSearchIntent": "unknown intent; value kept",
+            "unusableItem": "item with no usable property ignored"
+          }
+        },
+        "warnings": {
+          "none": "No deterministic warnings.",
+          "help": "{{count}} warning(s). They do not prevent saving the draft.",
+          "codes": {
+            "missingTitle": "The title is missing.",
+            "missingSummary": "The summary is missing.",
+            "missingTheme": "The theme is missing.",
+            "unknownLanguage": "Language “{{value}}” is not recognized.",
+            "unknownLevel": "Level “{{value}}” is not recognized.",
+            "unexpectedContentType": "Type “{{value}}” is not article.",
+            "invalidEpisodeNumber": "The episode number must be a positive integer.",
+            "unusualSuggestedSlug": "The suggested slug has an unusual form.",
+            "invalidMediaKey": "The media key does not follow the expected format.",
+            "duplicateMediaKey": "Media key “{{key}}” is duplicated.",
+            "invalidSourceKey": "The source key does not follow the expected format.",
+            "duplicateSourceKey": "Source key “{{key}}” is duplicated.",
+            "unresolvedCitation": "Citation “{{key}}” does not match a source.",
+            "unresolvedMedia": "Media marker “{{key}}” does not match a manifest item.",
+            "unusedMedia": "Media “{{key}}” is not used by any marker.",
+            "requiredMediaDeclared": "This media is declared required; no file check occurs in this increment.",
+            "missingMediaAltText": "The media has no alternative text.",
+            "unknownAspectRatio": "Aspect ratio “{{value}}” is not recognized.",
+            "unknownMediaKind": "Media type “{{value}}” is not recognized.",
+            "unknownMediaSourceKey": "Source key “{{key}}” does not exist.",
+            "unusedSource": "Source “{{key}}” is never cited.",
+            "invalidSourceUrl": "The URL must use HTTP or HTTPS.",
+            "invalidPublicationDate": "The publication date is invalid.",
+            "invalidAccessDate": "The access date must follow YYYY-MM-DD.",
+            "unknownSourceType": "Source type “{{value}}” is not recognized.",
+            "emptyMarkdown": "The Markdown content is empty.",
+            "markdownH1": "A level-one Markdown heading was detected.",
+            "rawHtml": "Raw HTML was detected.",
+            "unsafeHtmlElement": "An iframe, script, or form was detected.",
+            "externalMarkdownImage": "An external Markdown image was detected.",
+            "unclosedCodeFence": "A fenced code block appears to be unclosed.",
+            "missingSeo": "The SEO block is missing or empty.",
+            "incompleteSeo": "The SEO block is incomplete.",
+            "missingPrimaryQuery": "The primary query is missing.",
+            "unknownSearchIntent": "Intent “{{value}}” is not recognized.",
+            "unusualSeoTitleLength": "The SEO title has an unusual length ({{length}} characters).",
+            "unusualMetaDescriptionLength": "The meta description has an unusual length ({{length}} characters).",
+            "invalidSuggestedSlug": "The suggested slug does not follow the expected format."
+          }
+        },
+        "draftOnly": "This action saves a draft only and forces the publication date to remain empty.",
+        "actions": {
+          "cancel": "Cancel",
+          "saveDraft": "Save draft",
+          "saving": "Saving…"
+        },
+        "messages": {
+          "saved": "The draft was saved."
+        },
+        "loadErrorTitle": "Unable to load article",
+        "publishedLockedTitle": "Published article is read-only",
+        "publishedLockedDescription": "This increment is limited to drafts. The article remains listed, but no data or publication-state changes are offered.",
+        "errors": {
+          "migrationRequired": "The articles table does not exist yet. Apply the increment 1 Supabase migration.",
+          "notFound": "This article does not exist or is no longer accessible.",
+          "draftOnly": "Only a draft can be edited in this increment.",
+          "slugConflict": "This technical slug is already used. Choose another one or leave it empty.",
+          "load": "An error occurred while loading the article.",
+          "save": "The draft could not be saved. Check your connection and try again."
+        }
+      },
       "infographicForm": {
         "addTitle": "Add an infographic",
         "editTitle": "Edit infographic",

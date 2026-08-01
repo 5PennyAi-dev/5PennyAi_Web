@@ -12,6 +12,7 @@ import {
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
+import AdminResourcesNav from '@/components/admin/resources/AdminResourcesNav'
 import Card from '@/components/ui/Card'
 import { isInfographicThumbnailPathForResource } from '@/lib/infographicThumbnails'
 import { supabase } from '@/lib/supabase'
@@ -172,21 +173,7 @@ function AdminInfographicsPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
-          <Card className="p-4 sm:p-5 lg:sticky lg:top-24">
-            <nav aria-label={t('admin.resourcesAi.navigationLabel')}>
-              <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-navy/45">
-                {t('admin.resourcesAi.group')}
-              </p>
-              <Link
-                to={INFOGRAPHICS_PATH}
-                aria-current="page"
-                className="flex items-center gap-3 rounded-xl border border-accent/25 bg-accent/10 px-3 py-2.5 text-sm font-semibold text-navy"
-              >
-                <Images size={17} strokeWidth={1.9} className="text-accent" aria-hidden="true" />
-                {t('admin.resourcesAi.infographics.navLabel')}
-              </Link>
-            </nav>
-          </Card>
+          <AdminResourcesNav active="infographics" />
 
           <div className="min-w-0">
             <div className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
