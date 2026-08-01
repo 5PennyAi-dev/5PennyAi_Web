@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "contentType": "article",
+  "language": "fr",
+  "title": "Qu’est-ce qu’un modèle de fondation?",
+  "subtitle": "Un socle réutilisable pour plusieurs usages de l’intelligence artificielle",
+  "summary": "Découvrez comment un modèle préentraîné sur des données variées peut servir de base à plusieurs usages, avec ou sans adaptation de ses paramètres.",
+  "theme": "Fondements de l’intelligence artificielle",
+  "level": "beginner",
+  "learningObjectives": [
+    "Définir ce qu’est un modèle de fondation et expliquer pourquoi il sert de socle à plusieurs usages.",
+    "Distinguer le préentraînement, l’adaptation des paramètres, l’orientation par le contexte et l’utilisation du modèle.",
+    "Comprendre les relations entre modèle de fondation, grand modèle de langage et IA générative.",
+    "Reconnaître les principales limites liées aux données, aux biais, aux erreurs et aux coûts."
+  ],
+  "prerequisites": [],
+  "takeaway": "Un modèle de fondation est un socle général et réutilisable. Son adaptation par réglage fin est facultative et doit être distinguée du guidage par instructions, exemples ou contexte, qui peut laisser ses paramètres inchangés.",
+  "contentMarkdown": "Quand une personne utilise un assistant conversationnel, un générateur d’images ou un outil qui résume des documents, elle voit surtout **l’application**. Derrière cette application se trouve toutefois un ou plusieurs modèles, auxquels s’ajoutent souvent une interface, des règles, des sources de données et des mécanismes de contrôle.\n\nUn **modèle de fondation** est un modèle entraîné sur des données larges et variées afin d’acquérir des capacités générales, puis réutilisable pour de nombreux usages. Le terme insiste donc moins sur une fonction précise que sur le rôle du modèle : il sert de **socle** à plusieurs applications ou modèles spécialisés. Le rapport fondateur du Stanford Center for Research on Foundation Models décrit ces modèles comme étant entraînés sur des données étendues, généralement par auto-supervision à grande échelle, puis adaptables à un vaste éventail de tâches. {{cite:bommasani-2021}}\n\n## Une définition en trois idées\n\nPour reconnaître un modèle de fondation, trois idées sont particulièrement utiles.\n\n1. **Il est préentraîné sur un ensemble de données étendu.** Il ne découvre pas seulement les exemples d’une tâche unique, comme reconnaître un seul type de défaut industriel.\n2. **Il apprend des capacités réutilisables.** Selon les données et la méthode d’entraînement, il peut apprendre des régularités du langage, des images ou de plusieurs types de données.\n3. **Il peut soutenir plusieurs usages.** Le même socle peut être employé sans modification de ses paramètres ou servir de point de départ à plusieurs adaptations spécialisées.\n\nL’image de la fondation est utile, mais elle a une limite : un modèle n’est pas un bâtiment complet. Une application réelle peut ajouter une interface, des documents externes, des filtres, des règles métier et une supervision humaine. Le modèle de fondation est donc une composante centrale possible, pas le produit entier.\n\nLa taille seule ne suffit pas. Un très grand modèle entraîné pour une seule tâche étroite n’est pas automatiquement un modèle de fondation. Inversement, l’idée essentielle n’est pas qu’un modèle doive tout savoir, mais qu’il ait été conçu comme un socle suffisamment général pour plusieurs tâches.\n\n## Pourquoi autant de données?\n\nUn modèle destiné à une seule tâche peut apprendre à partir d’un jeu de données spécialisé. Un modèle de fondation vise plutôt des régularités qui seront utiles dans des situations variées. Il lui faut donc rencontrer une grande diversité de formulations, de sujets, d’objets, de styles ou de relations entre données.\n\nUne méthode courante est l’**auto-supervision**. Au lieu d’exiger qu’une personne étiquette chaque exemple, le système construit un signal d’apprentissage à partir des données elles-mêmes. Un modèle de texte peut, par exemple, apprendre à prédire une partie masquée ou la suite d’un passage. Cette approche rend possible l’exploitation de très grandes collections de données. Le modèle BERT a ainsi été préentraîné sur du texte non étiqueté avant d’être réglé finement pour plusieurs tâches linguistiques. {{cite:devlin-2019}}\n\nLes données ne sont pas limitées au texte. CLIP, par exemple, a été préentraîné à associer des images à leurs descriptions textuelles sur 400 millions de paires image-texte. Après ce préentraînement, les auteurs ont évalué son transfert vers plus de 30 jeux de données de vision, souvent sans entraînement propre à chaque jeu de données. {{cite:radford-2021}}\n\nPlus de données ne signifie toutefois pas automatiquement de meilleures données. La sélection, la qualité, la couverture des langues et des groupes, les erreurs et les déséquilibres influencent ce que le modèle peut apprendre. Le rapport de Stanford souligne que les données d’entraînement déterminent largement les capacités accessibles au modèle et que leur sélection et leur documentation sont des enjeux centraux. {{cite:bommasani-2021}}\n\n## Du préentraînement à l’application\n\nLe parcours d’un modèle peut être compris en séparant quatre opérations. L’adaptation qui modifie les paramètres est **facultative** : après le préentraînement, certains modèles peuvent être employés sans réglage supplémentaire, tandis que d’autres sont adaptés avant leur intégration dans une application.\n\n| Opération | Ce qui se passe | Les paramètres changent-ils? |\n|---|---|---|\n| **Préentraînement** | Le modèle apprend des capacités générales à partir d’un vaste ensemble de données. | Oui |\n| **Adaptation du modèle** | Un réglage fin ou une autre méthode spécialise le modèle pour une tâche, un domaine ou un comportement. | Oui, au moins pour une partie des paramètres |\n| **Orientation par le contexte** | Des instructions, des exemples ou des documents sont ajoutés à la requête pour guider la réponse. | Pas nécessairement |\n| **Utilisation ou inférence** | Le modèle traite une nouvelle entrée et produit une sortie ou une représentation. | Généralement non |\n\nLe **réglage fin** (*fine-tuning*) est un exemple d’adaptation du modèle : l’apprentissage se poursuit sur de nouvelles données et modifie ses paramètres. Dans l’article original sur BERT, le modèle préentraîné est réglé finement avec une couche de sortie supplémentaire pour accomplir différentes tâches de traitement du langage. {{cite:devlin-2019}}\n\nLes instructions et les exemples fournis au moment de la requête fonctionnent autrement. Ils orientent le calcul en cours sans exiger que les paramètres soient modifiés. L’étude originale de GPT-3 a évalué des tâches décrites uniquement par du texte et quelques exemples, sans mise à jour par gradient ni réglage fin. {{cite:brown-2020}}\n\nDans la littérature, le mot *adaptation* est parfois employé dans un sens très large qui inclut aussi le guidage par requête. {{cite:bommasani-2021}} Pour éviter la confusion, il est utile de poser deux questions séparées : **le modèle a-t-il été modifié?** et **que lui fournit-on comme contexte au moment de l’utilisation?**\n\n{{media:du-socle-aux-usages}}\n\nPrenons un modèle fictif, **Socle-Texte**. Après son préentraînement, une application pourrait lui demander de résumer un document au moyen d’une instruction, sans modifier ses paramètres. Une autre équipe pourrait régler finement une copie du même socle pour classer des demandes de soutien. Une troisième pourrait l’intégrer à un assistant qui ajoute des documents pertinents au contexte. Le socle est commun, mais les systèmes finaux, leurs données et leurs risques ne sont pas identiques.\n\n## Modèle de fondation, LLM et IA générative\n\nCes trois expressions se recoupent, mais elles ne répondent pas à la même question.\n\n| Notion | Ce qu’elle décrit principalement | Ce qu’il faut retenir |\n|---|---|---|\n| **Modèle de fondation** | Le rôle d’un modèle général et réutilisable dans la construction de plusieurs usages | Il peut traiter le texte, les images ou plusieurs modalités |\n| **Grand modèle de langage (LLM)** | Un modèle de grande taille centré sur le langage | De nombreux LLM sont utilisés comme modèles de fondation, mais les deux termes ne sont pas synonymes |\n| **IA générative** | La capacité d’un système à produire du nouveau contenu | Elle peut générer du texte, des images, de l’audio ou d’autres contenus |\n\nUn LLM est donc défini d’abord par sa relation au **langage** et par son échelle. Il peut servir de modèle de fondation lorsqu’il est préentraîné de façon générale et réutilisé pour plusieurs tâches. Un modèle de fondation n’est toutefois pas nécessairement un LLM : il peut être centré sur la vision ou combiner plusieurs modalités. {{cite:bommasani-2021}}\n\nL’IA générative décrit plutôt un comportement : produire un contenu nouveau à partir d’une entrée. Beaucoup de systèmes génératifs modernes reposent sur des modèles de fondation, mais ce n’est pas une équivalence logique. Le NIST précise que toute IA générative ne dérive pas nécessairement d’un modèle de fondation. {{cite:nist-2024}}\n\nLes modèles préentraînés ne sont pas non plus tous des générateurs destinés à produire une réponse ouverte. BERT apprend des représentations linguistiques réutilisables et CLIP apprend une relation entre images et texte; leurs publications originales montrent surtout leur transfert vers différentes tâches. {{cite:devlin-2019}}{{cite:radford-2021}} Cela aide à séparer trois dimensions : **le rôle de socle**, **la modalité traitée** et **la capacité de génération**.\n\n## Pourquoi tous les modèles d’IA ne sont-ils pas des modèles de fondation?\n\nImaginons un modèle entraîné uniquement pour déterminer si une photo précise contient une fissure sur un type de pièce métallique. Ses données, sa sortie et son évaluation sont conçues pour cette tâche. Même s’il fonctionne très bien, il n’a pas nécessairement été préentraîné sur des données larges ni conçu pour être réutilisé dans de nombreux contextes.\n\nCe modèle est un modèle d’IA, mais pas un modèle de fondation au sens habituel. La différence n’est pas une question de prestige : un modèle spécialisé peut être moins coûteux, plus simple à évaluer et mieux adapté à son contexte. Le modèle de fondation devient intéressant lorsque la réutilisation d’un socle commun apporte un avantage réel.\n\nLa frontière n’est pas toujours parfaitement nette. Les termes évoluent et certaines organisations emploient des définitions plus larges ou plus réglementaires. La meilleure approche consiste donc à examiner les faits : quelles données ont servi au préentraînement, quelles tâches le modèle peut-il soutenir, et comment est-il utilisé ou adapté?\n\n## Des capacités générales, mais aussi des limites générales\n\nLa réutilisation d’un même socle crée un effet de levier : un seul préentraînement peut soutenir de nombreuses applications. Le même effet peut toutefois propager des faiblesses.\n\n- **Dépendance aux données.** Les lacunes, erreurs et déséquilibres des données influencent les capacités et les performances. Des groupes, des langues ou des situations moins représentés peuvent être moins bien servis.\n- **Biais.** Les biais présents dans les données ou le processus de développement peuvent se retrouver dans les sorties et être amplifiés lorsqu’un même socle est réutilisé. Le NIST décrit notamment des risques de biais nuisible et d’homogénéisation dans les systèmes génératifs. {{cite:nist-2024}}\n- **Erreurs.** Un modèle n’est pas une base de faits garantie. Dans les systèmes génératifs, il peut produire avec assurance un contenu faux ou erroné, phénomène que le NIST nomme *confabulation*. {{cite:nist-2024}}\n- **Coûts.** Le préentraînement peut demander beaucoup de calcul, mais l’adaptation, la maintenance et l’inférence consomment aussi des ressources. L’empreinte dépend du modèle, du matériel, de la modalité et de l’usage. {{cite:nist-2024}}\n- **Propagation en aval.** Une propriété problématique du socle peut affecter plusieurs modèles adaptés ou applications. Le rapport de Stanford présente les modèles de fondation comme des actifs intermédiaires à fort effet de levier, ce qui rend leur évaluation particulièrement importante. {{cite:bommasani-2021}}\n\nAucune de ces limites ne permet de conclure qu’un modèle de fondation est toujours mauvais ou toujours préférable. Elles montrent plutôt qu’il faut évaluer le **système complet** dans son contexte : le modèle choisi, les données, l’adaptation éventuelle, les instructions, les outils ajoutés et les conséquences d’une erreur.\n\n## Conclusion\n\nUn modèle de fondation est un socle préentraîné sur des données étendues afin de pouvoir soutenir plusieurs usages. Après le préentraînement, il peut être utilisé sans modification de ses paramètres, guidé par des instructions ou un contexte, ou adapté par un réglage qui modifie le modèle.\n\nPour comprendre un système qui affirme utiliser un modèle de fondation, trois questions suffisent souvent à commencer :\n\n1. **Sur quelles données et avec quel objectif le modèle a-t-il été préentraîné?**\n2. **Ses paramètres ont-ils été adaptés, ou est-il seulement guidé par le contexte de la requête?**\n3. **Quels autres composants transforment ce modèle en application réelle?**\n\nCes questions évitent de confondre le socle, la manière de l’orienter et le produit final.",
+  "media": [
+    {
+      "key": "du-socle-aux-usages",
+      "kind": "diagram",
+      "title": "Du préentraînement à plusieurs usages",
+      "caption": "Après le préentraînement, le même socle peut être utilisé sans modification de ses paramètres ou être adapté avant son intégration dans une application.",
+      "altText": "Diagramme montrant des données variées menant au préentraînement puis à un modèle de fondation. Une branche montre l’orientation par instructions, exemples ou contexte sans modification nécessaire des paramètres; une autre montre un réglage fin qui modifie les paramètres. Les deux branches conduisent à plusieurs applications.",
+      "generationBrief": "Créer un diagramme pédagogique horizontal en français, ratio 16:9. À gauche, représenter trois sources de données abstraites et clairement étiquetées « Texte », « Images » et « Données multimodales ». Elles convergent vers une étape « Préentraînement », puis vers un bloc central « Modèle de fondation ». Depuis ce bloc, tracer deux branches nettement distinctes. Branche supérieure : « Instructions, exemples ou contexte », avec une mention courte « paramètres non modifiés nécessairement », puis une application. Branche inférieure : « Réglage fin », avec une mention courte « paramètres modifiés », puis une application spécialisée. Ajouter une troisième sortie directe du modèle vers une application pour montrer que l’adaptation est facultative. Composition simple, grandes étiquettes lisibles, peu de texte, aucune marque, aucun logo, aucun nom de produit, aucune statistique et aucun élément décoratif ambigu.",
+      "preferredAspectRatio": "16:9",
+      "required": true,
+      "sourceKeys": [
+        "bommasani-2021",
+        "devlin-2019",
+        "brown-2020",
+        "radford-2021"
+      ]
+    }
+  ],
+  "cover": {
+    "altText": "Illustration conceptuelle d’un socle d’intelligence artificielle commun relié à plusieurs usages du texte et de l’image.",
+    "generationBrief": "Créer une couverture éditoriale horizontale 16:9 sur la notion de modèle de fondation. Représenter un noyau ou socle modulaire central qui alimente trois usages abstraits : traitement de texte, compréhension d’image et combinaison de plusieurs types de données. L’image doit évoquer la réutilisation d’une base commune sans devenir un diagramme détaillé. Composition simple, forte silhouette centrale, lisible en miniature, sans texte obligatoire, sans logo, sans marque, sans URL, sans source, sans filigrane, sans microtexte, sans nom de série et sans numéro d’épisode.",
+    "preferredAspectRatio": "16:9"
+  },
+  "keywords": [
+    "modèle de fondation",
+    "préentraînement",
+    "réglage fin",
+    "grand modèle de langage",
+    "IA générative",
+    "multimodalité"
+  ],
+  "sources": [
+    {
+      "key": "bommasani-2021",
+      "title": "On the Opportunities and Risks of Foundation Models",
+      "authors": [
+        "Rishi Bommasani et al."
+      ],
+      "organization": "Stanford Center for Research on Foundation Models",
+      "sourceType": "research_paper",
+      "publicationDate": "2021",
+      "url": "https://crfm.stanford.edu/report.html",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "devlin-2019",
+      "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "authors": [
+        "Jacob Devlin",
+        "Ming-Wei Chang",
+        "Kenton Lee",
+        "Kristina Toutanova"
+      ],
+      "organization": "Association for Computational Linguistics",
+      "sourceType": "research_paper",
+      "publicationDate": "2019-06",
+      "url": "https://aclanthology.org/N19-1423/",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "brown-2020",
+      "title": "Language Models are Few-Shot Learners",
+      "authors": [
+        "Tom B. Brown et al."
+      ],
+      "organization": "NeurIPS",
+      "sourceType": "research_paper",
+      "publicationDate": "2020",
+      "url": "https://proceedings.neurips.cc/paper/2020/hash/1457c0d6bfcb4967418bfb8ac142f64a-Abstract.html",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "radford-2021",
+      "title": "Learning Transferable Visual Models From Natural Language Supervision",
+      "authors": [
+        "Alec Radford",
+        "Jong Wook Kim",
+        "Chris Hallacy",
+        "Aditya Ramesh",
+        "Gabriel Goh",
+        "Sandhini Agarwal",
+        "Girish Sastry",
+        "Amanda Askell",
+        "Pamela Mishkin",
+        "Jack Clark",
+        "Gretchen Krueger",
+        "Ilya Sutskever"
+      ],
+      "organization": "Proceedings of Machine Learning Research",
+      "sourceType": "research_paper",
+      "publicationDate": "2021-07",
+      "url": "https://proceedings.mlr.press/v139/radford21a.html",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "nist-2024",
+      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile",
+      "authors": [
+        "Chloe Autio",
+        "Reva Schwartz",
+        "Jesse Dunietz",
+        "Shomik Jain",
+        "Martin Stanley",
+        "Elham Tabassi",
+        "Patrick Hall",
+        "Kamie Roberts"
+      ],
+      "organization": "National Institute of Standards and Technology",
+      "sourceType": "government",
+      "publicationDate": "2024-07-26",
+      "url": "https://doi.org/10.6028/NIST.AI.600-1",
+      "accessDate": "2026-08-01"
+    }
+  ],
+  "seo": {
+    "primaryQuery": "qu’est-ce qu’un modèle de fondation",
+    "secondaryQueries": [
+      "modèle de fondation définition",
+      "modèle de fondation et LLM",
+      "différence entre modèle de fondation et IA générative",
+      "préentraînement et réglage fin",
+      "pourquoi les modèles de fondation utilisent beaucoup de données"
+    ],
+    "searchIntent": "informational",
+    "seoTitle": "Modèle de fondation en IA : définition simple",
+    "metaDescription": "Comprenez ce qu’est un modèle de fondation, comment il est préentraîné ou adapté, et sa relation avec les LLM et l’IA générative.",
+    "suggestedSlug": "modele-de-fondation-ia",
+    "internalLinkSuggestions": [
+      {
+        "targetTopic": "Grands modèles de langage",
+        "suggestedAnchor": "grand modèle de langage",
+        "placementHint": "Dans la section qui compare modèle de fondation, LLM et IA générative"
+      },
+      {
+        "targetTopic": "IA générative",
+        "suggestedAnchor": "IA générative",
+        "placementHint": "Dans la section qui explique la capacité de produire du nouveau contenu"
+      },
+      {
+        "targetTopic": "Réglage fin des modèles",
+        "suggestedAnchor": "réglage fin",
+        "placementHint": "Après l’explication de l’adaptation qui modifie les paramètres"
+      }
+    ]
+  }
+}

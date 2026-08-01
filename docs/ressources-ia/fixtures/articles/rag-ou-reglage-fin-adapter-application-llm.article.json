@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "contentType": "article",
+  "language": "fr",
+  "title": "RAG ou réglage fin : quelle approche choisir pour adapter une application fondée sur un LLM?",
+  "subtitle": "Choisir entre connaissances récupérées, comportement appris et architecture hybride",
+  "summary": "Le RAG ajoute des connaissances externes au contexte, tandis que le réglage fin adapte le comportement du modèle. Cet article compare leurs usages, leurs coûts, leur maintenance, leur traçabilité et leurs besoins d’évaluation.",
+  "theme": "IA générative",
+  "level": "intermediate",
+  "learningObjectives": [
+    "Distinguer l’ajout de connaissances au contexte de la modification des paramètres d’un modèle.",
+    "Reconnaître les besoins qui favorisent le RAG, le réglage fin ou une combinaison des deux.",
+    "Comparer les approches selon la fraîcheur, les données, les coûts, la traçabilité, les permissions et la maintenance.",
+    "Construire une évaluation qui mesure séparément la récupération, la réponse et la qualité des citations."
+  ],
+  "prerequisites": [
+    "Comprendre les notions générales de modèle de langage et d’inférence.",
+    "Connaître le rôle d’une fenêtre de contexte.",
+    "Savoir que les données d’entraînement servent à ajuster les paramètres d’un modèle."
+  ],
+  "takeaway": "Le RAG sert principalement à fournir une connaissance externe et actualisable au moment de la requête; le réglage fin sert principalement à rendre un comportement plus stable. Le choix, ou leur combinaison, doit être validé sur des critères mesurables propres à l’application.",
+  "contentMarkdown": "Lorsqu’une application fondée sur un grand modèle de langage répond mal, deux solutions reviennent souvent : lui donner accès à une source de connaissances externe ou régler finement le modèle. Ces options sont parfois présentées comme deux chemins concurrents vers le même résultat. En pratique, elles déplacent l’adaptation à des endroits différents du système.\n\nLe **RAG** — *retrieval-augmented generation*, ou génération augmentée par récupération — cherche des passages au moment où la question est posée et les ajoute au contexte. Le **réglage fin** — *fine-tuning* — entraîne le modèle sur des exemples afin de modifier plus durablement son comportement. Le bon choix dépend donc moins d’un classement général que de la lacune à corriger : information manquante, comportement inadéquat, ou combinaison des deux.\n\n## Pourquoi les deux approches ne répondent pas au même besoin\n\nUn système RAG relie une mémoire dite **paramétrique**, contenue dans le modèle, à une mémoire externe consultable, par exemple un index de documents. Cette distinction figurait déjà dans les travaux fondateurs sur le RAG. {{cite:lewis-2020}} L’objectif principal est de fournir au modèle des éléments qu’il n’a pas nécessairement appris, qu’il ne restitue pas avec assez de précision ou qui ont changé depuis son entraînement.\n\nLe réglage fin supervisé part d’un autre problème : le modèle dispose peut-être déjà des informations utiles dans son entrée, mais il ne réalise pas la tâche de manière assez fiable. On lui montre alors des entrées et des sorties attendues afin qu’il reproduise plus régulièrement un format, un style, une classification ou une façon de suivre les instructions. {{cite:openai-sft}}\n\nLa distinction utile est donc la suivante :\n\n- **RAG :** « De quelles informations cette réponse a-t-elle besoin maintenant? »\n- **Réglage fin :** « Quel comportement le modèle doit-il apprendre à reproduire? »\n\nElle n’est pas absolue. Un système RAG peut comprendre un récupérateur, un modèle d’embeddings ou un générateur eux-mêmes adaptés. Inversement, un modèle réglé finement reçoit toujours un contexte à l’inférence. Il s’agit de deux leviers architecturaux dominants, pas de deux catégories étanches.\n\nCette nuance évite une erreur fréquente : traiter le réglage fin comme une base documentaire compressée dans les paramètres. Un modèle peut mémoriser certains éléments d’entraînement, mais ses paramètres ne fournissent pas naturellement une adresse précise pour chaque fait, une version de document ou un mécanisme de suppression ciblée. Pour une connaissance qui doit rester observable et remplaçable, la mémoire externe offre généralement un meilleur contrôle.\n\n## Où agit chaque approche\n\nDans un flux RAG courant, l’application prépare les documents, les découpe en passages, crée un index, puis recherche les passages pertinents pour chaque requête. Elle combine ensuite la question et ces passages dans l’entrée envoyée au modèle. Les recherches peuvent être lexicales, vectorielles, sémantiques ou hybrides. {{cite:microsoft-rag-indexes}}\n\nLe modèle de langage n’est donc pas réentraîné chaque fois qu’un document change. Cependant, « mettre à jour le corpus » ne suffit pas toujours : il faut aussi réingérer les changements, recalculer certains embeddings, mettre l’index à jour et vérifier que la récupération retourne bien la nouvelle version.\n\nLe réglage fin intervient avant l’utilisation courante. Un jeu d’exemples sert à ajuster les poids du modèle ou des composants additionnels. Dans un réglage fin complet, de nombreux paramètres peuvent être modifiés. Des méthodes efficaces en paramètres, comme **LoRA**, gèlent les poids préentraînés et apprennent plutôt des matrices additionnelles de faible rang. {{cite:lora-2021}} Elles réduisent la quantité de paramètres entraînés, sans transformer pour autant le réglage fin en simple ajout de contexte.\n\nLa différence peut se résumer ainsi : le RAG change principalement **ce que l’application montre au modèle pour cette requête**; le réglage fin change principalement **la manière dont le modèle tend à traiter les requêtes**.\n\n{{media:rag-reglage-fin-flux}}\n\nCe placement a des conséquences. Un passage récupéré peut être affiché, remplacé ou exclu. Un comportement appris est moins directement inspectable : on le caractérise surtout par des tests. À l’inverse, un long ensemble d’instructions et d’exemples répété dans chaque requête peut parfois être incorporé plus efficacement par réglage fin, sous réserve que le gain soit démontré.\n\n## Exemple de l’assistant documentaire\n\nImaginons une entreprise de services techniques qui possède des manuels, des procédures opérationnelles, des bulletins d’incident et des politiques internes. Elle veut offrir aux employés un assistant capable de répondre à une question comme : « Quelle procédure dois-je suivre lorsqu’un équipement surchauffe après une mise à jour? »\n\nLes bulletins changent chaque semaine. Certains sont réservés aux superviseurs. Chaque réponse doit citer le document et sa version. L’assistant doit également employer un ton concis et prudent, puis suivre un format stable : réponse, étapes, avertissement de sécurité et condition d’escalade. Lorsqu’aucun document ne soutient la réponse, il doit le signaler au lieu de compléter par une supposition.\n\nLe RAG répond d’abord au besoin de connaissance : rechercher les versions actuelles, ne transmettre que les passages autorisés et conserver les métadonnées nécessaires aux références. Mais les **permissions ne sont pas une propriété automatique du RAG**. L’architecture doit transporter les identités et les droits, synchroniser les métadonnées d’accès, puis filtrer les résultats avant qu’un passage non autorisé atteigne le modèle. Des moteurs de recherche proposent des mécanismes de contrôle documentaire, mais ils exigent une configuration et des tests adaptés au système d’identité utilisé. {{cite:microsoft-access-control}}\n\nLes **citations ne sont pas automatiques non plus**. Il faut conserver le lien entre chaque passage et sa source, demander au modèle d’associer les affirmations aux bons passages, puis vérifier que les références affichées soutiennent réellement le texte. Un index peut stocker des titres, noms de fichiers ou URL qui facilitent ce travail, mais la qualité finale dépend de l’orchestration de l’application. {{cite:microsoft-rag-indexes}}\n\nLe réglage fin pourrait ensuite stabiliser le ton, le format et les règles d’escalade. Il ne remplacerait pas la récupération des bulletins récents. Deux échecs restent possibles : le RAG peut récupérer un ancien bulletin ou un passage proche mais inadéquat; le modèle réglé finement peut produire une réponse parfaitement formatée qui applique une règle devenue obsolète. Le système hybride doit donc contrôler à la fois la connaissance fournie et le comportement produit.\n\n## Comparaison des compromis\n\nLe tableau suivant compare les leviers dominants. Les coûts indiqués sont des **postes de coût**, non des prix universels : ils dépendent du fournisseur, du modèle, du volume, de la longueur du contexte, de l’infrastructure et du niveau de qualité exigé.\n\n| Critère | RAG | Réglage fin | Question à poser |\n|---|---|---|---|\n| Adaptation principale | Ajoute des passages au contexte pendant l’inférence | Modifie des paramètres ou des adaptateurs avant l’inférence | Faut-il changer l’information disponible ou le comportement? |\n| Fraîcheur | Peut refléter rapidement un corpus mis à jour, si l’ingestion et l’index suivent | Requiert de nouvelles données, un nouvel entraînement et une validation | À quelle fréquence la vérité opérationnelle change-t-elle? |\n| Données nécessaires | Documents exploitables, métadonnées et questions de test | Exemples représentatifs avec sorties de haute qualité | Possède-t-on des sources ou des démonstrations fiables? |\n| Traçabilité | Les passages et métadonnées peuvent soutenir des références | Les faits appris ne possèdent pas naturellement une provenance par réponse | Doit-on justifier chaque affirmation? |\n| Citations | Possibles si l’application conserve et vérifie les liens entre réponse et sources | Non natives; peuvent venir d’un autre outil ou d’un RAG associé | Quelle précision de citation est exigée? |\n| Permissions et sécurité | Filtrage documentaire possible, mais à concevoir et tester; les passages sont des entrées non fiables | Contrôle surtout l’accès au modèle et aux données d’entraînement; pas de droits par fait appris | Qui peut voir quel contenu, et à quel moment? |\n| Coût de développement | Ingestion, découpage, index, récupération, orchestration et évaluation | Collecte, annotation, nettoyage, entraînement, déploiement et évaluation | Quelle compétence et quelle infrastructure manquent? |\n| Coût d’exploitation | Recherche, embeddings éventuels, stockage, réordonnancement et jetons de contexte | Hébergement ou appels du modèle adapté; prompts parfois plus courts | Quel est le volume, la latence cible et la taille des entrées? |\n| Maintenance | Synchroniser documents, métadonnées, droits et index | Versionner données, modèle de base, entraînements et régressions | Quel changement doit pouvoir être corrigé rapidement? |\n| Erreurs typiques | Mauvais passage, passage absent, contexte trop long, mauvaise attribution | Surapprentissage, comportement indésirable, régression, connaissances figées | Comment isoler la cause d’une mauvaise réponse? |\n| Réversibilité | Un document ou une règle de récupération peut être corrigé séparément | Une correction peut nécessiter données supplémentaires et nouvel entraînement | À quelle vitesse faut-il annuler un changement? |\n| Évaluation | Récupération et réponse doivent être mesurées séparément | Comparaison au modèle de base sur tâche, format, sécurité et généralisation | Quel jeu de test représente l’usage réel? |\n\nUn RAG ajoute des appels de recherche, du calcul pour les embeddings et des jetons d’entrée lorsque des passages sont injectés; ces éléments peuvent augmenter coût et latence. {{cite:microsoft-rag-indexes}} Le réglage fin ajoute un investissement de données et d’entraînement. Il peut toutefois réduire la longueur des instructions et le nombre de jetons par requête, ce qui peut diminuer le coût et la latence. {{cite:microsoft-finetuning}} Aucune de ces observations ne suffit à désigner systématiquement l’option la moins coûteuse.\n\n## Quand privilégier le RAG\n\nLe RAG constitue un bon point de départ lorsque la réponse dépend d’un corpus **privé, volumineux, changeant ou soumis à des droits d’accès** {{cite:microsoft-access-control}}. Il convient aussi lorsque l’utilisateur doit voir les documents à l’origine d’une réponse, ou lorsque l’organisation doit corriger ou retirer une information sans réentraîner le modèle. Les documentations techniques actuelles recommandent notamment le RAG pour les données privées ou fréquemment modifiées, tandis que le réglage fin vise davantage le comportement, le style ou la performance sur une tâche. {{cite:microsoft-rag-indexes}}\n\nCette préférence reste conditionnelle. Un RAG n’est « frais » que si toute la chaîne l’est. Une politique corrigée dans le dépôt source, mais encore présente dans un index ancien, reste récupérable. De même, la récupération ne garantit ni exactitude ni absence d’hallucination : le modèle peut mal interpréter un passage, combiner des versions incompatibles ou ajouter une affirmation non soutenue.\n\nLe RAG est moins convaincant lorsque la tâche exige de considérer presque tout un document à la fois, lorsque les réponses ne dépendent pas réellement d’une source externe, ou lorsque la récupération ajoute beaucoup de latence sans améliorer les résultats. Il faut alors revoir le découpage, la stratégie de recherche, la taille du contexte ou même la pertinence de l’architecture.\n\n## Quand envisager le réglage fin\n\nLe réglage fin devient pertinent lorsque l’écart principal concerne une **tâche stable et répétitive** : classification spécialisée, extraction structurée, terminologie constante, format de sortie rigide ou comportement que les instructions seules ne stabilisent pas assez. Le réglage fin supervisé apprend à partir d’exemples de bonnes réponses; les cas d’usage officiels incluent notamment la classification, certains formats de contenu et la correction d’échecs récurrents de suivi d’instructions. {{cite:openai-sft}}\n\nLa question décisive est moins « avons-nous beaucoup de documents? » que « avons-nous des exemples qui montrent sans ambiguïté le comportement attendu? ». Des exemples incohérents, peu représentatifs ou incomplets peuvent enseigner les mauvais réflexes. La diversité, l’équilibre et l’accord entre annotateurs limitent directement la qualité accessible au modèle. {{cite:openai-ft-best-practices}}\n\nLe réglage fin ne devrait donc pas être le premier réflexe pour injecter une collection de faits qui change chaque semaine. Il est plus adapté lorsque les règles de la tâche évoluent lentement et que le gain attendu peut être mesuré. Il faut aussi tester les capacités que l’on souhaite préserver : une amélioration sur le format cible peut s’accompagner d’une régression sur des formulations rares, des demandes hors distribution ou des comportements généraux.\n\n## Quand les combiner\n\nUne architecture hybride est logique lorsque l’application doit maîtriser **la connaissance et le comportement**. Dans l’exemple conducteur, le RAG fournit les bulletins actuels et autorisés; le modèle réglé finement peut apprendre à exploiter ces passages selon un format de sécurité constant.\n\nLa combinaison peut viser plusieurs composants : le générateur, le récupérateur ou le modèle d’embeddings. Elle ne doit cependant pas masquer un RAG médiocre. Régler finement le générateur ne compense pas durablement un index incomplet, des permissions mal synchronisées ou une mauvaise stratégie de recherche.\n\nRAFT est un exemple de recherche hybride : cette recette de post-entraînement adapte un modèle à un contexte RAG de domaine, notamment en lui apprenant à distinguer les documents utiles de distracteurs. {{cite:raft-2024}} Cet exemple montre que récupération et adaptation peuvent être conçues ensemble; il ne constitue pas une preuve qu’une recette donnée convient à tous les corpus.\n\nLa combinaison augmente aussi le nombre de versions à gérer : corpus, index, modèle de base, adaptateurs, prompts et règles d’orchestration. Elle doit être retenue lorsque chaque composant corrige un écart identifié par l’évaluation, pas simplement parce qu’elle paraît plus complète.\n\n## Comment tester la décision\n\nLa décision devrait commencer par un jeu de test représentatif, construit avant l’optimisation. Il doit couvrir les questions fréquentes, les cas rares, les documents contradictoires, les informations absentes, les droits différents et les demandes malveillantes. Pour le réglage fin, il faut séparer les données d’entraînement des données d’évaluation et comparer le modèle adapté au modèle de base. Les guides de réglage fin recommandent d’ailleurs de disposer d’évaluations fiables avant d’investir dans l’entraînement. {{cite:openai-sft}}\n\nPour un RAG, mesurez séparément :\n\n1. **la récupération** : les bons passages apparaissent-ils parmi les résultats?\n2. **la pertinence** : la réponse traite-t-elle réellement la question?\n3. **l’ancrage** : les affirmations restent-elles cohérentes avec les passages fournis?\n4. **la complétude** : les éléments essentiels de la réponse attendue sont-ils présents?\n\nCes dimensions correspondent à des niveaux différents du pipeline : la récupération évalue le processus de recherche, tandis que l’ancrage, la pertinence et la complétude évaluent la réponse générée. {{cite:microsoft-rag-evaluators}}\n\nAjoutez une métrique distincte de **qualité des citations**, propre à l’application. Elle peut vérifier, pour chaque affirmation importante, qu’une référence est présente, qu’elle pointe vers le bon document et la bonne version, et que le passage cité soutient effectivement l’affirmation. Un système peut obtenir de bons résultats de récupération tout en associant une mauvaise référence; il peut aussi être bien ancré dans le contexte sans exposer de citation utile à l’utilisateur.\n\nPour le réglage fin, mesurez la réussite de la tâche, le respect du format, la généralisation à de nouvelles formulations, les refus appropriés, la sécurité et les régressions. Pour les deux approches, suivez également la latence, la consommation de jetons, les coûts d’infrastructure et la facilité de diagnostiquer une erreur.\n\nUne expérimentation raisonnable compare au moins trois versions : le modèle de base avec de bonnes instructions, une solution RAG minimale, puis un réglage fin ou une version hybride seulement si un écart persiste. Le choix final n’est pas « RAG contre réglage fin » en général. C’est l’architecture qui atteint les seuils de qualité, de sécurité, de coût et de maintenance du cas réel, avec le moins de complexité inutile.",
+  "media": [
+    {
+      "key": "rag-reglage-fin-flux",
+      "kind": "diagram",
+      "title": "Où agit le RAG, où agit le réglage fin?",
+      "caption": "Le RAG intervient principalement au moment de la requête; le réglage fin adapte le modèle avant son utilisation. Les deux parcours peuvent converger dans une architecture hybride.",
+      "altText": "Diagramme comparant deux parcours. Le premier montre une question, une recherche avec permissions, des passages récupérés, le contexte, le modèle puis une réponse avec références. Le second montre des exemples validés, un entraînement ou des adaptateurs, des paramètres adaptés, une requête puis une réponse. Une jonction indique qu’un modèle adapté peut aussi recevoir des passages récupérés.",
+      "generationBrief": "Créer un diagramme horizontal pédagogique en deux parcours parallèles. Parcours supérieur intitulé « RAG — au moment de la requête » : question, recherche avec permissions, passages récupérés, ajout au contexte, modèle, réponse et références. Parcours inférieur intitulé « Réglage fin — avant le déploiement » : exemples validés, entraînement ou adaptateurs, paramètres adaptés, requête, réponse. Ajouter une jonction claire vers un cas hybride où le modèle adapté reçoit aussi des passages récupérés. Utiliser peu de texte, des flèches simples et une hiérarchie lisible. Ne représenter aucun fournisseur, logo, prix, métrique inventée ou affirmation selon laquelle les permissions et citations seraient automatiques.",
+      "preferredAspectRatio": "16:9",
+      "required": true,
+      "sourceKeys": [
+        "lewis-2020",
+        "lora-2021",
+        "microsoft-rag-indexes",
+        "microsoft-access-control"
+      ]
+    }
+  ],
+  "cover": {
+    "altText": "Illustration conceptuelle montrant une application reliée à la fois à une collection de documents et aux paramètres adaptables d’un modèle de langage.",
+    "generationBrief": "Créer une couverture éditoriale horizontale 16:9. À gauche, représenter une collection simple de documents qui alimente le contexte d’une application. À droite, représenter les couches ou paramètres d’un modèle en cours d’adaptation. Au centre, montrer une application qui choisit ou combine ces deux leviers. Composition sobre, lisible en petite taille et centrée sur une seule idée. Aucun logo, nom de fournisseur, source, URL, filigrane, microtexte, tableau, prix ou numéro d’épisode.",
+    "preferredAspectRatio": "16:9"
+  },
+  "keywords": [
+    "RAG",
+    "réglage fin",
+    "fine-tuning",
+    "modèle de langage",
+    "LLM",
+    "recherche documentaire",
+    "LoRA",
+    "évaluation des systèmes RAG"
+  ],
+  "sources": [
+    {
+      "key": "lewis-2020",
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "authors": [
+        "Patrick Lewis",
+        "Ethan Perez",
+        "Aleksandra Piktus",
+        "Fabio Petroni",
+        "Vladimir Karpukhin",
+        "Naman Goyal",
+        "Heinrich Küttler",
+        "Mike Lewis",
+        "Wen-tau Yih",
+        "Tim Rocktäschel",
+        "Sebastian Riedel",
+        "Douwe Kiela"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2020",
+      "url": "https://arxiv.org/abs/2005.11401"
+    },
+    {
+      "key": "openai-sft",
+      "title": "Supervised fine-tuning",
+      "organization": "OpenAI",
+      "sourceType": "official_documentation",
+      "url": "https://developers.openai.com/api/docs/guides/supervised-fine-tuning",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "microsoft-rag-indexes",
+      "title": "Retrieval augmented generation (RAG) and indexes in Microsoft Foundry",
+      "organization": "Microsoft",
+      "sourceType": "official_documentation",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/concepts/retrieval-augmented-generation",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "lora-2021",
+      "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+      "authors": [
+        "Edward J. Hu",
+        "Yelong Shen",
+        "Phillip Wallis",
+        "Zeyuan Allen-Zhu",
+        "Yuanzhi Li",
+        "Shean Wang",
+        "Lu Wang",
+        "Weizhu Chen"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2021",
+      "url": "https://arxiv.org/abs/2106.09685"
+    },
+    {
+      "key": "microsoft-access-control",
+      "title": "Document-Level Access Control - Azure AI Search",
+      "organization": "Microsoft",
+      "sourceType": "official_documentation",
+      "url": "https://learn.microsoft.com/en-us/azure/search/search-document-level-access-overview",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "microsoft-finetuning",
+      "title": "Customize a model with fine-tuning",
+      "organization": "Microsoft",
+      "sourceType": "official_documentation",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/fine-tuning",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "openai-ft-best-practices",
+      "title": "Fine-tuning best practices",
+      "organization": "OpenAI",
+      "sourceType": "official_documentation",
+      "url": "https://developers.openai.com/api/docs/guides/fine-tuning-best-practices",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "raft-2024",
+      "title": "RAFT: Adapting Language Model to Domain Specific RAG",
+      "authors": [
+        "Tianjun Zhang",
+        "Shishir G. Patil",
+        "Naman Jain",
+        "Sheng Shen",
+        "Matei Zaharia",
+        "Ion Stoica",
+        "Joseph E. Gonzalez"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2024",
+      "url": "https://arxiv.org/abs/2403.10131"
+    },
+    {
+      "key": "microsoft-rag-evaluators",
+      "title": "Retrieval-Augmented Generation (RAG) evaluators",
+      "organization": "Microsoft",
+      "sourceType": "official_documentation",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/concepts/evaluation-evaluators/rag-evaluators",
+      "accessDate": "2026-08-01"
+    }
+  ],
+  "seo": {
+    "primaryQuery": "RAG ou réglage fin",
+    "secondaryQueries": [
+      "différence entre RAG et fine-tuning",
+      "quand utiliser le RAG",
+      "quand faire du réglage fin",
+      "adapter une application LLM",
+      "combiner RAG et fine-tuning"
+    ],
+    "searchIntent": "comparative",
+    "seoTitle": "RAG ou réglage fin : comment adapter une application LLM?",
+    "metaDescription": "Comparez le RAG et le réglage fin selon la fraîcheur des connaissances, les données, les coûts, les citations, la sécurité et le comportement attendu.",
+    "suggestedSlug": "rag-ou-reglage-fin-adapter-application-llm",
+    "internalLinkSuggestions": [
+      {
+        "targetTopic": "Embeddings",
+        "suggestedAnchor": "représentations vectorielles utilisées pour la recherche",
+        "placementHint": "Dans la section « Où agit chaque approche », après la présentation des types de recherche"
+      },
+      {
+        "targetTopic": "Évaluation des applications d’IA générative",
+        "suggestedAnchor": "construire un jeu de test représentatif",
+        "placementHint": "Au début de la section « Comment tester la décision »"
+      }
+    ]
+  }
+}

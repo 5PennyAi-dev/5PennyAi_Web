@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "contentType": "article",
+  "language": "fr",
+  "title": "Comment évaluer la récupération dans un système RAG?",
+  "subtitle": "Construire un jeu de test, choisir les bonnes métriques et détecter les régressions",
+  "summary": "Apprenez à évaluer rigoureusement le composant de récupération d’un système RAG avec des requêtes annotées, Precision@k, Recall@k, Hit Rate@k, MRR et nDCG.",
+  "theme": "Systèmes RAG",
+  "level": "advanced",
+  "learningObjectives": [
+    "Construire une collection de test associant des requêtes à des passages pertinents attendus.",
+    "Distinguer l’échelle d’un jugement de pertinence des critères contextuels qui le définissent.",
+    "Calculer et interpréter Precision@k, Recall@k, Hit Rate, MRR et nDCG.",
+    "Comparer plusieurs variantes du pipeline de récupération et localiser les régressions.",
+    "Relier l’évaluation hors ligne aux erreurs de génération et aux observations en production."
+  ],
+  "prerequisites": [
+    "Comprendre le fonctionnement général d’un système RAG.",
+    "Connaître les embeddings, la recherche vectorielle et le classement de résultats.",
+    "Comprendre le découpage documentaire, les métadonnées et les filtres.",
+    "Être capable de lire une formule simple et un court extrait de Python."
+  ],
+  "takeaway": "Une bonne évaluation de récupération combine des qrels versionnées, plusieurs métriques complémentaires et une analyse par requête. Elle mesure la disponibilité et le rang des preuves, mais pas leur utilisation fidèle par le modèle génératif.",
+  "contentMarkdown": "Évaluer un système RAG uniquement à partir de ses réponses finales produit un diagnostic incomplet. Une réponse erronée peut venir d’un passage absent, d’un passage pertinent classé trop bas, d’un filtre incorrect, d’un contexte trop bruyant ou d’un modèle qui exploite mal des preuves pourtant disponibles. Pour améliorer le système, il faut donc isoler le composant de récupération et le traiter comme un système de recherche classée.\n\nUne évaluation rigoureuse ne commence pas par le choix d’une métrique. Elle commence par une définition de l’unité récupérée, de la pertinence attendue et du comportement que l’on souhaite récompenser. Precision@k, Recall@k, Hit Rate@k, MRR et nDCG deviennent ensuite des instruments complémentaires : chacune projette une propriété particulière du classement, mais aucune ne résume à elle seule la qualité d’un récupérateur.\n\n## Pourquoi séparer récupération et génération?\n\nConsidérons deux échecs qui produisent la même réponse finale incorrecte.\n\nDans le premier cas, aucun passage contenant la règle recherchée n’a été récupéré. Le problème peut venir de la représentation de la requête, du découpage, de l’index, d’un filtre ou du classement initial.\n\nDans le second cas, le passage correct est présent au premier rang, mais le modèle de génération ignore une exception, fusionne deux versions contradictoires ou formule une conclusion non soutenue. Le récupérateur a rempli son rôle; l’échec se situe dans la construction du contexte ou dans la génération.\n\nCette séparation n’est pas seulement conceptuelle. RAGAs distingue notamment la capacité à récupérer un contexte pertinent, l’exploitation fidèle de ce contexte et la qualité de la génération. ARES évalue également séparément la pertinence du contexte, la fidélité de la réponse et la pertinence de la réponse. {{cite:ragas-2024}}{{cite:ares-2024}}\n\nUne troisième notion est utile : **l’utilité en aval**. Un passage peut recevoir un bon jugement de pertinence documentaire sans améliorer la tâche finale, ou inversement. Les expériences d’eRAG montrent que les jugements requête-document classiques et la performance en aval d’un système RAG ne sont pas nécessairement fortement alignés; l’étude propose donc de dériver des étiquettes à partir de l’utilité de chaque document pour la tâche. Ce résultat ne rend pas les métriques classiques inutiles : il montre qu’elles répondent à une question différente. {{cite:salemi-zamani-2024}}\n\n{{media:niveaux-evaluation-rag}}\n\nDans la suite, **évaluer la récupération** signifie mesurer la liste classée de passages avant la génération. L’évaluation de la réponse finale restera un contrôle complémentaire.\n\n## Construire une collection de test\n\nLe cadre classique de la recherche d’information repose sur trois éléments : une collection de documents, un ensemble de besoins d’information ou de requêtes, et des jugements de pertinence. Dans le vocabulaire TREC, ces jugements sont souvent appelés *qrels*. Le *pooling* consiste généralement à réunir les meilleurs résultats de plusieurs exécutions afin de sélectionner les documents qui seront annotés. {{cite:trec-howto}}\n\nPour un système RAG, cette structure doit être adaptée à l’unité réellement récupérée.\n\n### Figer les objets évalués\n\nPour chaque exécution, conservez au minimum :\n\n- une version du corpus;\n- une version du découpage;\n- un identifiant stable pour chaque document et chaque passage;\n- le texte réellement indexé;\n- les métadonnées utilisées par les filtres;\n- la requête originale et, si elle existe, sa reformulation;\n- la liste classée avant et après réordonnancement;\n- les paramètres déterminants, dont la profondeur de recherche et le nombre de passages transmis au générateur.\n\nUn identifiant fondé uniquement sur le contenu du passage peut devenir instable lorsqu’un titre, un chevauchement ou une normalisation change. Une stratégie plus robuste associe l’identifiant du document source, sa version et les limites du passage. Si le découpage change, les anciennes qrels ne doivent pas être réutilisées comme si les unités étaient identiques.\n\n### Sélectionner les requêtes\n\nUn jeu d’évaluation utile ne doit pas seulement contenir les questions faciles ou fréquentes. Il doit couvrir les comportements qui imposent des contraintes différentes au récupérateur :\n\n- recherche d’un fait unique;\n- question nécessitant plusieurs passages;\n- formulation vague ou abrégée;\n- vocabulaire métier absent du document;\n- contraintes de date, de région, de produit ou de rôle;\n- question sans réponse dans le corpus;\n- documents contradictoires ou versions successives;\n- requête sensible à un filtre de métadonnées.\n\nLes requêtes réelles sont particulièrement précieuses, mais elles doivent être échantillonnées et dédupliquées avec soin. Un jeu composé uniquement de requêtes synthétiques risque de refléter les formulations du générateur de données plutôt que celles des utilisateurs.\n\n### Constituer les passages à annoter\n\nL’annotation exhaustive d’un grand corpus est rarement réaliste. Une méthode pragmatique consiste à créer un pool à partir :\n\n1. des meilleurs résultats de plusieurs récupérateurs;\n2. de recherches lexicales et denses;\n3. de variantes de découpage ou de réordonnancement;\n4. de passages repérés manuellement par un expert;\n5. de candidats proposés par un modèle, puis vérifiés.\n\nLe pool élargit la couverture, mais il ne prouve pas que tous les passages pertinents ont été trouvés. Les passages non jugés doivent donc être distingués des passages explicitement jugés non pertinents. Lorsque la couverture des jugements varie entre deux variantes, un gain apparent peut simplement provenir d’un plus grand nombre de résultats non jugés.\n\n### Rédiger des consignes d’annotation\n\nUne consigne utile décrit ce que l’annotateur doit décider, pas seulement les valeurs disponibles. Elle précise notamment :\n\n- l’intention de la requête;\n- la période ou la version applicable;\n- les contraintes de métadonnées;\n- la quantité de preuve nécessaire;\n- la manière de traiter les doublons et chevauchements;\n- le seuil séparant un passage seulement lié au sujet d’un passage réellement exploitable;\n- le traitement des requêtes sans réponse.\n\nConservez les désaccords importants et leur arbitrage. Ils révèlent souvent une ambiguïté du besoin ou une définition de pertinence trop vague.\n\n## Définir la pertinence avant de mesurer\n\nLa pertinence possède au moins deux dimensions à ne pas confondre : **l’échelle de notation** et **les critères utilisés pour porter le jugement**.\n\n### Échelle binaire ou graduée\n\nUne échelle binaire attribue généralement deux valeurs :\n\n```text\n0 = non pertinent\n1 = pertinent\n```\n\nElle convient lorsque le passage doit franchir un seuil clair, par exemple « contient une règle applicable qui permet de répondre ».\n\nUne échelle graduée représente plusieurs niveaux d’utilité. L’article de Järvelin et Kekäläinen sur le gain cumulé a précisément motivé des mesures capables de récompenser davantage les documents très pertinents que les documents marginalement utiles. {{cite:jarvelin-kekalainen-2002}}\n\nPour notre exemple, nous utiliserons :\n\n```text\n0 = ne permet pas de répondre ou n’est pas applicable\n1 = apporte un contexte utile mais insuffisant\n2 = contient une partie importante de la preuve\n3 = contient une preuve directe et suffisante\n```\n\nCette grille n’est pas universelle. Une organisation peut décider qu’un passage de niveau 2 suffit pour certaines métriques binaires, tandis qu’une autre exigera le niveau 3.\n\n### Critères de jugement\n\nLe mot *pertinent* peut recouvrir plusieurs propriétés :\n\n- **pertinence thématique** : le passage traite du bon sujet;\n- **présence de la réponse** : il contient l’information demandée;\n- **suffisance** : il permet de répondre sans supposition externe;\n- **validité contextuelle** : il respecte la date, la région, le produit ou le rôle;\n- **complémentarité** : il apporte une partie distincte d’une preuve répartie;\n- **non-redondance** : il ajoute de l’information par rapport aux passages déjà récupérés.\n\nUn passage sur les remboursements peut être thématiquement pertinent tout en décrivant une politique expirée. Un passage de procédure peut être utile, mais insuffisant pour établir l’admissibilité. Le protocole doit donc dire explicitement quelle propriété est évaluée.\n\n### Plusieurs passages valides\n\nLes questions RAG ont souvent plus d’une réponse documentaire acceptable :\n\n- deux passages paraphrasent la même règle;\n- un document général et une annexe régionale sont tous deux nécessaires;\n- le chevauchement du découpage crée des passages presque identiques;\n- la preuve est répartie entre une règle et une exception;\n- plusieurs sources indépendantes donnent la même information.\n\nLes métriques classiques traitent généralement chaque passage comme une unité distincte. Elles ne savent pas automatiquement qu’un second passage est redondant ou qu’un ensemble de deux passages constitue une preuve minimale. Pour les cas importants, ajoutez aux qrels des annotations auxiliaires, par exemple un groupe d’équivalence, un identifiant de sous-question ou un ensemble minimal de preuves. Ces annotations serviront au diagnostic, même si toutes les métriques ne les utilisent pas.\n\n## Choisir les métriques selon le comportement attendu\n\nLes mesures de précision et de rappel ont d’abord été définies sur des ensembles. Pour des résultats classés, on les applique couramment aux `k` premières positions. {{cite:manning-raghavan-schutze-2008}}\n\nDans les formules suivantes :\n\n- `top_k(q)` est l’ensemble ordonné des `k` premiers résultats pour la requête `q`;\n- `rel(d, q)` indique si le passage franchit le seuil binaire choisi;\n- `R(q)` est l’ensemble des passages pertinents connus;\n- les positions manquantes comptent comme non pertinentes pour Precision@k.\n\n### Precision@k\n\n```text\nPrecision@k(q) =\n    nombre de passages pertinents dans top_k(q) / k\n```\n\nPrecision@k répond à la question : **quelle proportion des `k` premières positions contient des passages pertinents?**\n\nElle est utile lorsque le nombre de passages transmis au modèle est limité et que le bruit a un coût. Elle ne tient cependant pas compte de la longueur des passages : elle n’approche le budget de contexte en jetons que si les passages ont des tailles comparables. Elle ne dit par ailleurs rien sur les passages pertinents absents du top `k`.\n\n### Recall@k\n\n```text\nRecall@k(q) =\n    nombre de passages pertinents connus retrouvés dans top_k(q)\n    / nombre total de passages pertinents connus\n```\n\nRecall@k répond à la question : **quelle fraction des passages pertinents connus a été retrouvée avant la coupure?**\n\nSa principale faiblesse vient du dénominateur. Si les qrels sont incomplètes, le rappel calculé n’est qu’un rappel par rapport aux passages annotés. La documentation d’`ir-measures` suit la convention TREC : Recall@k est la fraction des documents pertinents retrouvés au rang `k`, et non un simple indicateur de présence. {{cite:ir-measures-docs}}\n\n### Hit Rate@k ou Success@k\n\nPour une requête :\n\n```text\nSuccess@k(q) =\n    1 si au moins un passage pertinent apparaît dans top_k(q)\n    0 sinon\n```\n\nLa moyenne de cet indicateur sur toutes les requêtes donne le taux de succès. Dans cet article, nous retenons le nom **Hit Rate@k**; `ir-measures` emploie **Success@k** et note que certaines tâches appellent cette mesure Recall@k, alors que la bibliothèque réserve Recall@k à la proportion des passages pertinents connus qui ont été retrouvés. {{cite:ir-measures-docs}}\n\nCette mesure convient lorsque la tâche exige surtout qu’une preuve valide apparaisse quelque part dans le top `k`. Elle ne distingue pas un classement contenant un seul passage pertinent d’un classement qui en contient plusieurs, ni le rang exact de la première réussite.\n\n### Rang réciproque et MRR\n\nPour une requête :\n\n```text\nRR(q) =\n    1 / rang du premier passage pertinent\n```\n\nSi aucun passage pertinent n’apparaît dans la profondeur évaluée, le rang réciproque vaut 0. Le MRR est la moyenne des rangs réciproques sur l’ensemble des requêtes.\n\nLe protocole TREC-8 de question-réponse utilisait précisément le rang du premier résultat correct, puis en calculait la moyenne. {{cite:voorhees-tice-2000}}\n\nLe MRR convient aux tâches où la première preuve valide domine l’utilité. Il ignore tous les résultats pertinents après le premier. Deux systèmes avec le même premier résultat pertinent peuvent donc recevoir le même MRR malgré des listes très différentes.\n\n### nDCG@k\n\nLa nDCG exploite les degrés de pertinence et pénalise les gains obtenus tard dans le classement. Une convention fréquente utilise un gain exponentiel et une décote logarithmique :\n\n```text\nDCG@k =\n    somme, pour i de 1 à k,\n    de (2^grade_i - 1) / log2(i + 1)\n\nnDCG@k = DCG@k observé / DCG@k idéal\n```\n\nLe classement idéal place les passages de plus haut grade en premier. La normalisation facilite la comparaison entre requêtes dont les profils de pertinence diffèrent. {{cite:jarvelin-kekalainen-2002}}\n\nIl n’existe pas une seule implantation implicite à supposer : les outils peuvent proposer plusieurs fonctions de gain, décotes et traitements des résultats non jugés. `ir-measures`, par exemple, expose la formulation de DCG, les gains personnalisés et une option pour ignorer les documents non jugés. {{cite:ir-measures-docs}}\n\nAvant de comparer deux expériences, fixez donc :\n\n- la profondeur `k`;\n- le seuil binaire utilisé par Precision, Recall, Success et MRR;\n- la fonction de gain de la nDCG;\n- la décote;\n- le traitement des passages non jugés;\n- le traitement des listes plus courtes que `k`;\n- la convention pour une requête dont le gain idéal est nul.\n\n### Requêtes sans passage pertinent connu\n\nUne requête sans passage pertinent connu doit être traitée dans un segment distinct. Pour ce type de requête, Recall@k n’est pas défini parce que son dénominateur est nul; Hit Rate@k et RR valent mécaniquement zéro même si l’abstention est le comportement attendu; et la nDCG n’est pas définie lorsque le gain idéal est nul. Ne mélangez donc pas silencieusement ces requêtes aux requêtes répondables. Définissez une convention explicite de détection ou d’abstention, puis rapportez séparément la capacité du système à reconnaître qu’aucun passage exploitable ne doit être retourné.\n\n| Métrique | Question principale | Sensible au rang | Pertinence graduée | Limite majeure |\n|---|---|---:|---:|---|\n| Precision@k | Quelle part du top `k` est pertinente? | Non, dans le top `k` | Non, après seuillage | Ignore les passages pertinents manquants |\n| Recall@k | Quelle part des passages pertinents connus est retrouvée? | Non, dans le top `k` | Non, après seuillage | Dépend de la complétude des qrels |\n| Hit Rate@k / Success@k | Y a-t-il au moins une réussite? | Seulement par la coupure `k` | Non, après seuillage | Distingue peu les bonnes listes |\n| MRR | Où apparaît la première réussite? | Oui | Non, après seuillage | Ignore les résultats suivants |\n| nDCG@k | Les meilleurs passages sont-ils placés tôt? | Oui | Oui | Dépend des gains, décotes et jugements |\n\n## Exemple chiffré : mêmes passages, ordre différent\n\nSupposons une base documentaire sur la résiliation d’un abonnement annuel. La requête est :\n\n> Dans quelles conditions un abonnement annuel peut-il être remboursé après sa résiliation?\n\nLes passages annotés sont :\n\n| Passage | Pertinence | Rang variante A | Rang variante B | Rôle dans la réponse |\n|---|---:|---:|---:|---|\n| P1 | 3 | 3 | 1 | Conditions complètes et politique actuelle |\n| P2 | 2 | 2 | 3 | Exception régionale applicable |\n| P3 | 1 | — | — | Procédure de demande, sans règle d’admissibilité |\n| P4 | 0 | 1 | 2 | Ancienne politique expirée |\n| P5 | 0 | — | — | Définition générale de la résiliation |\n\nPour les métriques binaires, fixons le seuil à `grade >= 2`. Les passages pertinents connus sont donc P1 et P2.\n\nLes deux variantes récupèrent exactement les mêmes trois passages dans le top 3 :\n\n```text\nVariante A : P4, P2, P1\nVariante B : P1, P4, P2\n```\n\n### Precision@3, Recall@3 et Hit Rate@3\n\nChaque variante contient deux passages pertinents sur trois positions :\n\n```text\nPrecision@3 = 2 / 3 = 0,667\n```\n\nElles retrouvent aussi les deux passages pertinents connus :\n\n```text\nRecall@3 = 2 / 2 = 1,000\n```\n\nEt chacune contient au moins un passage pertinent :\n\n```text\nHit Rate@3 = 1\n```\n\nCes trois mesures déclarent donc une égalité.\n\n### Rang réciproque\n\nDans la variante A, le premier passage pertinent apparaît au rang 2 :\n\n```text\nRR(A) = 1 / 2 = 0,500\n```\n\nDans la variante B, il apparaît au rang 1 :\n\n```text\nRR(B) = 1 / 1 = 1,000\n```\n\nLe rang réciproque révèle que la variante B fournit plus vite une preuve valide.\n\n### nDCG@3\n\nUtilisons le gain `2^grade - 1` et la décote `log2(i + 1)`. Le classement idéal au rang 3 est P1, P2, P3, soit les grades `3, 2, 1`.\n\n```text\nIDCG@3 = 9,393\nDCG@3(A) = 5,393\nDCG@3(B) = 8,500\n\nnDCG@3(A) = 0,574\nnDCG@3(B) = 0,905\n```\n\nLa nDCG préfère nettement la variante B, car elle place le passage de grade 3 au premier rang. L’exemple montre pourquoi un même rappel ne signifie pas un même classement.\n\n### Un calcul minimal en Python\n\n```python\ngrades = {\"P1\": 3, \"P2\": 2, \"P3\": 1, \"P4\": 0, \"P5\": 0}\n\ndef precision_at_k(ranking, k, threshold=2):\n    hits = sum(grades[p] >= threshold for p in ranking[:k])\n    return hits / k\n\ndef recall_at_k(ranking, k, threshold=2):\n    relevant = {p for p, g in grades.items() if g >= threshold}\n    if not relevant:\n        return None\n    hits = relevant.intersection(ranking[:k])\n    return len(hits) / len(relevant)\n\ndef success_at_k(ranking, k, threshold=2):\n    return float(any(grades[p] >= threshold for p in ranking[:k]))\n\ndef reciprocal_rank(ranking, threshold=2):\n    for rank, passage in enumerate(ranking, start=1):\n        if grades[passage] >= threshold:\n            return 1.0 / rank\n    return 0.0\n```\n\nCe code illustre les conventions choisies pour l’exemple. `None` signale ici que Recall@k n’est pas défini lorsqu’aucun passage pertinent n’est connu; ces requêtes sont traitées séparément avec une convention de détection ou d’abstention. Dans une évaluation réelle, utilisez une bibliothèque éprouvée, conservez les paramètres dans les résultats et ajoutez des tests unitaires sur des classements simples.\n\n## Comparer des variantes et localiser les erreurs\n\nUne « variante du récupérateur » ne se limite pas au modèle d’embedding. Le classement final dépend potentiellement :\n\n- du découpage et du chevauchement;\n- du texte indexé;\n- de l’ajout de titres ou de contexte documentaire;\n- de la représentation de la requête;\n- de la recherche lexicale, dense ou hybride;\n- des filtres de métadonnées;\n- du nombre de candidats;\n- du dédoublonnage;\n- du réordonnancement;\n- de la sélection finale du contexte.\n\n### Comparer sur une base commune\n\nPour une comparaison interprétable :\n\n1. utilisez les mêmes requêtes;\n2. figez le corpus, les qrels et les règles de calcul;\n3. ne modifiez qu’une composante à la fois lorsque c’est possible;\n4. conservez les listes classées, pas seulement les moyennes;\n5. calculez les écarts par requête;\n6. segmentez les résultats par type de besoin;\n7. examinez les requêtes gagnées et perdues;\n8. ajoutez une estimation d’incertitude, par exemple un intervalle obtenu par rééchantillonnage apparié des requêtes. {{cite:manning-raghavan-schutze-2008}}\n\nBEIR a été conçu pour tester des récupérateurs sur des tâches et domaines hétérogènes. Son intérêt méthodologique pour un système interne est le rappel suivant : une moyenne unique sur un seul type de requête ne démontre pas une robustesse générale. {{cite:beir-2021}}\n\n### Mesurer avant et après le réordonnancement\n\nConservez au moins deux listes :\n\n- les candidats produits par la première étape de recherche;\n- les passages après réordonnancement et filtrage final.\n\nSi Recall@100 est faible avant le réordonnancement, le reranker ne peut pas promouvoir un passage absent. Si Recall@100 est élevé mais nDCG@10 faible, le problème est plutôt un problème de classement. Si un filtre supprime le bon passage, comparez également la liste avant et après filtrage.\n\nCette décomposition transforme une régression en diagnostic :\n\n- **rappel initial en baisse** : embeddings, requête, index ou découpage;\n- **rappel stable, rang en baisse** : score de fusion ou reranker;\n- **résultats pertinents mais redondants** : dédoublonnage ou diversification;\n- **bonne moyenne, segment critique en baisse** : filtre, domaine ou type de requête;\n- **métriques stables, coût en hausse** : profondeur ou réordonnancement trop coûteux.\n\n### Définir une politique de non-régression\n\nUn seuil global unique est rarement suffisant. Une politique plus robuste peut exiger simultanément :\n\n- aucune baisse significative de Recall@k sur les questions multi-passage;\n- aucune baisse de Hit Rate@k sur les requêtes critiques;\n- une amélioration ou stabilité de nDCG sur l’ensemble principal;\n- un nombre limité de pertes importantes par requête;\n- aucune dégradation sur les filtres de date, région ou autorisation;\n- un budget de latence et de coût respecté.\n\nLes métriques agrégées restent utiles, mais elles peuvent masquer des classements différents ou incorporer des hypothèses d’utilité qui ne correspondent pas à tous les utilisateurs. L’analyse directe des listes et des écarts par requête complète donc le score moyen. {{cite:diaz-ferraro-2022}}\n\n## Références humaines, juges modèles et réponse finale\n\n### Évaluation avec qrels annotées\n\nDes qrels humaines bien définies offrent :\n\n- une cible stable;\n- des erreurs inspectables;\n- des critères documentés;\n- une comparaison reproductible entre variantes.\n\nElles ont aussi des limites :\n\n- coût d’annotation;\n- désaccords;\n- couverture incomplète;\n- obsolescence lorsque le corpus ou le découpage change;\n- difficulté à représenter les ensembles de preuves complémentaires.\n\nElles restent la référence la plus interprétable pour un jeu de non-régression restreint et important.\n\n### Annotation assistée par un modèle\n\nUn modèle peut aider à :\n\n- proposer des candidats;\n- préannoter un pool;\n- expliquer un jugement;\n- repérer des passages potentiellement oubliés;\n- produire une note graduée;\n- prioriser les cas à faire vérifier.\n\nMais le juge introduit un second système à évaluer. Ses décisions peuvent varier selon le modèle, l’invite, l’ordre des passages et la version du corpus. Une pratique prudente consiste à :\n\n1. constituer un échantillon humain de calibration;\n2. mesurer les désaccords par niveau et par segment;\n3. versionner le modèle et l’invite;\n4. conserver les justifications;\n5. faire arbitrer les cas à fort impact;\n6. ne pas comparer deux expériences évaluées par des juges différents sans recalibration.\n\nRAGAs propose des métriques de RAG sans dépendre d’annotations humaines de référence pour chaque exemple. ARES entraîne des juges sur des données synthétiques et utilise un petit ensemble humain dans une procédure de correction statistique. Ces travaux montrent deux stratégies possibles, mais ne suppriment pas la nécessité de vérifier le juge sur le domaine réel. {{cite:ragas-2024}}{{cite:ares-2024}}\n\n### Pourquoi une bonne récupération ne garantit pas une bonne réponse\n\nMême avec un excellent Recall@k et une nDCG élevée, la réponse peut échouer si :\n\n- plusieurs preuves nécessaires ne sont pas réunies;\n- le modèle privilégie un passage secondaire;\n- une contradiction n’est pas résolue;\n- le contexte est trop long ou redondant;\n- l’instruction de réponse ignore les métadonnées;\n- le modèle ajoute une conclusion non soutenue;\n- la tâche exige un calcul ou un raisonnement non mesuré par la pertinence documentaire.\n\nLa récupération mesure la disponibilité et l’ordre des preuves. Elle ne mesure ni leur utilisation fidèle ni l’exactitude de la formulation finale. {{cite:salemi-zamani-2024}} Il faut donc maintenir une matrice de diagnostic séparant au minimum :\n\n```text\nrécupération correcte / incorrecte\nréponse correcte / incorrecte\n```\n\nLes cas « récupération correcte, réponse incorrecte » orientent vers la génération. Les cas « récupération incorrecte, réponse correcte » peuvent signaler une réponse fondée sur les connaissances internes du modèle, une fuite dans le jeu d’évaluation ou une question trop facile pour tester le RAG.\n\n## Relier l’évaluation hors ligne à la production\n\nUn jeu hors ligne finit toujours par vieillir : le corpus change, les formulations évoluent et de nouveaux cas apparaissent. La production doit alimenter l’évaluation sans remplacer les annotations contrôlées.\n\n### Une boucle de travail réaliste\n\n1. **Jeu stable** : conservez un noyau de requêtes et de qrels versionnées pour la non-régression.\n2. **Jeu roulant** : ajoutez périodiquement des cas issus de la production.\n3. **Rejeu** : exécutez les nouvelles variantes sur des requêtes historiques avec le même instantané documentaire lorsque c’est possible.\n4. **Mode fantôme** : comparez les classements d’une variante sans les exposer immédiatement aux utilisateurs.\n5. **Échantillonnage** : inspectez les requêtes à faible score, les désaccords entre variantes et les incidents métier.\n6. **Annotation** : transformez les cas représentatifs en nouveaux exemples évalués.\n7. **Révision** : retirez ou versionnez les exemples devenus invalides.\n\n### Signaux de production utiles, mais imparfaits\n\nPlusieurs comportements peuvent aider à découvrir des échecs :\n\n- reformulation répétée;\n- absence de source exploitable;\n- correction manuelle;\n- escalade vers un humain;\n- abandon;\n- évaluation négative;\n- citation ouverte puis rejetée;\n- forte divergence entre le score du récupérateur et le jugement humain.\n\nCes signaux ne sont pas des qrels. Une reformulation peut venir d’une question mal posée; une évaluation négative peut viser le ton de la réponse; une absence de clic ne signifie pas que le passage est inutile. Ils servent à sélectionner des cas à analyser, pas à produire automatiquement une vérité de terrain.\n\n### Surveiller des distributions, pas seulement des moyennes\n\nHit Rate@k et RR ne sont calculables que lorsqu’un jugement de pertinence est disponible. En production, mesurez-les sur des requêtes annotées, des audits échantillonnés ou des rejeux possédant des qrels. Les comportements utilisateurs restent des signaux indirects : ils servent à sélectionner les cas à examiner et à annoter, non à remplacer ces jugements.\n\nEn production, suivez notamment :\n\n- la distribution de Hit Rate@k et de RR;\n- la part de requêtes sans passage au-dessus du seuil;\n- le nombre de résultats non jugés dans les audits;\n- les scores par domaine, langue, filtre et type de requête;\n- la stabilité des identifiants documentaires;\n- les changements de volume et de fraîcheur du corpus;\n- la latence par étape;\n- les requêtes dont le classement change fortement entre versions.\n\nUne moyenne stable peut cacher une nouvelle classe d’échecs. Le suivi par segment et l’inspection des listes restent indispensables.\n\n## Conclusion\n\nÉvaluer la récupération d’un système RAG exige d’abord une définition explicite de la pertinence et une collection de test versionnée. Precision@k mesure la proportion de résultats pertinents dans le top `k`, Recall@k leur couverture connue, Hit Rate@k la présence d’au moins une réussite, MRR le rang de la première réussite et nDCG l’ordre des gains gradués.\n\nCes métriques doivent être lues ensemble et complétées par l’analyse des requêtes individuelles. Elles permettent de comparer un découpage, un filtre, une stratégie hybride ou un réordonnanceur, mais elles ne garantissent pas que le modèle générera une réponse fidèle. La pratique la plus robuste relie donc trois niveaux : classement des passages, utilisation du contexte et qualité de la réponse, puis alimente continuellement le jeu hors ligne avec les échecs réellement observés en production.",
+  "media": [
+    {
+      "key": "niveaux-evaluation-rag",
+      "kind": "diagram",
+      "title": "Trois niveaux d’évaluation dans un système RAG",
+      "caption": "Le classement des passages, leur utilité pour la tâche et la réponse finale doivent être diagnostiqués séparément, puis reliés aux observations en production.",
+      "altText": "Diagramme montrant un jeu de requêtes et de jugements qui alimente un récupérateur, une liste classée évaluée par des métriques, un modèle qui produit une réponse, puis des observations de production renvoyées vers le jeu d’évaluation.",
+      "generationBrief": "Créer un diagramme horizontal pédagogique en six blocs reliés par des flèches : 1) requêtes et qrels, 2) pipeline de récupération, 3) liste classée et métriques hors ligne, 4) contexte transmis, 5) réponse générée, 6) observations en production. Ajouter une flèche de retour du bloc production vers les requêtes et qrels. Distinguer visuellement trois niveaux intitulés « classement », « utilisation du contexte » et « réponse finale », avec très peu de texte. Ne pas utiliser de logo, d’URL, de score inventé, de microtexte ni de code. Le sens ne doit pas dépendre uniquement de la couleur. Ratio 16:9.",
+      "preferredAspectRatio": "16:9",
+      "required": false,
+      "sourceKeys": [
+        "ragas-2024",
+        "ares-2024",
+        "salemi-zamani-2024"
+      ]
+    }
+  ],
+  "cover": {
+    "altText": "Illustration conceptuelle d’une requête passant par une liste classée de passages avant d’atteindre un modèle de langage.",
+    "generationBrief": "Créer une couverture éditoriale horizontale 16:9 sur l’évaluation de la récupération RAG. Représenter une requête à gauche, une série de cartes documentaires ordonnées au centre et un instrument de mesure simple qui sélectionne quelques passages avant leur transmission vers une forme abstraite de modèle à droite. Composition épurée, lisible en vignette, sans formule détaillée, tableau, logo, source, URL, filigrane, nom de série, numéro d’épisode ni microtexte.",
+    "preferredAspectRatio": "16:9"
+  },
+  "keywords": [
+    "RAG",
+    "évaluation de la récupération",
+    "recherche d’information",
+    "Precision@k",
+    "Recall@k",
+    "Mean Reciprocal Rank",
+    "nDCG",
+    "qrels",
+    "réordonnancement"
+  ],
+  "sources": [
+    {
+      "key": "manning-raghavan-schutze-2008",
+      "title": "Introduction to Information Retrieval",
+      "authors": [
+        "Christopher D. Manning",
+        "Prabhakar Raghavan",
+        "Hinrich Schütze"
+      ],
+      "sourceType": "book",
+      "publicationDate": "2008",
+      "url": "https://nlp.stanford.edu/IR-book/information-retrieval-book.html"
+    },
+    {
+      "key": "trec-howto",
+      "title": "How To TREC",
+      "organization": "National Institute of Standards and Technology",
+      "sourceType": "official_documentation",
+      "url": "https://trec.nist.gov/howto.html",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "jarvelin-kekalainen-2002",
+      "title": "Cumulated gain-based evaluation of IR techniques",
+      "authors": [
+        "Kalervo Järvelin",
+        "Jaana Kekäläinen"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2002-10-01",
+      "url": "https://dl.acm.org/doi/10.1145/582415.582418"
+    },
+    {
+      "key": "ir-measures-docs",
+      "title": "Measures - ir-measures documentation",
+      "sourceType": "official_documentation",
+      "url": "https://ir-measur.es/en/latest/measures.html",
+      "accessDate": "2026-08-01"
+    },
+    {
+      "key": "voorhees-tice-2000",
+      "title": "The TREC-8 Question Answering Track",
+      "authors": [
+        "Ellen M. Voorhees",
+        "Dawn M. Tice"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2000-05",
+      "url": "https://aclanthology.org/L00-1018/"
+    },
+    {
+      "key": "beir-2021",
+      "title": "BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models",
+      "authors": [
+        "Nandan Thakur",
+        "Nils Reimers",
+        "Andreas Rücklé",
+        "Abhishek Srivastava",
+        "Iryna Gurevych"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2021",
+      "url": "https://openreview.net/forum?id=wCu6T5xFjeJ"
+    },
+    {
+      "key": "ragas-2024",
+      "title": "RAGAs: Automated Evaluation of Retrieval Augmented Generation",
+      "authors": [
+        "Shahul Es",
+        "Jithin James",
+        "Luis Espinosa Anke",
+        "Steven Schockaert"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2024-03",
+      "url": "https://aclanthology.org/2024.eacl-demo.16/"
+    },
+    {
+      "key": "ares-2024",
+      "title": "ARES: An Automated Evaluation Framework for Retrieval-Augmented Generation Systems",
+      "authors": [
+        "Jon Saad-Falcon",
+        "Omar Khattab",
+        "Christopher Potts",
+        "Matei Zaharia"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2024-06",
+      "url": "https://aclanthology.org/2024.naacl-long.20/"
+    },
+    {
+      "key": "salemi-zamani-2024",
+      "title": "Evaluating Retrieval Quality in Retrieval-Augmented Generation",
+      "authors": [
+        "Alireza Salemi",
+        "Hamed Zamani"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2024-07-11",
+      "url": "https://dl.acm.org/doi/10.1145/3626772.3657957"
+    },
+    {
+      "key": "diaz-ferraro-2022",
+      "title": "Offline Retrieval Evaluation Without Evaluation Metrics",
+      "authors": [
+        "Fernando Diaz",
+        "Andres Ferraro"
+      ],
+      "sourceType": "research_paper",
+      "publicationDate": "2022-07",
+      "url": "https://dl.acm.org/doi/10.1145/3477495.3532033"
+    }
+  ],
+  "seo": {
+    "primaryQuery": "comment évaluer la récupération RAG",
+    "secondaryQueries": [
+      "métriques évaluation retriever RAG",
+      "Precision@k Recall@k RAG",
+      "MRR nDCG récupération documentaire",
+      "construire un jeu d’évaluation RAG",
+      "comparer plusieurs retrievers RAG",
+      "détecter une régression de récupération"
+    ],
+    "searchIntent": "informational",
+    "seoTitle": "Évaluer la récupération d’un système RAG : métriques et méthode",
+    "metaDescription": "Construisez un jeu de requêtes annotées et utilisez Precision@k, Recall@k, Hit Rate, MRR et nDCG pour évaluer un récupérateur RAG.",
+    "suggestedSlug": "evaluer-recuperation-systeme-rag",
+    "internalLinkSuggestions": [
+      {
+        "targetTopic": "Fonctionnement général du RAG",
+        "suggestedAnchor": "le fonctionnement d’un système RAG",
+        "placementHint": "Dans l’introduction, après la première mention du pipeline complet"
+      },
+      {
+        "targetTopic": "Découpage documentaire",
+        "suggestedAnchor": "la stratégie de découpage documentaire",
+        "placementHint": "Dans la section sur les objets évalués"
+      },
+      {
+        "targetTopic": "Recherche hybride",
+        "suggestedAnchor": "la recherche lexicale, dense ou hybride",
+        "placementHint": "Dans la section sur la comparaison des variantes"
+      },
+      {
+        "targetTopic": "Réordonnancement",
+        "suggestedAnchor": "le réordonnancement des passages",
+        "placementHint": "Dans la section sur la mesure avant et après le réordonnancement"
+      },
+      {
+        "targetTopic": "Évaluation de la réponse générée",
+        "suggestedAnchor": "l’évaluation de la réponse finale",
+        "placementHint": "Dans la section distinguant qrels, juges modèles et génération"
+      }
+    ]
+  }
+}
