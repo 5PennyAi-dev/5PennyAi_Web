@@ -72,3 +72,26 @@ test('signale URL, dates, type de source et SEO incomplet', () => {
   assert.ok(result.includes('missingPrimaryQuery'))
   assert.ok(result.includes('unusualMetaDescriptionLength'))
 })
+
+test('signale couverture, fichiers manquants, orphelins, ratio et poids sans bloquer', () => {
+  const form = createEmptyArticleForm()
+  form.contentMarkdown = '{{media:requis}}'
+  form.media = [
+    { key: 'requis', required: true, preferredAspectRatio: '16:9' },
+    { key: 'avec-fichier', required: false, preferredAspectRatio: '16:9' },
+  ]
+  const result = getArticleWarnings(form, {
+    articleId: 'article-id',
+    assetsLoaded: true,
+    coverPath: null,
+    assets: [
+      { media_key: 'avec-fichier', file_metadata: { width: 800, height: 800, sizeBytes: 2 * 1024 * 1024 } },
+      { media_key: 'orphelin', file_metadata: {} },
+    ],
+  })
+  const resultCodes = result.map(({ code }) => code)
+  for (const code of ['missingCover', 'requiredMediaFileMissing', 'usedMediaFileMissing', 'orphanAsset', 'unusedMediaFile', 'heavyMediaFile', 'mediaRatioMismatch']) {
+    assert.ok(resultCodes.includes(code), code)
+  }
+  assert.ok(result.every(({ severity }) => severity !== 'error'))
+})

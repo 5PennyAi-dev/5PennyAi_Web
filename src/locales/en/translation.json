@@ -938,9 +938,10 @@
           "action": "Delete",
           "cancel": "Cancel",
           "title": "Delete “{{title}}”?",
-          "description": "Only the draft row will be deleted. Articles have no associated asset or file in this increment.",
+          "description": "The draft, its asset references, and its files will be deleted. Storage cleanup runs after SQL deletion.",
           "deleting": "Deleting…",
-          "success": "“{{title}}” was deleted."
+          "success": "“{{title}}” was deleted.",
+          "successCleanupWarning": "“{{title}}” was deleted, but some files require manual cleanup."
         },
         "loading": "Loading articles…",
         "errorTitle": "Unable to load articles",
@@ -1001,6 +1002,7 @@
           "keywords": "Keywords",
           "seo": "Editorial SEO",
           "warnings": "Warnings",
+          "preview": "Administrative preview",
           "save": "Save draft"
         },
         "fields": {
@@ -1020,7 +1022,7 @@
           "prerequisites": "Prerequisites",
           "takeaway": "Takeaway",
           "contentMarkdown": "Raw Markdown",
-          "markdownHint": "No rendered preview is produced in this increment.",
+          "markdownHint": "The secure preview below uses the form’s current values.",
           "mediaKey": "Media key",
           "mediaKind": "Media type",
           "mediaTitle": "Media title",
@@ -1096,12 +1098,59 @@
           "addInternalLink": "Add a suggestion"
         },
         "media": {
-          "help": "The manifest describes planned media. No file, upload, or storage path is managed here.",
+          "help": "The editorial manifest remains separate from files. Each upload is associated with its exact key.",
           "add": "Add media",
           "item": "Media {{number}}"
         },
         "cover": {
-          "help": "This metadata describes the future cover. No cover file is uploaded in this increment."
+          "help": "The 16:9 cover file remains separate from this editorial metadata."
+        },
+        "assets": {
+          "present": "File present",
+          "missing": "File missing",
+          "required": "Required media",
+          "optional": "Optional media",
+          "upload": "Upload",
+          "replace": "Replace",
+          "remove": "Delete",
+          "removeConfirm": "Permanently delete this file?",
+          "saveFirst": "Save the draft before uploading a file.",
+          "invalidKey": "The key must be non-empty and use lowercase letters, numbers, and hyphens only.",
+          "uploaded": "The file was uploaded.",
+          "removed": "The file was deleted.",
+          "cleanupWarning": "The reference is valid, but the old Storage object requires manual cleanup.",
+          "orphans": "Orphaned assets",
+          "orphansHelp": "These keys no longer exist in the manifest. They remain until explicitly deleted.",
+          "warnings": {
+            "heavyFile": "The file is heavy and may slow down display.",
+            "ratioMismatch": "The actual ratio differs significantly from the preferred ratio."
+          },
+          "errors": {
+            "load": "Assets could not be loaded. Check that the increment 2 migration is applied.",
+            "unsupportedType": "Use a PNG, JPEG, or WebP image.",
+            "tooLarge": "The file exceeds the 5 MB limit.",
+            "unreadable": "The image dimensions could not be read.",
+            "invalidCoverRatio": "The cover must use a 16:9 aspect ratio.",
+            "upload": "Upload failed; no invalid reference was kept.",
+            "uploadCleanupFailed": "The database update failed and the uploaded Storage object could not be cleaned up. It may require manual removal.",
+            "remove": "Deletion failed; the existing reference was kept."
+          }
+        },
+        "preview": {
+          "label": "Administrative preview",
+          "untitled": "Untitled article",
+          "readingTime_one": "{{count}} minute read",
+          "readingTime_other": "{{count}} minutes read",
+          "episode": "Episode {{number}}",
+          "objectives": "Objectives",
+          "prerequisites": "Prerequisites",
+          "takeaway": "Takeaway",
+          "sources": "Sources",
+          "citationUnknown": "Unknown citation: {{key}}",
+          "mediaMissing": "Missing file for media: {{key}}",
+          "mediaUnknown": "Unknown media: {{key}}",
+          "untitledSource": "Untitled source",
+          "accessed": "accessed {{date}}"
         },
         "sources": {
           "add": "Add a source",
@@ -1169,6 +1218,14 @@
             "unresolvedMedia": "Media marker “{{key}}” does not match a manifest item.",
             "unusedMedia": "Media “{{key}}” is not used by any marker.",
             "requiredMediaDeclared": "This media is declared required; no file check occurs in this increment.",
+            "missingCover": "No cover has been uploaded.",
+            "requiredMediaFileMissing": "Required media “{{key}}” has no file.",
+            "optionalMediaFileMissing": "Optional media “{{key}}” has no file.",
+            "orphanAsset": "Asset “{{key}}” no longer matches the manifest.",
+            "usedMediaFileMissing": "Media “{{key}}” is used in Markdown, but its file is missing.",
+            "unusedMediaFile": "A file exists for media “{{key}}”, which is not used in Markdown.",
+            "heavyMediaFile": "The file for media “{{key}}” is very heavy.",
+            "mediaRatioMismatch": "The actual ratio for media “{{key}}” differs significantly from its preferred ratio.",
             "missingMediaAltText": "The media has no alternative text.",
             "unknownAspectRatio": "Aspect ratio “{{value}}” is not recognized.",
             "unknownMediaKind": "Media type “{{value}}” is not recognized.",

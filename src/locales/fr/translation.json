@@ -938,9 +938,10 @@
           "action": "Supprimer",
           "cancel": "Annuler",
           "title": "Supprimer « {{title}} »?",
-          "description": "Seule la ligne du brouillon sera supprimée. Aucun asset ou fichier n’est associé aux articles dans cet incrément.",
+          "description": "Le brouillon, ses références d’assets et ses fichiers seront supprimés. Le nettoyage Storage est effectué après la suppression SQL.",
           "deleting": "Suppression…",
-          "success": "« {{title}} » a été supprimé."
+          "success": "« {{title}} » a été supprimé.",
+          "successCleanupWarning": "« {{title}} » a été supprimé, mais certains fichiers devront être nettoyés manuellement."
         },
         "loading": "Chargement des articles…",
         "errorTitle": "Impossible de charger les articles",
@@ -1001,6 +1002,7 @@
           "keywords": "Mots-clés",
           "seo": "SEO éditorial",
           "warnings": "Avertissements",
+          "preview": "Aperçu administratif",
           "save": "Enregistrement du brouillon"
         },
         "fields": {
@@ -1020,7 +1022,7 @@
           "prerequisites": "Prérequis",
           "takeaway": "À retenir",
           "contentMarkdown": "Markdown brut",
-          "markdownHint": "Aucun aperçu rendu n’est produit dans cet incrément.",
+          "markdownHint": "L’aperçu sécurisé ci-dessous utilise les valeurs actuelles du formulaire.",
           "mediaKey": "Clé du média",
           "mediaKind": "Type de média",
           "mediaTitle": "Titre du média",
@@ -1096,12 +1098,59 @@
           "addInternalLink": "Ajouter une suggestion"
         },
         "media": {
-          "help": "Le manifeste décrit les médias prévus. Aucun fichier, upload ou chemin de stockage n’est géré ici.",
+          "help": "Le manifeste éditorial reste séparé des fichiers. Chaque upload est associé à la valeur exacte de sa clé.",
           "add": "Ajouter un média",
           "item": "Média {{number}}"
         },
         "cover": {
-          "help": "Ces métadonnées décrivent la future couverture. Aucun fichier de couverture n’est téléversé dans cet incrément."
+          "help": "Le fichier de couverture 16:9 reste séparé de ces métadonnées éditoriales."
+        },
+        "assets": {
+          "present": "Fichier présent",
+          "missing": "Fichier manquant",
+          "required": "Média requis",
+          "optional": "Média facultatif",
+          "upload": "Téléverser",
+          "replace": "Remplacer",
+          "remove": "Supprimer",
+          "removeConfirm": "Supprimer définitivement ce fichier?",
+          "saveFirst": "Enregistrez d’abord le brouillon avant de téléverser un fichier.",
+          "invalidKey": "La clé doit être non vide et utiliser uniquement des minuscules, chiffres et tirets.",
+          "uploaded": "Le fichier a été téléversé.",
+          "removed": "Le fichier a été supprimé.",
+          "cleanupWarning": "La référence est valide, mais l’ancien objet Storage devra être nettoyé manuellement.",
+          "orphans": "Assets orphelins",
+          "orphansHelp": "Ces clés n’existent plus dans le manifeste. Elles sont conservées jusqu’à une suppression explicite.",
+          "warnings": {
+            "heavyFile": "Le fichier est lourd et pourrait ralentir l’affichage.",
+            "ratioMismatch": "Le ratio réel diffère sensiblement du ratio préféré."
+          },
+          "errors": {
+            "load": "Les assets n’ont pas pu être chargés. Vérifiez que la migration de l’incrément 2 est appliquée.",
+            "unsupportedType": "Utilisez une image PNG, JPEG ou WebP.",
+            "tooLarge": "Le fichier dépasse la limite de 5 Mo.",
+            "unreadable": "Les dimensions de l’image ne peuvent pas être lues.",
+            "invalidCoverRatio": "La couverture doit respecter un ratio 16:9.",
+            "upload": "Le téléversement a échoué; aucune référence invalide n’a été conservée.",
+            "uploadCleanupFailed": "La mise à jour de la base a échoué et l’objet Storage téléversé n’a pas pu être nettoyé. Une suppression manuelle peut être nécessaire.",
+            "remove": "La suppression a échoué; la référence existante a été conservée."
+          }
+        },
+        "preview": {
+          "label": "Aperçu administratif",
+          "untitled": "Article sans titre",
+          "readingTime_one": "{{count}} minute de lecture",
+          "readingTime_other": "{{count}} minutes de lecture",
+          "episode": "Épisode {{number}}",
+          "objectives": "Objectifs",
+          "prerequisites": "Prérequis",
+          "takeaway": "À retenir",
+          "sources": "Sources",
+          "citationUnknown": "Citation inconnue : {{key}}",
+          "mediaMissing": "Fichier manquant pour le média : {{key}}",
+          "mediaUnknown": "Média inconnu : {{key}}",
+          "untitledSource": "Source sans titre",
+          "accessed": "consulté le {{date}}"
         },
         "sources": {
           "add": "Ajouter une source",
@@ -1169,6 +1218,14 @@
             "unresolvedMedia": "Le marqueur média « {{key}} » ne correspond à aucun manifeste.",
             "unusedMedia": "Le média « {{key}} » n’est utilisé par aucun marqueur.",
             "requiredMediaDeclared": "Ce média est déclaré requis; aucun contrôle de fichier n’est effectué dans cet incrément.",
+            "missingCover": "Aucune couverture n’est téléversée.",
+            "requiredMediaFileMissing": "Le média requis « {{key}} » n’a pas de fichier.",
+            "optionalMediaFileMissing": "Le média facultatif « {{key}} » n’a pas de fichier.",
+            "orphanAsset": "L’asset « {{key}} » ne correspond plus au manifeste.",
+            "usedMediaFileMissing": "Le média « {{key}} » est utilisé dans le Markdown, mais son fichier manque.",
+            "unusedMediaFile": "Un fichier existe pour le média « {{key}} », qui n’est pas utilisé dans le Markdown.",
+            "heavyMediaFile": "Le fichier du média « {{key}} » est très lourd.",
+            "mediaRatioMismatch": "Le ratio réel du média « {{key}} » diffère sensiblement du ratio préféré.",
             "missingMediaAltText": "Le média ne possède pas de texte alternatif.",
             "unknownAspectRatio": "Le ratio « {{value}} » n’est pas reconnu.",
             "unknownMediaKind": "Le type de média « {{value}} » n’est pas reconnu.",

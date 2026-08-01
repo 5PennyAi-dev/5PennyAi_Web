@@ -15,7 +15,7 @@ const SOURCE_TYPES = new Set([
 ])
 const SEARCH_INTENTS = new Set(['informational', 'comparative', 'tutorial'])
 
-export function getArticleWarnings(form) {
+export function getArticleWarnings(form, assetState = {}) {
   const warnings = []
   const add = (path, code, details, severity = 'warning') => {
     warnings.push({ path, code, severity, ...(details ? { details } : {}) })
@@ -88,6 +88,36 @@ export function getArticleWarnings(form) {
       })
     }
   })
+
+  if (assetState.articleId && assetState.assetsLoaded) {
+    const assets = Array.isArray(assetState.assets) ? assetState.assets : []
+    const assetsByKey = new Map(assets.map((asset) => [asset.media_key, asset]))
+    if (!assetState.coverPath) add('cover', 'missingCover')
+
+    for (const asset of assets) {
+      if (!mediaKeys.has(asset.media_key)) {
+        add('assets', 'orphanAsset', { key: asset.media_key })
+      }
+    }
+
+    media.forEach((item, index) => {
+      if (!isObject(item) || !hasText(item.key)) return
+      const asset = assetsByKey.get(item.key)
+      if (!asset) {
+        add(`media[${index}]`, item.required === true ? 'requiredMediaFileMissing' : 'optionalMediaFileMissing', { key: item.key })
+        if (mediaMarkerKeys.has(item.key)) add('contentMarkdown', 'usedMediaFileMissing', { key: item.key })
+        return
+      }
+      if (!mediaMarkerKeys.has(item.key)) add(`media[${index}]`, 'unusedMediaFile', { key: item.key })
+      const metadata = isObject(asset.file_metadata) ? asset.file_metadata : {}
+      if (Number(metadata.sizeBytes) > 1024 * 1024) add(`media[${index}]`, 'heavyMediaFile', { key: item.key })
+      const expectedRatio = parseRatio(item.preferredAspectRatio)
+      const actualRatio = Number(metadata.width) / Number(metadata.height)
+      if (expectedRatio && Number.isFinite(actualRatio) && Math.abs(actualRatio - expectedRatio) / expectedRatio > 0.12) {
+        add(`media[${index}]`, 'mediaRatioMismatch', { key: item.key })
+      }
+    })
+  }
 
   sources.forEach((source, index) => {
     const path = `sources[${index}]`
@@ -200,6 +230,11 @@ function analyzeSeo(seo, add) {
 
 function isPositiveIntegerText(value) {
   return /^\d+$/.test(String(value)) && Number(value) > 0
+}
+
+function parseRatio(value) {
+  const match = /^(\d+):(\d+)$/.exec(value || '')
+  return match && Number(match[2]) > 0 ? Number(match[1]) / Number(match[2]) : null
 }
 
 function isHttpUrl(value) {

@@ -12,6 +12,8 @@ import {
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
+import ArticleAssetField from '@/components/admin/resources/ArticleAssetField'
+import ArticlePreview from '@/components/admin/resources/ArticlePreview'
 import AdminResourcesNav from '@/components/admin/resources/AdminResourcesNav'
 import Card from '@/components/ui/Card'
 import {
@@ -29,6 +31,11 @@ import {
 import { analyzeArticleJson, applyAnalyzedArticleImport } from '@/lib/articleJsonImport'
 import { resolveArticleSlugProposal, slugifyArticle } from '@/lib/articleSlug'
 import { getArticleWarnings } from '@/lib/articleWarnings'
+import {
+  createArticleAssetUrls,
+  fetchArticleAssets,
+  resolveArticleAssets,
+} from '@/lib/articleAssets'
 
 const ARTICLES_PATH = '/admin/ressources-ia/articles'
 const CONTENT_TYPES = ['article']
@@ -71,10 +78,19 @@ function AdminArticleFormPage() {
   const [importFileName, setImportFileName] = useState('')
   const [importReport, setImportReport] = useState(null)
   const [readingFile, setReadingFile] = useState(false)
+  const [assets, setAssets] = useState([])
+  const [assetUrls, setAssetUrls] = useState({})
+  const [assetsLoaded, setAssetsLoaded] = useState(!editing)
+  const [assetLoadError, setAssetLoadError] = useState(false)
+  const [coverPath, setCoverPath] = useState(null)
   const slugManuallyEdited = useRef(editing)
 
   const dirty = JSON.stringify(form) !== baseline
-  const warnings = useMemo(() => getArticleWarnings(form), [form])
+  const warnings = useMemo(
+    () => getArticleWarnings(form, { articleId: id, assets, assetsLoaded, coverPath }),
+    [assets, assetsLoaded, coverPath, form, id],
+  )
+  const resolvedAssets = useMemo(() => resolveArticleAssets(form.media, assets), [assets, form.media])
 
   useEffect(() => {
     if (!editing) return
@@ -83,7 +99,7 @@ function AdminArticleFormPage() {
     setLoadError(null)
 
     fetchAdminArticle(id)
-      .then((row) => {
+      .then(async (row) => {
         if (cancelled) return
         if (row.status !== 'draft') {
           setPublishedLocked(true)
@@ -93,6 +109,25 @@ function AdminArticleFormPage() {
         slugManuallyEdited.current = true
         setForm(next)
         setBaseline(JSON.stringify(next))
+        setCoverPath(row.cover_path || null)
+        try {
+          const persistedAssets = await fetchArticleAssets(id)
+          const urls = await createArticleAssetUrls({
+            coverPath: row.cover_path,
+            assets: persistedAssets,
+          }, id)
+          if (!cancelled) {
+            setAssets(persistedAssets)
+            setAssetUrls(urls)
+            setAssetsLoaded(true)
+          }
+        } catch (error) {
+          console.error('Unable to load article assets:', error.message)
+          if (!cancelled) {
+            setAssetLoadError(true)
+            setAssetsLoaded(true)
+          }
+        }
       })
       .catch((error) => {
         if (!cancelled) setLoadError(error.code || 'load')
@@ -105,6 +140,25 @@ function AdminArticleFormPage() {
       cancelled = true
     }
   }, [editing, id])
+
+  const refreshAssetState = async ({ coverPath: nextCoverPath = coverPath } = {}) => {
+    setCoverPath(nextCoverPath || null)
+    setAssetLoadError(false)
+    try {
+      const persistedAssets = await fetchArticleAssets(id)
+      const urls = await createArticleAssetUrls({
+        coverPath: nextCoverPath,
+        assets: persistedAssets,
+      }, id)
+      setAssets(persistedAssets)
+      setAssetUrls(urls)
+    } catch (error) {
+      console.error('Unable to refresh article assets:', error.message)
+      setAssetLoadError(true)
+    } finally {
+      setAssetsLoaded(true)
+    }
+  }
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -429,14 +483,39 @@ function AdminArticleFormPage() {
                             {t('admin.resourcesAi.articleForm.fields.required')}
                           </label>
                         </div>
+                        <ArticleAssetField
+                          articleId={id}
+                          asset={resolvedAssets.media[index]?.asset || null}
+                          kind="media"
+                          media={item}
+                          onChanged={refreshAssetState}
+                          t={t}
+                          url={resolvedAssets.media[index]?.asset ? assetUrls[resolvedAssets.media[index].asset.storage_path] : null}
+                        />
                       </EditorCard>
                     ))}
                   </div>
+                  {assetLoadError && <p role="alert" className="mt-4 text-sm text-red-700">{t('admin.resourcesAi.articleForm.assets.errors.load')}</p>}
+                  {resolvedAssets.orphans.length > 0 && (
+                    <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                      <h4 className="font-heading font-semibold text-amber-950">{t('admin.resourcesAi.articleForm.assets.orphans')}</h4>
+                      <p className="mt-1 text-sm text-amber-900">{t('admin.resourcesAi.articleForm.assets.orphansHelp')}</p>
+                      <div className="mt-4 space-y-3">
+                        {resolvedAssets.orphans.map((asset) => (
+                          <div key={asset.id} className="rounded-xl border border-amber-200 bg-white p-4">
+                            <p className="font-mono text-xs text-navy">{asset.media_key}</p>
+                            <ArticleAssetField articleId={id} asset={asset} kind="media" media={{ key: asset.media_key }} onChanged={refreshAssetState} t={t} url={assetUrls[asset.storage_path]} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </FormSection>
 
                 <FormSection number="7" title={t('admin.resourcesAi.articleForm.sections.cover')}>
                   <p className="mb-4 text-sm text-muted">{t('admin.resourcesAi.articleForm.cover.help')}</p>
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <ArticleAssetField articleId={id} coverPath={coverPath} kind="cover" onChanged={refreshAssetState} t={t} url={coverPath ? assetUrls[coverPath] : null} />
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <Field label={t('admin.resourcesAi.articleForm.fields.altText')} value={form.cover.altText || ''} onChange={(value) => updateNested('cover', 'altText', value)} />
                     <SelectField label={t('admin.resourcesAi.articleForm.fields.aspectRatio')} value={form.cover.preferredAspectRatio || ''} options={RATIOS} onChange={(value) => updateNested('cover', 'preferredAspectRatio', value)} t={t} />
                   </div>
@@ -525,7 +604,11 @@ function AdminArticleFormPage() {
                   <WarningsList warnings={warnings} t={t} />
                 </FormSection>
 
-                <FormSection number="12" title={t('admin.resourcesAi.articleForm.sections.save')}>
+                <FormSection number="12" title={t('admin.resourcesAi.articleForm.sections.preview')}>
+                  <ArticlePreview assets={assets} assetUrls={assetUrls} coverUrl={coverPath ? assetUrls[coverPath] : null} form={form} t={t} />
+                </FormSection>
+
+                <FormSection number="13" title={t('admin.resourcesAi.articleForm.sections.save')}>
                   <p className="text-sm leading-relaxed text-muted">
                     {t('admin.resourcesAi.articleForm.draftOnly')}
                   </p>

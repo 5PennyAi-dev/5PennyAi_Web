@@ -64,11 +64,14 @@ function AdminArticlesPage() {
     setDeleting(true)
     setNotice(null)
     try {
-      await deleteArticleDraft(deleteTarget.id)
+      const result = await deleteArticleDraft(deleteTarget.id)
       const title = deleteTarget.title || t('admin.resourcesAi.articles.untitled')
       setArticles((current) => current.filter(({ id }) => id !== deleteTarget.id))
       setDeleteTarget(null)
-      setNotice({ type: 'success', text: t('admin.resourcesAi.articles.delete.success', { title }) })
+      setNotice({
+        type: 'success',
+        text: t(`admin.resourcesAi.articles.delete.${result.cleanupFailed ? 'successCleanupWarning' : 'success'}`, { title }),
+      })
     } catch (error) {
       console.error('Unable to delete article:', error.cause?.message || error.message)
       setNotice({
