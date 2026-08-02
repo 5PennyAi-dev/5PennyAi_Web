@@ -6,6 +6,7 @@ import Tools from '@/components/sections/Tools'
 import CareerSummary from '@/components/sections/CareerSummary'
 import Realisations from '@/components/sections/Realisations'
 import HomeContact from '@/components/sections/HomeContact'
+import { buildDefaultSocialImageUrl, buildSiteUrl } from '@/lib/siteConfig'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -19,15 +20,15 @@ export default function Home() {
         <meta property="og:description" content={t('seo.home.description')} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Christian Couillard" />
-        <meta property="og:url" content="https://5pennyai.com" />
-        <meta property="og:image" content="https://5pennyai.com/images/og-christian.jpg" />
+        <meta property="og:url" content={buildSiteUrl('/')} />
+        <meta property="og:image" content={buildDefaultSocialImageUrl()} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="Christian Couillard - AI Solutions Engineer" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={t('seo.home.title')} />
         <meta name="twitter:description" content={t('seo.home.description')} />
-        <meta name="twitter:image" content="https://5pennyai.com/images/og-christian.jpg" />
+        <meta name="twitter:image" content={buildDefaultSocialImageUrl()} />
         <meta name="twitter:image:alt" content="Christian Couillard - AI Solutions Engineer" />
       </Helmet>
       <Hero />

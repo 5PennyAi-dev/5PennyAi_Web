@@ -17,6 +17,7 @@ import InfographicRenderer from '@/components/blog/InfographicRenderer'
 import CheatSheetRenderer from '@/components/blog/CheatSheetRenderer'
 import Lightbox from '@/components/blog/Lightbox'
 import { stripDiagramArtifacts } from '@/lib/markdown'
+import { buildSiteUrl } from '@/lib/siteConfig'
 
 function ArticleRenderer({ content }) {
   return (
@@ -127,7 +128,7 @@ export default function BlogPost() {
   const content = localizedField(post, 'content', lang)
   const metaTitle = localizedField(post, 'meta_title', lang) || title
   const metaDescription = localizedField(post, 'meta_description', lang) || excerpt
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : ''
+  const currentUrl = buildSiteUrl(`/blog/${encodeURIComponent(slug)}`)
 
   const handleCopy = async () => {
     try {

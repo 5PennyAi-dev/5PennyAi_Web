@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Share2, Copy, Check, X } from 'lucide-react'
+import { buildSiteUrl } from '@/lib/siteConfig'
 
 const TABS = ['linkedin', 'facebook', 'twitter']
 const CHAR_LIMITS = { linkedin: 1300, facebook: 600, twitter: 280 }
@@ -33,7 +34,7 @@ export default function SocialPostsGenerator({
   }, [hasPosts])
 
   const canGenerate = Boolean(contentFr && contentFr.trim())
-  const articleUrl = slug ? `https://5pennyai.com/blog/${slug}` : ''
+  const articleUrl = slug ? buildSiteUrl(`/blog/${encodeURIComponent(slug)}`) : ''
 
   const handleGenerate = async () => {
     if (!canGenerate) return

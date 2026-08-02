@@ -36,10 +36,13 @@ function ScrollToTop() {
 
 function App() {
   const { i18n } = useTranslation()
+  const { pathname } = useLocation()
 
   useEffect(() => {
-    document.documentElement.lang = i18n.language
-  }, [i18n.language])
+    if (!pathname.startsWith('/ressources-ia/articles/')) {
+      document.documentElement.lang = i18n.language
+    }
+  }, [i18n.language, pathname])
 
   useEffect(() => {
     initCal()

@@ -7,6 +7,7 @@ const PUBLIC_CATALOG_COLUMNS = [
   'id',
   'slug',
   'title',
+  'language',
   'summary',
   'theme',
   'level',
@@ -15,11 +16,13 @@ const PUBLIC_CATALOG_COLUMNS = [
   'content_markdown',
   'cover_path',
   'published_at',
+  'updated_at',
 ].join(', ')
 const PUBLIC_COLUMNS = [
   'id',
   'slug',
   'title',
+  'language',
   'subtitle',
   'summary',
   'theme',
@@ -36,6 +39,7 @@ const PUBLIC_COLUMNS = [
   'seo',
   'cover_path',
   'published_at',
+  'updated_at',
 ].join(', ')
 
 export const PUBLIC_ARTICLE_COLUMNS = PUBLIC_COLUMNS
@@ -166,6 +170,7 @@ export function sanitizePublishedArticle(row = {}) {
     id: row.id,
     slug: row.slug,
     title: row.title,
+    language: row.language,
     subtitle: row.subtitle,
     summary: row.summary,
     theme: row.theme,
@@ -177,6 +182,7 @@ export function sanitizePublishedArticle(row = {}) {
     contentMarkdown: row.content_markdown,
     media,
     cover,
+    hasCover: isArticleCoverPath(row.cover_path, row.id),
     sources: Array.isArray(row.sources)
       ? row.sources.filter((source) => source && typeof source === 'object').map((source) => ({
           key: source.key,
@@ -190,5 +196,6 @@ export function sanitizePublishedArticle(row = {}) {
       : [],
     seo,
     publishedAt: row.published_at,
+    updatedAt: row.updated_at,
   }
 }

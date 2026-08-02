@@ -6,6 +6,12 @@ import { useTranslation } from 'react-i18next'
 import { ArticleMarkdownContent } from '@/components/admin/resources/ArticlePreview'
 import SeriesNavigation from '@/components/resources/SeriesNavigation'
 import { calculateArticleReadingTime } from '@/lib/articleMarkdown'
+import {
+  buildArticleSeoMetadata,
+  buildArticleStructuredData,
+  buildBreadcrumbStructuredData,
+  serializeJsonLd,
+} from '@/lib/articleSeo'
 import { loadPublishedArticleBySlug } from '@/lib/publicArticles'
 import { fetchPublishedSeriesResources } from '@/lib/publicInfographics'
 import {
@@ -76,8 +82,9 @@ export function ArticleContent({ result, seriesContext, t, locale }) {
   const { article, assets, assetUrls, coverUrl } = result
   const [coverFailed, setCoverFailed] = useState(false)
   const title = article.title || t('resourcesAi.article.fallbackTitle')
-  const seoTitle = article.seo?.seoTitle || title
-  const description = article.seo?.metaDescription || article.summary || t('resourcesAi.seo.listDescription')
+  const seo = buildArticleSeoMetadata(article)
+  const articleStructuredData = buildArticleStructuredData(article, seo)
+  const breadcrumbStructuredData = buildBreadcrumbStructuredData(article, seo)
   const readingTime = calculateArticleReadingTime(article.contentMarkdown)
   const publishedDate = formatDate(article.publishedAt, locale)
   const level = article.level ? t(`resourcesAi.levels.${article.level}`, { defaultValue: article.level }) : ''
@@ -86,8 +93,28 @@ export function ArticleContent({ result, seriesContext, t, locale }) {
   return (
     <>
       <Helmet>
-        <title>{seoTitle}</title>
-        <meta name="description" content={description} />
+        <html lang={seo.language} />
+        <title>{seo.pageTitle}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="robots" content={seo.robots} />
+        <link rel="canonical" href={seo.canonicalUrl} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={seo.socialTitle} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.canonicalUrl} />
+        <meta property="og:image" content={seo.imageUrl} />
+        <meta property="og:image:alt" content={seo.imageAlt} />
+        <meta property="og:site_name" content={seo.siteName} />
+        <meta property="og:locale" content={seo.ogLocale} />
+        {seo.datePublished && <meta property="article:published_time" content={seo.datePublished} />}
+        {seo.dateModified && <meta property="article:modified_time" content={seo.dateModified} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seo.socialTitle} />
+        <meta name="twitter:description" content={seo.description} />
+        <meta name="twitter:image" content={seo.imageUrl} />
+        <meta name="twitter:image:alt" content={seo.imageAlt} />
+        <script type="application/ld+json">{serializeJsonLd(articleStructuredData)}</script>
+        <script type="application/ld+json">{serializeJsonLd(breadcrumbStructuredData)}</script>
       </Helmet>
       <article className="min-h-[75vh] overflow-x-hidden bg-warm-gray pt-24 pb-20 md:pt-28 md:pb-28">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
@@ -154,7 +181,7 @@ function LoadingState({ t }) {
 }
 
 function UnavailableState({ isError = false, t }) {
-  return <><Helmet><title>{t('resourcesAi.article.unavailableSeoTitle')}</title><meta name="robots" content="noindex, follow" /></Helmet><section className="flex min-h-[75vh] items-center bg-warm-gray pt-24 pb-20"><div className="mx-auto max-w-xl px-4 text-center sm:px-6"><BookOpenText size={30} className="mx-auto text-steel" aria-hidden="true" /><h1 className="mt-5 text-3xl font-bold text-navy">{isError ? t('resourcesAi.article.errorTitle') : t('resourcesAi.article.unavailableTitle')}</h1><p className="mt-4 leading-relaxed text-muted">{isError ? t('resourcesAi.article.errorDescription') : t('resourcesAi.article.unavailableDescription')}</p><Link to={RESOURCES_PATH} className="mt-8 inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-deep"><ArrowLeft size={16} aria-hidden="true" />{t('resourcesAi.article.back')}</Link></div></section></>
+  return <><Helmet><title>{t('resourcesAi.article.unavailableSeoTitle')}</title><meta name="robots" content="noindex, nofollow" /></Helmet><section className="flex min-h-[75vh] items-center bg-warm-gray pt-24 pb-20"><div className="mx-auto max-w-xl px-4 text-center sm:px-6"><BookOpenText size={30} className="mx-auto text-steel" aria-hidden="true" /><h1 className="mt-5 text-3xl font-bold text-navy">{isError ? t('resourcesAi.article.errorTitle') : t('resourcesAi.article.unavailableTitle')}</h1><p className="mt-4 leading-relaxed text-muted">{isError ? t('resourcesAi.article.errorDescription') : t('resourcesAi.article.unavailableDescription')}</p><Link to={RESOURCES_PATH} className="mt-8 inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-deep"><ArrowLeft size={16} aria-hidden="true" />{t('resourcesAi.article.back')}</Link></div></section></>
 }
 
 function formatSeries(article, t) {
