@@ -10,11 +10,6 @@ import {
 } from '@/lib/articleMarkdown'
 
 export default function ArticlePreview({ assets = [], assetUrls = {}, coverUrl, form, mode = 'admin', t }) {
-  const sources = Array.isArray(form.sources) ? form.sources : []
-  const media = Array.isArray(form.media) ? form.media : []
-  const sourceIndex = new Map(sources.map((source, index) => [source.key, { source, number: index + 1 }]))
-  const assetIndex = new Map(assets.map((asset) => [asset.media_key, asset]))
-  const components = createMarkdownComponents({ assetIndex, assetUrls, media, mode, sourceIndex, t })
   const readingTime = calculateArticleReadingTime(form.contentMarkdown)
   const levelLabel = form.level
     ? t(`admin.resourcesAi.articleForm.levels.${form.level}`, { defaultValue: form.level })
@@ -65,52 +60,73 @@ export default function ArticlePreview({ assets = [], assetUrls = {}, coverUrl, 
           </div>
         )}
 
-        <div className="min-w-0 text-[15px] leading-7 text-navy/85">
+        <ArticleMarkdownContent assets={assets} assetUrls={assetUrls} form={form} mode={mode} t={t} />
+      </div>
+    </article>
+  )
+}
+
+export function ArticleMarkdownContent({ assets = [], assetUrls = {}, form, mode = 'admin', t }) {
+  const sources = Array.isArray(form.sources) ? form.sources : []
+  const media = Array.isArray(form.media) ? form.media : []
+  const sourceIndex = new Map(sources.map((source, index) => [source.key, { source, number: index + 1 }]))
+  const assetIndex = new Map(assets.map((asset) => [asset.media_key, asset]))
+  const components = createMarkdownComponents({ assetIndex, assetUrls, media, mode, sourceIndex, t })
+  const labelPrefix = mode === 'public' ? 'resourcesAi.article' : 'admin.resourcesAi.articleForm.preview'
+
+  return (
+    <>
+      <div className="min-w-0 text-[15px] leading-7 text-navy/85">
+        {form.contentMarkdown?.trim() ? (
           <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkArticleMarkers]}
+            remarkPlugins={[remarkGfm, [remarkArticleMarkers, { mode }]]}
             components={components}
             urlTransform={articleUrlTransform}
           >
-            {form.contentMarkdown || ''}
+            {form.contentMarkdown}
           </ReactMarkdown>
-        </div>
-
-        {form.takeaway && (
-          <aside className="rounded-xl border border-steel/30 bg-steel/10 p-5">
-            <h3 className="font-heading text-lg font-semibold text-navy">{t('admin.resourcesAi.articleForm.preview.takeaway')}</h3>
-            <p className="mt-2 text-sm leading-7 text-navy/80">{form.takeaway}</p>
-          </aside>
-        )}
-
-        {sources.length > 0 && (
-          <section aria-labelledby="article-preview-sources">
-            <h3 id="article-preview-sources" className="font-heading text-xl font-semibold text-navy">
-              {t('admin.resourcesAi.articleForm.preview.sources')}
-            </h3>
-            <ol className="mt-4 space-y-3 text-sm text-navy/75">
-              {sources.map((source, index) => <SourceItem key={source.key || index} index={index + 1} source={source} t={t} />)}
-            </ol>
-          </section>
+        ) : (
+          <p className="rounded-xl bg-surface p-5 text-sm text-navy/65">{t(`${labelPrefix}.emptyMarkdown`)}</p>
         )}
       </div>
-    </article>
+
+      {form.takeaway && (
+        <aside className="rounded-xl border border-steel/30 bg-steel/10 p-5">
+          <h2 className="font-heading text-lg font-semibold text-navy">{t(`${labelPrefix}.takeaway`)}</h2>
+          <p className="mt-2 text-sm leading-7 text-navy/80">{form.takeaway}</p>
+        </aside>
+      )}
+
+      {sources.length > 0 && (
+        <section aria-labelledby="article-sources">
+          <h2 id="article-sources" className="font-heading text-xl font-semibold text-navy">
+            {t(`${labelPrefix}.sources`)}
+          </h2>
+          <ol className="mt-4 space-y-3 text-sm text-navy/75">
+            {sources.map((source, index) => <SourceItem key={source.key || index} index={index + 1} source={source} t={t} labelPrefix={labelPrefix} />)}
+          </ol>
+        </section>
+      )}
+    </>
   )
 }
 
 function createMarkdownComponents({ assetIndex, assetUrls, media, mode, sourceIndex, t }) {
   const mediaIndex = new Map(media.map((item) => [item.key, item]))
   return {
-    h1: ({ children }) => <h2 className="mb-3 mt-8 font-heading text-2xl font-bold text-navy">{children}</h2>,
+    h1: ({ children }) => mode === 'public' ? null : <h2 className="mb-3 mt-8 font-heading text-2xl font-bold text-navy">{children}</h2>,
     h2: ({ children }) => <h2 className="mb-3 mt-8 font-heading text-xl font-bold text-navy">{children}</h2>,
     h3: ({ children }) => <h3 className="mb-2 mt-6 font-heading text-lg font-semibold text-navy">{children}</h3>,
+    h4: ({ children }) => <h4 className="mb-2 mt-5 font-heading text-base font-semibold text-navy">{children}</h4>,
     p: ({ children }) => <p className="my-4">{children}</p>,
     ul: ({ children }) => <ul className="my-4 list-disc space-y-1 pl-6">{children}</ul>,
     ol: ({ children }) => <ol className="my-4 list-decimal space-y-1 pl-6">{children}</ol>,
+    hr: () => <hr className="my-8 border-gray-200" />,
     blockquote: ({ children }) => <blockquote className="my-5 border-l-4 border-steel pl-4 text-navy/70">{children}</blockquote>,
-    table: ({ children }) => <div className="my-5 max-w-full overflow-x-auto"><table className="min-w-full border-collapse text-sm">{children}</table></div>,
+    table: ({ children }) => <div className="my-5 max-w-full overflow-x-auto" tabIndex="0"><table className="min-w-full border-collapse text-sm">{children}</table></div>,
     th: ({ children }) => <th className="border border-gray-200 bg-surface px-3 py-2 text-left font-semibold">{children}</th>,
     td: ({ children }) => <td className="border border-gray-200 px-3 py-2 align-top">{children}</td>,
-    pre: ({ children }) => <pre className="my-5 max-w-full overflow-x-auto rounded-xl bg-navy p-4 text-sm text-white">{children}</pre>,
+    pre: ({ children }) => <pre className="my-5 max-w-full overflow-x-auto rounded-xl bg-navy p-4 text-sm text-white" tabIndex="0">{children}</pre>,
     code: ({ children, className }) => className
       ? <code className={className}>{children}</code>
       : <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-[0.9em] text-navy">{children}</code>,
@@ -125,7 +141,7 @@ function createMarkdownComponents({ assetIndex, assetUrls, media, mode, sourceIn
       }
       return (
         <figure className="my-6 overflow-hidden rounded-xl border border-gray-200 bg-surface">
-          <img src={assetUrls[asset.storage_path]} alt={item.altText || ''} className="h-auto w-full object-contain" />
+          <img src={assetUrls[asset.storage_path]} alt={item.altText || ''} onError={(event) => { event.currentTarget.closest('figure').hidden = true }} className="h-auto w-full object-contain" />
           {item.caption && <figcaption className="border-t border-gray-200 px-4 py-3 text-sm text-navy/65">{item.caption}</figcaption>}
         </figure>
       )
@@ -135,7 +151,7 @@ function createMarkdownComponents({ assetIndex, assetUrls, media, mode, sourceIn
         const key = decodeURIComponent(href.slice('article-cite:'.length))
         const entry = sourceIndex.get(key)
         if (!entry) return mode === 'public' ? null : <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900">{t('admin.resourcesAi.articleForm.preview.citationUnknown', { key })}</span>
-        return <sup><a href={`#article-source-${key}`} className="rounded px-1 text-steel underline">[{entry.number}]</a></sup>
+        return <sup><a href={`#article-source-${entry.number}`} aria-label={t('resourcesAi.article.citationLabel', { number: entry.number })} className="rounded px-1 text-steel underline">[{entry.number}]</a></sup>
       }
       if (!isSafeArticleLink(href)) return <span>{children}</span>
       const external = isExternalArticleLink(href)
@@ -153,16 +169,19 @@ function MediaPlaceholder({ text }) {
   return <span className="my-5 block rounded-xl border border-dashed border-amber-300 bg-amber-50 p-5 text-center text-sm text-amber-900">{text}</span>
 }
 
-function SourceItem({ index, source, t }) {
-  const people = Array.isArray(source.authors) && source.authors.length ? source.authors.join(', ') : source.organization
+function SourceItem({ index, labelPrefix, source, t }) {
+  const people = [
+    Array.isArray(source.authors) && source.authors.length ? source.authors.join(', ') : '',
+    source.organization,
+  ].filter(Boolean).join(' · ')
   const safeUrl = isSafeArticleLink(source.url) && /^https?:\/\//i.test(source.url || '')
   return (
-    <li id={source.key ? `article-source-${source.key}` : undefined}>
-      <span className="font-semibold text-navy">[{index}] {source.title || t('admin.resourcesAi.articleForm.preview.untitledSource')}</span>
+    <li id={`article-source-${index}`}>
+      <span className="font-semibold text-navy">[{index}] {source.title || t(`${labelPrefix}.untitledSource`)}</span>
       {people && <span> — {people}</span>}
       {source.publicationDate && <span> ({source.publicationDate})</span>}
       {safeUrl ? <span> — <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-steel underline">{source.url}</a></span> : source.url ? <span> — {source.url}</span> : null}
-      {source.accessDate && <span> — {t('admin.resourcesAi.articleForm.preview.accessed', { date: source.accessDate })}</span>}
+      {source.accessDate && <span> — {t(`${labelPrefix}.accessed`, { date: source.accessDate })}</span>}
     </li>
   )
 }

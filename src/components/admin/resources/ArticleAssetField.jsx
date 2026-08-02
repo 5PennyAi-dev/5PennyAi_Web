@@ -10,7 +10,7 @@ import {
 } from '@/lib/articleAssets'
 import { useState } from 'react'
 
-export default function ArticleAssetField({ articleId, asset, coverPath, kind, media, onChanged, t, url }) {
+export default function ArticleAssetField({ articleId, asset, coverPath, kind, media, onBusyChange, onChanged, t, url }) {
   const [busy, setBusy] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const saved = kind === 'cover' ? Boolean(coverPath) : Boolean(asset)
@@ -23,6 +23,7 @@ export default function ArticleAssetField({ articleId, asset, coverPath, kind, m
     event.target.value = ''
     if (!file || !enabled) return
     setBusy(true)
+    onBusyChange?.(true)
     setFeedback(null)
     try {
       const nextMetadata = await readImageMetadata(file)
@@ -56,12 +57,14 @@ export default function ArticleAssetField({ articleId, asset, coverPath, kind, m
       })
     } finally {
       setBusy(false)
+      onBusyChange?.(false)
     }
   }
 
   const remove = async () => {
     if (!saved || busy || !window.confirm(t('admin.resourcesAi.articleForm.assets.removeConfirm'))) return
     setBusy(true)
+    onBusyChange?.(true)
     setFeedback(null)
     try {
       const result = kind === 'cover'
@@ -79,6 +82,7 @@ export default function ArticleAssetField({ articleId, asset, coverPath, kind, m
       setFeedback({ type: 'error', text: t('admin.resourcesAi.articleForm.assets.errors.remove') })
     } finally {
       setBusy(false)
+      onBusyChange?.(false)
     }
   }
 

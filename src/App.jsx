@@ -12,6 +12,7 @@ import BlogComingSoon from '@/pages/BlogComingSoon'
 import ResourcesAI from '@/pages/ResourcesAI'
 import ResourceSeriesDetail from '@/pages/ResourceSeriesDetail'
 import InfographicDetail from '@/pages/InfographicDetail'
+import ArticleDetail from '@/pages/ArticleDetail'
 import AdminBlog from '@/pages/AdminBlog'
 import AdminBlogEditor from '@/pages/AdminBlogEditor'
 import AdminInfographics from '@/pages/admin/resources/AdminInfographics'
@@ -63,6 +64,7 @@ function App() {
           <Route path="/ressources-ia" element={<ResourcesAI />} />
           <Route path="/ressources-ia/series/:seriesSlug" element={<ResourceSeriesDetail />} />
           <Route path="/ressources-ia/infographies/:id" element={<InfographicDetail />} />
+          <Route path="/ressources-ia/articles/:slug" element={<ArticleDetail />} />
           <Route path="/admin/blog" element={<AdminBlog />} />
           <Route path="/admin/blog/topics" element={<AdminBlog />} />
           <Route path="/admin/blog/new" element={<AdminBlogEditor />} />

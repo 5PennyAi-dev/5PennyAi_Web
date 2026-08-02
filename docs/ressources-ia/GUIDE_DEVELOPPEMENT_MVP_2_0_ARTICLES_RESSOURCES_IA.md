@@ -1573,7 +1573,7 @@ Finaliser la découvrabilité, la robustesse et la qualité du MVP 2.0.
 | 0 | Inspection ciblée et décisions techniques | Accepté | — |
 | 1 | Import, administration et brouillons | Accepté | — |
 | 2 | Couverture, médias et aperçu administratif | Accepté | — |
-| 3 | Publication et page publique d’article | À faire | — |
+| 3 | Publication et page publique d’article | Accepté | — |
 | 4 | Catalogue et séries mixtes | À faire | — |
 | 5 | SEO technique et finalisation | À faire | — |
 

@@ -32,6 +32,14 @@ test('laisse les marqueurs dans le code et un média en ligne intacts', () => {
   assert.equal(tree.children[2].children.map(({ value }) => value).join(''), 'Avant {{media:inline}} après')
 })
 
+test('omet les marqueurs média non conformes en mode public sans supprimer le texte voisin', () => {
+  const tree = { type: 'root', children: [
+    { type: 'paragraph', children: [{ type: 'text', value: 'Avant {{media:inconnu}} après' }] },
+  ] }
+  transformArticleMarkerTree(tree, { mode: 'public' })
+  assert.equal(tree.children[0].children.map(({ value }) => value).join(''), 'Avant  après')
+})
+
 test('conserve les nœuds tableau, code et HTML sans les interpréter', () => {
   const tree = { type: 'root', children: [
     { type: 'table', children: [] },

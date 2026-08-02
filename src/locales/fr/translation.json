@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "Accueil",
     "services": "Services",
     "expertise": "Expertise",
     "about": "Profil",
@@ -840,6 +841,30 @@
       "unavailableDescription": "Cette ressource n'existe pas ou n'est plus disponible.",
       "errorTitle": "Impossible de charger l'infographie",
       "errorDescription": "Une erreur est survenue. Revenez aux Ressources IA et réessayez."
+    },
+    "article": {
+      "breadcrumbLabel": "Fil d’Ariane",
+      "type": "Ressources IA · Article",
+      "typeWithTheme": "Ressources IA · Article · {{theme}}",
+      "fallbackTitle": "Article",
+      "readingTime_one": "{{count}} minute de lecture",
+      "readingTime_other": "{{count}} minutes de lecture",
+      "publishedOn": "Publié le {{date}}",
+      "objectives": "Objectifs d’apprentissage",
+      "prerequisites": "Prérequis",
+      "takeaway": "À retenir",
+      "sources": "Sources",
+      "emptyMarkdown": "Le contenu de cet article n’est pas disponible.",
+      "citationLabel": "Consulter la source {{number}}",
+      "untitledSource": "Source sans titre",
+      "accessed": "consultée le {{date}}",
+      "back": "Retour vers Ressources IA",
+      "loading": "Chargement de l’article…",
+      "unavailableSeoTitle": "Article non disponible",
+      "unavailableTitle": "Article non disponible",
+      "unavailableDescription": "Cet article n’existe pas ou n’est plus disponible.",
+      "errorTitle": "Impossible de charger l’article",
+      "errorDescription": "Une erreur technique est survenue. Revenez aux Ressources IA et réessayez."
     }
   },
   "admin": {
@@ -932,6 +957,9 @@
         "untitled": "Article",
         "episode": "Épisode {{number}}",
         "edit": "Modifier",
+        "view": "Ouvrir l’article",
+        "readOnly": "Consulter",
+        "publishedAt": "Publication",
         "locked": "Verrouillé",
         "publishedLocked": "Les articles publiés sont visibles ici, mais ne sont pas modifiables dans cet incrément.",
         "delete": {
@@ -963,6 +991,7 @@
           "level": "Niveau",
           "series": "Série",
           "updated": "Modification",
+          "publishedAt": "Publication",
           "actions": "Actions"
         },
         "status": {
@@ -984,7 +1013,7 @@
       "articleForm": {
         "addTitle": "Ajouter un article",
         "editTitle": "Modifier l’article",
-        "subtitle": "Toutes les données restent administratives et seront enregistrées uniquement comme brouillon.",
+        "subtitle": "Gérez les données éditoriales, les assets et la publication explicite de l’article.",
         "back": "Retour aux articles",
         "loading": "Chargement de l’article…",
         "unsavedConfirm": "Des modifications ne sont pas enregistrées. Voulez-vous vraiment quitter cette page?",
@@ -1003,7 +1032,8 @@
           "seo": "SEO éditorial",
           "warnings": "Avertissements",
           "preview": "Aperçu administratif",
-          "save": "Enregistrement du brouillon"
+          "save": "Enregistrement du brouillon",
+          "publication": "Publication"
         },
         "fields": {
           "schemaVersion": "Version du schéma",
@@ -1146,6 +1176,7 @@
           "prerequisites": "Prérequis",
           "takeaway": "À retenir",
           "sources": "Sources",
+          "emptyMarkdown": "Le contenu Markdown est vide.",
           "citationUnknown": "Citation inconnue : {{key}}",
           "mediaMissing": "Fichier manquant pour le média : {{key}}",
           "mediaUnknown": "Média inconnu : {{key}}",
@@ -1254,11 +1285,25 @@
         "actions": {
           "cancel": "Annuler",
           "saveDraft": "Enregistrer le brouillon",
-          "saving": "Enregistrement…"
+          "saving": "Enregistrement…",
+          "publish": "Publier",
+          "publishing": "Publication…",
+          "unpublish": "Repasser en brouillon",
+          "unpublishing": "Retrait…",
+          "open": "Ouvrir l’article"
         },
         "messages": {
-          "saved": "Le brouillon a été enregistré."
+          "saved": "Le brouillon a été enregistré.",
+          "published": "L’article est maintenant publié.",
+          "unpublished": "L’article est repassé en brouillon.",
+          "saveBeforePublish": "Enregistrez d’abord le brouillon avant de le publier."
         },
+        "publishConfirm": "Publier cet article? Il deviendra accessible publiquement. {{count}} avertissement(s), dont {{strongCount}} fort(s), restent présents; ils ne bloquent pas votre décision.",
+        "unpublishConfirm": "Repasser cet article en brouillon? Sa page publique deviendra immédiatement indisponible.",
+        "publishedBadge": "Publié",
+        "publishedDate": "Publié le {{date}}",
+        "publishedReadOnly": "Les données éditoriales et les assets sont en lecture seule. Repassez l’article en brouillon pour le modifier.",
+        "signedUrlLimit": "Une URL d’asset déjà signée peut rester valide jusqu’à son expiration (au plus une heure dans cette interface).",
         "loadErrorTitle": "Impossible de charger l’article",
         "publishedLockedTitle": "Article publié en lecture seule",
         "publishedLockedDescription": "Cet incrément est limité aux brouillons. L’article reste listé, mais aucune modification de ses données ou de son état de publication n’est offerte.",
@@ -1266,7 +1311,12 @@
           "migrationRequired": "La table articles n’existe pas encore. Appliquez la migration Supabase de l’incrément 1.",
           "notFound": "Cet article n’existe pas ou n’est plus accessible.",
           "draftOnly": "Seul un brouillon peut être modifié dans cet incrément.",
-          "slugConflict": "Ce slug technique est déjà utilisé. Choisissez-en un autre ou laissez-le vide.",
+          "slugConflict": "Ce slug technique est déjà utilisé. Choisissez-en un autre.",
+          "slugRequired": "Un slug technique est requis pour publier.",
+          "slugInvalid": "Le slug technique doit contenir seulement des lettres minuscules, des chiffres et des tirets.",
+          "publish": "L’article n’a pas pu être publié. Vérifiez la connexion et réessayez.",
+          "unpublish": "L’article n’a pas pu être repassé en brouillon. Vérifiez la connexion et réessayez.",
+          "publishedOnly": "Seul un article publié peut être repassé en brouillon.",
           "load": "Une erreur est survenue pendant le chargement.",
           "save": "Le brouillon n’a pas pu être enregistré. Vérifiez la connexion et réessayez."
         }

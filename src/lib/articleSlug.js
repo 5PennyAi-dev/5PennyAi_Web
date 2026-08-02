@@ -10,6 +10,10 @@ export function slugifyArticle(value) {
     .replace(/^-|-$/g, '')
 }
 
+export function isValidArticleSlug(value) {
+  return typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)
+}
+
 export function proposeArticleSlug({ suggestedSlug, title }) {
   return slugifyArticle(suggestedSlug) || slugifyArticle(title)
 }

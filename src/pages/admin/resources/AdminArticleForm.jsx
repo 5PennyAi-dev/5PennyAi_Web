@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   AlertTriangle,
   ArrowLeft,
-  BookOpenText,
   CheckCircle2,
+  ExternalLink,
   FileJson,
   Plus,
   Save,
+  Send,
   Trash2,
+  Undo2,
 } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -20,6 +22,8 @@ import {
   ArticleAdminError,
   createArticleDraft,
   fetchAdminArticle,
+  publishArticle,
+  unpublishArticle,
   updateArticleDraft,
 } from '@/lib/adminArticles'
 import {
@@ -29,7 +33,7 @@ import {
   hasArticleEditorialData,
 } from '@/lib/articleFormData'
 import { analyzeArticleJson, applyAnalyzedArticleImport } from '@/lib/articleJsonImport'
-import { resolveArticleSlugProposal, slugifyArticle } from '@/lib/articleSlug'
+import { isValidArticleSlug, resolveArticleSlugProposal, slugifyArticle } from '@/lib/articleSlug'
 import { getArticleWarnings } from '@/lib/articleWarnings'
 import {
   createArticleAssetUrls,
@@ -72,7 +76,10 @@ function AdminArticleFormPage() {
   const [loading, setLoading] = useState(editing)
   const [loadError, setLoadError] = useState(null)
   const [publishedLocked, setPublishedLocked] = useState(false)
+  const [publishedAt, setPublishedAt] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [transitioning, setTransitioning] = useState(false)
+  const [assetBusyCount, setAssetBusyCount] = useState(0)
   const [notice, setNotice] = useState(null)
   const [importText, setImportText] = useState('')
   const [importFileName, setImportFileName] = useState('')
@@ -101,11 +108,9 @@ function AdminArticleFormPage() {
     fetchAdminArticle(id)
       .then(async (row) => {
         if (cancelled) return
-        if (row.status !== 'draft') {
-          setPublishedLocked(true)
-          return
-        }
         const next = articleRowToForm(row)
+        setPublishedLocked(row.status === 'published')
+        setPublishedAt(row.published_at || null)
         slugManuallyEdited.current = true
         setForm(next)
         setBaseline(JSON.stringify(next))
@@ -288,6 +293,60 @@ function AdminArticleFormPage() {
     }
   }
 
+  const handlePublish = async () => {
+    if (!editing || dirty || saving || transitioning || assetBusyCount > 0) return
+    if (!isValidArticleSlug(form.slug)) {
+      setNotice({ type: 'error', text: t(`admin.resourcesAi.articleForm.errors.${form.slug ? 'slugInvalid' : 'slugRequired'}`) })
+      return
+    }
+    const strongCount = warnings.filter(({ severity }) => severity === 'strong').length
+    if (!window.confirm(t('admin.resourcesAi.articleForm.publishConfirm', { count: warnings.length, strongCount }))) return
+
+    setTransitioning(true)
+    setNotice(null)
+    try {
+      const row = await publishArticle(id)
+      const next = articleRowToForm(row)
+      setForm(next)
+      setBaseline(JSON.stringify(next))
+      setPublishedLocked(true)
+      setPublishedAt(row.published_at || null)
+      setNotice({ type: 'success', text: t('admin.resourcesAi.articleForm.messages.published') })
+    } catch (error) {
+      const code = error instanceof ArticleAdminError ? error.code : 'publish'
+      console.error('Unable to publish article:', error.cause?.message || error.message)
+      setNotice({ type: 'error', text: t(`admin.resourcesAi.articleForm.errors.${code}`) })
+    } finally {
+      setTransitioning(false)
+    }
+  }
+
+  const handleUnpublish = async () => {
+    if (!publishedLocked || transitioning) return
+    if (!window.confirm(t('admin.resourcesAi.articleForm.unpublishConfirm'))) return
+    setTransitioning(true)
+    setNotice(null)
+    try {
+      const row = await unpublishArticle(id)
+      const next = articleRowToForm(row)
+      setForm(next)
+      setBaseline(JSON.stringify(next))
+      setPublishedLocked(false)
+      setPublishedAt(null)
+      setNotice({ type: 'success', text: t('admin.resourcesAi.articleForm.messages.unpublished') })
+    } catch (error) {
+      const code = error instanceof ArticleAdminError ? error.code : 'unpublish'
+      console.error('Unable to unpublish article:', error.cause?.message || error.message)
+      setNotice({ type: 'error', text: t(`admin.resourcesAi.articleForm.errors.${code}`) })
+    } finally {
+      setTransitioning(false)
+    }
+  }
+
+  const handleAssetBusyChange = (busy) => {
+    setAssetBusyCount((count) => Math.max(0, count + (busy ? 1 : -1)))
+  }
+
   return (
     <section className="min-h-[90vh] bg-warm-gray pt-24 pb-16 md:pt-28 md:pb-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -315,6 +374,12 @@ function AdminArticleFormPage() {
               <h2 className="mt-4 font-heading text-2xl font-bold tracking-tight text-navy md:text-3xl">
                 {t(`admin.resourcesAi.articleForm.${editing ? 'editTitle' : 'addTitle'}`)}
               </h2>
+              {publishedLocked && (
+                <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+                  <span className="rounded-full border border-green-300 bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">{t('admin.resourcesAi.articleForm.publishedBadge')}</span>
+                  {publishedAt && <time dateTime={publishedAt} className="text-navy/65">{t('admin.resourcesAi.articleForm.publishedDate', { date: new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(publishedAt)) })}</time>}
+                </div>
+              )}
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
                 {t('admin.resourcesAi.articleForm.subtitle')}
               </p>
@@ -324,13 +389,20 @@ function AdminArticleFormPage() {
               <StateCard text={t('admin.resourcesAi.articleForm.loading')} />
             ) : loadError ? (
               <LoadError code={loadError} t={t} />
-            ) : publishedLocked ? (
-              <PublishedLocked t={t} />
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 {notice && <Notice notice={notice} />}
 
-                <FormSection number="1" title={t('admin.resourcesAi.articleForm.sections.import')}>
+                {publishedLocked && (
+                  <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-900">
+                    <p>{t('admin.resourcesAi.articleForm.publishedReadOnly')}</p>
+                    <p className="mt-2 text-xs">{t('admin.resourcesAi.articleForm.signedUrlLimit')}</p>
+                  </div>
+                )}
+
+                <fieldset disabled={publishedLocked} className="space-y-6 disabled:opacity-80">
+
+                {!publishedLocked && <FormSection number="1" title={t('admin.resourcesAi.articleForm.sections.import')}>
                   <ImportSection
                     fileName={importFileName}
                     importText={importText}
@@ -341,7 +413,7 @@ function AdminArticleFormPage() {
                     report={importReport}
                     t={t}
                   />
-                </FormSection>
+                </FormSection>}
 
                 <FormSection number="2" title={t('admin.resourcesAi.articleForm.sections.general')}>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -489,6 +561,7 @@ function AdminArticleFormPage() {
                           kind="media"
                           media={item}
                           onChanged={refreshAssetState}
+                          onBusyChange={handleAssetBusyChange}
                           t={t}
                           url={resolvedAssets.media[index]?.asset ? assetUrls[resolvedAssets.media[index].asset.storage_path] : null}
                         />
@@ -504,7 +577,7 @@ function AdminArticleFormPage() {
                         {resolvedAssets.orphans.map((asset) => (
                           <div key={asset.id} className="rounded-xl border border-amber-200 bg-white p-4">
                             <p className="font-mono text-xs text-navy">{asset.media_key}</p>
-                            <ArticleAssetField articleId={id} asset={asset} kind="media" media={{ key: asset.media_key }} onChanged={refreshAssetState} t={t} url={assetUrls[asset.storage_path]} />
+                            <ArticleAssetField articleId={id} asset={asset} kind="media" media={{ key: asset.media_key }} onChanged={refreshAssetState} onBusyChange={handleAssetBusyChange} t={t} url={assetUrls[asset.storage_path]} />
                           </div>
                         ))}
                       </div>
@@ -514,7 +587,7 @@ function AdminArticleFormPage() {
 
                 <FormSection number="7" title={t('admin.resourcesAi.articleForm.sections.cover')}>
                   <p className="mb-4 text-sm text-muted">{t('admin.resourcesAi.articleForm.cover.help')}</p>
-                  <ArticleAssetField articleId={id} coverPath={coverPath} kind="cover" onChanged={refreshAssetState} t={t} url={coverPath ? assetUrls[coverPath] : null} />
+                  <ArticleAssetField articleId={id} coverPath={coverPath} kind="cover" onChanged={refreshAssetState} onBusyChange={handleAssetBusyChange} t={t} url={coverPath ? assetUrls[coverPath] : null} />
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <Field label={t('admin.resourcesAi.articleForm.fields.altText')} value={form.cover.altText || ''} onChange={(value) => updateNested('cover', 'altText', value)} />
                     <SelectField label={t('admin.resourcesAi.articleForm.fields.aspectRatio')} value={form.cover.preferredAspectRatio || ''} options={RATIOS} onChange={(value) => updateNested('cover', 'preferredAspectRatio', value)} t={t} />
@@ -607,23 +680,27 @@ function AdminArticleFormPage() {
                 <FormSection number="12" title={t('admin.resourcesAi.articleForm.sections.preview')}>
                   <ArticlePreview assets={assets} assetUrls={assetUrls} coverUrl={coverPath ? assetUrls[coverPath] : null} form={form} t={t} />
                 </FormSection>
+                </fieldset>
 
-                <FormSection number="13" title={t('admin.resourcesAi.articleForm.sections.save')}>
+                <FormSection number="13" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
                   <p className="text-sm leading-relaxed text-muted">
-                    {t('admin.resourcesAi.articleForm.draftOnly')}
+                    {publishedLocked ? t('admin.resourcesAi.articleForm.publishedReadOnly') : dirty && editing ? t('admin.resourcesAi.articleForm.messages.saveBeforePublish') : t('admin.resourcesAi.articleForm.draftOnly')}
                   </p>
                   <div className="mt-5 flex flex-wrap justify-end gap-3">
                     <button type="button" onClick={leaveForm} className="rounded-full border border-gray-300 px-6 py-2.5 text-sm font-medium text-navy">
                       {t('admin.resourcesAi.articleForm.actions.cancel')}
                     </button>
-                    <button
-                      type="submit"
-                      disabled={saving}
-                      className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-                    >
-                      <Save size={16} aria-hidden="true" />
-                      {saving ? t('admin.resourcesAi.articleForm.actions.saving') : t('admin.resourcesAi.articleForm.actions.saveDraft')}
-                    </button>
+                    {publishedLocked ? (
+                      <>
+                        {form.slug && <a href={`/ressources-ia/articles/${form.slug}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-5 py-2.5 text-sm font-medium text-navy"><ExternalLink size={16} aria-hidden="true" />{t('admin.resourcesAi.articleForm.actions.open')}</a>}
+                        <button type="button" disabled={transitioning} onClick={handleUnpublish} className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"><Undo2 size={16} aria-hidden="true" />{transitioning ? t('admin.resourcesAi.articleForm.actions.unpublishing') : t('admin.resourcesAi.articleForm.actions.unpublish')}</button>
+                      </>
+                    ) : (
+                      <>
+                        <button type="submit" disabled={saving || transitioning || assetBusyCount > 0} className="inline-flex items-center gap-2 rounded-full border border-accent/40 px-6 py-2.5 text-sm font-semibold text-accent-deep disabled:opacity-50"><Save size={16} aria-hidden="true" />{saving ? t('admin.resourcesAi.articleForm.actions.saving') : t('admin.resourcesAi.articleForm.actions.saveDraft')}</button>
+                        <button type="button" onClick={handlePublish} disabled={!editing || dirty || !isValidArticleSlug(form.slug) || saving || transitioning || assetBusyCount > 0} title={dirty ? t('admin.resourcesAi.articleForm.messages.saveBeforePublish') : undefined} className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"><Send size={16} aria-hidden="true" />{transitioning ? t('admin.resourcesAi.articleForm.actions.publishing') : t('admin.resourcesAi.articleForm.actions.publish')}</button>
+                      </>
+                    )}
                   </div>
                 </FormSection>
               </form>
@@ -913,17 +990,6 @@ function LoadError({ code, t }) {
       <AlertTriangle size={28} className="mx-auto text-accent" aria-hidden="true" />
       <h3 className="mt-4 font-heading text-lg font-bold text-navy">{t('admin.resourcesAi.articleForm.loadErrorTitle')}</h3>
       <p className="mt-2 text-sm text-muted">{t(`admin.resourcesAi.articleForm.errors.${code}`)}</p>
-      <Link to={ARTICLES_PATH} className="mt-5 inline-flex rounded-full border border-gray-300 px-5 py-2 text-sm text-navy">{t('admin.resourcesAi.articleForm.back')}</Link>
-    </Card>
-  )
-}
-
-function PublishedLocked({ t }) {
-  return (
-    <Card className="min-h-64 text-center">
-      <BookOpenText size={28} className="mx-auto text-steel" aria-hidden="true" />
-      <h3 className="mt-4 font-heading text-lg font-bold text-navy">{t('admin.resourcesAi.articleForm.publishedLockedTitle')}</h3>
-      <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted">{t('admin.resourcesAi.articleForm.publishedLockedDescription')}</p>
       <Link to={ARTICLES_PATH} className="mt-5 inline-flex rounded-full border border-gray-300 px-5 py-2 text-sm text-navy">{t('admin.resourcesAi.articleForm.back')}</Link>
     </Card>
   )

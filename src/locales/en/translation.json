@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "Home",
     "services": "Services",
     "expertise": "Expertise",
     "about": "Profile",
@@ -840,6 +841,30 @@
       "unavailableDescription": "This resource does not exist or is no longer available.",
       "errorTitle": "Unable to load infographic",
       "errorDescription": "An error occurred. Return to AI Resources and try again."
+    },
+    "article": {
+      "breadcrumbLabel": "Breadcrumb",
+      "type": "AI Resources · Article",
+      "typeWithTheme": "AI Resources · Article · {{theme}}",
+      "fallbackTitle": "Article",
+      "readingTime_one": "{{count}} minute read",
+      "readingTime_other": "{{count}} minutes read",
+      "publishedOn": "Published on {{date}}",
+      "objectives": "Learning objectives",
+      "prerequisites": "Prerequisites",
+      "takeaway": "Takeaway",
+      "sources": "Sources",
+      "emptyMarkdown": "This article’s content is not available.",
+      "citationLabel": "View source {{number}}",
+      "untitledSource": "Untitled source",
+      "accessed": "accessed {{date}}",
+      "back": "Back to AI Resources",
+      "loading": "Loading article…",
+      "unavailableSeoTitle": "Article unavailable",
+      "unavailableTitle": "Article unavailable",
+      "unavailableDescription": "This article does not exist or is no longer available.",
+      "errorTitle": "Unable to load article",
+      "errorDescription": "A technical error occurred. Return to AI Resources and try again."
     }
   },
   "admin": {
@@ -932,6 +957,9 @@
         "untitled": "Article",
         "episode": "Episode {{number}}",
         "edit": "Edit",
+        "view": "Open article",
+        "readOnly": "View",
+        "publishedAt": "Published",
         "locked": "Locked",
         "publishedLocked": "Published articles are visible here, but cannot be edited in this increment.",
         "delete": {
@@ -963,6 +991,7 @@
           "level": "Level",
           "series": "Series",
           "updated": "Updated",
+          "publishedAt": "Published",
           "actions": "Actions"
         },
         "status": {
@@ -984,7 +1013,7 @@
       "articleForm": {
         "addTitle": "Add an article",
         "editTitle": "Edit article",
-        "subtitle": "All data remains administrative and will only be saved as a draft.",
+        "subtitle": "Manage the article’s editorial data, assets, and explicit publication.",
         "back": "Back to articles",
         "loading": "Loading article…",
         "unsavedConfirm": "You have unsaved changes. Are you sure you want to leave this page?",
@@ -1003,7 +1032,8 @@
           "seo": "Editorial SEO",
           "warnings": "Warnings",
           "preview": "Administrative preview",
-          "save": "Save draft"
+          "save": "Save draft",
+          "publication": "Publication"
         },
         "fields": {
           "schemaVersion": "Schema version",
@@ -1146,6 +1176,7 @@
           "prerequisites": "Prerequisites",
           "takeaway": "Takeaway",
           "sources": "Sources",
+          "emptyMarkdown": "The Markdown content is empty.",
           "citationUnknown": "Unknown citation: {{key}}",
           "mediaMissing": "Missing file for media: {{key}}",
           "mediaUnknown": "Unknown media: {{key}}",
@@ -1254,11 +1285,25 @@
         "actions": {
           "cancel": "Cancel",
           "saveDraft": "Save draft",
-          "saving": "Saving…"
+          "saving": "Saving…",
+          "publish": "Publish",
+          "publishing": "Publishing…",
+          "unpublish": "Move back to draft",
+          "unpublishing": "Unpublishing…",
+          "open": "Open article"
         },
         "messages": {
-          "saved": "The draft was saved."
+          "saved": "The draft was saved.",
+          "published": "The article is now published.",
+          "unpublished": "The article was moved back to draft.",
+          "saveBeforePublish": "Save the draft before publishing it."
         },
+        "publishConfirm": "Publish this article? It will become publicly accessible. {{count}} warning(s), including {{strongCount}} strong warning(s), remain; they do not block your decision.",
+        "unpublishConfirm": "Move this article back to draft? Its public page will immediately become unavailable.",
+        "publishedBadge": "Published",
+        "publishedDate": "Published on {{date}}",
+        "publishedReadOnly": "Editorial data and assets are read-only. Move the article back to draft to edit it.",
+        "signedUrlLimit": "An already signed asset URL may remain valid until it expires (at most one hour in this interface).",
         "loadErrorTitle": "Unable to load article",
         "publishedLockedTitle": "Published article is read-only",
         "publishedLockedDescription": "This increment is limited to drafts. The article remains listed, but no data or publication-state changes are offered.",
@@ -1266,7 +1311,12 @@
           "migrationRequired": "The articles table does not exist yet. Apply the increment 1 Supabase migration.",
           "notFound": "This article does not exist or is no longer accessible.",
           "draftOnly": "Only a draft can be edited in this increment.",
-          "slugConflict": "This technical slug is already used. Choose another one or leave it empty.",
+          "slugConflict": "This technical slug is already used. Choose another one.",
+          "slugRequired": "A technical slug is required to publish.",
+          "slugInvalid": "The technical slug may contain lowercase letters, numbers, and hyphens only.",
+          "publish": "The article could not be published. Check your connection and try again.",
+          "unpublish": "The article could not be moved back to draft. Check your connection and try again.",
+          "publishedOnly": "Only a published article can be moved back to draft.",
           "load": "An error occurred while loading the article.",
           "save": "The draft could not be saved. Check your connection and try again."
         }

@@ -4,9 +4,14 @@ import {
   collectArticleObjectPaths,
   fetchArticleAssets,
 } from './articleAssets.js'
+import {
+  ArticlePublicationValidationError,
+  getPublishTransition,
+  getUnpublishTransition,
+} from './articlePublication.js'
 
 const LIST_COLUMNS =
-  'id, status, title, language, level, series_name, episode_number, updated_at, published_at'
+  'id, status, slug, title, language, level, series_name, episode_number, updated_at, published_at'
 
 export class ArticleAdminError extends Error {
   constructor(code, cause) {
@@ -60,6 +65,52 @@ export async function updateArticleDraft(id, payload) {
   return data
 }
 
+export async function publishArticle(articleId, client = supabase, publishedAt = new Date()) {
+  const { data: current, error: loadError } = await client
+    .from('articles')
+    .select('id, slug, status')
+    .eq('id', articleId)
+    .maybeSingle()
+
+  if (loadError) throw mapArticleError(loadError, 'publish')
+  if (!current) throw new ArticleAdminError('notFound')
+  if (current.status !== 'draft') throw new ArticleAdminError('draftOnly')
+
+  let transition
+  try {
+    transition = getPublishTransition(current, publishedAt)
+  } catch (error) {
+    if (error instanceof ArticlePublicationValidationError) throw new ArticleAdminError(error.code, error)
+    throw error
+  }
+
+  const { data, error } = await client
+    .from('articles')
+    .update(transition)
+    .eq('id', articleId)
+    .eq('status', 'draft')
+    .select('*')
+    .maybeSingle()
+
+  if (error) throw mapArticleError(error, 'publish')
+  if (!data) throw new ArticleAdminError('draftOnly')
+  return data
+}
+
+export async function unpublishArticle(articleId, client = supabase) {
+  const { data, error } = await client
+    .from('articles')
+    .update(getUnpublishTransition())
+    .eq('id', articleId)
+    .eq('status', 'published')
+    .select('*')
+    .maybeSingle()
+
+  if (error) throw mapArticleError(error, 'unpublish')
+  if (!data) throw new ArticleAdminError('publishedOnly')
+  return data
+}
+
 export async function deleteArticleDraft(id) {
   const { data: article, error: loadError } = await supabase
     .from('articles')
@@ -96,7 +147,7 @@ export async function deleteArticleDraft(id) {
   return { id: data.id, cleanupFailed, paths }
 }
 
-function mapArticleError(error, fallbackCode) {
+export function mapArticleError(error, fallbackCode) {
   if (error?.code === '23505' && `${error.message} ${error.details}`.includes('slug')) {
     return new ArticleAdminError('slugConflict', error)
   }

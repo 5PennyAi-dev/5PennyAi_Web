@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BookOpenText, LockKeyhole, Pencil, Plus, RotateCw, Trash2 } from 'lucide-react'
+import { BookOpenText, ExternalLink, Pencil, Plus, RotateCw, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
@@ -182,8 +182,8 @@ function ArticleList({ articles, locale, onDelete, t }) {
     <>
       <div className="hidden overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm md:block">
         <div className="min-w-[980px]">
-        <div className="grid grid-cols-[minmax(180px,1.5fr)_100px_80px_100px_minmax(130px,1fr)_125px_160px] items-center gap-3 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
-          {['title', 'status', 'language', 'level', 'series', 'updated', 'actions'].map((column) => (
+        <div className="grid grid-cols-[minmax(180px,1.5fr)_100px_70px_90px_minmax(120px,1fr)_110px_110px_190px] items-center gap-3 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
+          {['title', 'status', 'language', 'level', 'series', 'updated', 'publishedAt', 'actions'].map((column) => (
             <span key={column} className={column === 'actions' ? 'text-right' : ''}>
               {t(`admin.resourcesAi.articles.columns.${column}`)}
             </span>
@@ -193,7 +193,7 @@ function ArticleList({ articles, locale, onDelete, t }) {
           {articles.map((article) => (
             <li
               key={article.id}
-              className="grid grid-cols-[minmax(180px,1.5fr)_100px_80px_100px_minmax(130px,1fr)_125px_160px] items-center gap-3 px-5 py-4"
+              className="grid grid-cols-[minmax(180px,1.5fr)_100px_70px_90px_minmax(120px,1fr)_110px_110px_190px] items-center gap-3 px-5 py-4"
             >
               <p className="truncate font-heading text-sm font-semibold text-navy">
                 {article.title || t('admin.resourcesAi.articles.untitled')}
@@ -204,6 +204,9 @@ function ArticleList({ articles, locale, onDelete, t }) {
               <span className="truncate text-sm text-navy/75">{formatSeries(article, t) || '—'}</span>
               <time className="tnum text-xs text-muted" dateTime={article.updated_at}>
                 {formatDate(article.updated_at, locale)}
+              </time>
+              <time className="tnum text-xs text-muted" dateTime={article.published_at || undefined}>
+                {formatDate(article.published_at, locale)}
               </time>
               <Actions article={article} onDelete={onDelete} t={t} />
             </li>
@@ -234,6 +237,7 @@ function ArticleList({ articles, locale, onDelete, t }) {
                 label={t('admin.resourcesAi.articles.columns.updated')}
                 value={formatDate(article.updated_at, locale)}
               />
+              {article.status === 'published' && <Meta label={t('admin.resourcesAi.articles.publishedAt')} value={formatDate(article.published_at, locale)} />}
             </dl>
             <div className="mt-4 border-t border-gray-100 pt-3">
               <Actions article={article} onDelete={onDelete} t={t} />
@@ -272,11 +276,13 @@ function StatusBadge({ status, t }) {
 function Actions({ article, onDelete, t }) {
   if (article.status !== 'draft') {
     return (
-      <div className="flex justify-end">
-        <span className="inline-flex items-center gap-1.5 text-xs text-muted" title={t('admin.resourcesAi.articles.publishedLocked')}>
-          <LockKeyhole size={13} aria-hidden="true" />
-          {t('admin.resourcesAi.articles.locked')}
-        </span>
+      <div className="flex flex-wrap justify-end gap-2">
+        {article.slug && <a href={`/ressources-ia/articles/${article.slug}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-navy hover:border-accent">
+          <ExternalLink size={13} aria-hidden="true" />{t('admin.resourcesAi.articles.view')}
+        </a>}
+        <Link to={`${ARTICLES_PATH}/${article.id}/modifier`} className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-navy hover:border-accent">
+          <Pencil size={13} aria-hidden="true" />{t('admin.resourcesAi.articles.readOnly')}
+        </Link>
       </div>
     )
   }

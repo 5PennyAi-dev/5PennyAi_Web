@@ -58,15 +58,16 @@ test('les erreurs de syntaxe et de racine laissent le même formulaire intact', 
   }
 })
 
-test('ignore une propriété inconnue et une propriété technique interdite', () => {
+test('ignore une propriété inconnue et les propriétés techniques de statut', () => {
   const result = importArticleJson(
-    JSON.stringify({ title: 'Titre', visualMood: 'sobre', slug: 'slug-interdit' }),
+    JSON.stringify({ title: 'Titre', visualMood: 'sobre', slug: 'slug-interdit', status: 'published', publishedAt: '2026-08-01' }),
     createEmptyArticleForm(),
   )
   assert.equal(result.nextForm.title, 'Titre')
   assert.equal(result.nextForm.slug, '')
   assert.deepEqual(result.unknown, ['visualMood'])
-  assert.deepEqual(result.forbidden, ['slug'])
+  assert.deepEqual(result.forbidden, ['slug', 'status', 'publishedAt'])
+  assert.equal('status' in result.nextForm, false)
 })
 
 test('conserve les enums inconnues de bon type et avertit', () => {

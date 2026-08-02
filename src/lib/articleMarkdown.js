@@ -1,12 +1,12 @@
 const MARKER_PATTERN = /\{\{(cite|media):([^{}\s]+)\}\}/g
 const MEDIA_PARAGRAPH_PATTERN = /^\s*\{\{media:([^{}\s]+)\}\}\s*$/
 
-export function remarkArticleMarkers() {
-  return (tree) => transformNode(tree)
+export function remarkArticleMarkers(options = {}) {
+  return (tree) => transformNode(tree, options)
 }
 
-export function transformArticleMarkerTree(tree) {
-  transformNode(tree)
+export function transformArticleMarkerTree(tree, options = {}) {
+  transformNode(tree, options)
   return tree
 }
 
@@ -48,7 +48,7 @@ export function isExternalArticleLink(url) {
   return /^https?:\/\//i.test(url || '')
 }
 
-function transformNode(node) {
+function transformNode(node, options) {
   if (!node || !Array.isArray(node.children)) return
 
   if (node.type === 'paragraph' && node.children.length === 1 && node.children[0].type === 'text') {
@@ -63,16 +63,16 @@ function transformNode(node) {
   const nextChildren = []
   for (const child of node.children) {
     if (child.type === 'text') {
-      nextChildren.push(...markerTextNodes(child.value))
+      nextChildren.push(...markerTextNodes(child.value, options))
     } else {
-      transformNode(child)
+      transformNode(child, options)
       nextChildren.push(child)
     }
   }
   node.children = nextChildren
 }
 
-function markerTextNodes(value) {
+function markerTextNodes(value, { mode = 'admin' } = {}) {
   const nodes = []
   let cursor = 0
   for (const match of value.matchAll(MARKER_PATTERN)) {
@@ -84,11 +84,16 @@ function markerTextNodes(value) {
         url: `article-cite:${encodeURIComponent(key)}`,
         children: [{ type: 'text', value: key }],
       })
-    } else {
+    } else if (mode !== 'public') {
       nodes.push({ type: 'text', value: match[0] })
     }
     cursor = match.index + match[0].length
   }
   if (cursor < value.length) nodes.push({ type: 'text', value: value.slice(cursor) })
+  if (mode === 'public') {
+    for (const node of nodes) {
+      if (node.type === 'text') node.value = node.value.replace(/\{\{(?:cite|media):[^{}]*\}\}/g, '')
+    }
+  }
   return nodes.length ? nodes : [{ type: 'text', value }]
 }
