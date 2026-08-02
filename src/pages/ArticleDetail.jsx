@@ -4,8 +4,16 @@ import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArticleMarkdownContent } from '@/components/admin/resources/ArticlePreview'
+import SeriesNavigation from '@/components/resources/SeriesNavigation'
 import { calculateArticleReadingTime } from '@/lib/articleMarkdown'
 import { loadPublishedArticleBySlug } from '@/lib/publicArticles'
+import { fetchPublishedSeriesResources } from '@/lib/publicInfographics'
+import {
+  createSeriesSlug,
+  findSeriesBySlug,
+  getAdjacentEpisodes,
+  groupResourcesBySeries,
+} from '@/lib/resourceSeries'
 
 const RESOURCES_PATH = '/ressources-ia'
 
@@ -17,12 +25,35 @@ export default function ArticleDetail() {
 function ArticleDetailBySlug({ slug }) {
   const { t, i18n } = useTranslation()
   const [result, setResult] = useState({ state: 'loading' })
+  const [seriesContext, setSeriesContext] = useState(null)
 
   useEffect(() => {
     let cancelled = false
     loadPublishedArticleBySlug(slug)
       .then((next) => {
-        if (!cancelled) setResult(next)
+        if (cancelled) return
+        setResult(next)
+        const article = next.state === 'found' ? next.article : null
+        if (!article?.series?.name) return
+
+        fetchPublishedSeriesResources(article.series.name)
+          .then((resources) => {
+            if (cancelled) return
+            const series = findSeriesBySlug(
+              groupResourcesBySeries(resources),
+              createSeriesSlug(article.series.name),
+            )
+            const current = { contentType: 'article', id: article.id }
+            if (!series || !series.resources.some((resource) =>
+              resource.id === current.id && resource.contentType === current.contentType)) return
+            setSeriesContext({
+              series,
+              ...getAdjacentEpisodes(series.resources, current),
+            })
+          })
+          .catch((error) => {
+            console.warn('Unable to load article series navigation:', error.message)
+          })
       })
       .catch((error) => {
         console.error('Unable to load published article:', error.message)
@@ -38,10 +69,10 @@ function ArticleDetailBySlug({ slug }) {
     return <UnavailableState isError t={t} />
   }
 
-  return <ArticleContent result={result} t={t} locale={i18n.language?.startsWith('en') ? 'en-CA' : 'fr-CA'} />
+  return <ArticleContent result={result} seriesContext={seriesContext} t={t} locale={i18n.language?.startsWith('en') ? 'en-CA' : 'fr-CA'} />
 }
 
-export function ArticleContent({ result, t, locale }) {
+export function ArticleContent({ result, seriesContext, t, locale }) {
   const { article, assets, assetUrls, coverUrl } = result
   const [coverFailed, setCoverFailed] = useState(false)
   const title = article.title || t('resourcesAi.article.fallbackTitle')
@@ -101,6 +132,8 @@ export function ArticleContent({ result, t, locale }) {
           <div className="mx-auto mt-10 max-w-3xl space-y-9 rounded-2xl border border-gray-200 bg-white p-5 sm:p-8 md:p-10">
             <ArticleMarkdownContent assets={assets} assetUrls={assetUrls} form={article} mode="public" t={t} />
           </div>
+
+          {seriesContext && <SeriesNavigation context={seriesContext} t={t} />}
 
           <div className="mt-10 text-center">
             <Link to={RESOURCES_PATH} className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent hover:text-accent-deep"><ArrowLeft size={16} aria-hidden="true" />{t('resourcesAi.article.back')}</Link>

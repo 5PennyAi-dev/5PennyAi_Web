@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  fetchPublishedArticlesForCatalog,
   loadPublishedArticleBySlug,
   normalizePublicArticleSlug,
   sanitizePublishedArticle,
@@ -21,6 +22,36 @@ test('normalise le slug public et filtre explicitement par slug et statut publi�
     ['articles', 'eq', 'status', 'published'],
   ])
   assert.equal(calls.some((call) => call.includes('id') && call.includes(ARTICLE_ID)), false)
+})
+
+test('la requête de catalogue sélectionne les colonnes publiques et filtre les publications', async () => {
+  const calls = []
+  const row = publishedRow()
+  const result = await fetchPublishedArticlesForCatalog(createPublicClient(calls, {
+    catalogRows: [row],
+  }))
+
+  const selectCall = calls.find(([table, method]) => table === 'articles' && method === 'select')
+  assert.match(selectCall[2], /id, slug, title/)
+  assert.match(selectCall[2], /content_markdown/)
+  assert.equal(selectCall[2].includes('media'), false)
+  assert.equal(selectCall[2].includes('seo'), false)
+  assert.deepEqual(calls.filter(([table, method]) => table === 'articles' && method === 'eq'), [
+    ['articles', 'eq', 'status', 'published'],
+  ])
+  assert.equal(result.rows.length, 1)
+  assert.equal(result.coverUrls[ARTICLE_ID], `signed:${COVER_PATH}`)
+})
+
+test('la requête de série d’articles conserve le filtre publié et le nom exact', async () => {
+  const calls = []
+  await fetchPublishedArticlesForCatalog(createPublicClient(calls, { catalogRows: [] }), {
+    seriesName: ' Série Alpha ',
+  })
+  assert.deepEqual(calls.filter(([table, method]) => table === 'articles' && method === 'eq'), [
+    ['articles', 'eq', 'status', 'published'],
+    ['articles', 'eq', 'series_name', 'Série Alpha'],
+  ])
 })
 
 test('exclut brouillon, slug inconnu et slug invalide avec le même état neutre', async () => {
@@ -110,7 +141,11 @@ function createPublicClient(calls, options = {}) {
           const matches = row && filters.get('slug') === row.slug && filters.get('status') === row.status
           return { data: matches ? row : null, error: null }
         },
-        async order() { return { data: options.assets || [], error: options.assetError || null } },
+        async order() {
+          return table === 'articles'
+            ? { data: options.catalogRows || [], error: options.articleError || null }
+            : { data: options.assets || [], error: options.assetError || null }
+        },
       }
     },
     storage: {

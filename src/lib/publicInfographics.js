@@ -1,7 +1,13 @@
 import { supabase } from './supabase.js'
+import { calculateArticleReadingTime } from './articleMarkdown.js'
 import { getInfographicImageCandidates } from './infographicThumbnails.js'
+import { fetchPublishedArticlesForCatalog } from './publicArticles.js'
 import { applyPublishedFilter } from './publicInfographicQuery.js'
-import { loadPublishedCatalog, querySeriesThumbnailRows } from './publicResourceCatalog.js'
+import {
+  loadPublishedCatalog,
+  mergePublicResources,
+  querySeriesThumbnailRows,
+} from './publicResourceCatalog.js'
 
 const BUCKET = 'infographics'
 const UUID_PATTERN =
@@ -14,6 +20,19 @@ export async function fetchPublishedInfographics(client = supabase) {
   const { data, error } = await applyPublishedFilter(query).order('published_at', {
     ascending: false,
   })
+
+  if (error) throw error
+  return data || []
+}
+
+export async function fetchPublishedInfographicsBySeries(seriesName, client = supabase) {
+  const cleanSeriesName = typeof seriesName === 'string' ? seriesName.trim() : ''
+  if (!cleanSeriesName) return []
+
+  const query = client.from('infographics').select(PUBLIC_COLUMNS)
+  const { data, error } = await applyPublishedFilter(query)
+    .eq('series_name', cleanSeriesName)
+    .order('published_at', { ascending: false })
 
   if (error) throw error
   return data || []
@@ -34,7 +53,36 @@ export async function fetchSeriesThumbnailRows(slugs, client = supabase) {
 }
 
 export async function fetchPublishedCatalog(client = supabase, logger = console) {
-  return loadPublishedCatalog({ client, fetchInfographics: fetchPublishedInfographics, logger })
+  return loadPublishedCatalog({
+    client,
+    fetchInfographics: fetchPublishedInfographics,
+    fetchArticles: fetchPublishedArticlesForCatalog,
+    getInfographicImageUrl: (path) => getInfographicImageUrl(path, client),
+    calculateArticleReadingTime,
+    logger,
+  })
+}
+
+export async function fetchPublishedSeriesResources(
+  seriesName,
+  client = supabase,
+  logger = console,
+) {
+  const cleanSeriesName = typeof seriesName === 'string' ? seriesName.trim() : ''
+  if (!cleanSeriesName) return []
+
+  const [infographicRows, articleResult] = await Promise.all([
+    fetchPublishedInfographicsBySeries(cleanSeriesName, client),
+    fetchPublishedArticlesForCatalog(client, { seriesName: cleanSeriesName, logger }),
+  ])
+
+  return mergePublicResources({
+    infographicRows,
+    articleRows: articleResult.rows,
+    articleCoverUrls: articleResult.coverUrls,
+    getInfographicImageUrl: (path) => getInfographicImageUrl(path, client),
+    calculateArticleReadingTime,
+  }).resources
 }
 
 export function getInfographicImageUrl(imagePath, client = supabase) {

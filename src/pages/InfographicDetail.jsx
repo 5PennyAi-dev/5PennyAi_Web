@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, Clock3, ExternalLink, Maximize2, X } from 'lucide-react'
+import { ArrowLeft, Clock3, ExternalLink, Maximize2, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import SeriesNavigation from '@/components/resources/SeriesNavigation'
 import {
   fetchPublishedInfographic,
-  fetchPublishedInfographics,
+  fetchPublishedSeriesResources,
   getInfographicImageUrl,
 } from '@/lib/publicInfographics'
 import {
@@ -18,7 +19,6 @@ import {
 
 const RESOURCES_PATH = '/ressources-ia'
 const SERIES_PATH = '/ressources-ia/series'
-const DETAIL_PATH = '/ressources-ia/infographies'
 
 export default function InfographicDetail() {
   const { id } = useParams()
@@ -43,18 +43,20 @@ function InfographicDetailById({ id }) {
 
         if (!data?.series_name) return
 
-        fetchPublishedInfographics()
+        fetchPublishedSeriesResources(data.series_name)
           .then((resources) => {
             if (cancelled) return
             const series = findSeriesBySlug(
               groupResourcesBySeries(resources),
               createSeriesSlug(data.series_name),
             )
-            if (!series || !series.resources.some((resource) => resource.id === data.id)) return
+            const current = { contentType: 'infographic', id: data.id }
+            if (!series || !series.resources.some((resource) =>
+              resource.id === current.id && resource.contentType === current.contentType)) return
 
             setSeriesContext({
               series,
-              ...getAdjacentEpisodes(series.resources, data.id),
+              ...getAdjacentEpisodes(series.resources, current),
             })
           })
           .catch((error) => {
@@ -280,80 +282,6 @@ function InfographicContent({ infographic, seriesContext, t }) {
         />
       )}
     </>
-  )
-}
-
-function SeriesNavigation({ context, t }) {
-  const { next, previous, series } = context
-
-  return (
-    <nav
-      aria-label={t('resourcesAi.detail.seriesNavigationLabel', { series: series.name })}
-      className="mx-auto mt-16 max-w-4xl border-t border-navy/[0.1] pt-8"
-    >
-      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent">
-        {t('resourcesAi.detail.continueSeries')}
-      </p>
-      <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
-        {previous ? (
-          <EpisodeNavigationLink direction="previous" resource={previous} t={t} />
-        ) : (
-          <span aria-hidden="true" className="hidden md:block" />
-        )}
-
-        <Link
-          to={`${SERIES_PATH}/${series.slug}`}
-          className="inline-flex items-center justify-center rounded-2xl border border-navy/15 bg-white px-5 py-4 text-center text-sm font-bold text-accent-deep hover:border-accent hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-        >
-          {t('resourcesAi.detail.allSeriesEpisodes')}
-        </Link>
-
-        {next ? (
-          <EpisodeNavigationLink direction="next" resource={next} t={t} />
-        ) : (
-          <span aria-hidden="true" className="hidden md:block" />
-        )}
-      </div>
-    </nav>
-  )
-}
-
-function EpisodeNavigationLink({ direction, resource, t }) {
-  const isPrevious = direction === 'previous'
-  const title = resource.title || t('resourcesAi.type')
-  const episodeNumber = formatEpisodeNumber(resource.episode_number)
-  const episode = episodeNumber
-    ? t('resourcesAi.episode', { number: episodeNumber })
-    : t('resourcesAi.detail.unnumberedEpisode')
-
-  return (
-    <Link
-      to={`${DETAIL_PATH}/${resource.id}`}
-      aria-label={t(
-        isPrevious
-          ? 'resourcesAi.detail.previousEpisodeLabel'
-          : 'resourcesAi.detail.nextEpisodeLabel',
-        { episode, title },
-      )}
-      className={`flex min-w-0 items-center gap-3 rounded-2xl bg-navy px-5 py-4 text-white hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
-        isPrevious ? '' : 'md:justify-end md:text-right'
-      }`}
-    >
-      {isPrevious && <ArrowLeft className="shrink-0" size={18} aria-hidden="true" />}
-      <span className="min-w-0">
-        <span className="block text-xs font-bold uppercase tracking-wide text-white/65">
-          {t(
-            isPrevious
-              ? 'resourcesAi.detail.previousEpisode'
-              : 'resourcesAi.detail.nextEpisode',
-          )}
-        </span>
-        <span className="mt-1 block text-sm font-bold leading-snug">
-          {episode} · {title}
-        </span>
-      </span>
-      {!isPrevious && <ArrowRight className="shrink-0" size={18} aria-hidden="true" />}
-    </Link>
   )
 }
 

@@ -1,0 +1,63 @@
+export const MIXED_SERIES_NAME = 'Parcours IA mixte'
+
+export const mixedPublicSeriesFixture = {
+  infographics: [
+    {
+      id: 'infographic-1',
+      status: 'published',
+      title: 'Fondations visuelles',
+      series_name: MIXED_SERIES_NAME,
+      episode_number: 1,
+      published_at: '2026-01-01T12:00:00Z',
+      image_path: 'infographic-1/original.webp',
+      thumbnail_path: 'thumbnails/infographics/infographic-1/card.webp',
+      level: 'beginner',
+    },
+    {
+      id: 'infographic-3',
+      status: 'published',
+      title: 'Mise en pratique visuelle',
+      series_name: MIXED_SERIES_NAME,
+      episode_number: 3,
+      published_at: '2026-01-03T12:00:00Z',
+      image_path: 'infographic-3/original.webp',
+      level: 'beginner',
+    },
+  ],
+  articles: [
+    {
+      id: 'article-2',
+      status: 'published',
+      slug: 'comprendre-le-parcours',
+      title: 'Comprendre le parcours',
+      series_name: MIXED_SERIES_NAME,
+      episode_number: 2,
+      published_at: '2026-01-02T12:00:00Z',
+      cover_path: 'articles/article-2/cover/card.webp',
+      content_markdown: 'Un contenu pédagogique court.',
+      level: 'beginner',
+    },
+    {
+      id: 'article-extra',
+      status: 'published',
+      slug: 'aller-plus-loin',
+      title: 'Aller plus loin',
+      series_name: MIXED_SERIES_NAME,
+      episode_number: null,
+      published_at: '2026-01-04T12:00:00Z',
+      content_markdown: 'Une ressource complémentaire.',
+      level: 'beginner',
+    },
+    {
+      id: 'article-draft',
+      status: 'draft',
+      slug: 'brouillon-invisible',
+      title: 'Brouillon invisible',
+      series_name: MIXED_SERIES_NAME,
+      episode_number: 4,
+      published_at: '2026-01-05T12:00:00Z',
+      content_markdown: 'Ce brouillon ne doit jamais être public.',
+      level: 'beginner',
+    },
+  ],
+}

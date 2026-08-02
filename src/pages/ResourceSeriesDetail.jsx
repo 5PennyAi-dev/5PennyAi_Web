@@ -3,13 +3,15 @@ import { ArrowLeft, BookOpen, Layers3, RotateCw } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import InfographicCard from '@/components/resources/InfographicCard'
-import { fetchPublishedInfographics } from '@/lib/publicInfographics'
+import ResourceCard from '@/components/resources/ResourceCard'
+import SeriesArtwork from '@/components/resources/SeriesArtwork'
+import { fetchPublishedCatalog } from '@/lib/publicInfographics'
+import { getPublicResourceKey } from '@/lib/publicResourceCatalog'
 import { findSeriesBySlug, groupResourcesBySeries } from '@/lib/resourceSeries'
+import { attachSeriesThumbnails } from '@/lib/seriesThumbnails'
 
 const RESOURCES_PATH = '/ressources-ia'
 const SERIES_VIEW_PATH = '/ressources-ia?vue=series'
-const DETAIL_PATH = '/ressources-ia/infographies'
 
 export default function ResourceSeriesDetail() {
   const { seriesSlug } = useParams()
@@ -32,11 +34,14 @@ function ResourceSeriesBySlug({ onRetry, seriesSlug }) {
   useEffect(() => {
     let cancelled = false
 
-    fetchPublishedInfographics()
-      .then((resources) => {
+    fetchPublishedCatalog()
+      .then((catalog) => {
         if (cancelled) return
         const resolvedSeries = findSeriesBySlug(
-          groupResourcesBySeries(resources),
+          attachSeriesThumbnails(
+            groupResourcesBySeries(catalog.resources),
+            catalog.seriesCovers,
+          ),
           seriesSlug,
         )
         setSeries(resolvedSeries)
@@ -62,7 +67,8 @@ function ResourceSeriesBySlug({ onRetry, seriesSlug }) {
 }
 
 function SeriesContent({ series, t }) {
-  const firstEpisodeTitle = series.firstEpisode?.title || t('resourcesAi.type')
+  const firstEpisodeTitle = series.firstEpisode?.title
+    || t(`resourcesAi.formats.${series.firstEpisode?.contentType || 'infographic'}`)
 
   return (
     <>
@@ -96,7 +102,7 @@ function SeriesContent({ series, t }) {
             </span>
           </nav>
 
-          <header className="rounded-3xl bg-navy px-6 py-9 text-white shadow-[var(--shadow-card-hover)] sm:px-9 sm:py-11 lg:flex lg:items-end lg:justify-between lg:gap-10 lg:px-12">
+          <header className="grid gap-8 rounded-3xl bg-navy px-6 py-9 text-white shadow-[var(--shadow-card-hover)] sm:px-9 sm:py-11 lg:grid-cols-[1fr_minmax(18rem,0.7fr)] lg:items-center lg:px-12">
             <div className="min-w-0">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent-light">
                 {t('resourcesAi.seriesPage.eyebrow')}
@@ -114,21 +120,24 @@ function SeriesContent({ series, t }) {
                   </span>
                 )}
               </div>
-            </div>
 
             {series.firstEpisode && (
               <Link
-                to={`${DETAIL_PATH}/${series.firstEpisode.id}`}
+                to={series.firstEpisode.publicUrl}
                 aria-label={t('resourcesAi.catalog.startSeriesLabel', {
                   series: series.name,
                   title: firstEpisodeTitle,
                 })}
-                className="mt-8 inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy lg:mt-0"
+                className="mt-8 inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
               >
                 <BookOpen size={16} aria-hidden="true" />
                 {t('resourcesAi.catalog.startSeries')}
               </Link>
             )}
+            </div>
+            <div className="min-w-0">
+              <SeriesArtwork series={series} t={t} />
+            </div>
           </header>
 
           <section className="mt-12 md:mt-16" aria-labelledby="series-episodes-title">
@@ -154,8 +163,8 @@ function SeriesContent({ series, t }) {
               className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7"
             >
               {series.resources.map((resource) => (
-                <li key={resource.id}>
-                  <InfographicCard infographic={resource} showSeriesName={false} t={t} />
+                <li key={getPublicResourceKey(resource)}>
+                  <ResourceCard resource={resource} showSeriesName={false} t={t} />
                 </li>
               ))}
             </ul>

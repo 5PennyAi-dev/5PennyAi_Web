@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { applyPublishedFilter } from './publicInfographicQuery.js'
 import { loadPublishedCatalog } from './publicResourceCatalog.js'
+import { fetchPublishedInfographicsBySeries } from './publicInfographics.js'
 
 test('la lecture publique applique toujours le filtre published', () => {
   const calls = []
@@ -14,6 +15,16 @@ test('la lecture publique applique toujours le filtre published', () => {
 
   assert.equal(applyPublishedFilter(query), query)
   assert.deepEqual(calls, [['status', 'published']])
+})
+
+test('la lecture publique d’une série combine statut publié et nom exact', async () => {
+  const calls = []
+  const client = createCatalogClient(calls, { infographics: [] })
+  await fetchPublishedInfographicsBySeries(' Série Alpha ', client)
+  assert.deepEqual(calls.filter(([table, column]) => table === 'infographics' && column !== undefined), [
+    ['infographics', 'status', 'published'],
+    ['infographics', 'series_name', 'Série Alpha'],
+  ])
 })
 
 test('charge toutes les couvertures des séries visibles en une seule requête supplémentaire', async () => {

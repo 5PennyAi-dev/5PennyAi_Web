@@ -9,48 +9,63 @@ import {
 import { Helmet } from 'react-helmet-async'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import InfographicCard from '@/components/resources/InfographicCard'
+import ResourceCard from '@/components/resources/ResourceCard'
+import SeriesArtwork from '@/components/resources/SeriesArtwork'
+import { fetchPublishedCatalog } from '@/lib/publicInfographics'
 import {
-  fetchPublishedCatalog,
-  getInfographicImageUrl,
-  getInfographicPreviewSources,
-} from '@/lib/publicInfographics'
+  filterPublicResources,
+  getPublicResourceKey,
+  normalizeResourceFormat,
+  RESOURCE_FORMATS,
+} from '@/lib/publicResourceCatalog'
 import {
   groupResourcesBySeries,
   selectFeaturedSeries,
 } from '@/lib/resourceSeries'
 import { attachSeriesThumbnails } from '@/lib/seriesThumbnails'
 
-const DETAIL_PATH = '/ressources-ia/infographies'
 const SERIES_PATH = '/ressources-ia/series'
 
 export default function ResourcesAI() {
   const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [infographics, setInfographics] = useState([])
+  const [resources, setResources] = useState([])
+  const [articles, setArticles] = useState([])
   const [seriesThumbnailRows, setSeriesThumbnailRows] = useState([])
   const [state, setState] = useState('loading')
   const series = useMemo(
-    () => attachSeriesThumbnails(groupResourcesBySeries(infographics), seriesThumbnailRows),
-    [infographics, seriesThumbnailRows],
+    () => attachSeriesThumbnails(groupResourcesBySeries(resources), seriesThumbnailRows),
+    [resources, seriesThumbnailRows],
   )
   const isSeriesView = searchParams.get('vue') === 'series'
   const selectedSeriesSlug = isSeriesView ? '' : searchParams.get('serie') || ''
+  const rawFormat = searchParams.get('format') || ''
+  const selectedFormat = isSeriesView
+    ? RESOURCE_FORMATS.ALL
+    : normalizeResourceFormat(rawFormat, articles.length > 0)
   const selectedSeries = useMemo(
     () => series.find(({ slug }) => slug === selectedSeriesSlug) || null,
     [selectedSeriesSlug, series],
   )
   const featuredSeries = useMemo(() => selectFeaturedSeries(series), [series])
+  const visibleResources = useMemo(
+    () => filterPublicResources(resources, {
+      format: selectedFormat,
+      seriesSlug: selectedSeriesSlug,
+    }),
+    [resources, selectedFormat, selectedSeriesSlug],
+  )
 
   const loadInfographics = useCallback(async () => {
     setState('loading')
     try {
       const catalog = await fetchPublishedCatalog()
-      setInfographics(catalog.infographics)
-      setSeriesThumbnailRows(catalog.seriesThumbnailRows)
+      setResources(catalog.resources)
+      setArticles(catalog.articles)
+      setSeriesThumbnailRows(catalog.seriesCovers)
       setState('ready')
     } catch (error) {
-      console.error('Unable to load published infographics:', error.message)
+      console.error('Unable to load published resources:', error.message)
       setState('error')
     }
   }, [])
@@ -61,13 +76,14 @@ export default function ResourcesAI() {
     fetchPublishedCatalog()
       .then((catalog) => {
         if (!cancelled) {
-          setInfographics(catalog.infographics)
-          setSeriesThumbnailRows(catalog.seriesThumbnailRows)
+          setResources(catalog.resources)
+          setArticles(catalog.articles)
+          setSeriesThumbnailRows(catalog.seriesCovers)
           setState('ready')
         }
       })
       .catch((error) => {
-        console.error('Unable to load published infographics:', error.message)
+        console.error('Unable to load published resources:', error.message)
         if (!cancelled) setState('error')
       })
 
@@ -75,6 +91,17 @@ export default function ResourcesAI() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    if (!rawFormat || state !== 'ready') return
+    const isValid = rawFormat === RESOURCE_FORMATS.INFOGRAPHICS
+      || (rawFormat === RESOURCE_FORMATS.ARTICLES && articles.length > 0)
+    if (isValid && !isSeriesView) return
+
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('format')
+    setSearchParams(nextParams, { replace: true })
+  }, [articles.length, isSeriesView, rawFormat, searchParams, setSearchParams, state])
 
   const showResourcesView = () => {
     const nextParams = new URLSearchParams(searchParams)
@@ -87,6 +114,18 @@ export default function ResourcesAI() {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('vue', 'series')
     nextParams.delete('serie')
+    nextParams.delete('format')
+    setSearchParams(nextParams)
+  }
+
+  const filterByFormat = (format) => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('vue')
+    if (format === RESOURCE_FORMATS.INFOGRAPHICS || format === RESOURCE_FORMATS.ARTICLES) {
+      nextParams.set('format', format)
+    } else {
+      nextParams.delete('format')
+    }
     setSearchParams(nextParams)
   }
 
@@ -123,16 +162,19 @@ export default function ResourcesAI() {
             <LoadingGrid t={t} />
           ) : state === 'error' ? (
             <ErrorState onRetry={loadInfographics} t={t} />
-          ) : infographics.length === 0 ? (
+          ) : resources.length === 0 ? (
             <EmptyState t={t} />
           ) : (
             <>
               <CatalogControls
                 isSeriesView={isSeriesView}
+                hasPublishedArticles={articles.length > 0}
                 onFilterChange={filterBySeries}
+                onFormatChange={filterByFormat}
                 onShowResources={showResourcesView}
                 onShowSeries={showSeriesView}
                 selectedSeriesSlug={selectedSeriesSlug}
+                selectedFormat={selectedFormat}
                 series={series}
                 t={t}
               />
@@ -146,10 +188,12 @@ export default function ResourcesAI() {
               ) : (
                 <ResourcesView
                   featuredSeries={selectedSeriesSlug ? null : featuredSeries}
-                  infographics={selectedSeriesSlug ? selectedSeries?.resources || [] : infographics}
+                  resources={visibleResources}
                   onClearFilter={() => filterBySeries('')}
+                  onClearFormat={() => filterByFormat(RESOURCE_FORMATS.ALL)}
                   selectedSeries={selectedSeries}
                   selectedSeriesSlug={selectedSeriesSlug}
+                  selectedFormat={selectedFormat}
                   t={t}
                 />
               )}
@@ -162,10 +206,13 @@ export default function ResourcesAI() {
 }
 
 function CatalogControls({
+  hasPublishedArticles,
   isSeriesView,
   onFilterChange,
+  onFormatChange,
   onShowResources,
   onShowSeries,
+  selectedFormat,
   selectedSeriesSlug,
   series,
   t,
@@ -205,15 +252,55 @@ function CatalogControls({
         </button>
       </div>
 
-      {showFilter && (
-        <SeriesFilter
-          onChange={onFilterChange}
-          selectedSeriesSlug={selectedSeriesSlug}
-          series={series}
-          t={t}
-        />
+      {!isSeriesView && (hasPublishedArticles || showFilter) && (
+        <div className="grid w-full gap-4 sm:max-w-2xl sm:grid-cols-2">
+          {hasPublishedArticles && (
+            <FormatFilter onChange={onFormatChange} selectedFormat={selectedFormat} t={t} />
+          )}
+          {showFilter && (
+            <SeriesFilter
+              onChange={onFilterChange}
+              selectedSeriesSlug={selectedSeriesSlug}
+              series={series}
+              t={t}
+            />
+          )}
+        </div>
       )}
     </div>
+  )
+}
+
+function FormatFilter({ onChange, selectedFormat, t }) {
+  const options = [
+    [RESOURCE_FORMATS.ALL, t('resourcesAi.catalog.allFormats')],
+    [RESOURCE_FORMATS.INFOGRAPHICS, t('resourcesAi.catalog.infographics')],
+    [RESOURCE_FORMATS.ARTICLES, t('resourcesAi.catalog.articles')],
+  ]
+
+  return (
+    <fieldset className="min-w-0">
+      <legend className="mb-1.5 text-xs font-bold text-navy/70">
+        {t('resourcesAi.catalog.formatFilterLabel')}
+      </legend>
+      <div className="grid grid-cols-3 rounded-xl bg-navy/[0.055] p-1" role="group">
+        {options.map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={selectedFormat === value}
+            onClick={() => onChange(value)}
+            className={`rounded-lg px-2 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+              selectedFormat === value
+                ? 'bg-navy text-white shadow-sm'
+                : 'text-navy/65 hover:bg-white hover:text-navy'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </fieldset>
   )
 }
 
@@ -256,14 +343,27 @@ function SeriesFilter({ onChange, selectedSeriesSlug, series, t }) {
 
 function ResourcesView({
   featuredSeries,
-  infographics,
+  resources,
   onClearFilter,
+  onClearFormat,
   selectedSeries,
   selectedSeriesSlug,
+  selectedFormat,
   t,
 }) {
   if (selectedSeriesSlug && !selectedSeries) {
     return <FilteredEmptyState onClearFilter={onClearFilter} t={t} />
+  }
+
+  if (resources.length === 0) {
+    return (
+      <FormatEmptyState
+        hasSeries={Boolean(selectedSeries)}
+        onClearFormat={onClearFormat}
+        selectedFormat={selectedFormat}
+        t={t}
+      />
+    )
   }
 
   return (
@@ -297,7 +397,7 @@ function ResourcesView({
           )}
         </div>
 
-        <ResourceGrid infographics={infographics} t={t} />
+        <ResourceGrid resources={resources} t={t} />
       </section>
     </>
   )
@@ -332,7 +432,7 @@ function FeaturedSeries({ series, t }) {
           <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             {series.firstEpisode && (
               <Link
-                to={`${DETAIL_PATH}/${series.firstEpisode.id}`}
+                to={series.firstEpisode.publicUrl}
                 aria-label={t('resourcesAi.catalog.startSeriesLabel', {
                   series: series.name,
                   title: firstEpisodeTitle,
@@ -422,88 +522,44 @@ function SeriesCard({ series, t }) {
   )
 }
 
-function SeriesArtwork({ series, t }) {
-  const [failedPath, setFailedPath] = useState(null)
-  const thumbnailUrl = series.thumbnailPath
-    ? getInfographicImageUrl(series.thumbnailPath)
-    : null
-
-  if (thumbnailUrl && failedPath !== series.thumbnailPath) {
-    return (
-      <div className="aspect-video overflow-hidden rounded-xl border border-white/15 bg-surface shadow-sm">
-        <img
-          src={thumbnailUrl}
-          alt=""
-          className="h-full w-full object-contain object-center"
-          loading="lazy"
-          decoding="async"
-          onError={() => setFailedPath(series.thumbnailPath)}
-        />
-      </div>
-    )
-  }
-
-  return <SeriesPreviewGrid resources={series.previews} t={t} />
-}
-
-function SeriesPreviewGrid({ resources, t }) {
-  const columnClass =
-    resources.length === 1
-      ? 'grid-cols-1'
-      : resources.length === 2
-        ? 'grid-cols-2'
-        : 'grid-cols-3'
-
-  return (
-    <div className={`grid gap-2 sm:gap-3 ${columnClass}`} aria-hidden="true">
-      {resources.map((resource) => (
-        <SeriesPreview
-          key={`${resource.id}-${resource.thumbnail_path || ''}-${resource.image_path || ''}`}
-          resource={resource}
-          t={t}
-        />
-      ))}
-    </div>
-  )
-}
-
-function SeriesPreview({ resource, t }) {
-  const [sourceIndex, setSourceIndex] = useState(0)
-  const sources = getInfographicPreviewSources(resource)
-  const source = sources[sourceIndex]
-
-  return (
-    <div className="aspect-video min-w-0 overflow-hidden rounded-xl border border-white/15 bg-surface shadow-sm">
-      {source?.url ? (
-        <img
-          src={source.url}
-          alt=""
-          className={`h-full w-full ${source.kind === 'thumbnail' ? 'object-contain object-center' : 'object-cover object-top'}`}
-          loading="lazy"
-          decoding="async"
-          onError={() => setSourceIndex((index) => index + 1)}
-        />
-      ) : (
-        <div className="flex h-full items-center justify-center bg-navy/[0.035] text-navy/30">
-          <ImageIcon size={28} strokeWidth={1.4} aria-label={t('resourcesAi.imageUnavailable')} />
-        </div>
-      )}
-    </div>
-  )
-}
-
-function ResourceGrid({ infographics, t }) {
+function ResourceGrid({ resources, t }) {
   return (
     <ul
       aria-label={t('resourcesAi.catalog.resourceListLabel')}
       className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7"
     >
-      {infographics.map((infographic) => (
-        <li key={infographic.id}>
-          <InfographicCard infographic={infographic} t={t} />
+      {resources.map((resource) => (
+        <li key={getPublicResourceKey(resource)}>
+          <ResourceCard resource={resource} t={t} />
         </li>
       ))}
     </ul>
+  )
+}
+
+function FormatEmptyState({ hasSeries, onClearFormat, selectedFormat, t }) {
+  const formatKey = selectedFormat === RESOURCE_FORMATS.ARTICLES ? 'articles' : 'infographics'
+  const title = hasSeries
+    ? t('resourcesAi.catalog.noFormatInSeriesTitle')
+    : t(`resourcesAi.catalog.no${formatKey === 'articles' ? 'Articles' : 'Infographics'}Title`)
+
+  return (
+    <div role="status" className="mx-auto max-w-xl rounded-2xl border border-navy/[0.08] bg-white p-10 text-center shadow-sm">
+      <Layers3 className="mx-auto text-steel" size={36} strokeWidth={1.4} aria-hidden="true" />
+      <h2 className="mt-5 text-xl font-bold text-navy">{title}</h2>
+      <p className="mt-3 text-sm leading-relaxed text-muted">
+        {hasSeries
+          ? t('resourcesAi.catalog.noFormatInSeriesDescription')
+          : t('resourcesAi.catalog.noFormatDescription')}
+      </p>
+      <button
+        type="button"
+        onClick={onClearFormat}
+        className="mt-6 rounded-full bg-navy px-5 py-2.5 text-sm font-bold text-white hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      >
+        {t('resourcesAi.catalog.clearFilter')}
+      </button>
+    </div>
   )
 }
 

@@ -16,8 +16,8 @@ export function sortSeriesEpisodes(resources) {
   if (!Array.isArray(resources)) return []
 
   return [...resources].sort((left, right) => {
-    const leftEpisode = getValidEpisodeNumber(left?.episode_number)
-    const rightEpisode = getValidEpisodeNumber(right?.episode_number)
+    const leftEpisode = getValidEpisodeNumber(getEpisodeNumber(left))
+    const rightEpisode = getValidEpisodeNumber(getEpisodeNumber(right))
 
     if (leftEpisode !== null && rightEpisode === null) return -1
     if (leftEpisode === null && rightEpisode !== null) return 1
@@ -25,7 +25,7 @@ export function sortSeriesEpisodes(resources) {
       return leftEpisode - rightEpisode
     }
 
-    const dateComparison = compareDatesAscending(left?.published_at, right?.published_at)
+    const dateComparison = compareDatesAscending(getPublishedAt(left), getPublishedAt(right))
     if (dateComparison !== 0) return dateComparison
 
     return getTitle(left).localeCompare(getTitle(right), undefined, {
@@ -50,7 +50,7 @@ export function groupResourcesBySeries(resources) {
   const groups = new Map()
 
   resources.forEach((resource) => {
-    const name = getSeriesName(resource?.series_name)
+    const name = getSeriesName(resource)
     if (!name) return
 
     const groupedResources = groups.get(name) || []
@@ -102,12 +102,13 @@ export function findSeriesBySlug(series, slug) {
   return series.find((item) => item?.slug === slug) || null
 }
 
-export function getAdjacentEpisodes(orderedEpisodes, currentId) {
+export function getAdjacentEpisodes(orderedEpisodes, currentResource) {
   if (!Array.isArray(orderedEpisodes) || orderedEpisodes.length === 0) {
     return { previous: null, next: null }
   }
 
-  const currentIndex = orderedEpisodes.findIndex((episode) => episode?.id === currentId)
+  const currentIndex = orderedEpisodes.findIndex((episode) =>
+    matchesCurrentResource(episode, currentResource))
   if (currentIndex === -1) return { previous: null, next: null }
 
   return {
@@ -119,8 +120,17 @@ export function getAdjacentEpisodes(orderedEpisodes, currentId) {
   }
 }
 
-function getSeriesName(value) {
+function getSeriesName(resource) {
+  const value = resource?.seriesName ?? resource?.series_name
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function getEpisodeNumber(resource) {
+  return resource?.episodeNumber ?? resource?.episode_number
+}
+
+function getPublishedAt(resource) {
+  return resource?.publishedAt ?? resource?.published_at
 }
 
 function getValidEpisodeNumber(value) {
@@ -149,12 +159,22 @@ function getLatestActivity(resources) {
   let latestTimestamp = Number.NEGATIVE_INFINITY
 
   resources.forEach((resource) => {
-    const timestamp = getDateTimestamp(resource?.published_at, Number.NEGATIVE_INFINITY)
+    const publishedAt = getPublishedAt(resource)
+    const timestamp = getDateTimestamp(publishedAt, Number.NEGATIVE_INFINITY)
     if (timestamp > latestTimestamp) {
       latestTimestamp = timestamp
-      latestActivity = resource.published_at
+      latestActivity = publishedAt
     }
   })
 
   return latestActivity
+}
+
+function matchesCurrentResource(resource, currentResource) {
+  if (currentResource && typeof currentResource === 'object') {
+    if (resource?.id !== currentResource.id) return false
+    if (!currentResource.contentType) return true
+    return resource?.contentType === currentResource.contentType
+  }
+  return resource?.id === currentResource
 }

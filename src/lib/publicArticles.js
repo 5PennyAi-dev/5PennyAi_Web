@@ -3,6 +3,19 @@ import { isArticleCoverPath, isArticleMediaPath } from './articleAssetRules.js'
 import { slugifyArticle } from './articleSlug.js'
 
 const ARTICLE_ASSETS_BUCKET = 'article-assets'
+const PUBLIC_CATALOG_COLUMNS = [
+  'id',
+  'slug',
+  'title',
+  'summary',
+  'theme',
+  'level',
+  'series_name',
+  'episode_number',
+  'content_markdown',
+  'cover_path',
+  'published_at',
+].join(', ')
 const PUBLIC_COLUMNS = [
   'id',
   'slug',
@@ -26,10 +39,47 @@ const PUBLIC_COLUMNS = [
 ].join(', ')
 
 export const PUBLIC_ARTICLE_COLUMNS = PUBLIC_COLUMNS
+export const PUBLIC_ARTICLE_CATALOG_COLUMNS = PUBLIC_CATALOG_COLUMNS
 
 export function normalizePublicArticleSlug(value) {
   if (typeof value !== 'string' || !value.trim()) return ''
   return slugifyArticle(value)
+}
+
+export async function fetchPublishedArticlesForCatalog(
+  client = supabase,
+  { expiresIn = 3600, logger = console, seriesName = '' } = {},
+) {
+  let query = client
+    .from('articles')
+    .select(PUBLIC_CATALOG_COLUMNS)
+    .eq('status', 'published')
+
+  const cleanSeriesName = typeof seriesName === 'string' ? seriesName.trim() : ''
+  if (cleanSeriesName) query = query.eq('series_name', cleanSeriesName)
+
+  const { data, error } = await query.order('published_at', { ascending: false })
+  if (error) throw error
+
+  const rows = data || []
+  const coverEntries = await Promise.all(rows.map(async (row) => {
+    if (!isArticleCoverPath(row?.cover_path, row?.id)) return null
+    try {
+      const { data: signed, error: signError } = await client.storage
+        .from(ARTICLE_ASSETS_BUCKET)
+        .createSignedUrl(row.cover_path, expiresIn)
+      if (signError || !signed?.signedUrl) throw signError || new Error('Missing signed URL')
+      return [row.id, signed.signedUrl]
+    } catch (signError) {
+      logger?.warn?.('Unable to sign a published article cover:', signError?.message)
+      return null
+    }
+  }))
+
+  return {
+    rows,
+    coverUrls: Object.fromEntries(coverEntries.filter(Boolean)),
+  }
 }
 
 export async function loadPublishedArticleBySlug(

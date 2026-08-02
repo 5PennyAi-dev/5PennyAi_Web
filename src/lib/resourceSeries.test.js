@@ -74,6 +74,23 @@ test('trie les épisodes sans modifier le tableau source', () => {
   assert.deepEqual(resources.map(({ id }) => id), originalOrder)
 })
 
+test('départage un même numéro par date puis par titre sans utiliser le format', () => {
+  const resources = [
+    createResource('article-z', {
+      contentType: 'article', episodeNumber: 2, publishedAt: '2026-01-01', title: 'Zêta',
+    }),
+    createResource('info-late', {
+      contentType: 'infographic', episodeNumber: 2, publishedAt: '2026-01-02', title: 'Alpha',
+    }),
+    createResource('info-a', {
+      contentType: 'infographic', episodeNumber: 2, publishedAt: '2026-01-01', title: 'Alpha',
+    }),
+  ]
+  assert.deepEqual(sortSeriesEpisodes(resources).map(({ id }) => id), [
+    'info-a', 'article-z', 'info-late',
+  ])
+})
+
 test('calcule le premier épisode, les aperçus et le niveau commun', () => {
   const series = groupResourcesBySeries([
     createResource('episode-3', { episode_number: 3, level: 'beginner' }),
