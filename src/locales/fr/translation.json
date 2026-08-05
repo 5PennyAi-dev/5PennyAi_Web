@@ -955,6 +955,8 @@
           "infographic": "Infographie",
           "title": "Titre",
           "theme": "Thème",
+          "series": "Série",
+          "episode": "Épisode",
           "status": "Statut",
           "updated": "Mise à jour",
           "actions": "Actions"
@@ -1005,6 +1007,7 @@
           "language": "Langue",
           "level": "Niveau",
           "series": "Série",
+          "episode": "Épisode",
           "updated": "Modification",
           "publishedAt": "Publication",
           "actions": "Actions"

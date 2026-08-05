@@ -162,7 +162,7 @@ function AdminInfographicsPage() {
 
   return (
     <section className="min-h-[90vh] bg-warm-gray pt-24 pb-16 md:pt-28 md:pb-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
         <div className="mb-7">
           <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-accent">
             {t('admin.resourcesAi.brand')}
@@ -281,25 +281,34 @@ function InfographicFilters({ activeFilter, counts, onChange, t }) {
 function InfographicList({ infographics, locale, onDelete, t }) {
   return (
     <>
-      <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:block">
-        <div className="grid grid-cols-[76px_minmax(180px,1.5fr)_minmax(100px,0.8fr)_110px_130px_170px] items-center gap-4 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
+      <div className="hidden overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm md:block">
+        <div className="min-w-[1160px]">
+          <div className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(110px,0.8fr)_minmax(150px,1fr)_90px_100px_110px_220px] items-center gap-3 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
           <span>{t('admin.resourcesAi.infographics.columns.infographic')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.title')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.theme')}</span>
+          <span>{t('admin.resourcesAi.infographics.columns.series')}</span>
+          <span>{t('admin.resourcesAi.infographics.columns.episode')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.status')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.updated')}</span>
           <span className="text-right">{t('admin.resourcesAi.infographics.columns.actions')}</span>
-        </div>
+          </div>
 
         <ul className="divide-y divide-gray-100">
           {infographics.map((infographic) => (
             <li
               key={infographic.id}
-              className="grid grid-cols-[76px_minmax(180px,1.5fr)_minmax(100px,0.8fr)_110px_130px_170px] items-center gap-4 px-5 py-4"
+              className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(110px,0.8fr)_minmax(150px,1fr)_90px_100px_110px_220px] items-center gap-3 px-5 py-4"
             >
               <InfographicThumbnail infographic={infographic} t={t} />
               <InfographicIdentity infographic={infographic} t={t} />
               <p className="text-sm text-navy/75">{infographic.theme || '—'}</p>
+              <p className="truncate text-sm text-navy/75">{infographic.series_name || '\u2014'}</p>
+              <p className="tnum text-sm text-navy/75">
+                {infographic.episode_number
+                  ? t('admin.resourcesAi.infographics.episode', { number: infographic.episode_number })
+                  : '\u2014'}
+              </p>
               <StatusBadge status={infographic.status} t={t} />
               <time
                 dateTime={infographic.updated_at}
@@ -312,7 +321,8 @@ function InfographicList({ infographics, locale, onDelete, t }) {
               </div>
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
       </div>
 
       <ul className="space-y-3 md:hidden">
@@ -325,6 +335,9 @@ function InfographicList({ infographics, locale, onDelete, t }) {
               <InfographicThumbnail infographic={infographic} t={t} />
               <div className="min-w-0 flex-1">
                 <InfographicIdentity infographic={infographic} t={t} />
+                {formatSeries(infographic, t) && (
+                  <p className="mt-1 truncate text-xs text-muted">{formatSeries(infographic, t)}</p>
+                )}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <StatusBadge status={infographic.status} t={t} />
                   {infographic.theme && (
@@ -376,14 +389,11 @@ function InfographicThumbnail({ infographic, t }) {
 }
 
 function InfographicIdentity({ infographic, t }) {
-  const series = formatSeries(infographic, t)
-
   return (
     <div className="min-w-0">
       <p className="truncate font-heading text-sm font-semibold text-navy">
         {infographic.title || t('admin.resourcesAi.infographics.untitled')}
       </p>
-      {series && <p className="mt-1 truncate text-xs text-muted">{series}</p>}
     </div>
   )
 }
