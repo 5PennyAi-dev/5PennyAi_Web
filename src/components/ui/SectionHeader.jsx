@@ -1,4 +1,4 @@
-export default function SectionHeader({ overline, title, subtitle, className = '' }) {
+export default function SectionHeader({ overline, title, subtitle, titleId, className = '' }) {
   return (
     <div className={`mb-14 md:mb-16 ${className}`}>
       {overline && (
@@ -9,7 +9,10 @@ export default function SectionHeader({ overline, title, subtitle, className = '
           </span>
         </div>
       )}
-      <h2 className="text-display text-[2rem] md:text-[2.75rem] lg:text-[3.25rem] font-bold text-navy max-w-3xl mx-auto">
+      <h2
+        id={titleId}
+        className="text-display text-[2rem] md:text-[2.75rem] lg:text-[3.25rem] font-bold text-navy max-w-3xl mx-auto"
+      >
         {title}
       </h2>
       {subtitle && (

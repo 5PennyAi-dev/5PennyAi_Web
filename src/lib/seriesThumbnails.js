@@ -47,6 +47,10 @@ export function isPersistedSeriesName(currentName, persistedName) {
   return Boolean(current && persisted && current === persisted)
 }
 
+export function shouldShowSeriesThumbnailField(seriesName) {
+  return Boolean(cleanName(seriesName))
+}
+
 function cleanName(value) {
   return typeof value === 'string' ? value.trim() : ''
 }

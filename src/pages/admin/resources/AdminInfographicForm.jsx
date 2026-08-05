@@ -807,7 +807,7 @@ function AdminInfographicFormPage() {
                   currentSeriesName={form.series_name}
                   fallbackUrl={existingThumbnailUrl || existingImageUrl}
                   persistedSeriesName={persistedSeriesName}
-                  resourceId={resourceId}
+                  resourceSaved={Boolean(resourceId)}
                   t={t}
                 />
               </FormSection>

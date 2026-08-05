@@ -21,6 +21,7 @@
     "description": "Fort de plus de vingt ans d’expérience en développement et en analyse, je me spécialise aujourd’hui dans l’utilisation concrète de l’intelligence artificielle, des données et de l’automatisation. Je conçois et j’expérimente des solutions qui transforment des besoins réels en outils utiles.",
     "cta_primary": "Découvrir mon parcours",
     "cta_secondary": "Voir PennySEO",
+    "cta_resources": "Explorer les Ressources IA",
     "metrics": [
       { "value": "20+", "label": "Années en livraison logicielle" },
       { "value": "5", "label": "Certifications IA & Data" },
@@ -215,6 +216,32 @@
     "viewAll": "Voir tous les articles",
     "minRead": "min de lecture"
   },
+  "homeResources": {
+    "overline": "RESSOURCES IA",
+    "title": "Comprendre l’IA, une notion à la fois",
+    "introduction": "Des articles, des infographies et des séries pédagogiques pour construire des repères clairs sur l’intelligence artificielle.",
+    "featuredSeries": "SÉRIE EN VEDETTE",
+    "resourceCount_one": "{{count}} ressource publiée",
+    "resourceCount_other": "{{count}} ressources publiées",
+    "formats": {
+      "articles": "Articles",
+      "infographics": "Infographies",
+      "mixed": "Articles et infographies"
+    },
+    "discoverSeries": "Découvrir la série",
+    "discoverSeriesLabel": "Découvrir la série {{series}}",
+    "types": {
+      "article": "Article",
+      "infographic": "Infographie"
+    },
+    "view": "Consulter",
+    "viewLabel": "Consulter {{type}} : {{title}}",
+    "exploreAll": "Explorer toutes les ressources",
+    "exploreAllLabel": "Explorer toutes les Ressources IA",
+    "loading": "Chargement des Ressources IA…",
+    "empty": "Les prochaines Ressources IA seront publiées sous peu.",
+    "error": "Les Ressources IA ne peuvent pas être chargées pour le moment."
+  },
   "blog_coming_soon": {
     "seo": {
       "title": "Articles et ressources IA à venir | 5PennyAi",
@@ -284,7 +311,7 @@
       "title": "Compétences et expertise",
       "subtitle": "Mon parcours me permet de relier l’analyse des besoins, le développement logiciel, les données et l’intelligence artificielle afin de contribuer à des solutions utiles, fiables et adaptées aux réalités des organisations."
     },
-    "items_title": "Domaines de contribution",
+    "items_title": "Compétence clés",
     "case_label": "Exemple :",
     "items": {
       "analysis": {
@@ -1041,6 +1068,7 @@
           "import": "Import JSON",
           "general": "Métadonnées générales",
           "series": "Série",
+          "seriesCover": "Couverture de la série",
           "learning": "Objectifs et prérequis",
           "markdown": "Contenu Markdown",
           "media": "Manifeste des médias",
@@ -1152,6 +1180,9 @@
         },
         "cover": {
           "help": "Le fichier de couverture 16:9 reste séparé de ces métadonnées éditoriales."
+        },
+        "seriesCover": {
+          "saveFirst": "Enregistrez d’abord l’article pour gérer la couverture de sa série."
         },
         "assets": {
           "present": "Fichier présent",
@@ -1350,7 +1381,7 @@
         "sections": {
           "image": "Image de l'infographie",
           "thumbnail": "Thumbnail du catalogue",
-          "seriesThumbnail": "Thumbnail de la série",
+          "seriesThumbnail": "Couverture de la série",
           "jsonImport": "Métadonnées JSON",
           "general": "Informations générales",
           "classification": "Classification",
@@ -1447,7 +1478,7 @@
           }
         },
         "seriesThumbnail": {
-          "help": "Cette couverture appartient à toute la série et sera utilisée pour tous ses épisodes.",
+          "help": "Cette image appartient à toute la série et sera utilisée pour l’ensemble de ses épisodes.",
           "none": "Aucun thumbnail de série dédié.",
           "saved": "Thumbnail de série enregistré",
           "fallbackUsed": "Le fallback actuel composé des épisodes sera utilisé publiquement.",
@@ -1455,23 +1486,23 @@
           "loading": "Chargement du thumbnail de la série…",
           "loadFailed": "Impossible de charger le thumbnail de la série. Vérifiez que la migration a été appliquée, puis réessayez.",
           "retry": "Réessayer",
-          "generate": "Générer le thumbnail de la série",
-          "regenerate": "Régénérer le thumbnail de la série",
+          "generate": "Générer la couverture de la série",
+          "regenerate": "Régénérer la couverture",
           "generating": "Génération de la couverture en cours…",
           "generated": "Thumbnail de série généré.",
           "generatedCleanupWarning": "Le thumbnail de série a été généré, mais le nettoyage de l’ancien fichier est incomplet.",
           "generationFailed": "Échec de la génération du thumbnail de série. La couverture précédente est conservée.",
-          "seriesRequired": "L’infographie doit appartenir à une série enregistrée.",
-          "noUsableReferences": "Aucune image de référence utilisable. La couverture précédente est conservée.",
+          "seriesRequired": "La série enregistrée est introuvable ou ne contient aucun épisode.",
+          "noUsableReferences": "Ajoutez au moins une couverture à un épisode avant de générer la couverture de la série. La couverture précédente est conservée.",
           "regenerateConfirm": "Confirmer la régénération? La couverture actuelle sera remplacée seulement si la génération réussit.",
-          "upload": "Téléverser une couverture",
-          "replace": "Remplacer le thumbnail de la série",
+          "upload": "Téléverser un fichier",
+          "replace": "Remplacer par un fichier",
           "uploading": "Téléversement de la couverture en cours…",
           "uploaded": "Thumbnail de série téléversé.",
           "uploadedCleanupWarning": "Le thumbnail a été téléversé, mais le nettoyage de l’ancien fichier est incomplet.",
           "uploadFailed": "Échec du téléversement. La couverture précédente est conservée.",
-          "remove": "Supprimer le thumbnail de la série",
-          "removeConfirm": "Confirmer la suppression du thumbnail de la série? Le fallback sera rétabli.",
+          "remove": "Supprimer la couverture",
+          "removeConfirm": "Voulez-vous vraiment supprimer la couverture de cette série? Le fallback sera rétabli.",
           "removed": "Thumbnail de série supprimé. Le fallback est rétabli.",
           "removedCleanupWarning": "Le fallback est rétabli, mais le nettoyage du fichier est incomplet.",
           "removeFailed": "Échec de la suppression. La couverture actuelle est conservée.",

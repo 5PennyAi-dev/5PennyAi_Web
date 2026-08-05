@@ -82,7 +82,7 @@ export default function ResourceCard({ resource, showSeriesName = true, t }) {
   )
 }
 
-function ResourcePreview({ contentType, sources, t }) {
+export function ResourcePreview({ contentType, sources, t }) {
   const [sourceIndex, setSourceIndex] = useState(0)
   const source = Array.isArray(sources) ? sources[sourceIndex] : null
 

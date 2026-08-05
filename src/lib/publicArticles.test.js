@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   fetchPublishedArticlesForCatalog,
+  fetchPublishedArticlesForShowcase,
   loadPublishedArticleBySlug,
   normalizePublicArticleSlug,
   sanitizePublishedArticle,
@@ -41,6 +42,18 @@ test('la requête de catalogue sélectionne les colonnes publiques et filtre les
   ])
   assert.equal(result.rows.length, 1)
   assert.equal(result.coverUrls[ARTICLE_ID], `signed:${COVER_PATH}`)
+})
+
+test('la requête d’accueil exclut le Markdown et filtre les publications', async () => {
+  const calls = []
+  await fetchPublishedArticlesForShowcase(createPublicClient(calls, { catalogRows: [] }))
+
+  const selectCall = calls.find(([table, method]) => table === 'articles' && method === 'select')
+  assert.ok(selectCall[2].includes('cover_path'))
+  assert.equal(selectCall[2].includes('content_markdown'), false)
+  assert.deepEqual(calls.filter(([table, method]) => table === 'articles' && method === 'eq'), [
+    ['articles', 'eq', 'status', 'published'],
+  ])
 })
 
 test('la requête de série d’articles conserve le filtre publié et le nom exact', async () => {

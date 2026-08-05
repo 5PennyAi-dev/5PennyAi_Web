@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Image as ImageIcon, LoaderCircle, Sparkles, Trash2, Upload } from 'lucide-react'
 import {
   isAllowedThumbnailMime,
@@ -19,18 +19,25 @@ export default function SeriesThumbnailField({
   currentSeriesName,
   fallbackUrl,
   persistedSeriesName,
-  resourceId,
+  resourceSaved,
+  saveFirstMessage,
   t,
 }) {
   const seriesSlug = useMemo(() => createSeriesSlug(persistedSeriesName), [persistedSeriesName])
+  const displaySeriesName = persistedSeriesName?.trim() || currentSeriesName?.trim() || ''
   const [thumbnailPath, setThumbnailPath] = useState(null)
-  const [state, setState] = useState('loading')
+  const [state, setState] = useState(resourceSaved && seriesSlug ? 'loading' : 'ready')
   const [busy, setBusy] = useState(null)
+  const busyRef = useRef(null)
   const [feedback, setFeedback] = useState(null)
-  const actionsEnabled = isPersistedSeriesName(currentSeriesName, persistedSeriesName)
+  const actionsEnabled = Boolean(resourceSaved) && isPersistedSeriesName(currentSeriesName, persistedSeriesName)
 
   const loadSeries = useCallback(async () => {
-    if (!resourceId || !seriesSlug) return
+    if (!resourceSaved || !seriesSlug) {
+      setThumbnailPath(null)
+      setState('ready')
+      return
+    }
     setState('loading')
     setFeedback(null)
     const { data, error } = await supabase
@@ -46,11 +53,15 @@ export default function SeriesThumbnailField({
     }
     setThumbnailPath(data?.thumbnail_path || null)
     setState('ready')
-  }, [resourceId, seriesSlug])
+  }, [resourceSaved, seriesSlug])
 
   useEffect(() => {
     let cancelled = false
-    if (!resourceId || !seriesSlug) return undefined
+    if (!resourceSaved || !seriesSlug) {
+      setThumbnailPath(null)
+      setState('ready')
+      return undefined
+    }
 
     setState('loading')
     supabase
@@ -72,7 +83,7 @@ export default function SeriesThumbnailField({
     return () => {
       cancelled = true
     }
-  }, [resourceId, seriesSlug])
+  }, [resourceSaved, seriesSlug])
 
   const thumbnailUrl = useMemo(
     () => thumbnailPath
@@ -82,11 +93,12 @@ export default function SeriesThumbnailField({
   )
 
   const handleGenerate = async () => {
-    if (!actionsEnabled || busy) return
+    if (!actionsEnabled || busyRef.current) return
     if (thumbnailPath && !window.confirm(t('admin.resourcesAi.infographicForm.seriesThumbnail.regenerateConfirm'))) {
       return
     }
 
+    busyRef.current = 'generate'
     setBusy('generate')
     setFeedback({ type: 'status', text: t('admin.resourcesAi.infographicForm.seriesThumbnail.generating') })
     try {
@@ -100,7 +112,7 @@ export default function SeriesThumbnailField({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ resourceId }),
+        body: JSON.stringify({ seriesSlug }),
       })
       const result = await response.json().catch(() => ({}))
       if (!response.ok || typeof result.thumbnailPath !== 'string') {
@@ -118,7 +130,7 @@ export default function SeriesThumbnailField({
       console.error('Unable to generate series thumbnail:', error.message)
       const errorKey = error.message === 'no_usable_references'
         ? 'noUsableReferences'
-        : error.message === 'series_missing'
+        : ['series_missing', 'series_not_found', 'series_has_no_episodes'].includes(error.message)
           ? 'seriesRequired'
           : 'generationFailed'
       setFeedback({
@@ -126,6 +138,7 @@ export default function SeriesThumbnailField({
         text: t(`admin.resourcesAi.infographicForm.seriesThumbnail.${errorKey}`),
       })
     } finally {
+      busyRef.current = null
       setBusy(null)
     }
   }
@@ -133,7 +146,7 @@ export default function SeriesThumbnailField({
   const handleUpload = async (event) => {
     const file = event.target.files?.[0]
     event.target.value = ''
-    if (!file || !actionsEnabled || busy) return
+    if (!file || !actionsEnabled || busyRef.current) return
 
     if (!isAllowedThumbnailMime(file.type) || !isThumbnailSizeAllowed(file.size)) {
       const key = !isAllowedThumbnailMime(file.type) ? 'unsupportedType' : 'tooLarge'
@@ -154,6 +167,7 @@ export default function SeriesThumbnailField({
       return
     }
 
+    busyRef.current = 'upload'
     setBusy('upload')
     setFeedback({ type: 'status', text: t('admin.resourcesAi.infographicForm.seriesThumbnail.uploading') })
     const newPath = buildSeriesThumbnailPath(seriesSlug, crypto.randomUUID(), file.type)
@@ -205,14 +219,16 @@ export default function SeriesThumbnailField({
       }
       setFeedback({ type: 'error', text: t('admin.resourcesAi.infographicForm.seriesThumbnail.uploadFailed') })
     } finally {
+      busyRef.current = null
       setBusy(null)
     }
   }
 
   const handleRemove = async () => {
-    if (!thumbnailPath || !actionsEnabled || busy) return
+    if (!thumbnailPath || !actionsEnabled || busyRef.current) return
     if (!window.confirm(t('admin.resourcesAi.infographicForm.seriesThumbnail.removeConfirm'))) return
 
+    busyRef.current = 'remove'
     setBusy('remove')
     setFeedback(null)
     const oldPath = thumbnailPath
@@ -247,6 +263,7 @@ export default function SeriesThumbnailField({
       console.error('Unable to remove series thumbnail:', error.message)
       setFeedback({ type: 'error', text: t('admin.resourcesAi.infographicForm.seriesThumbnail.removeFailed') })
     } finally {
+      busyRef.current = null
       setBusy(null)
     }
   }
@@ -274,7 +291,7 @@ export default function SeriesThumbnailField({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-semibold text-navy">{persistedSeriesName}</p>
+        <p className="text-sm font-semibold text-navy">{displaySeriesName}</p>
         <p className="mt-1 text-sm leading-relaxed text-muted">
           {t('admin.resourcesAi.infographicForm.seriesThumbnail.help')}
         </p>
@@ -364,7 +381,7 @@ export default function SeriesThumbnailField({
 
       {!actionsEnabled && (
         <p className="text-xs font-medium text-navy/65" role="status">
-          {t('admin.resourcesAi.infographicForm.seriesThumbnail.saveSeriesFirst')}
+          {saveFirstMessage || t('admin.resourcesAi.infographicForm.seriesThumbnail.saveSeriesFirst')}
         </p>
       )}
     </div>

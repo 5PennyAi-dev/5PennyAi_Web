@@ -5,6 +5,7 @@ import {
   buildSeriesThumbnailPath,
   isPersistedSeriesName,
   isSeriesThumbnailPathForSlug,
+  shouldShowSeriesThumbnailField,
 } from './seriesThumbnails.js'
 
 test('construit et valide un chemin de couverture limité au slug de la série', () => {
@@ -39,4 +40,10 @@ test('désactive les actions lorsque le nom de série courant diffère du nom pe
   assert.equal(isPersistedSeriesName(' Série test ', 'Série test'), true)
   assert.equal(isPersistedSeriesName('Série modifiée', 'Série test'), false)
   assert.equal(isPersistedSeriesName('', 'Série test'), false)
+})
+
+test('affiche le bloc uniquement lorsqu’un nom de série est présent dans le formulaire', () => {
+  assert.equal(shouldShowSeriesThumbnailField(' Série test '), true)
+  assert.equal(shouldShowSeriesThumbnailField(''), false)
+  assert.equal(shouldShowSeriesThumbnailField(null), false)
 })

@@ -7,7 +7,7 @@ import Logo from '@/components/ui/Logo'
 const navLinks = [
   { key: 'nav.about', to: '/about' },
   { key: 'nav.portfolio', to: '/portfolio' },
-  { key: 'nav.resourcesAi', to: '/ressources-ia' },
+  { key: 'nav.resourcesAi', to: '/ressources-ia', featured: true },
   { key: 'nav.contact', to: '/contact' },
 ]
 
@@ -39,11 +39,15 @@ export default function Navbar() {
     return false
   }
 
-  const linkClass = (active) => {
-    const base = 'relative text-[13px] font-medium tracking-wide transition-colors duration-200 py-2'
-    const color = scrolled
-      ? active ? 'text-navy' : 'text-navy/55 hover:text-navy'
-      : active ? 'text-white' : 'text-white/60 hover:text-white'
+  const linkClass = (active, featured = false) => {
+    const base = featured
+      ? 'relative py-2 text-[15px] font-bold tracking-wide transition-colors duration-200'
+      : 'relative py-2 text-[13px] font-medium tracking-wide transition-colors duration-200'
+    const color = featured
+      ? scrolled ? 'text-navy hover:text-accent-deep' : 'text-white hover:text-white'
+      : scrolled
+        ? active ? 'text-navy' : 'text-navy/55 hover:text-navy'
+        : active ? 'text-white' : 'text-white/60 hover:text-white'
     return `${base} ${color}`
   }
 
@@ -54,14 +58,14 @@ export default function Navbar() {
     )
     if (link.to) {
       return (
-        <Link key={link.key} to={link.to} className={linkClass(active)}>
+        <Link key={link.key} to={link.to} className={linkClass(active, link.featured)}>
           {t(link.key)}
           {indicator}
         </Link>
       )
     }
     return (
-      <a key={link.key} href={link.href} className={linkClass(active)}>
+        <a key={link.key} href={link.href} className={linkClass(active, link.featured)}>
         {t(link.key)}
         {indicator}
       </a>
@@ -114,18 +118,16 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          {import.meta.env.DEV && (
-            <Link
-              to="/admin/ressources-ia/infographies"
-              className={`text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 ${
-                scrolled
-                  ? 'text-navy/40 hover:text-navy/75'
-                  : 'text-white/40 hover:text-white/80'
-              }`}
-            >
-              {t('nav.admin')}
-            </Link>
-          )}
+          <Link
+            to="/admin/ressources-ia/infographies"
+            className={`text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 ${
+              scrolled
+                ? 'text-navy/40 hover:text-navy/75'
+                : 'text-white/40 hover:text-white/80'
+            }`}
+          >
+            {t('nav.admin')}
+          </Link>
           <button
             onClick={toggleLang}
             className={`text-[12px] font-semibold tracking-wide transition-colors duration-200 px-3 py-1.5 rounded-full border ${
@@ -154,15 +156,13 @@ export default function Navbar() {
           <div className="px-5 py-5 space-y-1">
             {navLinks.map(renderMobileLink)}
             <div className="flex flex-wrap items-center gap-3 pt-4 mt-3 border-t border-navy/5">
-              {import.meta.env.DEV && (
-                <Link
-                  to="/admin/ressources-ia/infographies"
-                  onClick={() => setMobileOpen(false)}
-                  className="text-[11px] font-bold uppercase tracking-[0.14em] text-navy/40 hover:text-navy/75 transition-colors"
-                >
-                  {t('nav.admin')}
-                </Link>
-              )}
+              <Link
+                to="/admin/ressources-ia/infographies"
+                onClick={() => setMobileOpen(false)}
+                className="text-[11px] font-bold uppercase tracking-[0.14em] text-navy/40 hover:text-navy/75 transition-colors"
+              >
+                {t('nav.admin')}
+              </Link>
               <button
                 onClick={toggleLang}
                 className="text-sm font-semibold text-navy/55 hover:text-navy px-3 py-1.5 rounded-full border border-navy/10"

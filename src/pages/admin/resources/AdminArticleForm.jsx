@@ -17,6 +17,7 @@ import AdminGuard from '@/components/admin/AdminGuard'
 import ArticleAssetField from '@/components/admin/resources/ArticleAssetField'
 import ArticlePreview from '@/components/admin/resources/ArticlePreview'
 import AdminResourcesNav from '@/components/admin/resources/AdminResourcesNav'
+import SeriesThumbnailField from '@/components/admin/resources/SeriesThumbnailField'
 import Card from '@/components/ui/Card'
 import {
   ArticleAdminError,
@@ -40,6 +41,7 @@ import {
   fetchArticleAssets,
   resolveArticleAssets,
 } from '@/lib/articleAssets'
+import { shouldShowSeriesThumbnailField } from '@/lib/seriesThumbnails'
 
 const ARTICLES_PATH = '/admin/ressources-ia/articles'
 const CONTENT_TYPES = ['article']
@@ -90,6 +92,7 @@ function AdminArticleFormPage() {
   const [assetsLoaded, setAssetsLoaded] = useState(!editing)
   const [assetLoadError, setAssetLoadError] = useState(false)
   const [coverPath, setCoverPath] = useState(null)
+  const [persistedSeriesName, setPersistedSeriesName] = useState('')
   const slugManuallyEdited = useRef(editing)
 
   const dirty = JSON.stringify(form) !== baseline
@@ -115,6 +118,7 @@ function AdminArticleFormPage() {
         setForm(next)
         setBaseline(JSON.stringify(next))
         setCoverPath(row.cover_path || null)
+        setPersistedSeriesName(next.series.name)
         try {
           const persistedAssets = await fetchArticleAssets(id)
           const urls = await createArticleAssetUrls({
@@ -282,6 +286,7 @@ function AdminArticleFormPage() {
       slugManuallyEdited.current = true
       setForm(next)
       setBaseline(JSON.stringify(next))
+      setPersistedSeriesName(next.series.name)
       setNotice({ type: 'success', text: t('admin.resourcesAi.articleForm.messages.saved') })
       if (!editing) navigate(`${ARTICLES_PATH}/${row.id}/modifier`, { replace: true })
     } catch (error) {
@@ -682,7 +687,20 @@ function AdminArticleFormPage() {
                 </FormSection>
                 </fieldset>
 
-                <FormSection number="13" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
+                {shouldShowSeriesThumbnailField(form.series.name) && (
+                  <FormSection number="13" title={t('admin.resourcesAi.articleForm.sections.seriesCover')}>
+                    <SeriesThumbnailField
+                      currentSeriesName={form.series.name}
+                      fallbackUrl={coverPath ? assetUrls[coverPath] : null}
+                      persistedSeriesName={persistedSeriesName}
+                      resourceSaved={editing}
+                      saveFirstMessage={t('admin.resourcesAi.articleForm.seriesCover.saveFirst')}
+                      t={t}
+                    />
+                  </FormSection>
+                )}
+
+                <FormSection number="14" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
                   <p className="text-sm leading-relaxed text-muted">
                     {publishedLocked ? t('admin.resourcesAi.articleForm.publishedReadOnly') : dirty && editing ? t('admin.resourcesAi.articleForm.messages.saveBeforePublish') : t('admin.resourcesAi.articleForm.draftOnly')}
                   </p>

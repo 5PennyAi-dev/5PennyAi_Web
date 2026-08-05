@@ -5,6 +5,7 @@ import PragmaticApproach from '@/components/sections/PragmaticApproach'
 import Tools from '@/components/sections/Tools'
 import CareerSummary from '@/components/sections/CareerSummary'
 import Realisations from '@/components/sections/Realisations'
+import HomeResourcesShowcase from '@/components/sections/HomeResourcesShowcase'
 import HomeContact from '@/components/sections/HomeContact'
 import { buildDefaultSocialImageUrl, buildSiteUrl } from '@/lib/siteConfig'
 
@@ -36,6 +37,7 @@ export default function Home() {
       <Tools />
       <CareerSummary />
       <Realisations />
+      <HomeResourcesShowcase />
       <HomeContact />
     </>
   )

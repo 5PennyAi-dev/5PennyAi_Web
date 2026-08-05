@@ -14,6 +14,7 @@ import {
 import {
   isInfographicThumbnailPathForResource,
 } from '../../src/lib/infographicThumbnails.js'
+import { isArticleCoverPath } from '../../src/lib/articleAssetRules.js'
 import { createSeriesSlug, sortSeriesEpisodes } from '../../src/lib/resourceSeries.js'
 import {
   buildSeriesThumbnailPath,
@@ -21,7 +22,7 @@ import {
 } from '../../src/lib/seriesThumbnails.js'
 
 export const SERIES_THUMBNAIL_PROMPT_VERSION = 'series-thumbnail-skill-v1'
-export const MAX_SERIES_REFERENCES = 3
+export const MAX_SERIES_REFERENCES = 4
 
 const SHARP_FORMAT_BY_MIME = Object.freeze({
   'image/png': 'png',
@@ -32,25 +33,37 @@ const SHARP_FORMAT_BY_MIME = Object.freeze({
 export function selectRepresentativeEpisodes(episodes) {
   if (!Array.isArray(episodes) || episodes.length === 0) return []
 
-  const ordered = sortSeriesEpisodes(episodes)
+  const ordered = sortSeriesEpisodes(episodes.filter((episode) =>
+    getEpisodeReferenceCandidates(episode).length > 0))
   if (ordered.length <= MAX_SERIES_REFERENCES) return ordered
 
-  const published = ordered.filter((episode) => episode?.status === 'published')
-  if (published.length >= MAX_SERIES_REFERENCES) {
-    return pickAcrossSeries(published, MAX_SERIES_REFERENCES)
-  }
-  if (published.length === 0) return pickAcrossSeries(ordered, MAX_SERIES_REFERENCES)
+  const articles = ordered.filter((episode) => getEpisodeContentType(episode) === 'article')
+  const infographics = ordered.filter((episode) => getEpisodeContentType(episode) === 'infographic')
 
-  const drafts = ordered.filter((episode) => episode?.status !== 'published')
-  const selected = new Set([
-    ...published,
-    ...pickAcrossSeries(drafts, MAX_SERIES_REFERENCES - published.length),
-  ])
-  return ordered.filter((episode) => selected.has(episode))
+  if (articles.length > 0 && infographics.length > 0) {
+    const selected = new Set([
+      ...selectWithinFormat(articles, MAX_SERIES_REFERENCES / 2),
+      ...selectWithinFormat(infographics, MAX_SERIES_REFERENCES / 2),
+    ])
+    if (selected.size < MAX_SERIES_REFERENCES) {
+      const remaining = ordered.filter((episode) => !selected.has(episode))
+      selectWithinFormat(remaining, MAX_SERIES_REFERENCES - selected.size)
+        .forEach((episode) => selected.add(episode))
+    }
+    return ordered.filter((episode) => selected.has(episode))
+  }
+
+  return selectWithinFormat(ordered, MAX_SERIES_REFERENCES)
 }
 
 export function getEpisodeReferenceCandidates(episode) {
   if (!validateResourceId(episode?.id)) return []
+
+  const contentType = getEpisodeContentType(episode)
+  if (contentType === 'article') {
+    return isArticleCoverPath(episode.cover_path, episode.id) ? [episode.cover_path] : []
+  }
+  if (contentType !== 'infographic') return []
 
   const candidates = []
   if (isInfographicThumbnailPathForResource(episode.thumbnail_path, episode.id)) {
@@ -60,6 +73,29 @@ export function getEpisodeReferenceCandidates(episode) {
     candidates.push(episode.image_path)
   }
   return [...new Set(candidates)]
+}
+
+export function validateSeriesSlug(value) {
+  return typeof value === 'string' && value.length <= 200 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)
+}
+
+export function resolveSeriesName({ seriesSlug, existingSeries, articleRows, infographicRows }) {
+  if (!validateSeriesSlug(seriesSlug)) {
+    throw new ResourceThumbnailError('invalid_series_slug', 400)
+  }
+
+  const persistedName = cleanName(existingSeries?.name)
+  if (persistedName && createSeriesSlug(persistedName) === seriesSlug) return persistedName
+
+  const candidates = [...new Set([
+    ...(Array.isArray(articleRows) ? articleRows : []),
+    ...(Array.isArray(infographicRows) ? infographicRows : []),
+  ].map((row) => cleanName(row?.series_name)).filter((name) =>
+    name && createSeriesSlug(name) === seriesSlug))]
+
+  if (candidates.length === 0) throw new ResourceThumbnailError('series_not_found', 404)
+  if (candidates.length > 1) throw new ResourceThumbnailError('series_ambiguous', 409)
+  return candidates[0]
 }
 
 export function buildSeriesThumbnailPrompt({ seriesName, episodes }) {
@@ -74,6 +110,14 @@ export function buildSeriesThumbnailPrompt({ seriesName, episodes }) {
       .map((episode) => cleanEditorialValue(episode?.theme))
       .filter(Boolean),
   )]
+  const representedFormats = [...new Set(
+    (Array.isArray(episodes) ? episodes : [])
+      .map((episode) => getEpisodeContentType(episode))
+      .filter(Boolean),
+  )]
+  const representativeSummaries = (Array.isArray(episodes) ? episodes : [])
+    .map((episode) => cleanEditorialValue(episode?.summary).slice(0, 240))
+    .filter(Boolean)
   const contextLines = [
     `Nom :\n${safeSeriesName}`,
     representativeTitles.length > 0
@@ -82,11 +126,17 @@ export function buildSeriesThumbnailPrompt({ seriesName, episodes }) {
     dominantThemes.length > 0
       ? `Thèmes dominants :\n${dominantThemes.join(' | ')}`
       : '',
+    representedFormats.length > 0
+      ? `Formats représentés :\n${representedFormats.join(' | ')}`
+      : '',
+    representativeSummaries.length > 0
+      ? `Résumés courts :\n${representativeSummaries.join(' | ')}`
+      : '',
   ].filter(Boolean).join('\n\n')
 
   return `SERIES THUMBNAIL SKILL — VERSION ${SERIES_THUMBNAIL_PROMPT_VERSION}
 
-Utilise les images fournies comme références visuelles principales. Elles représentent différents épisodes appartenant à une même série pédagogique.
+Utilise les images fournies comme références visuelles principales. Elles peuvent être des couvertures d’articles, des thumbnails d’infographies ou un mélange des deux, et représentent différents épisodes d’une même série pédagogique.
 
 Crée une nouvelle couverture horizontale 16:9 destinée à représenter la série entière dans le catalogue « Ressources IA ».
 
@@ -187,14 +237,25 @@ export async function validateSeriesReference(reference, episode, imageProcessor
 }
 
 export async function collectSeriesReferences(episodes, dependencies) {
-  const selectedEpisodes = selectRepresentativeEpisodes(episodes)
+  const initialSelection = selectRepresentativeEpisodes(episodes)
+  const initiallySelected = new Set(initialSelection)
+  const remainingCandidates = sortSeriesEpisodes((Array.isArray(episodes) ? episodes : [])
+    .filter((episode) =>
+      getEpisodeReferenceCandidates(episode).length > 0 && !initiallySelected.has(episode)))
+  const candidates = [...initialSelection, ...remainingCandidates]
   const references = []
+  const selectedEpisodes = []
+  const usedPaths = new Set()
 
-  for (const episode of selectedEpisodes) {
+  for (const episode of candidates) {
+    if (references.length >= MAX_SERIES_REFERENCES) break
     for (const path of getEpisodeReferenceCandidates(episode)) {
+      if (usedPaths.has(path)) continue
       try {
-        const downloaded = await dependencies.downloadReference(path)
+        const downloaded = await dependencies.downloadReference(path, episode)
         references.push(await validateSeriesReference({ ...downloaded, path }, episode))
+        selectedEpisodes.push(episode)
+        usedPaths.add(path)
         break
       } catch (error) {
         dependencies.logger?.warn?.(
@@ -208,22 +269,20 @@ export async function collectSeriesReferences(episodes, dependencies) {
   if (references.length === 0) {
     throw new ResourceThumbnailError('no_usable_references', 422)
   }
-  return { references, selectedEpisodes }
+  return { references, selectedEpisodes: sortSeriesEpisodes(selectedEpisodes) }
 }
 
-export async function generateAndStoreSeriesThumbnail({ resourceId, dependencies }) {
-  if (!validateResourceId(resourceId)) {
-    throw new ResourceThumbnailError('invalid_resource_id', 400)
+export async function generateAndStoreSeriesThumbnail({ seriesSlug, dependencies }) {
+  if (!validateSeriesSlug(seriesSlug)) {
+    throw new ResourceThumbnailError('invalid_series_slug', 400)
   }
 
-  const resource = await dependencies.getResource(resourceId)
-  if (!resource) throw new ResourceThumbnailError('resource_not_found', 404)
-
-  const seriesName = cleanName(resource.series_name)
-  const seriesSlug = createSeriesSlug(seriesName)
-  if (!seriesName || !seriesSlug) throw new ResourceThumbnailError('series_missing', 422)
-
-  const episodes = await dependencies.getSeriesEpisodes(seriesName)
+  const seriesContext = await dependencies.resolveSeries(seriesSlug)
+  const seriesName = cleanName(seriesContext?.seriesName)
+  const episodes = seriesContext?.episodes
+  if (!seriesName || createSeriesSlug(seriesName) !== seriesSlug) {
+    throw new ResourceThumbnailError('series_not_found', 404)
+  }
   if (!Array.isArray(episodes) || episodes.length === 0) {
     throw new ResourceThumbnailError('series_has_no_episodes', 422)
   }
@@ -288,10 +347,38 @@ function isOriginalReferencePath(path, resourceId) {
 }
 
 function pickAcrossSeries(episodes, count) {
+  if (count <= 0 || episodes.length === 0) return []
   if (count >= episodes.length) return episodes
   if (count === 1) return [episodes[Math.floor((episodes.length - 1) / 2)]]
-  if (count === 2) return [episodes[0], episodes.at(-1)]
-  return [episodes[0], episodes[Math.floor((episodes.length - 1) / 2)], episodes.at(-1)]
+  const indices = Array.from({ length: count }, (_, index) =>
+    Math.round(index * (episodes.length - 1) / (count - 1)))
+  return [...new Set(indices)].map((index) => episodes[index])
+}
+
+function selectWithinFormat(episodes, count) {
+  const ordered = sortSeriesEpisodes(episodes)
+  if (ordered.length <= count) return ordered
+
+  const published = ordered.filter((episode) => episode?.status === 'published')
+  if (published.length >= count) return pickAcrossSeries(published, count)
+  if (published.length === 0) return pickAcrossSeries(ordered, count)
+
+  const drafts = ordered.filter((episode) => episode?.status !== 'published')
+  const selected = new Set([
+    ...published,
+    ...pickAcrossSeries(drafts, count - published.length),
+  ])
+  return ordered.filter((episode) => selected.has(episode))
+}
+
+function getEpisodeContentType(episode) {
+  if (episode?.contentType === 'article' || episode?.content_type === 'article') return 'article'
+  if (episode?.contentType === 'infographic' || episode?.content_type === 'infographic') {
+    return 'infographic'
+  }
+  if ('cover_path' in (episode || {})) return 'article'
+  if ('thumbnail_path' in (episode || {}) || 'image_path' in (episode || {})) return 'infographic'
+  return ''
 }
 
 async function bestEffortRemove(dependencies, path, label) {

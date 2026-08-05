@@ -8,20 +8,23 @@ import {
   RESOURCE_THUMBNAIL_MODEL,
   RESOURCE_THUMBNAIL_SIZE,
   ResourceThumbnailError,
-  validateResourceId,
 } from './_lib/resourceThumbnail.js'
 import {
   generateAndStoreSeriesThumbnail,
   normalizeSeriesThumbnail,
+  resolveSeriesName,
+  validateSeriesSlug,
 } from './_lib/seriesThumbnail.js'
+import { ARTICLE_ASSETS_BUCKET } from '../src/lib/articleAssetRules.js'
 
 export const config = { maxDuration: 300 }
 
 const ADMIN_EMAIL = 'christian.couillard@5pennyai.com'
 const BUCKET = 'infographics'
-const RESOURCE_COLUMNS = 'id, series_name'
-const EPISODE_COLUMNS =
-  'id, status, published_at, image_path, thumbnail_path, title, theme, episode_number, series_name'
+const INFOGRAPHIC_EPISODE_COLUMNS =
+  'id, status, published_at, image_path, thumbnail_path, title, summary, theme, level, episode_number, series_name'
+const ARTICLE_EPISODE_COLUMNS =
+  'id, status, published_at, cover_path, title, summary, theme, level, episode_number, series_name'
 
 export async function authorizeSeriesThumbnailRequest(req, supabase, adminEmail = ADMIN_EMAIL) {
   const header = req.headers?.authorization || req.headers?.Authorization || ''
@@ -56,8 +59,8 @@ export default async function handler(req, res) {
   try {
     await authorizeSeriesThumbnailRequest(req, supabase)
     const body = parseBody(req.body)
-    if (!validateResourceId(body.resourceId)) {
-      throw new ResourceThumbnailError('invalid_resource_id', 400)
+    if (!validateSeriesSlug(body.seriesSlug)) {
+      throw new ResourceThumbnailError('invalid_series_slug', 400)
     }
 
     const openAiKey = process.env.OPENAI_API_KEY
@@ -67,7 +70,7 @@ export default async function handler(req, res) {
     }
 
     const result = await generateAndStoreSeriesThumbnail({
-      resourceId: body.resourceId,
+      seriesSlug: body.seriesSlug,
       dependencies: createDependencies({ supabase, openAiKey }),
     })
     return res.status(200).json(result)
@@ -85,34 +88,60 @@ function createDependencies({ supabase, openAiKey }) {
     createUniqueId: () => randomUUID(),
     now: () => new Date().toISOString(),
     logger: console,
-    async getResource(resourceId) {
-      const { data, error } = await supabase
-        .from('infographics')
-        .select(RESOURCE_COLUMNS)
-        .eq('id', resourceId)
+    async resolveSeries(seriesSlug) {
+      const { data: existingSeries, error: seriesError } = await supabase
+        .from('resource_series')
+        .select('slug, name, thumbnail_path')
+        .eq('slug', seriesSlug)
         .maybeSingle()
-      if (error) throw error
-      return data
-    },
-    async getSeriesEpisodes(seriesName) {
-      const { data, error } = await supabase
-        .from('infographics')
-        .select(EPISODE_COLUMNS)
-        .eq('series_name', seriesName)
-      if (error) throw error
-      return data || []
+      if (seriesError) throw seriesError
+
+      let articleNameRows = []
+      let infographicNameRows = []
+      if (!existingSeries?.name) {
+        const [articleNames, infographicNames] = await Promise.all([
+          supabase.from('articles').select('series_name').not('series_name', 'is', null),
+          supabase.from('infographics').select('series_name').not('series_name', 'is', null),
+        ])
+        if (articleNames.error) throw articleNames.error
+        if (infographicNames.error) throw infographicNames.error
+        articleNameRows = articleNames.data || []
+        infographicNameRows = infographicNames.data || []
+      }
+
+      const seriesName = resolveSeriesName({
+        seriesSlug,
+        existingSeries,
+        articleRows: articleNameRows,
+        infographicRows: infographicNameRows,
+      })
+      const [articleEpisodes, infographicEpisodes] = await Promise.all([
+        supabase.from('articles').select(ARTICLE_EPISODE_COLUMNS).eq('series_name', seriesName),
+        supabase.from('infographics').select(INFOGRAPHIC_EPISODE_COLUMNS).eq('series_name', seriesName),
+      ])
+      if (articleEpisodes.error) throw articleEpisodes.error
+      if (infographicEpisodes.error) throw infographicEpisodes.error
+
+      return {
+        seriesName,
+        episodes: [
+          ...(articleEpisodes.data || []).map((episode) => ({ ...episode, contentType: 'article' })),
+          ...(infographicEpisodes.data || []).map((episode) => ({ ...episode, contentType: 'infographic' })),
+        ],
+      }
     },
     async getSeries(seriesSlug) {
       const { data, error } = await supabase
         .from('resource_series')
-        .select('slug, thumbnail_path')
+        .select('slug, name, thumbnail_path')
         .eq('slug', seriesSlug)
         .maybeSingle()
       if (error) throw error
       return data
     },
-    async downloadReference(path) {
-      const { data, error } = await supabase.storage.from(BUCKET).download(path)
+    async downloadReference(path, episode) {
+      const referenceBucket = episode?.contentType === 'article' ? ARTICLE_ASSETS_BUCKET : BUCKET
+      const { data, error } = await supabase.storage.from(referenceBucket).download(path)
       if (error || !data || typeof data.arrayBuffer !== 'function') {
         throw new ResourceThumbnailError('reference_download_failed', 422)
       }

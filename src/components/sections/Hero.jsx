@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { ArrowRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import Button from '@/components/ui/Button'
 import ShaderBackground from '@/components/ui/ShaderBackground'
 import useScrollReveal from '@/hooks/useScrollReveal'
@@ -83,6 +85,13 @@ export default function Hero() {
                 {t('hero.cta_secondary')}
               </Button>
             </div>
+            <Link
+              to="/ressources-ia"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white/65 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white hover:decoration-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 focus-visible:ring-offset-navy-deep"
+            >
+              {t('hero.cta_resources')}
+              <ArrowRight size={14} aria-hidden="true" />
+            </Link>
 
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-0 reveal-metrics">
               {(t('hero.metrics', { returnObjects: true }) || []).map((m, i, arr) => (

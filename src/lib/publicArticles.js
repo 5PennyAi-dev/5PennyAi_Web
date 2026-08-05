@@ -18,6 +18,18 @@ const PUBLIC_CATALOG_COLUMNS = [
   'published_at',
   'updated_at',
 ].join(', ')
+const PUBLIC_SHOWCASE_COLUMNS = [
+  'id',
+  'slug',
+  'title',
+  'summary',
+  'theme',
+  'level',
+  'series_name',
+  'episode_number',
+  'cover_path',
+  'published_at',
+].join(', ')
 const PUBLIC_COLUMNS = [
   'id',
   'slug',
@@ -44,6 +56,7 @@ const PUBLIC_COLUMNS = [
 
 export const PUBLIC_ARTICLE_COLUMNS = PUBLIC_COLUMNS
 export const PUBLIC_ARTICLE_CATALOG_COLUMNS = PUBLIC_CATALOG_COLUMNS
+export const PUBLIC_ARTICLE_SHOWCASE_COLUMNS = PUBLIC_SHOWCASE_COLUMNS
 
 export function normalizePublicArticleSlug(value) {
   if (typeof value !== 'string' || !value.trim()) return ''
@@ -66,7 +79,28 @@ export async function fetchPublishedArticlesForCatalog(
   if (error) throw error
 
   const rows = data || []
-  const coverEntries = await Promise.all(rows.map(async (row) => {
+  const coverUrls = await fetchPublicArticleCoverUrls(rows, client, { expiresIn, logger })
+
+  return { rows, coverUrls }
+}
+
+export async function fetchPublishedArticlesForShowcase(client = supabase) {
+  const { data, error } = await client
+    .from('articles')
+    .select(PUBLIC_SHOWCASE_COLUMNS)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+
+  if (error) throw error
+  return data || []
+}
+
+export async function fetchPublicArticleCoverUrls(
+  rows,
+  client = supabase,
+  { expiresIn = 3600, logger = console } = {},
+) {
+  const coverEntries = await Promise.all((Array.isArray(rows) ? rows : []).map(async (row) => {
     if (!isArticleCoverPath(row?.cover_path, row?.id)) return null
     try {
       const { data: signed, error: signError } = await client.storage
@@ -80,10 +114,7 @@ export async function fetchPublishedArticlesForCatalog(
     }
   }))
 
-  return {
-    rows,
-    coverUrls: Object.fromEntries(coverEntries.filter(Boolean)),
-  }
+  return Object.fromEntries(coverEntries.filter(Boolean))
 }
 
 export async function loadPublishedArticleBySlug(

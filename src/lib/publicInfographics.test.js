@@ -2,7 +2,10 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { applyPublishedFilter } from './publicInfographicQuery.js'
 import { loadPublishedCatalog } from './publicResourceCatalog.js'
-import { fetchPublishedInfographicsBySeries } from './publicInfographics.js'
+import {
+  fetchPublishedInfographicsBySeries,
+  fetchPublishedInfographicsForShowcase,
+} from './publicInfographics.js'
 
 test('la lecture publique applique toujours le filtre published', () => {
   const calls = []
@@ -15,6 +18,36 @@ test('la lecture publique applique toujours le filtre published', () => {
 
   assert.equal(applyPublishedFilter(query), query)
   assert.deepEqual(calls, [['status', 'published']])
+})
+
+test('la requête d’accueil limite les colonnes et filtre les publications', async () => {
+  const calls = []
+  const client = {
+    from(table) {
+      return {
+        select(columns) {
+          calls.push([table, 'select', columns])
+          return this
+        },
+        eq(column, value) {
+          calls.push([table, 'eq', column, value])
+          return this
+        },
+        async order() {
+          return { data: [], error: null }
+        },
+      }
+    },
+  }
+
+  await fetchPublishedInfographicsForShowcase(client)
+
+  const selectCall = calls.find(([, method]) => method === 'select')
+  assert.ok(selectCall[2].includes('thumbnail_path'))
+  assert.equal(selectCall[2].includes('key_points'), false)
+  assert.deepEqual(calls.filter(([, method]) => method === 'eq'), [
+    ['infographics', 'eq', 'status', 'published'],
+  ])
 })
 
 test('la lecture publique d’une série combine statut publié et nom exact', async () => {

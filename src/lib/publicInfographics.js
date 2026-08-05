@@ -14,9 +14,21 @@ const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const PUBLIC_COLUMNS =
   'id, published_at, image_path, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, sources'
+const PUBLIC_SHOWCASE_COLUMNS =
+  'id, published_at, image_path, thumbnail_path, title, summary, theme, level, reading_time_minutes, series_name, episode_number'
 
 export async function fetchPublishedInfographics(client = supabase) {
   const query = client.from('infographics').select(PUBLIC_COLUMNS)
+  const { data, error } = await applyPublishedFilter(query).order('published_at', {
+    ascending: false,
+  })
+
+  if (error) throw error
+  return data || []
+}
+
+export async function fetchPublishedInfographicsForShowcase(client = supabase) {
+  const query = client.from('infographics').select(PUBLIC_SHOWCASE_COLUMNS)
   const { data, error } = await applyPublishedFilter(query).order('published_at', {
     ascending: false,
   })
