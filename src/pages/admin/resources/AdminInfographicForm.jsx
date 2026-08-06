@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
 import InfographicThumbnailField from '@/components/admin/resources/InfographicThumbnailField'
 import SeriesThumbnailField from '@/components/admin/resources/SeriesThumbnailField'
+import ResourceSocialPostsPanel from '@/components/admin/ResourceSocialPostsPanel'
 import {
   hasInfographicMetadata,
   importInfographicJson,
@@ -29,6 +30,9 @@ import {
   validateInfographicThumbnail,
 } from '@/lib/infographicThumbnails'
 import { supabase } from '@/lib/supabase'
+import { buildInfographicCanonicalUrl } from '@/lib/infographicSeo'
+import { buildDefaultSocialImageUrl } from '@/lib/siteConfig'
+import { getResourceSocialDisabledReason } from '@/lib/resourceSocialPosts'
 
 const LIST_PATH = '/admin/ressources-ia/infographies'
 const BUCKET = 'infographics'
@@ -85,6 +89,7 @@ function AdminInfographicFormPage() {
   const [status, setStatus] = useState('draft')
   const [publishedAt, setPublishedAt] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [persistedTitle, setPersistedTitle] = useState('')
   const [persistedSeriesName, setPersistedSeriesName] = useState('')
   const [imagePath, setImagePath] = useState(null)
   const [imageMetadata, setImageMetadata] = useState(null)
@@ -145,6 +150,7 @@ function AdminInfographicFormPage() {
         setImageMetadata(data.image_metadata)
         setThumbnailPath(data.thumbnail_path)
         setPersistedSeriesName(data.series_name || '')
+        setPersistedTitle(data.title || '')
         setForm(toFormState(data))
         setDirty(false)
       })
@@ -558,6 +564,7 @@ function AdminInfographicFormPage() {
       setImageMetadata(nextImageMetadata)
       setThumbnailPath(nextThumbnailPath)
       setPersistedSeriesName(editorial.series_name || '')
+      setPersistedTitle(editorial.title || '')
       setPendingImage(null)
       setRemoveImage(false)
       setPendingThumbnail(null)
@@ -611,6 +618,12 @@ function AdminInfographicFormPage() {
   if (loadState !== 'ready') return <LoadFailure state={loadState} t={t} />
 
   const isEditing = Boolean(resourceId)
+  const socialPublicUrl = buildInfographicCanonicalUrl(resourceId)
+  const socialImageUrl = existingThumbnailUrl || buildDefaultSocialImageUrl()
+  const socialDisabledReason = getResourceSocialDisabledReason({
+    resourceType: 'infographic',
+    resourceId,
+  })
   const formTitle = isEditing
     ? t('admin.resourcesAi.infographicForm.editTitle')
     : t('admin.resourcesAi.infographicForm.addTitle')
@@ -868,6 +881,21 @@ function AdminInfographicFormPage() {
 
             <FormSection
               number="12"
+              title={t('admin.resourcesAi.socialPosts.title')}
+            >
+              <ResourceSocialPostsPanel
+                disabledReason={socialDisabledReason}
+                publicUrl={socialPublicUrl}
+                resourceId={resourceId}
+                resourceType="infographic"
+                socialImageUrl={socialImageUrl}
+                status={status}
+                title={resourceId ? persistedTitle : form.title}
+              />
+            </FormSection>
+
+            <FormSection
+              number="13"
               title={t('admin.resourcesAi.infographicForm.sections.actions')}
             >
               <ActionBar

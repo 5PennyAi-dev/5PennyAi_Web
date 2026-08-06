@@ -1055,6 +1055,66 @@
           "draftOnly": "Seul un brouillon peut être supprimé dans cet incrément."
         }
       },
+      "socialPosts": {
+        "title": "Publications sociales",
+        "generate": "Générer les publications sociales",
+        "generateAgain": "Régénérer les deux publications",
+        "generating": "Génération en cours…",
+        "platforms": {
+          "facebook": "Facebook",
+          "linkedin": "LinkedIn"
+        },
+        "regenerate": {
+          "facebook": "Régénérer Facebook",
+          "linkedin": "Régénérer LinkedIn"
+        },
+        "copy": "Copier la publication",
+        "copied": "Publication copiée",
+        "copiedStatus": "Publication {{platform}} copiée.",
+        "body": "Corps de la publication",
+        "hashtags": "Hashtags",
+        "characterCount": "{{count}} caractères · cible : {{min}} à {{max}}",
+        "hashtagCount": "{{count}} hashtags · cible : {{min}} à {{max}}",
+        "lengthStates": {
+          "inTarget": "dans la cible",
+          "underTarget": "sous la cible",
+          "overTarget": "au-dessus de la cible",
+          "overMaximum": "au-dessus du maximum recommandé"
+        },
+        "resourceTypes": {
+          "article": "Article",
+          "infographic": "Infographie"
+        },
+        "statuses": {
+          "draft": "Brouillon",
+          "published": "Publié"
+        },
+        "previewImageAlt": "Image sociale de {{title}}",
+        "imageUnavailable": "Image sociale indisponible",
+        "untitled": "Ressource sans titre",
+        "urlUnavailable": "URL publique indisponible",
+        "draftWarning": "Cette ressource n’est pas encore publique. Le lien fonctionnera après sa publication.",
+        "localOnly": "Les textes restent dans cet écran et ne sont ni enregistrés ni publiés automatiquement.",
+        "disabled": {
+          "unsaved": "Enregistrez d’abord la ressource pour générer ses publications sociales.",
+          "slugRequired": "Enregistrez un slug valide avant de préparer les publications sociales.",
+          "invalidResource": "La ressource ne possède pas encore d’URL publique valide. Enregistrez-la avant de continuer."
+        },
+        "manualCopy": "Copie manuelle requise",
+        "manualCopyHelp": "Le presse-papiers est indisponible. Le texte complet est sélectionné; utilisez le raccourci de copie de votre appareil.",
+        "errors": {
+          "invalid_request": "La demande de génération est invalide. Vérifiez la ressource et réessayez.",
+          "unauthenticated": "Votre session a expiré. Reconnectez-vous avant de réessayer.",
+          "forbidden": "Votre compte n’est pas autorisé à générer ces publications.",
+          "resource_not_found": "Cette ressource n’existe plus ou n’est plus accessible.",
+          "resource_not_ready": "Enregistrez la ressource et, pour un article, son slug valide avant de réessayer.",
+          "insufficient_content": "La ressource ne contient pas encore assez de contenu éditorial pour générer une accroche.",
+          "server_not_configured": "Le service de génération n’est pas configuré. Réessayez plus tard.",
+          "provider_failed": "Le service de génération est temporairement indisponible. Vos textes actuels sont conservés.",
+          "invalid_provider_output": "La réponse n’a pas pu être validée. Vos textes actuels sont conservés; vous pouvez réessayer.",
+          "generation_failed": "La génération a échoué. Vos textes actuels sont conservés; vous pouvez réessayer."
+        }
+      },
       "articleForm": {
         "addTitle": "Ajouter un article",
         "editTitle": "Modifier l’article",

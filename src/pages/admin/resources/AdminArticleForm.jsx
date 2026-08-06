@@ -18,6 +18,7 @@ import ArticleAssetField from '@/components/admin/resources/ArticleAssetField'
 import ArticlePreview from '@/components/admin/resources/ArticlePreview'
 import AdminResourcesNav from '@/components/admin/resources/AdminResourcesNav'
 import SeriesThumbnailField from '@/components/admin/resources/SeriesThumbnailField'
+import ResourceSocialPostsPanel from '@/components/admin/ResourceSocialPostsPanel'
 import Card from '@/components/ui/Card'
 import {
   ArticleAdminError,
@@ -42,6 +43,9 @@ import {
   resolveArticleAssets,
 } from '@/lib/articleAssets'
 import { shouldShowSeriesThumbnailField } from '@/lib/seriesThumbnails'
+import { buildArticleCanonicalUrl } from '@/lib/articleSeo'
+import { buildDefaultSocialImageUrl } from '@/lib/siteConfig'
+import { getResourceSocialDisabledReason } from '@/lib/resourceSocialPosts'
 
 const ARTICLES_PATH = '/admin/ressources-ia/articles'
 const CONTENT_TYPES = ['article']
@@ -96,6 +100,17 @@ function AdminArticleFormPage() {
   const slugManuallyEdited = useRef(editing)
 
   const dirty = JSON.stringify(form) !== baseline
+  const persistedForm = useMemo(() => JSON.parse(baseline), [baseline])
+  const persistedSlug = editing ? persistedForm.slug : ''
+  const socialPublicUrl = buildArticleCanonicalUrl(persistedSlug)
+  const socialDisabledReason = getResourceSocialDisabledReason({
+    resourceType: 'article',
+    resourceId: id,
+    persistedSlug,
+  })
+  const socialImageUrl = coverPath
+    ? assetUrls[coverPath] || buildDefaultSocialImageUrl()
+    : buildDefaultSocialImageUrl()
   const warnings = useMemo(
     () => getArticleWarnings(form, { articleId: id, assets, assetsLoaded, coverPath }),
     [assets, assetsLoaded, coverPath, form, id],
@@ -700,7 +715,19 @@ function AdminArticleFormPage() {
                   </FormSection>
                 )}
 
-                <FormSection number="14" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
+                <FormSection number="14" title={t('admin.resourcesAi.socialPosts.title')}>
+                  <ResourceSocialPostsPanel
+                    disabledReason={socialDisabledReason}
+                    publicUrl={socialPublicUrl}
+                    resourceId={id}
+                    resourceType="article"
+                    socialImageUrl={socialImageUrl}
+                    status={publishedLocked ? 'published' : 'draft'}
+                    title={editing ? persistedForm.title : form.title}
+                  />
+                </FormSection>
+
+                <FormSection number="15" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
                   <p className="text-sm leading-relaxed text-muted">
                     {publishedLocked ? t('admin.resourcesAi.articleForm.publishedReadOnly') : dirty && editing ? t('admin.resourcesAi.articleForm.messages.saveBeforePublish') : t('admin.resourcesAi.articleForm.draftOnly')}
                   </p>

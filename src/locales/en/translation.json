@@ -1055,6 +1055,66 @@
           "draftOnly": "Only a draft can be deleted in this increment."
         }
       },
+      "socialPosts": {
+        "title": "Social posts",
+        "generate": "Generate social posts",
+        "generateAgain": "Regenerate both posts",
+        "generating": "Generating…",
+        "platforms": {
+          "facebook": "Facebook",
+          "linkedin": "LinkedIn"
+        },
+        "regenerate": {
+          "facebook": "Regenerate Facebook",
+          "linkedin": "Regenerate LinkedIn"
+        },
+        "copy": "Copy post",
+        "copied": "Post copied",
+        "copiedStatus": "{{platform}} post copied.",
+        "body": "Post body",
+        "hashtags": "Hashtags",
+        "characterCount": "{{count}} characters · target: {{min}} to {{max}}",
+        "hashtagCount": "{{count}} hashtags · target: {{min}} to {{max}}",
+        "lengthStates": {
+          "inTarget": "within target",
+          "underTarget": "below target",
+          "overTarget": "above target",
+          "overMaximum": "above the recommended maximum"
+        },
+        "resourceTypes": {
+          "article": "Article",
+          "infographic": "Infographic"
+        },
+        "statuses": {
+          "draft": "Draft",
+          "published": "Published"
+        },
+        "previewImageAlt": "Social image for {{title}}",
+        "imageUnavailable": "Social image unavailable",
+        "untitled": "Untitled resource",
+        "urlUnavailable": "Public URL unavailable",
+        "draftWarning": "This resource is not public yet. The link will work after it is published.",
+        "localOnly": "The text stays on this screen and is neither saved nor published automatically.",
+        "disabled": {
+          "unsaved": "Save the resource before generating its social posts.",
+          "slugRequired": "Save a valid slug before preparing social posts.",
+          "invalidResource": "This resource does not have a valid public URL yet. Save it before continuing."
+        },
+        "manualCopy": "Manual copy required",
+        "manualCopyHelp": "The clipboard is unavailable. The complete text is selected; use your device’s copy shortcut.",
+        "errors": {
+          "invalid_request": "The generation request is invalid. Check the resource and try again.",
+          "unauthenticated": "Your session has expired. Sign in again before retrying.",
+          "forbidden": "Your account is not authorized to generate these posts.",
+          "resource_not_found": "This resource no longer exists or is no longer accessible.",
+          "resource_not_ready": "Save the resource and, for an article, its valid slug before retrying.",
+          "insufficient_content": "The resource does not contain enough editorial content to generate a hook yet.",
+          "server_not_configured": "The generation service is not configured. Try again later.",
+          "provider_failed": "The generation service is temporarily unavailable. Your current text has been preserved.",
+          "invalid_provider_output": "The response could not be validated. Your current text has been preserved; you can retry.",
+          "generation_failed": "Generation failed. Your current text has been preserved; you can retry."
+        }
+      },
       "articleForm": {
         "addTitle": "Add an article",
         "editTitle": "Edit article",
