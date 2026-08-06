@@ -49,7 +49,7 @@ test('la réponse crawler contient une occurrence cohérente de toutes les méta
   ]) {
     assert.equal(html.split(marker).length - 1, 1, marker)
   }
-  assert.match(html, /og:image" content="https:\/\/5pennyai\.com\/api\/article-social-image\?slug=article-crawler"/)
+  assert.match(html, /og:image" content="https:\/\/5pennyai\.com\/api\/article-social-image\?slug=article-crawler&amp;v=\d+"/)
   assert.doesNotMatch(html, /signed|token|cover_path|generationBrief|<script>alert/i)
   assert.match(html, /Titre &quot; &lt;test&gt; &amp; fiable/)
 })

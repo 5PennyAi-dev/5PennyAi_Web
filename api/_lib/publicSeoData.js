@@ -108,7 +108,18 @@ export async function createSignedArticleCoverUrl(
   const result = await response.json()
   const signedPath = result?.signedURL || result?.signedUrl || result?.signed_url
   if (!signedPath) throw new Error('Article cover signature is missing')
-  return new URL(signedPath, `${config.url}/`).toString()
+  return resolveSupabaseStorageUrl(signedPath, config.url)
+}
+
+function resolveSupabaseStorageUrl(signedPath, supabaseUrl) {
+  if (/^https?:\/\//i.test(signedPath)) return new URL(signedPath).toString()
+
+  // The raw Storage API returns `/object/sign/...`, whereas supabase-js
+  // normally exposes a URL prefixed with `/storage/v1`. Both forms are valid.
+  const normalizedPath = /^\/?object\//.test(signedPath)
+    ? `/storage/v1/${signedPath.replace(/^\/+/, '')}`
+    : signedPath
+  return new URL(normalizedPath, `${supabaseUrl}/`).toString()
 }
 
 async function fetchSupabaseJson(url, config, fetchImpl) {

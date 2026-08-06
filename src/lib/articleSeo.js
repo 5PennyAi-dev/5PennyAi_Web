@@ -32,11 +32,13 @@ export function buildArticleCanonicalUrl(slug) {
   return buildSiteUrl(`/ressources-ia/articles/${encodeURIComponent(normalizedSlug)}`)
 }
 
-export function buildArticleSocialImageUrl(slug) {
+export function buildArticleSocialImageUrl(slug, version) {
   const normalizedSlug = slugifyArticle(typeof slug === 'string' ? slug : '')
   if (!normalizedSlug) return buildDefaultSocialImageUrl()
   const url = new URL('/api/article-social-image', `${SITE_ORIGIN}/`)
   url.searchParams.set('slug', normalizedSlug)
+  const versionTimestamp = Date.parse(version)
+  if (Number.isFinite(versionTimestamp)) url.searchParams.set('v', String(versionTimestamp))
   return url.toString()
 }
 
@@ -53,16 +55,16 @@ export function buildArticleSeoMetadata(article = {}) {
     || cleanMetaText(article.summary)
     || fallback.description
   const canonicalUrl = buildArticleCanonicalUrl(article.slug)
-  const imageUrl = article.hasCover && canonicalUrl
-    ? buildArticleSocialImageUrl(article.slug)
-    : buildDefaultSocialImageUrl()
-  const imageAlt = cleanText(article.cover?.altText) || headline || fallback.imageAlt
   const datePublished = toIsoDate(article.publishedAt)
   const candidateModified = toIsoDate(article.updatedAt)
   const dateModified = candidateModified
     && (!datePublished || Date.parse(candidateModified) >= Date.parse(datePublished))
     ? candidateModified
     : ''
+  const imageUrl = article.hasCover && canonicalUrl
+    ? buildArticleSocialImageUrl(article.slug, candidateModified)
+    : buildDefaultSocialImageUrl()
+  const imageAlt = cleanText(article.cover?.altText) || headline || fallback.imageAlt
 
   return {
     canonicalUrl,

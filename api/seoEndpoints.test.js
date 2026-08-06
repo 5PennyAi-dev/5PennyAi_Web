@@ -50,14 +50,14 @@ test('proxifie une couverture publiée sans exposer son chemin privé', async ()
   const calls = []
   const fetchImpl = async (url) => {
     calls.push(String(url))
-    if (String(url).includes('/opaque?token=')) {
+    if (String(url).includes('/storage/v1/object/sign/article-assets/opaque?token=')) {
       return new Response(new Uint8Array([1, 2, 3]), { headers: { 'content-type': 'image/webp' } })
     }
     if (String(url).includes('/rest/v1/articles')) {
       return jsonResponse([publishedArticle({ cover_path: COVER_PATH })])
     }
     if (String(url).includes('/storage/v1/object/sign/')) {
-      return jsonResponse({ signedURL: '/storage/v1/object/sign/article-assets/opaque?token=temporaire' })
+      return jsonResponse({ signedURL: '/object/sign/article-assets/opaque?token=temporaire' })
     }
     throw new Error(`Unexpected URL: ${url}`)
   }
@@ -71,6 +71,7 @@ test('proxifie une couverture publiée sans exposer son chemin privé', async ()
   assert.match(res.headers['cache-control'], /s-maxage=900/)
   assert.equal(Buffer.from(res.body).length, 3)
   assert.ok(calls.some((url) => url.includes('/storage/v1/object/sign/')))
+  assert.ok(calls.some((url) => url === 'https://example.supabase.co/storage/v1/object/sign/article-assets/opaque?token=temporaire'))
   assert.doesNotMatch(String(res.body), /articles\/|supabase|token/)
 })
 
