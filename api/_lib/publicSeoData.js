@@ -1,5 +1,6 @@
 import { isArticleCoverPath } from '../../src/lib/articleAssetRules.js'
 import { slugifyArticle } from '../../src/lib/articleSlug.js'
+import { isValidInfographicId } from '../../src/lib/infographicSeo.js'
 
 export function getPublicSupabaseConfig(env = globalThis.process?.env || {}) {
   const url = env.SUPABASE_URL || env.VITE_SUPABASE_URL
@@ -37,6 +38,37 @@ export async function fetchPublishedArticleSeo(
     hasCover: isArticleCoverPath(row.cover_path, row.id),
     publishedAt: row.published_at,
     updatedAt: row.updated_at,
+  }
+}
+
+export async function fetchPublishedInfographicSeo(
+  requestedId,
+  { env, fetchImpl = fetch } = {},
+) {
+  if (!isValidInfographicId(requestedId)) return null
+  const config = getPublicSupabaseConfig(env)
+  const url = new URL('/rest/v1/infographics', `${config.url}/`)
+  url.searchParams.set('id', `eq.${requestedId}`)
+  url.searchParams.set('status', 'eq.published')
+  url.searchParams.set(
+    'select',
+    'id,title,summary,introduction,image_alt,thumbnail_path,status',
+  )
+  url.searchParams.set('limit', '1')
+  const rows = await fetchSupabaseJson(url, config, fetchImpl)
+  const row = rows?.[0]
+  if (
+    !row
+    || row.status !== 'published'
+    || String(row.id).toLocaleLowerCase() !== requestedId.toLocaleLowerCase()
+  ) return null
+  return {
+    id: row.id,
+    imageAlt: row.image_alt,
+    introduction: row.introduction,
+    summary: row.summary,
+    thumbnailPath: row.thumbnail_path,
+    title: row.title,
   }
 }
 

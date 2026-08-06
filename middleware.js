@@ -4,24 +4,55 @@ import {
   buildBreadcrumbStructuredData,
   serializeJsonLd,
 } from './src/lib/articleSeo.js'
+import {
+  buildInfographicSeoData,
+  isValidInfographicId,
+} from './src/lib/infographicSeo.js'
 import { buildDefaultSocialImageUrl, buildSiteUrl, SITE_NAME } from './src/lib/siteConfig.js'
-import { fetchPublishedArticleSeo, getPublicSupabaseConfig } from './api/_lib/publicSeoData.js'
+import {
+  fetchPublishedArticleSeo,
+  fetchPublishedInfographicSeo,
+  getPublicSupabaseConfig,
+} from './api/_lib/publicSeoData.js'
 
 // Social crawlers cannot execute the SPA. Search crawlers are included so direct
 // user-agent checks receive the same canonical technical metadata.
 export const CRAWLER_PATTERN =
   /LinkedInBot|facebookexternalhit|Facebot|Twitterbot|Slackbot|TelegramBot|Discordbot|Googlebot|bingbot|Applebot|DuckDuckBot/i
 
-export default async function middleware(request) {
+export default async function middleware(request, dependencies = {}) {
   const url = new URL(request.url)
   const ua = request.headers.get('user-agent') || ''
   if (!CRAWLER_PATTERN.test(ua)) return
+
+  const infographicMatch = url.pathname.match(/^\/ressources-ia\/infographies\/([^/]+)\/?$/)
+  if (infographicMatch) {
+    const id = decodePathSegment(infographicMatch[1])
+    if (!isValidInfographicId(id)) return unavailableInfographicResponse()
+    return handleInfographicCrawler(id, dependencies)
+  }
 
   const articleMatch = url.pathname.match(/^\/ressources-ia\/articles\/([^/]+)\/?$/)
   if (articleMatch) return handleArticleCrawler(articleMatch[1])
 
   const blogMatch = url.pathname.match(/^\/blog\/([^/]+)$/)
   if (blogMatch) return handleBlogCrawler(blogMatch[1])
+}
+
+export async function handleInfographicCrawler(
+  id,
+  { env, fetchImpl = fetch } = {},
+) {
+  try {
+    const infographic = await fetchPublishedInfographicSeo(id, { env, fetchImpl })
+    if (!infographic) return unavailableInfographicResponse()
+    const { url: supabaseUrl } = getPublicSupabaseConfig(env)
+    const metadata = buildInfographicSeoData(infographic, { supabaseUrl })
+    return htmlResponse(buildInfographicCrawlerHtml({ metadata }))
+  } catch (error) {
+    console.warn('Unable to render infographic crawler metadata:', error?.message)
+    return
+  }
 }
 
 async function handleArticleCrawler(slug) {
@@ -134,8 +165,54 @@ ${article.summary ? `<p>${escapeHtml(article.summary)}</p>` : ''}
 </html>`
 }
 
+export function buildInfographicCrawlerHtml({ metadata }) {
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(metadata.title)}</title>
+<meta name="description" content="${escapeHtml(metadata.description)}">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="${escapeHtml(metadata.canonicalUrl)}">
+<meta property="og:type" content="${metadata.ogType}">
+<meta property="og:title" content="${escapeHtml(metadata.socialTitle)}">
+<meta property="og:description" content="${escapeHtml(metadata.description)}">
+<meta property="og:url" content="${escapeHtml(metadata.canonicalUrl)}">
+<meta property="og:image" content="${escapeHtml(metadata.socialImageUrl)}">
+<meta property="og:image:alt" content="${escapeHtml(metadata.socialImageAlt)}">
+<meta property="og:site_name" content="${escapeHtml(metadata.siteName)}">
+<meta property="og:locale" content="${metadata.locale}">
+<meta name="twitter:card" content="${metadata.twitterCard}">
+<meta name="twitter:title" content="${escapeHtml(metadata.socialTitle)}">
+<meta name="twitter:description" content="${escapeHtml(metadata.description)}">
+<meta name="twitter:image" content="${escapeHtml(metadata.socialImageUrl)}">
+<meta name="twitter:image:alt" content="${escapeHtml(metadata.socialImageAlt)}">
+</head>
+<body>
+<article>
+<h1>${escapeHtml(metadata.headline)}</h1>
+<p>${escapeHtml(metadata.description)}</p>
+<p><a href="${escapeHtml(metadata.canonicalUrl)}">${escapeHtml(metadata.headline)}</a></p>
+</article>
+</body>
+</html>`
+}
+
 function unavailableArticleResponse() {
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Article indisponible — ${SITE_NAME}</title><meta name="robots" content="noindex, nofollow"></head><body><h1>Article indisponible</h1></body></html>`
+  return new Response(html, {
+    status: 404,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      Vary: 'User-Agent',
+    },
+  })
+}
+
+function unavailableInfographicResponse() {
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Infographie indisponible — ${SITE_NAME}</title><meta name="robots" content="noindex, nofollow"></head><body><h1>Infographie indisponible</h1></body></html>`
   return new Response(html, {
     status: 404,
     headers: {
@@ -165,6 +242,18 @@ export function escapeHtml(value) {
     .replace(/>/g, '&gt;')
 }
 
+function decodePathSegment(value) {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return ''
+  }
+}
+
 export const config = {
-  matcher: ['/blog/:slug*', '/ressources-ia/articles/:slug*'],
+  matcher: [
+    '/blog/:slug*',
+    '/ressources-ia/articles/:slug*',
+    '/ressources-ia/infographies/:id*',
+  ],
 }

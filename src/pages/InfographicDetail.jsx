@@ -10,6 +10,7 @@ import {
   fetchPublishedSeriesResources,
   getInfographicImageUrl,
 } from '@/lib/publicInfographics'
+import { buildInfographicSeoData } from '@/lib/infographicSeo'
 import {
   createSeriesSlug,
   findSeriesBySlug,
@@ -93,6 +94,7 @@ function InfographicContent({ infographic, seriesContext, t }) {
   const imageUrl = getInfographicImageUrl(infographic.image_path)
   const hasImage = Boolean(imageUrl && !imageFailed)
   const title = infographic.title || t('resourcesAi.type')
+  const seo = buildInfographicSeoData(infographic)
   const series = formatSeries(infographic, t)
   const keyPoints = usableKeyPoints(infographic.key_points)
   const sources = usableSources(infographic.sources)
@@ -100,8 +102,22 @@ function InfographicContent({ infographic, seriesContext, t }) {
   return (
     <>
       <Helmet>
-        <title>{t('resourcesAi.seo.detailTitle', { title })}</title>
-        {infographic.summary && <meta name="description" content={infographic.summary} />}
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <link rel="canonical" href={seo.canonicalUrl} />
+        <meta property="og:type" content={seo.ogType} />
+        <meta property="og:title" content={seo.socialTitle} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.canonicalUrl} />
+        <meta property="og:image" content={seo.socialImageUrl} />
+        <meta property="og:image:alt" content={seo.socialImageAlt} />
+        <meta property="og:site_name" content={seo.siteName} />
+        <meta property="og:locale" content={seo.locale} />
+        <meta name="twitter:card" content={seo.twitterCard} />
+        <meta name="twitter:title" content={seo.socialTitle} />
+        <meta name="twitter:description" content={seo.description} />
+        <meta name="twitter:image" content={seo.socialImageUrl} />
+        <meta name="twitter:image:alt" content={seo.socialImageAlt} />
       </Helmet>
 
       <article className="min-h-[75vh] bg-warm-gray pt-24 pb-20 md:pt-28 md:pb-28">
