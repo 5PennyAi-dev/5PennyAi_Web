@@ -1578,7 +1578,7 @@ Le jugement éditorial de Christian reste prioritaire.
 |---|---|---|---|
 | 0 | Inspection de l’architecture et du partage social | Accepté | — |
 | 1 | Métadonnées et images sociales fiables | Accepté | `feat(resources): add social metadata for infographics` |
-| 2 | Génération serveur Facebook et LinkedIn | À faire | — |
+| 2 | Génération serveur Facebook et LinkedIn | Accepté | `feat(resources): add social post generator` |
 | 3 | Interface de modification et copie | À faire | — |
 | 4 | Validation éditoriale et finalisation | À faire | — |
 
