@@ -18,7 +18,7 @@ import {
 // Social crawlers cannot execute the SPA. Search crawlers are included so direct
 // user-agent checks receive the same canonical technical metadata.
 export const CRAWLER_PATTERN =
-  /LinkedInBot|facebookexternalhit|Facebot|Twitterbot|Slackbot|TelegramBot|Discordbot|Googlebot|bingbot|Applebot|DuckDuckBot/i
+  /LinkedInBot|facebookexternalhit|Facebot|Meta-External(?:Agent|Fetcher)|Twitterbot|Slackbot|TelegramBot|Discordbot|Googlebot|bingbot|Applebot|DuckDuckBot/i
 
 export default async function middleware(request, dependencies = {}) {
   const url = new URL(request.url)
@@ -33,7 +33,7 @@ export default async function middleware(request, dependencies = {}) {
   }
 
   const articleMatch = url.pathname.match(/^\/ressources-ia\/articles\/([^/]+)\/?$/)
-  if (articleMatch) return handleArticleCrawler(articleMatch[1])
+  if (articleMatch) return handleArticleCrawler(articleMatch[1], dependencies)
 
   const blogMatch = url.pathname.match(/^\/blog\/([^/]+)$/)
   if (blogMatch) return handleBlogCrawler(blogMatch[1])
@@ -55,9 +55,9 @@ export async function handleInfographicCrawler(
   }
 }
 
-async function handleArticleCrawler(slug) {
+async function handleArticleCrawler(slug, { env, fetchImpl = fetch } = {}) {
   try {
-    const article = await fetchPublishedArticleSeo(decodeURIComponent(slug))
+    const article = await fetchPublishedArticleSeo(decodeURIComponent(slug), { env, fetchImpl })
     if (!article) return unavailableArticleResponse()
     const metadata = buildArticleSeoMetadata(article)
     const articleData = buildArticleStructuredData(article, metadata)

@@ -17,10 +17,49 @@ const ENV = {
 }
 
 test('reconnaît les crawlers sociaux et de recherche sans traiter un navigateur ordinaire', () => {
-  for (const agent of ['facebookexternalhit/1.1', 'Twitterbot/1.0', 'Googlebot', 'bingbot']) {
+  for (const agent of [
+    'facebookexternalhit/1.1',
+    'meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)',
+    'meta-externalfetcher/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)',
+    'Twitterbot/1.0',
+    'Googlebot',
+    'bingbot',
+  ]) {
     assert.match(agent, CRAWLER_PATTERN)
   }
   assert.doesNotMatch('Mozilla/5.0 Chrome/140', CRAWLER_PATTERN)
+})
+
+test('sert les métadonnées de l’article au robot de partage Meta actuel', async () => {
+  const response = await middleware(
+    new Request('https://5pennyai.com/ressources-ia/articles/article-meta', {
+      headers: {
+        'user-agent': 'meta-externalfetcher/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)',
+      },
+    }),
+    {
+      env: ENV,
+      fetchImpl: async () => jsonResponse([{
+        id: INFOGRAPHIC_ID,
+        slug: 'article-meta',
+        title: 'Article correctement partagé',
+        summary: 'Résumé public',
+        language: 'fr',
+        seo: {},
+        cover: {},
+        cover_path: `articles/${INFOGRAPHIC_ID}/cover/22222222-2222-4222-8222-222222222222.webp`,
+        status: 'published',
+        published_at: '2026-08-01T00:00:00Z',
+        updated_at: '2026-08-07T00:00:00Z',
+      }]),
+    },
+  )
+  const html = await response.text()
+
+  assert.equal(response.status, 200)
+  assert.match(html, /property="og:title" content="Article correctement partagé — 5PennyAi"/)
+  assert.match(html, /property="og:image" content="https:\/\/5pennyai\.com\/api\/article-social-image\?slug=article-meta&amp;v=\d+"/)
+  assert.doesNotMatch(html, /Christian Couillard — AI Solutions Engineer|og-christian\.jpg/)
 })
 test('la réponse crawler contient une occurrence cohérente de toutes les métadonnées', () => {
   const article = {
