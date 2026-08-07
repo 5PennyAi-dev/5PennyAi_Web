@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArticleMarkdownContent } from '@/components/admin/resources/ArticlePreview'
+import ResourceShareActions from '@/components/resources/ResourceShareActions'
 import SeriesNavigation from '@/components/resources/SeriesNavigation'
 import { calculateArticleReadingTime } from '@/lib/articleMarkdown'
 import {
@@ -142,6 +143,14 @@ export function ArticleContent({ result, seriesContext, t, locale }) {
               </div>
             )}
           </header>
+
+          <ResourceShareActions
+            resourceType="article"
+            title={title}
+            shareText={article.summary || undefined}
+            canonicalUrl={seo.canonicalUrl}
+            className="mt-8"
+          />
 
           <div className="mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl border border-navy/[0.08] bg-white">
             <div className="aspect-video">

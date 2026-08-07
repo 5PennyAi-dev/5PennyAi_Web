@@ -843,6 +843,15 @@
       "intermediate": "Intermédiaire",
       "advanced": "Avancé"
     },
+    "share": {
+      "actionsLabel": "Partager {{type}}",
+      "share": "Partager",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "error": "Impossible d’ouvrir le partage.",
+      "manualCopy": "Copie automatique impossible. Le lien est sélectionné ci-dessous.",
+      "manualCopyLabel": "Lien canonique à copier manuellement"
+    },
     "seriesPage": {
       "eyebrow": "Ressources IA · Série",
       "seoTitle": "{{series}} | Ressources IA",

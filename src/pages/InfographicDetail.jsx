@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import ResourceShareActions from '@/components/resources/ResourceShareActions'
 import SeriesNavigation from '@/components/resources/SeriesNavigation'
 import {
   fetchPublishedInfographic,
@@ -95,6 +96,7 @@ function InfographicContent({ infographic, seriesContext, t }) {
   const hasImage = Boolean(imageUrl && !imageFailed)
   const title = infographic.title || t('resourcesAi.type')
   const seo = buildInfographicSeoData(infographic)
+  const shareText = getInfographicShareText(infographic)
   const series = formatSeries(infographic, t)
   const keyPoints = usableKeyPoints(infographic.key_points)
   const sources = usableSources(infographic.sources)
@@ -208,6 +210,14 @@ function InfographicContent({ infographic, seriesContext, t }) {
               </div>
             </section>
           )}
+
+          <ResourceShareActions
+            resourceType="infographic"
+            title={title}
+            shareText={shareText}
+            canonicalUrl={seo.canonicalUrl}
+            className={hasImage ? 'mt-5' : 'mt-10'}
+          />
 
           {keyPoints.length > 0 && (
             <section className="mx-auto mt-16 max-w-4xl">
@@ -408,6 +418,15 @@ function formatSeries(infographic, t) {
     : ''
   if (infographic.series_name && episode) return `${infographic.series_name} · ${episode}`
   return infographic.series_name || episode
+}
+
+function getInfographicShareText(infographic) {
+  if (typeof infographic.summary === 'string' && infographic.summary.trim()) {
+    return infographic.summary
+  }
+  if (typeof infographic.introduction !== 'string') return undefined
+  const introduction = infographic.introduction.trim()
+  return introduction.length > 0 && introduction.length <= 280 ? introduction : undefined
 }
 
 function formatEpisodeNumber(value) {

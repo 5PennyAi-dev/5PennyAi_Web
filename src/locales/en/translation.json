@@ -843,6 +843,15 @@
       "intermediate": "Intermediate",
       "advanced": "Advanced"
     },
+    "share": {
+      "actionsLabel": "Share {{type}}",
+      "share": "Share",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "error": "Unable to open sharing.",
+      "manualCopy": "Automatic copying was not possible. The link is selected below.",
+      "manualCopyLabel": "Canonical link to copy manually"
+    },
     "seriesPage": {
       "eyebrow": "AI Resources · Series",
       "seoTitle": "{{series}} | AI Resources",
