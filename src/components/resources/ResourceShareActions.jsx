@@ -2,6 +2,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, Copy, Download, LoaderCircle, Share2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { downloadPublicAsset } from '@/lib/publicAssetDownload'
+
+export { downloadPublicAsset } from '@/lib/publicAssetDownload'
 
 const COPY_SUCCESS_DURATION = 2500
 
@@ -40,34 +43,6 @@ export async function copyCanonicalUrl(canonicalUrl, navigatorObject = globalThi
     return true
   } catch {
     return false
-  }
-}
-
-export async function downloadPublicAsset(
-  downloadUrl,
-  downloadFileName,
-  {
-    fetchObject = globalThis.fetch,
-    documentObject = globalThis.document,
-    urlObject = globalThis.URL,
-  } = {},
-) {
-  const response = await fetchObject(downloadUrl)
-  if (!response.ok) throw new Error('download_failed')
-
-  const blob = await response.blob()
-  const objectUrl = urlObject.createObjectURL(blob)
-  const link = documentObject.createElement('a')
-
-  try {
-    link.href = objectUrl
-    link.download = downloadFileName
-    link.hidden = true
-    documentObject.body.appendChild(link)
-    link.click()
-  } finally {
-    link.remove()
-    urlObject.revokeObjectURL(objectUrl)
   }
 }
 

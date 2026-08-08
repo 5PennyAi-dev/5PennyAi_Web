@@ -909,6 +909,17 @@
       "takeaway": "Takeaway",
       "sources": "Sources",
       "emptyMarkdown": "This article’s content is not available.",
+      "infographic": {
+        "title": "Summary infographic",
+        "description": "Keep the article’s main ideas in a visual summary you can save.",
+        "altFallback": "Summary infographic for the article “{{title}}”",
+        "enlarge": "Enlarge",
+        "download": "Download",
+        "downloading": "Downloading…",
+        "downloadError": "Unable to download the infographic.",
+        "unavailable": "Infographic unavailable",
+        "close": "Close"
+      },
       "citationLabel": "View source {{number}}",
       "untitledSource": "Untitled source",
       "accessed": "accessed {{date}}",
@@ -1145,6 +1156,7 @@
           "markdown": "Markdown content",
           "media": "Media manifest",
           "cover": "Cover metadata",
+          "infographic": "Summary infographic",
           "sources": "Sources",
           "keywords": "Keywords",
           "seo": "Editorial SEO",
@@ -1176,6 +1188,7 @@
           "mediaTitle": "Media title",
           "caption": "Caption",
           "altText": "Alternative text",
+          "infographicAltText": "Infographic alternative text",
           "generationBrief": "Generation brief",
           "aspectRatio": "Preferred aspect ratio",
           "required": "Media is required by the editorial intent",
@@ -1253,6 +1266,10 @@
         "cover": {
           "help": "The 16:9 cover file remains separate from this editorial metadata."
         },
+        "infographic": {
+          "help": "Add a 5PennyAi infographic that visually summarizes this article. Recommended formats: 4:5 or 2:3.",
+          "altHint": "Optional. Display fallback: Summary infographic for the article “{{fallback}}”."
+        },
         "seriesCover": {
           "saveFirst": "Save the article before managing its series cover."
         },
@@ -1274,11 +1291,15 @@
           "orphansHelp": "These keys no longer exist in the manifest. They remain until explicitly deleted.",
           "warnings": {
             "heavyFile": "The file is heavy and may slow down display.",
-            "ratioMismatch": "The actual ratio differs significantly from the preferred ratio."
+            "ratioMismatch": "The actual ratio differs significantly from the preferred ratio.",
+            "infographicRatioMismatch": "This aspect ratio is unusual for a companion infographic; prefer 4:5 or 2:3."
           },
           "errors": {
             "load": "Assets could not be loaded. Check that the increment 2 migration is applied.",
             "unsupportedType": "Use a PNG, JPEG, or WebP image.",
+            "unsupportedExtension": "The file extension must be .png, .jpg, .jpeg, or .webp.",
+            "extensionMismatch": "The file extension does not match its MIME type.",
+            "signatureMismatch": "The file signature does not match its MIME type.",
             "tooLarge": "The file exceeds the 5 MB limit.",
             "unreadable": "The image dimensions could not be read.",
             "invalidCoverRatio": "The cover must use a 16:9 aspect ratio.",

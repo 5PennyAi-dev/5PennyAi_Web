@@ -6,7 +6,11 @@ import { createInstance } from 'i18next'
 import { I18nextProvider } from 'react-i18next'
 import { createServer } from 'vite'
 
-const vite = await createServer({ appType: 'custom', server: { middlewareMode: true } })
+const vite = await createServer({
+  appType: 'custom',
+  optimizeDeps: { noDiscovery: true },
+  server: { middlewareMode: true, hmr: false },
+})
 const componentModule = await vite.ssrLoadModule('/src/components/resources/ResourceShareActions.jsx')
 
 test.after(async () => {

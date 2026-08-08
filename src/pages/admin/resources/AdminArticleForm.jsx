@@ -96,6 +96,7 @@ function AdminArticleFormPage() {
   const [assetsLoaded, setAssetsLoaded] = useState(!editing)
   const [assetLoadError, setAssetLoadError] = useState(false)
   const [coverPath, setCoverPath] = useState(null)
+  const [infographicPath, setInfographicPath] = useState(null)
   const [persistedSeriesName, setPersistedSeriesName] = useState('')
   const slugManuallyEdited = useRef(editing)
 
@@ -133,11 +134,13 @@ function AdminArticleFormPage() {
         setForm(next)
         setBaseline(JSON.stringify(next))
         setCoverPath(row.cover_path || null)
+        setInfographicPath(row.infographic_path || null)
         setPersistedSeriesName(next.series.name)
         try {
           const persistedAssets = await fetchArticleAssets(id)
           const urls = await createArticleAssetUrls({
             coverPath: row.cover_path,
+            infographicPath: row.infographic_path,
             assets: persistedAssets,
           }, id)
           if (!cancelled) {
@@ -165,13 +168,18 @@ function AdminArticleFormPage() {
     }
   }, [editing, id])
 
-  const refreshAssetState = async ({ coverPath: nextCoverPath = coverPath } = {}) => {
+  const refreshAssetState = async ({
+    coverPath: nextCoverPath = coverPath,
+    infographicPath: nextInfographicPath = infographicPath,
+  } = {}) => {
     setCoverPath(nextCoverPath || null)
+    setInfographicPath(nextInfographicPath || null)
     setAssetLoadError(false)
     try {
       const persistedAssets = await fetchArticleAssets(id)
       const urls = await createArticleAssetUrls({
         coverPath: nextCoverPath,
+        infographicPath: nextInfographicPath,
         assets: persistedAssets,
       }, id)
       setAssets(persistedAssets)
@@ -617,7 +625,33 @@ function AdminArticleFormPage() {
                   </div>
                 </FormSection>
 
-                <FormSection number="8" title={t('admin.resourcesAi.articleForm.sections.sources')}>
+                <FormSection number="8" title={t('admin.resourcesAi.articleForm.sections.infographic')}>
+                  <p className="mb-4 text-sm leading-relaxed text-muted">{t('admin.resourcesAi.articleForm.infographic.help')}</p>
+                  <ArticleAssetField
+                    articleId={id}
+                    infographicAltText={form.infographicAltText}
+                    infographicPath={infographicPath}
+                    kind="infographic"
+                    onChanged={refreshAssetState}
+                    onBusyChange={handleAssetBusyChange}
+                    t={t}
+                    url={infographicPath ? assetUrls[infographicPath] : null}
+                  />
+                  <div className="mt-4">
+                    <Field
+                      as="textarea"
+                      rows={3}
+                      hint={t('admin.resourcesAi.articleForm.infographic.altHint', {
+                        fallback: form.title || t('admin.resourcesAi.articleForm.preview.untitled'),
+                      })}
+                      label={t('admin.resourcesAi.articleForm.fields.infographicAltText')}
+                      value={form.infographicAltText}
+                      onChange={(value) => updateRoot('infographicAltText', value)}
+                    />
+                  </div>
+                </FormSection>
+
+                <FormSection number="9" title={t('admin.resourcesAi.articleForm.sections.sources')}>
                   <ObjectListHeader
                     onAdd={() => updateRoot('sources', [...form.sources, { authors: [] }])}
                     addLabel={t('admin.resourcesAi.articleForm.sources.add')}
@@ -656,7 +690,7 @@ function AdminArticleFormPage() {
                   </div>
                 </FormSection>
 
-                <FormSection number="9" title={t('admin.resourcesAi.articleForm.sections.keywords')}>
+                <FormSection number="10" title={t('admin.resourcesAi.articleForm.sections.keywords')}>
                   <StringList
                     label={t('admin.resourcesAi.articleForm.fields.keywords')}
                     values={form.keywords}
@@ -666,7 +700,7 @@ function AdminArticleFormPage() {
                   />
                 </FormSection>
 
-                <FormSection number="10" title={t('admin.resourcesAi.articleForm.sections.seo')}>
+                <FormSection number="11" title={t('admin.resourcesAi.articleForm.sections.seo')}>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label={t('admin.resourcesAi.articleForm.fields.primaryQuery')} value={form.seo.primaryQuery || ''} onChange={(value) => updateNested('seo', 'primaryQuery', value)} />
                     <SelectField label={t('admin.resourcesAi.articleForm.fields.searchIntent')} value={form.seo.searchIntent || ''} options={SEARCH_INTENTS} onChange={(value) => updateNested('seo', 'searchIntent', value)} t={t} translationPrefix="admin.resourcesAi.articleForm.searchIntents" />
@@ -693,17 +727,27 @@ function AdminArticleFormPage() {
                   </div>
                 </FormSection>
 
-                <FormSection number="11" title={t('admin.resourcesAi.articleForm.sections.warnings')}>
+                <FormSection number="12" title={t('admin.resourcesAi.articleForm.sections.warnings')}>
                   <WarningsList warnings={warnings} t={t} />
                 </FormSection>
 
-                <FormSection number="12" title={t('admin.resourcesAi.articleForm.sections.preview')}>
-                  <ArticlePreview assets={assets} assetUrls={assetUrls} coverUrl={coverPath ? assetUrls[coverPath] : null} form={form} t={t} />
+                <FormSection number="13" title={t('admin.resourcesAi.articleForm.sections.preview')}>
+                  <ArticlePreview
+                    assets={assets}
+                    assetUrls={assetUrls}
+                    coverUrl={coverPath ? assetUrls[coverPath] : null}
+                    form={form}
+                    infographic={infographicPath && assetUrls[infographicPath] ? {
+                      altText: form.infographicAltText,
+                      url: assetUrls[infographicPath],
+                    } : null}
+                    t={t}
+                  />
                 </FormSection>
                 </fieldset>
 
                 {shouldShowSeriesThumbnailField(form.series.name) && (
-                  <FormSection number="13" title={t('admin.resourcesAi.articleForm.sections.seriesCover')}>
+                  <FormSection number="14" title={t('admin.resourcesAi.articleForm.sections.seriesCover')}>
                     <SeriesThumbnailField
                       currentSeriesName={form.series.name}
                       fallbackUrl={coverPath ? assetUrls[coverPath] : null}
@@ -715,7 +759,7 @@ function AdminArticleFormPage() {
                   </FormSection>
                 )}
 
-                <FormSection number="14" title={t('admin.resourcesAi.socialPosts.title')}>
+                <FormSection number="15" title={t('admin.resourcesAi.socialPosts.title')}>
                   <ResourceSocialPostsPanel
                     disabledReason={socialDisabledReason}
                     publicUrl={socialPublicUrl}
@@ -727,7 +771,7 @@ function AdminArticleFormPage() {
                   />
                 </FormSection>
 
-                <FormSection number="15" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
+                <FormSection number="16" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
                   <p className="text-sm leading-relaxed text-muted">
                     {publishedLocked ? t('admin.resourcesAi.articleForm.publishedReadOnly') : dirty && editing ? t('admin.resourcesAi.articleForm.messages.saveBeforePublish') : t('admin.resourcesAi.articleForm.draftOnly')}
                   </p>

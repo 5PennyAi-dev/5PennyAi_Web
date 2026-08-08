@@ -909,6 +909,17 @@
       "takeaway": "À retenir",
       "sources": "Sources",
       "emptyMarkdown": "Le contenu de cet article n’est pas disponible.",
+      "infographic": {
+        "title": "Infographie de synthèse",
+        "description": "Retrouvez les idées principales de l’article dans une synthèse visuelle à conserver.",
+        "altFallback": "Infographie de synthèse de l’article « {{title}} »",
+        "enlarge": "Agrandir",
+        "download": "Télécharger",
+        "downloading": "Téléchargement…",
+        "downloadError": "Téléchargement impossible.",
+        "unavailable": "Infographie indisponible",
+        "close": "Fermer"
+      },
       "citationLabel": "Consulter la source {{number}}",
       "untitledSource": "Source sans titre",
       "accessed": "consultée le {{date}}",
@@ -1145,6 +1156,7 @@
           "markdown": "Contenu Markdown",
           "media": "Manifeste des médias",
           "cover": "Métadonnées de couverture",
+          "infographic": "Infographie de synthèse",
           "sources": "Sources",
           "keywords": "Mots-clés",
           "seo": "SEO éditorial",
@@ -1176,6 +1188,7 @@
           "mediaTitle": "Titre du média",
           "caption": "Légende",
           "altText": "Texte alternatif",
+          "infographicAltText": "Texte alternatif de l’infographie",
           "generationBrief": "Brief de génération",
           "aspectRatio": "Ratio préféré",
           "required": "Média requis dans l’intention éditoriale",
@@ -1253,6 +1266,10 @@
         "cover": {
           "help": "Le fichier de couverture 16:9 reste séparé de ces métadonnées éditoriales."
         },
+        "infographic": {
+          "help": "Ajoutez une infographie 5PennyAi qui résume visuellement cet article. Formats recommandés : 4:5 ou 2:3.",
+          "altHint": "Facultatif. Fallback d’affichage : Infographie de synthèse de l’article « {{fallback}} »."
+        },
         "seriesCover": {
           "saveFirst": "Enregistrez d’abord l’article pour gérer la couverture de sa série."
         },
@@ -1274,11 +1291,15 @@
           "orphansHelp": "Ces clés n’existent plus dans le manifeste. Elles sont conservées jusqu’à une suppression explicite.",
           "warnings": {
             "heavyFile": "Le fichier est lourd et pourrait ralentir l’affichage.",
-            "ratioMismatch": "Le ratio réel diffère sensiblement du ratio préféré."
+            "ratioMismatch": "Le ratio réel diffère sensiblement du ratio préféré.",
+            "infographicRatioMismatch": "Le ratio est inhabituel pour une infographie compagnon; utilisez de préférence 4:5 ou 2:3."
           },
           "errors": {
             "load": "Les assets n’ont pas pu être chargés. Vérifiez que la migration de l’incrément 2 est appliquée.",
             "unsupportedType": "Utilisez une image PNG, JPEG ou WebP.",
+            "unsupportedExtension": "L’extension du fichier doit être .png, .jpg, .jpeg ou .webp.",
+            "extensionMismatch": "L’extension du fichier ne correspond pas à son type MIME.",
+            "signatureMismatch": "La signature binaire du fichier ne correspond pas à son type MIME.",
             "tooLarge": "Le fichier dépasse la limite de 5 Mo.",
             "unreadable": "Les dimensions de l’image ne peuvent pas être lues.",
             "invalidCoverRatio": "La couverture doit respecter un ratio 16:9.",

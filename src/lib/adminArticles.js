@@ -111,10 +111,10 @@ export async function unpublishArticle(articleId, client = supabase) {
   return data
 }
 
-export async function deleteArticleDraft(id) {
-  const { data: article, error: loadError } = await supabase
+export async function deleteArticleDraft(id, client = supabase) {
+  const { data: article, error: loadError } = await client
     .from('articles')
-    .select('id, cover_path, status')
+    .select('id, cover_path, infographic_path, status')
     .eq('id', id)
     .maybeSingle()
   if (loadError) throw mapArticleError(loadError, 'delete')
@@ -122,12 +122,12 @@ export async function deleteArticleDraft(id) {
 
   let assets
   try {
-    assets = await fetchArticleAssets(id)
+    assets = await fetchArticleAssets(id, client)
   } catch (error) {
     throw mapArticleError(error, 'delete')
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from('articles')
     .delete()
     .eq('id', id)
@@ -141,7 +141,7 @@ export async function deleteArticleDraft(id) {
   const paths = collectArticleObjectPaths({ ...article, assets })
   let cleanupFailed = false
   if (paths.length) {
-    const { error: cleanupError } = await supabase.storage.from(ARTICLE_ASSETS_BUCKET).remove(paths)
+    const { error: cleanupError } = await client.storage.from(ARTICLE_ASSETS_BUCKET).remove(paths)
     cleanupFailed = Boolean(cleanupError)
   }
   return { id: data.id, cleanupFailed, paths }

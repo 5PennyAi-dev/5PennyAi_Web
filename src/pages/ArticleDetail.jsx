@@ -80,7 +80,7 @@ function ArticleDetailBySlug({ slug }) {
 }
 
 export function ArticleContent({ result, seriesContext, t, locale }) {
-  const { article, assets, assetUrls, coverUrl } = result
+  const { article, assets, assetUrls, coverUrl, infographic } = result
   const [coverFailed, setCoverFailed] = useState(false)
   const title = article.title || t('resourcesAi.article.fallbackTitle')
   const seo = buildArticleSeoMetadata(article)
@@ -166,7 +166,7 @@ export function ArticleContent({ result, seriesContext, t, locale }) {
           )}
 
           <div className="mx-auto mt-10 max-w-3xl space-y-9 rounded-2xl border border-gray-200 bg-white p-5 sm:p-8 md:p-10">
-            <ArticleMarkdownContent assets={assets} assetUrls={assetUrls} form={article} mode="public" t={t} />
+            <ArticleMarkdownContent assets={assets} assetUrls={assetUrls} companionInfographic={infographic} form={article} mode="public" t={t} />
           </div>
 
           {seriesContext && <SeriesNavigation context={seriesContext} t={t} />}

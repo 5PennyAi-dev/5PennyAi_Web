@@ -21,6 +21,10 @@ test('importe un objet vide sans modifier un formulaire vide', () => {
 test('importe un objet partiel sans effacer les propriétés absentes', () => {
   const current = createEmptyArticleForm()
   current.summary = 'Résumé conservé'
+  current.infographicAltText = 'Alt conservé'
+  current.infographicPath = 'articles/article/infographic/existante.webp'
+  current.coverPath = 'articles/article/cover/existante.webp'
+  current.articleMediaAssets = [{ media_key: 'schema', storage_path: 'media.webp' }]
   const result = importArticleJson(
     JSON.stringify({ title: 'Titre importé', series: { name: 'Série' } }),
     current,
@@ -28,6 +32,10 @@ test('importe un objet partiel sans effacer les propriétés absentes', () => {
   assert.equal(result.nextForm.title, 'Titre importé')
   assert.equal(result.nextForm.summary, 'Résumé conservé')
   assert.equal(result.nextForm.series.name, 'Série')
+  assert.equal(result.nextForm.infographicAltText, 'Alt conservé')
+  assert.equal(result.nextForm.infographicPath, current.infographicPath)
+  assert.equal(result.nextForm.coverPath, current.coverPath)
+  assert.deepEqual(result.nextForm.articleMediaAssets, current.articleMediaAssets)
 })
 
 for (const [label, filename, level] of fixtures) {
@@ -68,6 +76,27 @@ test('ignore une propriété inconnue et les propriétés techniques de statut',
   assert.deepEqual(result.unknown, ['visualMood'])
   assert.deepEqual(result.forbidden, ['slug', 'status', 'publishedAt'])
   assert.equal('status' in result.nextForm, false)
+})
+
+test('refuse toutes les variantes techniques d’infographie sans écraser l’asset courant', () => {
+  const current = createEmptyArticleForm()
+  current.infographicAltText = 'Alt actuel'
+  current.infographicPath = 'articles/article/infographic/actuelle.webp'
+  const forbidden = {
+    infographicPath: 'foreign/a.webp',
+    infographicUrl: 'https://example.com/a.webp',
+    articleInfographicPath: 'foreign/b.webp',
+    articleInfographicUrl: 'https://example.com/b.webp',
+    companionInfographicPath: 'foreign/c.webp',
+    infographic_path: 'foreign/d.webp',
+    article_infographic_path: 'foreign/e.webp',
+  }
+  const result = importArticleJson(JSON.stringify({ title: 'Titre importé', ...forbidden }), current)
+  assert.equal(result.nextForm.title, 'Titre importé')
+  assert.equal(result.nextForm.infographicPath, current.infographicPath)
+  assert.equal(result.nextForm.infographicAltText, 'Alt actuel')
+  assert.deepEqual(result.forbidden, Object.keys(forbidden))
+  assert.ok(result.warnings.every(({ code }) => code === 'forbiddenProperty'))
 })
 
 test('conserve les enums inconnues de bon type et avertit', () => {

@@ -1,5 +1,5 @@
 import { supabase } from './supabase.js'
-import { isArticleCoverPath, isArticleMediaPath } from './articleAssetRules.js'
+import { isArticleCoverPath, isArticleInfographicPath, isArticleMediaPath } from './articleAssetRules.js'
 import { slugifyArticle } from './articleSlug.js'
 
 const ARTICLE_ASSETS_BUCKET = 'article-assets'
@@ -50,6 +50,8 @@ const PUBLIC_COLUMNS = [
   'sources',
   'seo',
   'cover_path',
+  'infographic_path',
+  'infographic_alt_text',
   'published_at',
   'updated_at',
 ].join(', ')
@@ -61,6 +63,13 @@ export const PUBLIC_ARTICLE_SHOWCASE_COLUMNS = PUBLIC_SHOWCASE_COLUMNS
 export function normalizePublicArticleSlug(value) {
   if (typeof value !== 'string' || !value.trim()) return ''
   return slugifyArticle(value)
+}
+
+export function getArticleInfographicDownloadFileName({ articleId, path, slug, title }) {
+  if (!isArticleInfographicPath(path, articleId)) return null
+  const extension = path.match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase()
+  const base = slugifyArticle(slug) || slugifyArticle(title) || 'article'
+  return extension ? `${base}-infographie.${extension}` : null
 }
 
 export async function fetchPublishedArticlesForCatalog(
@@ -169,6 +178,31 @@ export async function loadPublishedArticleBySlug(
     }
   }))
 
+  let infographic = null
+  const infographicPath = isArticleInfographicPath(row.infographic_path, row.id)
+    ? row.infographic_path
+    : null
+  if (infographicPath) {
+    try {
+      const { data, error: signError } = await client.storage
+        .from(ARTICLE_ASSETS_BUCKET)
+        .createSignedUrl(infographicPath, expiresIn)
+      if (signError || !data?.signedUrl) throw signError || new Error('Missing signed URL')
+      infographic = {
+        url: data.signedUrl,
+        altText: typeof row.infographic_alt_text === 'string' ? row.infographic_alt_text.trim() : '',
+        downloadFileName: getArticleInfographicDownloadFileName({
+          articleId: row.id,
+          path: infographicPath,
+          slug: row.slug,
+          title: row.title,
+        }),
+      }
+    } catch (signError) {
+      logger.warn('Unable to sign a published article infographic:', signError?.message)
+    }
+  }
+
   const article = sanitizePublishedArticle(row)
   const coverPath = isArticleCoverPath(row.cover_path, row.id) ? row.cover_path : null
   return {
@@ -177,6 +211,7 @@ export async function loadPublishedArticleBySlug(
     assets,
     assetUrls,
     coverUrl: coverPath ? assetUrls[coverPath] || null : null,
+    infographic,
   }
 }
 

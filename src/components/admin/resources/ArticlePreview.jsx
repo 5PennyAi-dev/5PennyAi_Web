@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { BookOpenText, Image as ImageIcon } from 'lucide-react'
+import ArticleCompanionInfographic from '@/components/resources/ArticleCompanionInfographic'
 import {
   articleUrlTransform,
   calculateArticleReadingTime,
@@ -9,7 +10,7 @@ import {
   remarkArticleMarkers,
 } from '@/lib/articleMarkdown'
 
-export default function ArticlePreview({ assets = [], assetUrls = {}, coverUrl, form, mode = 'admin', t }) {
+export default function ArticlePreview({ assets = [], assetUrls = {}, coverUrl, form, infographic, mode = 'admin', t }) {
   const readingTime = calculateArticleReadingTime(form.contentMarkdown)
   const levelLabel = form.level
     ? t(`admin.resourcesAi.articleForm.levels.${form.level}`, { defaultValue: form.level })
@@ -60,13 +61,13 @@ export default function ArticlePreview({ assets = [], assetUrls = {}, coverUrl, 
           </div>
         )}
 
-        <ArticleMarkdownContent assets={assets} assetUrls={assetUrls} form={form} mode={mode} t={t} />
+        <ArticleMarkdownContent assets={assets} assetUrls={assetUrls} companionInfographic={infographic} form={form} mode={mode} t={t} />
       </div>
     </article>
   )
 }
 
-export function ArticleMarkdownContent({ assets = [], assetUrls = {}, form, mode = 'admin', t }) {
+export function ArticleMarkdownContent({ assets = [], assetUrls = {}, companionInfographic, form, mode = 'admin', t }) {
   const sources = Array.isArray(form.sources) ? form.sources : []
   const media = Array.isArray(form.media) ? form.media : []
   const sourceIndex = new Map(sources.map((source, index) => [source.key, { source, number: index + 1 }]))
@@ -95,6 +96,15 @@ export function ArticleMarkdownContent({ assets = [], assetUrls = {}, form, mode
           <h2 className="font-heading text-lg font-semibold text-navy">{t(`${labelPrefix}.takeaway`)}</h2>
           <p className="mt-2 text-sm leading-7 text-navy/80">{form.takeaway}</p>
         </aside>
+      )}
+
+      {companionInfographic && (
+        <ArticleCompanionInfographic
+          infographic={companionInfographic}
+          showActions={mode === 'public'}
+          t={t}
+          title={form.title || t(`${labelPrefix}.fallbackTitle`, { defaultValue: 'Article' })}
+        />
       )}
 
       {sources.length > 0 && (

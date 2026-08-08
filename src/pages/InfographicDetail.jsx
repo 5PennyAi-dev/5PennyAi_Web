@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, Clock3, ExternalLink, Maximize2, X } from 'lucide-react'
-import { createPortal } from 'react-dom'
+import { useEffect, useState } from 'react'
+import { ArrowLeft, Clock3, ExternalLink, Maximize2 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import ImageDialog from '@/components/resources/ImageDialog'
 import ResourceShareActions from '@/components/resources/ResourceShareActions'
 import SeriesNavigation from '@/components/resources/SeriesNavigation'
 import {
@@ -312,57 +312,6 @@ function InfographicContent({ infographic, seriesContext, t }) {
         />
       )}
     </>
-  )
-}
-
-function ImageDialog({ alt, closeLabel, onClose, src }) {
-  const closeButtonRef = useRef(null)
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow
-    const previouslyFocused = document.activeElement
-    document.body.style.overflow = 'hidden'
-    closeButtonRef.current?.focus()
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.body.style.overflow = previousOverflow
-      document.removeEventListener('keydown', handleKeyDown)
-      previouslyFocused?.focus()
-    }
-  }, [onClose])
-
-  return createPortal(
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={alt}
-      className="fixed inset-0 z-[9999] overflow-y-auto overflow-x-hidden bg-navy/95"
-      onClick={onClose}
-    >
-      <button
-        ref={closeButtonRef}
-        type="button"
-        onClick={onClose}
-        className="fixed top-4 right-4 z-10 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-navy shadow-lg hover:bg-warm-gray"
-      >
-        <X size={17} aria-hidden="true" />
-        {closeLabel}
-      </button>
-      <div className="flex min-h-full w-full items-start justify-center px-3 py-20 sm:px-6">
-        <img
-          src={src}
-          alt={alt}
-          className="h-auto max-w-full rounded-xl bg-white object-contain shadow-2xl"
-          onClick={(event) => event.stopPropagation()}
-        />
-      </div>
-    </div>,
-    document.body,
   )
 }
 

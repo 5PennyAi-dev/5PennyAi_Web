@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   fetchPublishedArticlesForCatalog,
   fetchPublishedArticlesForShowcase,
+  getArticleInfographicDownloadFileName,
   loadPublishedArticleBySlug,
   normalizePublicArticleSlug,
   sanitizePublishedArticle,
@@ -12,6 +13,7 @@ const ARTICLE_ID = '11111111-1111-4111-8111-111111111111'
 const FILE_ID = '22222222-2222-4222-8222-222222222222'
 const COVER_PATH = `articles/${ARTICLE_ID}/cover/${FILE_ID}.webp`
 const MEDIA_PATH = `articles/${ARTICLE_ID}/media/schema-rag/${FILE_ID}.png`
+const INFOGRAPHIC_PATH = `articles/${ARTICLE_ID}/infographic/${FILE_ID}.webp`
 
 test('normalise le slug public et filtre explicitement par slug et statut publié', async () => {
   const calls = []
@@ -37,6 +39,7 @@ test('la requête de catalogue sélectionne les colonnes publiques et filtre les
   assert.match(selectCall[2], /content_markdown/)
   assert.equal(selectCall[2].includes('media'), false)
   assert.equal(selectCall[2].includes('seo'), false)
+  assert.equal(selectCall[2].includes('infographic_path'), false)
   assert.deepEqual(calls.filter(([table, method]) => table === 'articles' && method === 'eq'), [
     ['articles', 'eq', 'status', 'published'],
   ])
@@ -51,6 +54,7 @@ test('la requête d’accueil exclut le Markdown et filtre les publications', as
   const selectCall = calls.find(([table, method]) => table === 'articles' && method === 'select')
   assert.ok(selectCall[2].includes('cover_path'))
   assert.equal(selectCall[2].includes('content_markdown'), false)
+  assert.equal(selectCall[2].includes('infographic_path'), false)
   assert.deepEqual(calls.filter(([table, method]) => table === 'articles' && method === 'eq'), [
     ['articles', 'eq', 'status', 'published'],
   ])
@@ -99,6 +103,68 @@ test('signe couverture et média valides, ignore les chemins invalides', async (
   assert.equal(calls.some((call) => call[1] === 'sign' && call[2] === '../secret.png'), false)
 })
 
+test('résout l’infographie uniquement pour le détail publié et transmet un modèle assaini', async () => {
+  const calls = []
+  const result = await loadPublishedArticleBySlug('mon-article', createPublicClient(calls, {
+    article: publishedRow({
+      infographic_path: INFOGRAPHIC_PATH,
+      infographic_alt_text: '  Synthèse accessible  ',
+      infographic_generation_metadata: { prompt: 'secret' },
+    }),
+  }))
+
+  const detailSelect = calls.find(([table, method]) => table === 'articles' && method === 'select')
+  assert.ok(detailSelect[2].includes('infographic_path'))
+  assert.ok(detailSelect[2].includes('infographic_alt_text'))
+  assert.deepEqual(result.infographic, {
+    url: `signed:${INFOGRAPHIC_PATH}`,
+    altText: 'Synthèse accessible',
+    downloadFileName: 'mon-article-infographie.webp',
+  })
+  assert.equal('infographic_path' in result.article, false)
+  assert.equal('infographic_alt_text' in result.article, false)
+  assert.equal('infographic_generation_metadata' in result.article, false)
+  assert.equal(result.assetUrls[INFOGRAPHIC_PATH], undefined)
+})
+
+test('omet entièrement l’infographie absente, invalide ou impossible à signer', async () => {
+  const absentCalls = []
+  const absent = await loadPublishedArticleBySlug('mon-article', createPublicClient(absentCalls, {
+    article: publishedRow(),
+  }))
+  assert.equal(absent.infographic, null)
+  assert.equal(absentCalls.some((call) => call[1] === 'sign' && String(call[2]).includes('/infographic/')), false)
+
+  const invalidCalls = []
+  const invalid = await loadPublishedArticleBySlug('mon-article', createPublicClient(invalidCalls, {
+    article: publishedRow({ infographic_path: '../foreign.png' }),
+  }))
+  assert.equal(invalid.infographic, null)
+  assert.equal(invalidCalls.some((call) => call[1] === 'sign' && call[2] === '../foreign.png'), false)
+
+  const missing = await loadPublishedArticleBySlug('mon-article', createPublicClient([], {
+    article: publishedRow({ infographic_path: INFOGRAPHIC_PATH }),
+    signFailures: new Set([INFOGRAPHIC_PATH]),
+  }), { logger: { warn() {} } })
+  assert.equal(missing.state, 'found')
+  assert.equal(missing.infographic, null)
+})
+
+test('conserve un alt vide pour permettre le fallback de rendu', async () => {
+  const result = await loadPublishedArticleBySlug('mon-article', createPublicClient([], {
+    article: publishedRow({ infographic_path: INFOGRAPHIC_PATH, infographic_alt_text: '   ' }),
+  }))
+  assert.equal(result.infographic.altText, '')
+})
+
+test('produit des noms PNG, JPEG et WebP sûrs avec slug ou titre fallback', () => {
+  const makePath = (extension) => `articles/${ARTICLE_ID}/infographic/${FILE_ID}.${extension}`
+  assert.equal(getArticleInfographicDownloadFileName({ articleId: ARTICLE_ID, path: makePath('png'), slug: 'article-public' }), 'article-public-infographie.png')
+  assert.equal(getArticleInfographicDownloadFileName({ articleId: ARTICLE_ID, path: makePath('jpg'), title: 'Évaluer le RAG!' }), 'evaluer-le-rag-infographie.jpg')
+  assert.equal(getArticleInfographicDownloadFileName({ articleId: ARTICLE_ID, path: makePath('webp'), title: 'Résumé visuel' }), 'resume-visuel-infographie.webp')
+  assert.equal(getArticleInfographicDownloadFileName({ articleId: ARTICLE_ID, path: '../foreign.png', slug: 'article' }), null)
+})
+
 test('une erreur de signature omet seulement l’asset concerné', async () => {
   const result = await loadPublishedArticleBySlug('mon-article', createPublicClient([], {
     article: publishedRow(),
@@ -125,7 +191,7 @@ test('assainit les données publiques et applique les fallbacks structurels', ()
   assert.equal(article.seo.internalLinkSuggestions, undefined)
 })
 
-function publishedRow() {
+function publishedRow(overrides = {}) {
   return {
     id: ARTICLE_ID,
     slug: 'mon-article',
@@ -137,6 +203,7 @@ function publishedRow() {
     seo: {},
     cover_path: COVER_PATH,
     published_at: '2026-08-01T15:30:00.000Z',
+    ...overrides,
   }
 }
 
