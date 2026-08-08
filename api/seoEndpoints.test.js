@@ -63,7 +63,7 @@ test('proxifie une couverture publiée sans exposer son chemin privé', async ()
   }
   const res = createMockResponse()
   await createArticleSocialImageHandler({ env: ENV, fetchImpl, logger: { warn() {} } })(
-    { method: 'GET', url: '/api/article-social-image?slug=article-public' },
+    { method: 'GET', url: '/api/article-social-image/article-public' },
     res,
   )
   assert.equal(res.statusCode, 200)

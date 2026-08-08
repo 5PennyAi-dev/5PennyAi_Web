@@ -8,6 +8,7 @@ import {
 import middleware, {
   buildArticleCrawlerHtml,
   CRAWLER_PATTERN,
+  injectShellSeo,
 } from './middleware.js'
 
 const INFOGRAPHIC_ID = '11111111-1111-4111-8111-111111111111'
@@ -15,6 +16,9 @@ const ENV = {
   VITE_SUPABASE_URL: 'https://project.supabase.co',
   VITE_SUPABASE_ANON_KEY: 'anon-key',
 }
+const SHELL_HTML = `<!doctype html><html lang="fr"><head>
+<!-- shell-seo:start --><meta data-shell-seo property="og:image" content="https://5pennyai.com/images/og-christian.jpg"><!-- shell-seo:end -->
+</head><body><div id="root"></div><script type="module" src="/assets/app.js"></script></body></html>`
 
 test('reconnaît les crawlers sociaux et de recherche sans traiter un navigateur ordinaire', () => {
   for (const agent of [
@@ -58,7 +62,7 @@ test('sert les métadonnées de l’article au robot de partage Meta actuel', as
 
   assert.equal(response.status, 200)
   assert.match(html, /property="og:title" content="Article correctement partagé — 5PennyAi"/)
-  assert.match(html, /property="og:image" content="https:\/\/5pennyai\.com\/api\/article-social-image\?slug=article-meta&amp;v=\d+"/)
+  assert.match(html, /property="og:image" content="https:\/\/5pennyai\.com\/api\/article-social-image\/article-meta\?v=\d+"/)
   assert.doesNotMatch(html, /Christian Couillard — AI Solutions Engineer|og-christian\.jpg/)
 })
 test('la réponse crawler contient une occurrence cohérente de toutes les métadonnées', () => {
@@ -88,7 +92,7 @@ test('la réponse crawler contient une occurrence cohérente de toutes les méta
   ]) {
     assert.equal(html.split(marker).length - 1, 1, marker)
   }
-  assert.match(html, /og:image" content="https:\/\/5pennyai\.com\/api\/article-social-image\?slug=article-crawler&amp;v=\d+"/)
+  assert.match(html, /og:image" content="https:\/\/5pennyai\.com\/api\/article-social-image\/article-crawler\?v=\d+"/)
   assert.doesNotMatch(html, /signed|token|cover_path|generationBrief|<script>alert/i)
   assert.match(html, /Titre &quot; &lt;test&gt; &amp; fiable/)
 })
@@ -188,16 +192,58 @@ test('refuse localement un UUID invalide sans appeler Supabase', async () => {
   assert.doesNotMatch(await response.text(), /property="og:|twitter:/i)
 })
 
-test('laisse la SPA traiter une infographie demandée par un navigateur ordinaire', async () => {
-  let fetchCalls = 0
+test('injecte les métadonnées d’une infographie dans le HTML initial de la SPA', async () => {
   const response = await middleware(
     new Request(`https://5pennyai.com/ressources-ia/infographies/${INFOGRAPHIC_ID}`, {
       headers: { 'user-agent': 'Mozilla/5.0 Chrome/140' },
     }),
-    { env: ENV, fetchImpl: async () => { fetchCalls += 1; return jsonResponse([]) } },
+    {
+      env: ENV,
+      fetchImpl: async () => jsonResponse([publishedInfographic()]),
+      shellFetchImpl: async () => new Response(SHELL_HTML, { status: 200 }),
+    },
   )
-  assert.equal(response, undefined)
-  assert.equal(fetchCalls, 0)
+  const html = await response.text()
+  assert.equal(response.status, 200)
+  assert.match(html, /<div id="root"><\/div>/)
+  assert.match(html, /src="\/assets\/app\.js"/)
+  assert.match(html, /property="og:title" content="Infographie publique"/)
+  assert.match(html, /thumbnails\/infographics/)
+  assert.doesNotMatch(html, /og-christian\.jpg/)
+})
+
+test('injecte la couverture d’un article dans le HTML initial de la SPA', async () => {
+  const response = await middleware(
+    new Request('https://5pennyai.com/ressources-ia/articles/article-public', {
+      headers: { 'user-agent': 'Mozilla/5.0 Chrome/140' },
+    }),
+    {
+      env: ENV,
+      fetchImpl: async () => jsonResponse([{
+        id: INFOGRAPHIC_ID,
+        slug: 'article-public',
+        title: 'Article public',
+        summary: 'Résumé public',
+        language: 'fr',
+        seo: {},
+        cover: { altText: 'Couverture publique' },
+        cover_path: `articles/${INFOGRAPHIC_ID}/cover/22222222-2222-4222-8222-222222222222.webp`,
+        status: 'published',
+        published_at: '2026-08-01T00:00:00Z',
+        updated_at: '2026-08-07T00:00:00Z',
+      }]),
+      shellFetchImpl: async () => new Response(SHELL_HTML, { status: 200 }),
+    },
+  )
+  const html = await response.text()
+  assert.equal(response.status, 200)
+  assert.match(html, /property="og:title" content="Article public — 5PennyAi"/)
+  assert.match(html, /property="og:image" content="https:\/\/5pennyai\.com\/api\/article-social-image\/article-public\?v=\d+"/)
+  assert.doesNotMatch(html, /og-christian\.jpg/)
+})
+
+test('refuse une injection partielle si les marqueurs du shell sont absents', () => {
+  assert.equal(injectShellSeo('<html><head></head></html>', '<meta>'), '')
 })
 
 function publishedInfographic(overrides = {}) {

@@ -11,7 +11,8 @@ const PUBLIC_FUNCTION_ROUTES = new Map([
   ['/sitemap.xml', 'sitemap'],
   ['/robots.txt', 'robots'],
 ])
-const MIDDLEWARE_PATH_PATTERN = /^\/(?:blog\/[^/]+|ressources-ia\/articles\/[^/]+)\/?$/
+export const MIDDLEWARE_PATH_PATTERN =
+  /^\/(?:blog\/[^/]+|ressources-ia\/(?:articles|infographies)\/[^/]+)\/?$/
 
 // Dev-only middleware that runs Vercel-style functions and crawler middleware
 // during `npm run dev`, so the SEO HTTP routes can be validated locally.
@@ -32,9 +33,7 @@ function apiMiddleware(env) {
           if (handled) return
         }
 
-        const relative = urlPath.startsWith('/api/')
-          ? urlPath.replace(/^\/api\//, '')
-          : PUBLIC_FUNCTION_ROUTES.get(urlPath)
+        const relative = resolveApiHandlerPath(urlPath)
         if (!relative) return next()
 
         const handlerFile = path.resolve(CURRENT_DIRECTORY, 'api', `${relative}.js`)
@@ -81,6 +80,15 @@ function apiMiddleware(env) {
       })
     },
   }
+}
+
+export function resolveApiHandlerPath(urlPath) {
+  if (/^\/api\/article-social-image\/[^/]+\/?$/.test(urlPath)) {
+    return 'article-social-image'
+  }
+  return urlPath.startsWith('/api/')
+    ? urlPath.replace(/^\/api\//, '')
+    : PUBLIC_FUNCTION_ROUTES.get(urlPath)
 }
 
 async function runRoutingMiddleware(server, req, res) {

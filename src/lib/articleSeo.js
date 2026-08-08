@@ -35,8 +35,10 @@ export function buildArticleCanonicalUrl(slug) {
 export function buildArticleSocialImageUrl(slug, version) {
   const normalizedSlug = slugifyArticle(typeof slug === 'string' ? slug : '')
   if (!normalizedSlug) return buildDefaultSocialImageUrl()
-  const url = new URL('/api/article-social-image', `${SITE_ORIGIN}/`)
-  url.searchParams.set('slug', normalizedSlug)
+  const url = new URL(
+    `/api/article-social-image/${encodeURIComponent(normalizedSlug)}`,
+    `${SITE_ORIGIN}/`,
+  )
   const versionTimestamp = Date.parse(version)
   if (Number.isFinite(versionTimestamp)) url.searchParams.set('v', String(versionTimestamp))
   return url.toString()

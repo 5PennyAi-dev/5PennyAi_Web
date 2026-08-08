@@ -15,7 +15,7 @@ export function createArticleSocialImageHandler({ env, fetchImpl = fetch, logger
       res.end('Method not allowed')
       return
     }
-    const slug = readQueryParam(req.url, 'slug')
+    const slug = readArticleSlug(req.url)
     if (!slug) return sendNotFound(res)
 
     let article
@@ -68,9 +68,13 @@ function sendUnavailable(res) {
   res.end('Temporarily unavailable')
 }
 
-function readQueryParam(requestUrl, name) {
+function readArticleSlug(requestUrl) {
   try {
-    return new URL(requestUrl || '/', 'http://localhost').searchParams.get(name) || ''
+    const url = new URL(requestUrl || '/', 'http://localhost')
+    const querySlug = url.searchParams.get('slug')
+    if (querySlug) return querySlug
+    const pathMatch = url.pathname.match(/^\/api\/article-social-image\/([^/]+)\/?$/)
+    return pathMatch ? decodeURIComponent(pathMatch[1]) : ''
   } catch {
     return ''
   }

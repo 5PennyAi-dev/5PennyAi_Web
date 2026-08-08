@@ -23,20 +23,128 @@ export const CRAWLER_PATTERN =
 export default async function middleware(request, dependencies = {}) {
   const url = new URL(request.url)
   const ua = request.headers.get('user-agent') || ''
-  if (!CRAWLER_PATTERN.test(ua)) return
+  const crawler = CRAWLER_PATTERN.test(ua)
 
   const infographicMatch = url.pathname.match(/^\/ressources-ia\/infographies\/([^/]+)\/?$/)
   if (infographicMatch) {
     const id = decodePathSegment(infographicMatch[1])
-    if (!isValidInfographicId(id)) return unavailableInfographicResponse()
-    return handleInfographicCrawler(id, dependencies)
+    if (!isValidInfographicId(id)) return crawler ? unavailableInfographicResponse() : undefined
+    return crawler
+      ? handleInfographicCrawler(id, dependencies)
+      : handleInfographicAppShell(id, request, dependencies)
   }
 
   const articleMatch = url.pathname.match(/^\/ressources-ia\/articles\/([^/]+)\/?$/)
-  if (articleMatch) return handleArticleCrawler(articleMatch[1], dependencies)
+  if (articleMatch) {
+    return crawler
+      ? handleArticleCrawler(articleMatch[1], dependencies)
+      : handleArticleAppShell(articleMatch[1], request, dependencies)
+  }
+
+  if (!crawler) return
 
   const blogMatch = url.pathname.match(/^\/blog\/([^/]+)$/)
   if (blogMatch) return handleBlogCrawler(blogMatch[1])
+}
+
+async function handleInfographicAppShell(id, request, dependencies = {}) {
+  try {
+    const infographic = await fetchPublishedInfographicSeo(id, dependencies)
+    if (!infographic) return
+    const { url: supabaseUrl } = getPublicSupabaseConfig(dependencies.env)
+    const metadata = buildInfographicSeoData(infographic, { supabaseUrl })
+    return renderAppShell(request, buildShellSeoTags({
+      canonicalUrl: metadata.canonicalUrl,
+      description: metadata.description,
+      imageAlt: metadata.socialImageAlt,
+      imageUrl: metadata.socialImageUrl,
+      locale: metadata.locale,
+      pageTitle: metadata.title,
+      socialTitle: metadata.socialTitle,
+      type: metadata.ogType,
+    }), dependencies)
+  } catch (error) {
+    console.warn('Unable to render infographic app-shell metadata:', error?.message)
+  }
+}
+
+async function handleArticleAppShell(slug, request, dependencies = {}) {
+  try {
+    const article = await fetchPublishedArticleSeo(decodePathSegment(slug), dependencies)
+    if (!article) return
+    const metadata = buildArticleSeoMetadata(article)
+    return renderAppShell(request, buildShellSeoTags({
+      canonicalUrl: metadata.canonicalUrl,
+      description: metadata.description,
+      imageAlt: metadata.imageAlt,
+      imageUrl: metadata.imageUrl,
+      locale: metadata.ogLocale,
+      pageTitle: metadata.pageTitle,
+      socialTitle: metadata.socialTitle,
+      type: 'article',
+    }), dependencies)
+  } catch (error) {
+    console.warn('Unable to render article app-shell metadata:', error?.message)
+  }
+}
+
+async function renderAppShell(
+  request,
+  seoTags,
+  { shellFetchImpl = fetch } = {},
+) {
+  const shellUrl = new URL('/index.html', request.url)
+  const shellResponse = await shellFetchImpl(shellUrl, {
+    headers: { Accept: 'text/html' },
+  })
+  if (!shellResponse.ok) return
+
+  const html = injectShellSeo(await shellResponse.text(), seoTags)
+  if (!html) return
+  const headers = new Headers(shellResponse.headers)
+  headers.delete('content-encoding')
+  headers.delete('content-length')
+  headers.set('Cache-Control', 'private, no-store')
+  headers.set('Content-Type', 'text/html; charset=utf-8')
+  headers.set('Vary', 'User-Agent')
+  return new Response(html, { status: 200, headers })
+}
+
+export function injectShellSeo(html, seoTags) {
+  const markerPattern = /<!-- shell-seo:start -->[\s\S]*?<!-- shell-seo:end -->/
+  if (typeof html !== 'string' || !markerPattern.test(html)) return ''
+  return html.replace(
+    markerPattern,
+    `<!-- shell-seo:start -->\n${seoTags}\n    <!-- shell-seo:end -->`,
+  )
+}
+
+function buildShellSeoTags({
+  canonicalUrl,
+  description,
+  imageAlt,
+  imageUrl,
+  locale,
+  pageTitle,
+  socialTitle,
+  type,
+}) {
+  return `    <title data-shell-seo>${escapeHtml(pageTitle)}</title>
+    <meta data-shell-seo name="description" content="${escapeHtml(description)}">
+    <link data-shell-seo rel="canonical" href="${escapeHtml(canonicalUrl)}">
+    <meta data-shell-seo property="og:type" content="${escapeHtml(type)}">
+    <meta data-shell-seo property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+    <meta data-shell-seo property="og:title" content="${escapeHtml(socialTitle)}">
+    <meta data-shell-seo property="og:description" content="${escapeHtml(description)}">
+    <meta data-shell-seo property="og:image" content="${escapeHtml(imageUrl)}">
+    <meta data-shell-seo property="og:image:alt" content="${escapeHtml(imageAlt)}">
+    <meta data-shell-seo property="og:url" content="${escapeHtml(canonicalUrl)}">
+    <meta data-shell-seo property="og:locale" content="${escapeHtml(locale)}">
+    <meta data-shell-seo name="twitter:card" content="summary_large_image">
+    <meta data-shell-seo name="twitter:title" content="${escapeHtml(socialTitle)}">
+    <meta data-shell-seo name="twitter:description" content="${escapeHtml(description)}">
+    <meta data-shell-seo name="twitter:image" content="${escapeHtml(imageUrl)}">
+    <meta data-shell-seo name="twitter:image:alt" content="${escapeHtml(imageAlt)}">`
 }
 
 export async function handleInfographicCrawler(
