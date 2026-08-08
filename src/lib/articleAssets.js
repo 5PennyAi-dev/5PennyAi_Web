@@ -97,6 +97,33 @@ export async function removeArticleCover({ articleId, path }) {
   return { cleanupFailed: !(await safelyRemoveArticleCoverObject(path, articleId)) }
 }
 
+export async function generateArticleCoverFromInfographic(
+  articleId,
+  client = supabase,
+  fetchImpl = fetch,
+) {
+  const { data, error } = await client.auth.getSession()
+  const accessToken = data?.session?.access_token
+  if (error || !accessToken) {
+    const authError = new Error('unauthenticated')
+    authError.code = 'unauthenticated'
+    throw authError
+  }
+  const response = await fetchImpl('/api/generate-article-cover-from-infographic', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ articleId }),
+  })
+  let result = {}
+  try { result = await response.json() } catch { /* handled below */ }
+  if (!response.ok || typeof result.coverPath !== 'string') {
+    const generationError = new Error(result.error || 'generation_failed')
+    generationError.code = result.error || 'generation_failed'
+    throw generationError
+  }
+  return result
+}
+
 export async function uploadArticleMedia({ articleId, mediaKey, oldPath, file, metadata }) {
   const newPath = buildArticleMediaPath(articleId, mediaKey, crypto.randomUUID(), metadata.mimeType)
   return replaceStoredReference({

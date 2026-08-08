@@ -1287,6 +1287,25 @@
           "uploaded": "Le fichier a été téléversé.",
           "removed": "Le fichier a été supprimé.",
           "cleanupWarning": "La référence est valide, mais l’ancien objet Storage devra être nettoyé manuellement.",
+          "coverGeneration": {
+            "generate": "Générer depuis l’infographie",
+            "regenerate": "Régénérer depuis l’infographie",
+            "generating": "Génération en cours…",
+            "generated": "La couverture a été générée et activée.",
+            "cleanupWarning": "La couverture a été générée, mais l’ancienne couverture devra être nettoyée manuellement.",
+            "addInfographicFirst": "Ajoutez d’abord une infographie de synthèse pour générer la couverture à partir de celle-ci.",
+            "errors": {
+              "default": "La génération a échoué; la couverture actuelle a été conservée.",
+              "unauthenticated": "Votre session administrative a expiré.",
+              "forbidden": "Ce compte n’est pas autorisé à générer une couverture.",
+              "article_not_editable": "Seul un brouillon peut recevoir une couverture générée.",
+              "article_title_missing": "Ajoutez un titre à l’article avant de générer sa couverture.",
+              "article_changed": "La couverture a changé pendant la génération. Rechargez l’article et réessayez.",
+              "infographic_missing": "Ajoutez d’abord une infographie de synthèse.",
+              "infographic_download_failed": "L’infographie source n’a pas pu être récupérée.",
+              "provider_failed": "Le fournisseur d’images n’a pas pu générer la couverture."
+            }
+          },
           "orphans": "Assets orphelins",
           "orphansHelp": "Ces clés n’existent plus dans le manifeste. Elles sont conservées jusqu’à une suppression explicite.",
           "warnings": {

@@ -615,7 +615,7 @@ function AdminArticleFormPage() {
 
                 <FormSection number="7" title={t('admin.resourcesAi.articleForm.sections.cover')}>
                   <p className="mb-4 text-sm text-muted">{t('admin.resourcesAi.articleForm.cover.help')}</p>
-                  <ArticleAssetField articleId={id} coverPath={coverPath} kind="cover" onChanged={refreshAssetState} onBusyChange={handleAssetBusyChange} t={t} url={coverPath ? assetUrls[coverPath] : null} />
+                  <ArticleAssetField articleId={id} coverPath={coverPath} infographicPath={infographicPath} kind="cover" onChanged={refreshAssetState} onBusyChange={handleAssetBusyChange} t={t} url={coverPath ? assetUrls[coverPath] : null} />
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <Field label={t('admin.resourcesAi.articleForm.fields.altText')} value={form.cover.altText || ''} onChange={(value) => updateNested('cover', 'altText', value)} />
                     <SelectField label={t('admin.resourcesAi.articleForm.fields.aspectRatio')} value={form.cover.preferredAspectRatio || ''} options={RATIOS} onChange={(value) => updateNested('cover', 'preferredAspectRatio', value)} t={t} />

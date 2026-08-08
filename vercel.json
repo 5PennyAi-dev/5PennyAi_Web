@@ -11,6 +11,9 @@
     },
     "api/generate-resource-thumbnail.js": {
       "maxDuration": 300
+    },
+    "api/generate-article-cover-from-infographic.js": {
+      "maxDuration": 300
     }
   },
   "redirects": [

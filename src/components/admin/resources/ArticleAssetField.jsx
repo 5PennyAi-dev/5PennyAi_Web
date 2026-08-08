@@ -1,6 +1,7 @@
-import { Image as ImageIcon, LoaderCircle, Trash2, Upload } from 'lucide-react'
+import { Image as ImageIcon, LoaderCircle, Sparkles, Trash2, Upload } from 'lucide-react'
 import {
   ARTICLE_MEDIA_KEY_PATTERN,
+  generateArticleCoverFromInfographic,
   readImageMetadata,
   removeArticleCover,
   removeArticleInfographic,
@@ -14,6 +15,7 @@ import { useState } from 'react'
 
 export default function ArticleAssetField({ articleId, asset, coverPath, infographicAltText, infographicPath, kind, media, onBusyChange, onChanged, t, url }) {
   const [busy, setBusy] = useState(false)
+  const [generating, setGenerating] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const saved = kind === 'cover'
     ? Boolean(coverPath)
@@ -104,6 +106,32 @@ export default function ArticleAssetField({ articleId, asset, coverPath, infogra
     }
   }
 
+  const generateCover = async () => {
+    if (kind !== 'cover' || !articleId || !infographicPath || generating) return
+    setGenerating(true)
+    setFeedback(null)
+    try {
+      const result = await generateArticleCoverFromInfographic(articleId)
+      await onChanged({ coverPath: result.coverPath, infographicPath })
+      setFeedback({
+        type: 'status',
+        text: result.cleanupWarning
+          ? t('admin.resourcesAi.articleForm.assets.coverGeneration.cleanupWarning')
+          : t('admin.resourcesAi.articleForm.assets.coverGeneration.generated'),
+      })
+    } catch (error) {
+      console.error('Unable to generate article cover:', error.message)
+      setFeedback({
+        type: 'error',
+        text: t(`admin.resourcesAi.articleForm.assets.coverGeneration.errors.${error.code}`, {
+          defaultValue: t('admin.resourcesAi.articleForm.assets.coverGeneration.errors.default'),
+        }),
+      })
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   return (
     <div className="mt-5 rounded-xl border border-gray-200 bg-white p-4">
       <div className={`grid gap-4 sm:items-start ${kind === 'infographic' ? 'sm:grid-cols-[220px_minmax(0,1fr)]' : 'sm:grid-cols-[180px_minmax(0,1fr)]'}`}>
@@ -131,6 +159,19 @@ export default function ArticleAssetField({ articleId, asset, coverPath, infogra
             </p>
           )}
           <div className="flex flex-wrap gap-2">
+            {kind === 'cover' && (
+              <button
+                type="button"
+                disabled={!articleId || !infographicPath || generating}
+                onClick={generateCover}
+                className="inline-flex items-center gap-2 rounded-lg border border-accent/35 px-4 py-2 text-xs font-semibold text-accent-deep disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {generating ? <LoaderCircle size={14} className="animate-spin" aria-hidden="true" /> : <Sparkles size={14} aria-hidden="true" />}
+                {generating
+                  ? t('admin.resourcesAi.articleForm.assets.coverGeneration.generating')
+                  : t(`admin.resourcesAi.articleForm.assets.coverGeneration.${saved ? 'regenerate' : 'generate'}`)}
+              </button>
+            )}
             <label className={`inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-white ${enabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
               {busy ? <LoaderCircle size={14} className="animate-spin" aria-hidden="true" /> : <Upload size={14} aria-hidden="true" />}
               {t(`admin.resourcesAi.articleForm.assets.${saved ? 'replace' : 'upload'}`)}
@@ -143,6 +184,9 @@ export default function ArticleAssetField({ articleId, asset, coverPath, infogra
             )}
           </div>
           {!articleId && <p className="text-xs text-navy/60">{t('admin.resourcesAi.articleForm.assets.saveFirst')}</p>}
+          {kind === 'cover' && articleId && !infographicPath && (
+            <p className="text-xs text-navy/60">{t('admin.resourcesAi.articleForm.assets.coverGeneration.addInfographicFirst')}</p>
+          )}
           {articleId && !keyValid && <p className="text-xs text-amber-800">{t('admin.resourcesAi.articleForm.assets.invalidKey')}</p>}
           {feedback && <p role={feedback.type === 'error' ? 'alert' : 'status'} className={`text-xs ${feedback.type === 'error' ? 'text-red-700' : 'text-navy/65'}`}>{feedback.text}</p>}
         </div>

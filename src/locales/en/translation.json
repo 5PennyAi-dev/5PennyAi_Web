@@ -1287,6 +1287,25 @@
           "uploaded": "The file was uploaded.",
           "removed": "The file was deleted.",
           "cleanupWarning": "The reference is valid, but the old Storage object requires manual cleanup.",
+          "coverGeneration": {
+            "generate": "Generate from infographic",
+            "regenerate": "Regenerate from infographic",
+            "generating": "Generating…",
+            "generated": "The cover was generated and activated.",
+            "cleanupWarning": "The cover was generated, but the previous cover requires manual cleanup.",
+            "addInfographicFirst": "Add a companion infographic before generating a cover from it.",
+            "errors": {
+              "default": "Generation failed; the current cover was preserved.",
+              "unauthenticated": "Your admin session has expired.",
+              "forbidden": "This account is not allowed to generate a cover.",
+              "article_not_editable": "Only a draft can receive a generated cover.",
+              "article_title_missing": "Add an article title before generating its cover.",
+              "article_changed": "The cover changed during generation. Reload the article and try again.",
+              "infographic_missing": "Add a companion infographic first.",
+              "infographic_download_failed": "The source infographic could not be retrieved.",
+              "provider_failed": "The image provider could not generate the cover."
+            }
+          },
           "orphans": "Orphaned assets",
           "orphansHelp": "These keys no longer exist in the manifest. They remain until explicitly deleted.",
           "warnings": {
