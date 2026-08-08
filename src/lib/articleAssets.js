@@ -1,6 +1,7 @@
 import { supabase } from './supabase.js'
 import {
   ARTICLE_ASSETS_BUCKET,
+  ARTICLE_MEDIA_KEY_PATTERN,
   buildArticleCoverPath,
   buildArticleInfographicPath,
   buildArticleMediaPath,
@@ -117,6 +118,47 @@ export async function generateArticleCoverFromInfographic(
   let result = {}
   try { result = await response.json() } catch { /* handled below */ }
   if (!response.ok || typeof result.coverPath !== 'string') {
+    const generationError = new Error(result.error || 'generation_failed')
+    generationError.code = result.error || 'generation_failed'
+    throw generationError
+  }
+  return result
+}
+
+export const GENERATABLE_ARTICLE_MEDIA_KINDS = Object.freeze(['diagram', 'illustration', 'infographic'])
+
+export function getArticleMediaGenerationAvailability({ articleId, infographicPath, media } = {}) {
+  if (!articleId) return { available: false, reason: 'saveFirst' }
+  if (!isArticleInfographicPath(infographicPath, articleId)) return { available: false, reason: 'infographicMissing' }
+  if (!ARTICLE_MEDIA_KEY_PATTERN.test(media?.key || '')) return { available: false, reason: 'invalidKey' }
+  if (media.kind === 'chart') return { available: false, reason: 'chartManual' }
+  if (media.kind === 'screenshot') return { available: false, reason: 'screenshotManual' }
+  if (!GENERATABLE_ARTICLE_MEDIA_KINDS.includes(media.kind)) return { available: false, reason: 'kindUnsupported' }
+  if (typeof media?.generationBrief !== 'string' || !media.generationBrief.trim()) return { available: false, reason: 'briefMissing' }
+  return { available: true, reason: null }
+}
+
+export async function generateArticleMediaFromInfographic(
+  articleId,
+  mediaKey,
+  client = supabase,
+  fetchImpl = fetch,
+) {
+  const { data, error } = await client.auth.getSession()
+  const accessToken = data?.session?.access_token
+  if (error || !accessToken) {
+    const authError = new Error('unauthenticated')
+    authError.code = 'unauthenticated'
+    throw authError
+  }
+  const response = await fetchImpl('/api/generate-article-media-from-infographic', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ articleId, mediaKey }),
+  })
+  let result = {}
+  try { result = await response.json() } catch { /* handled below */ }
+  if (!response.ok || typeof result.mediaPath !== 'string') {
     const generationError = new Error(result.error || 'generation_failed')
     generationError.code = result.error || 'generation_failed'
     throw generationError

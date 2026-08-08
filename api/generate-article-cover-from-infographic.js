@@ -1,8 +1,9 @@
 /* global process */
 import { Buffer } from 'node:buffer'
 import { randomUUID } from 'node:crypto'
-import OpenAI, { toFile } from 'openai'
+import OpenAI from 'openai'
 import { createResourcesServerClient, authorizeResourcesAdminRequest } from './_lib/resourcesAdminAuth.js'
+import { editImageFromReference } from './_lib/articleImageEdit.js'
 import {
   ARTICLE_COVER_MIME_TYPE,
   ARTICLE_COVER_MODEL,
@@ -93,33 +94,16 @@ function createDependencies({ supabase, openAiKey }) {
   }
 }
 
-export async function editArticleCover({ openai, prompt, reference, toFileImpl = toFile }) {
-  try {
-    const fileName = reference.path.split('/').at(-1) || 'article-infographic'
-    const image = await toFileImpl(reference.buffer, fileName, { type: reference.mimeType })
-    const response = await openai.images.edit({
-      model: ARTICLE_COVER_MODEL,
-      image,
-      prompt,
-      size: ARTICLE_COVER_SIZE,
-      quality: 'medium',
-      output_format: 'webp',
-      output_compression: 85,
-      background: 'opaque',
-      n: 1,
-    })
-    if (!Array.isArray(response?.data) || response.data.length !== 1) {
-      throw new ArticleCoverGenerationError('provider_invalid_image_count', 502, 'generate_image')
-    }
-    const base64 = response.data[0]?.b64_json
-    if (typeof base64 !== 'string' || !base64) {
-      throw new ArticleCoverGenerationError('provider_no_image', 502, 'generate_image')
-    }
-    return { buffer: Buffer.from(base64, 'base64'), mimeType: ARTICLE_COVER_MIME_TYPE }
-  } catch (error) {
-    if (error instanceof ArticleCoverGenerationError) throw error
-    throw new ArticleCoverGenerationError('provider_failed', 502, 'generate_image')
-  }
+export async function editArticleCover({ openai, prompt, reference, toFileImpl }) {
+  return editImageFromReference({
+    openai,
+    prompt,
+    reference,
+    model: ARTICLE_COVER_MODEL,
+    size: ARTICLE_COVER_SIZE,
+    createError: (code, status, failureStep) => new ArticleCoverGenerationError(code, status, failureStep),
+    ...(toFileImpl ? { toFileImpl } : {}),
+  })
 }
 
 function parseBody(body) {

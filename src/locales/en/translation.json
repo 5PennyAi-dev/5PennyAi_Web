@@ -1306,6 +1306,28 @@
               "provider_failed": "The image provider could not generate the cover."
             }
           },
+          "mediaGeneration": {
+            "generate": "Generate from infographic",
+            "regenerate": "Regenerate from infographic",
+            "generating": "Generating…",
+            "generated": "The media was generated and linked to this key.",
+            "cleanupWarning": "The new media is saved, but the previous file requires manual cleanup.",
+            "addInfographicFirst": "Add a companion infographic first to generate this media from its style.",
+            "briefMissing": "This media has no generation brief.",
+            "chartManual": "Charts must be added from verified data.",
+            "screenshotManual": "Screenshots must represent a real interface or result.",
+            "kindUnsupported": "This media type must be added manually.",
+            "errors": {
+              "default": "Generation failed; the current media was preserved.",
+              "unauthenticated": "Your admin session has expired.",
+              "forbidden": "This account is not allowed to generate this media.",
+              "article_not_editable": "Only a draft can receive generated media.",
+              "infographic_missing": "Add a companion infographic first.",
+              "infographic_download_failed": "The source infographic could not be retrieved.",
+              "media_asset_changed": "The media changed during generation. Reload the article and try again.",
+              "provider_failed": "The image provider could not generate this media."
+            }
+          },
           "orphans": "Orphaned assets",
           "orphansHelp": "These keys no longer exist in the manifest. They remain until explicitly deleted.",
           "warnings": {

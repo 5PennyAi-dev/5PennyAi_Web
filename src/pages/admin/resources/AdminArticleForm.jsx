@@ -586,6 +586,7 @@ function AdminArticleFormPage() {
                         <ArticleAssetField
                           articleId={id}
                           asset={resolvedAssets.media[index]?.asset || null}
+                          infographicPath={infographicPath}
                           kind="media"
                           media={item}
                           onChanged={refreshAssetState}

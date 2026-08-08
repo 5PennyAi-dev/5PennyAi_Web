@@ -1306,6 +1306,28 @@
               "provider_failed": "Le fournisseur d’images n’a pas pu générer la couverture."
             }
           },
+          "mediaGeneration": {
+            "generate": "Générer depuis l’infographie",
+            "regenerate": "Régénérer depuis l’infographie",
+            "generating": "Génération en cours…",
+            "generated": "Le média a été généré et associé à cette clé.",
+            "cleanupWarning": "Le nouveau média est enregistré, mais l’ancien fichier devra être nettoyé manuellement.",
+            "addInfographicFirst": "Ajoutez d’abord une infographie de synthèse pour générer ce média à partir de son style.",
+            "briefMissing": "Ce média ne possède pas de brief de génération.",
+            "chartManual": "Les graphiques doivent être ajoutés à partir de données vérifiées.",
+            "screenshotManual": "Les captures doivent représenter une interface ou un résultat réel.",
+            "kindUnsupported": "Ce type de média doit être ajouté manuellement.",
+            "errors": {
+              "default": "La génération a échoué; le média actuel a été conservé.",
+              "unauthenticated": "Votre session administrative a expiré.",
+              "forbidden": "Ce compte n’est pas autorisé à générer ce média.",
+              "article_not_editable": "Seul un brouillon peut recevoir un média généré.",
+              "infographic_missing": "Ajoutez d’abord une infographie de synthèse.",
+              "infographic_download_failed": "L’infographie source n’a pas pu être récupérée.",
+              "media_asset_changed": "Le média a changé pendant la génération. Rechargez l’article et réessayez.",
+              "provider_failed": "Le fournisseur d’images n’a pas pu générer ce média."
+            }
+          },
           "orphans": "Assets orphelins",
           "orphansHelp": "Ces clés n’existent plus dans le manifeste. Elles sont conservées jusqu’à une suppression explicite.",
           "warnings": {

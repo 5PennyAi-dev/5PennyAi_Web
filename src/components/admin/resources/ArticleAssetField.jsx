@@ -2,6 +2,8 @@ import { Image as ImageIcon, LoaderCircle, Sparkles, Trash2, Upload } from 'luci
 import {
   ARTICLE_MEDIA_KEY_PATTERN,
   generateArticleCoverFromInfographic,
+  generateArticleMediaFromInfographic,
+  getArticleMediaGenerationAvailability,
   readImageMetadata,
   removeArticleCover,
   removeArticleInfographic,
@@ -23,7 +25,10 @@ export default function ArticleAssetField({ articleId, asset, coverPath, infogra
       ? Boolean(infographicPath)
       : Boolean(asset)
   const keyValid = kind !== 'media' || ARTICLE_MEDIA_KEY_PATTERN.test(media?.key || '')
-  const enabled = Boolean(articleId) && keyValid && !busy
+  const mediaGeneration = kind === 'media'
+    ? getArticleMediaGenerationAvailability({ articleId, infographicPath, media })
+    : null
+  const enabled = Boolean(articleId) && keyValid && !busy && !generating
   const metadata = kind === 'media' ? asset?.file_metadata : null
   const previewAlt = kind === 'cover' ? '' : kind === 'infographic' ? infographicAltText || '' : media?.altText || ''
 
@@ -77,7 +82,7 @@ export default function ArticleAssetField({ articleId, asset, coverPath, infogra
   }
 
   const remove = async () => {
-    if (!saved || busy || !window.confirm(t('admin.resourcesAi.articleForm.assets.removeConfirm'))) return
+    if (!saved || busy || generating || !window.confirm(t('admin.resourcesAi.articleForm.assets.removeConfirm'))) return
     setBusy(true)
     onBusyChange?.(true)
     setFeedback(null)
@@ -132,6 +137,34 @@ export default function ArticleAssetField({ articleId, asset, coverPath, infogra
     }
   }
 
+  const generateMedia = async () => {
+    if (kind !== 'media' || !mediaGeneration?.available || generating) return
+    setGenerating(true)
+    onBusyChange?.(true)
+    setFeedback(null)
+    try {
+      const result = await generateArticleMediaFromInfographic(articleId, media.key)
+      await onChanged({ coverPath, infographicPath })
+      setFeedback({
+        type: 'status',
+        text: result.cleanupWarning
+          ? t('admin.resourcesAi.articleForm.assets.mediaGeneration.cleanupWarning')
+          : t('admin.resourcesAi.articleForm.assets.mediaGeneration.generated'),
+      })
+    } catch (error) {
+      console.error('Unable to generate article media:', error.message)
+      setFeedback({
+        type: 'error',
+        text: t(`admin.resourcesAi.articleForm.assets.mediaGeneration.errors.${error.code}`, {
+          defaultValue: t('admin.resourcesAi.articleForm.assets.mediaGeneration.errors.default'),
+        }),
+      })
+    } finally {
+      setGenerating(false)
+      onBusyChange?.(false)
+    }
+  }
+
   return (
     <div className="mt-5 rounded-xl border border-gray-200 bg-white p-4">
       <div className={`grid gap-4 sm:items-start ${kind === 'infographic' ? 'sm:grid-cols-[220px_minmax(0,1fr)]' : 'sm:grid-cols-[180px_minmax(0,1fr)]'}`}>
@@ -172,13 +205,27 @@ export default function ArticleAssetField({ articleId, asset, coverPath, infogra
                   : t(`admin.resourcesAi.articleForm.assets.coverGeneration.${saved ? 'regenerate' : 'generate'}`)}
               </button>
             )}
+            {kind === 'media' && mediaGeneration?.available && (
+              <button
+                type="button"
+                disabled={generating}
+                onClick={generateMedia}
+                aria-busy={generating}
+                className="inline-flex items-center gap-2 rounded-lg border border-accent/35 px-4 py-2 text-xs font-semibold text-accent-deep disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {generating ? <LoaderCircle size={14} className="animate-spin" aria-hidden="true" /> : <Sparkles size={14} aria-hidden="true" />}
+                {generating
+                  ? t('admin.resourcesAi.articleForm.assets.mediaGeneration.generating')
+                  : t(`admin.resourcesAi.articleForm.assets.mediaGeneration.${saved ? 'regenerate' : 'generate'}`)}
+              </button>
+            )}
             <label className={`inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-white ${enabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
               {busy ? <LoaderCircle size={14} className="animate-spin" aria-hidden="true" /> : <Upload size={14} aria-hidden="true" />}
               {t(`admin.resourcesAi.articleForm.assets.${saved ? 'replace' : 'upload'}`)}
               <input type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" disabled={!enabled} onChange={chooseFile} className="sr-only" />
             </label>
             {saved && (
-              <button type="button" disabled={busy} onClick={remove} className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-xs font-medium text-red-700 disabled:opacity-50">
+              <button type="button" disabled={busy || generating} onClick={remove} className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-xs font-medium text-red-700 disabled:opacity-50">
                 <Trash2 size={14} aria-hidden="true" />{t('admin.resourcesAi.articleForm.assets.remove')}
               </button>
             )}
@@ -187,7 +234,23 @@ export default function ArticleAssetField({ articleId, asset, coverPath, infogra
           {kind === 'cover' && articleId && !infographicPath && (
             <p className="text-xs text-navy/60">{t('admin.resourcesAi.articleForm.assets.coverGeneration.addInfographicFirst')}</p>
           )}
+          {kind === 'media' && mediaGeneration?.reason === 'infographicMissing' && (
+            <p className="text-xs text-navy/60">{t('admin.resourcesAi.articleForm.assets.mediaGeneration.addInfographicFirst')}</p>
+          )}
+          {kind === 'media' && mediaGeneration?.reason === 'briefMissing' && (
+            <p className="text-xs text-navy/60">{t('admin.resourcesAi.articleForm.assets.mediaGeneration.briefMissing')}</p>
+          )}
+          {kind === 'media' && mediaGeneration?.reason === 'chartManual' && (
+            <p className="text-xs text-navy/60">{t('admin.resourcesAi.articleForm.assets.mediaGeneration.chartManual')}</p>
+          )}
+          {kind === 'media' && mediaGeneration?.reason === 'screenshotManual' && (
+            <p className="text-xs text-navy/60">{t('admin.resourcesAi.articleForm.assets.mediaGeneration.screenshotManual')}</p>
+          )}
+          {kind === 'media' && mediaGeneration?.reason === 'kindUnsupported' && (
+            <p className="text-xs text-navy/60">{t('admin.resourcesAi.articleForm.assets.mediaGeneration.kindUnsupported')}</p>
+          )}
           {articleId && !keyValid && <p className="text-xs text-amber-800">{t('admin.resourcesAi.articleForm.assets.invalidKey')}</p>}
+          {kind === 'media' && generating && <p role="status" className="sr-only">{t('admin.resourcesAi.articleForm.assets.mediaGeneration.generating')}</p>}
           {feedback && <p role={feedback.type === 'error' ? 'alert' : 'status'} className={`text-xs ${feedback.type === 'error' ? 'text-red-700' : 'text-navy/65'}`}>{feedback.text}</p>}
         </div>
       </div>
