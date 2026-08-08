@@ -5,6 +5,7 @@ import { loadPublishedCatalog } from './publicResourceCatalog.js'
 import {
   fetchPublishedInfographicsBySeries,
   fetchPublishedInfographicsForShowcase,
+  getInfographicDownloadFileName,
 } from './publicInfographics.js'
 
 test('la lecture publique applique toujours le filtre published', () => {
@@ -18,6 +19,25 @@ test('la lecture publique applique toujours le filtre published', () => {
 
   assert.equal(applyPublishedFilter(query), query)
   assert.deepEqual(calls, [['status', 'published']])
+})
+
+test('nomme le téléchargement depuis le titre et conserve l’extension réelle', () => {
+  assert.equal(
+    getInfographicDownloadFileName(
+      'Comment fonctionne le RAG ?',
+      'resource-id/original-file.PNG',
+    ),
+    'comment-fonctionne-le-rag.png',
+  )
+  assert.equal(
+    getInfographicDownloadFileName('Éthique & sécurité', 'resource-id/original.webp'),
+    'ethique-securite.webp',
+  )
+})
+
+test('refuse un chemin absent ou sans extension image reconnue', () => {
+  assert.equal(getInfographicDownloadFileName('Titre', null), null)
+  assert.equal(getInfographicDownloadFileName('Titre', 'resource-id/file.tmp'), null)
 })
 
 test('la requête d’accueil limite les colonnes et filtre les publications', async () => {

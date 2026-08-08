@@ -848,6 +848,9 @@
       "share": "Share",
       "copy": "Copy link",
       "copied": "Link copied",
+      "download": "Download",
+      "downloading": "Downloading…",
+      "downloadError": "Unable to download the infographic.",
       "error": "Unable to open sharing.",
       "manualCopy": "Automatic copying was not possible. The link is selected below.",
       "manualCopyLabel": "Canonical link to copy manually"

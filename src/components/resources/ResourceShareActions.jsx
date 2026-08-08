@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components -- pure browser helpers are exported for focused tests */
 import { useEffect, useRef, useState } from 'react'
-import { Check, Copy, Share2 } from 'lucide-react'
+import { Check, Copy, Download, LoaderCircle, Share2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 const COPY_SUCCESS_DURATION = 2500
@@ -43,11 +43,41 @@ export async function copyCanonicalUrl(canonicalUrl, navigatorObject = globalThi
   }
 }
 
+export async function downloadPublicAsset(
+  downloadUrl,
+  downloadFileName,
+  {
+    fetchObject = globalThis.fetch,
+    documentObject = globalThis.document,
+    urlObject = globalThis.URL,
+  } = {},
+) {
+  const response = await fetchObject(downloadUrl)
+  if (!response.ok) throw new Error('download_failed')
+
+  const blob = await response.blob()
+  const objectUrl = urlObject.createObjectURL(blob)
+  const link = documentObject.createElement('a')
+
+  try {
+    link.href = objectUrl
+    link.download = downloadFileName
+    link.hidden = true
+    documentObject.body.appendChild(link)
+    link.click()
+  } finally {
+    link.remove()
+    urlObject.revokeObjectURL(objectUrl)
+  }
+}
+
 export default function ResourceShareActions({
   resourceType,
   title,
   canonicalUrl,
   shareText,
+  downloadUrl,
+  downloadFileName,
   className = '',
 }) {
   const { t } = useTranslation()
@@ -55,6 +85,8 @@ export default function ResourceShareActions({
   const [copied, setCopied] = useState(false)
   const [manualCopy, setManualCopy] = useState(false)
   const [shareError, setShareError] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const [downloadError, setDownloadError] = useState(false)
   const manualInputRef = useRef(null)
   const copyTimerRef = useRef(null)
 
@@ -68,6 +100,7 @@ export default function ResourceShareActions({
 
   async function handleShare() {
     setShareError(false)
+    setDownloadError(false)
     try {
       await shareCanonicalUrl({ title, shareText, canonicalUrl })
     } catch {
@@ -78,6 +111,8 @@ export default function ResourceShareActions({
   async function handleCopy() {
     clearTimeout(copyTimerRef.current)
     setCopied(false)
+    setShareError(false)
+    setDownloadError(false)
     const succeeded = await copyCanonicalUrl(canonicalUrl)
     if (!succeeded) {
       setManualCopy(true)
@@ -89,10 +124,28 @@ export default function ResourceShareActions({
     copyTimerRef.current = setTimeout(() => setCopied(false), COPY_SUCCESS_DURATION)
   }
 
-  const statusMessage = manualCopy
-    ? t('resourcesAi.share.manualCopy')
-    : copied
-      ? t('resourcesAi.share.copied')
+  async function handleDownload() {
+    clearTimeout(copyTimerRef.current)
+    setCopied(false)
+    setDownloadError(false)
+    setShareError(false)
+    setDownloading(true)
+
+    try {
+      await downloadPublicAsset(downloadUrl, downloadFileName)
+    } catch {
+      setDownloadError(true)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  const statusMessage = downloadError
+    ? t('resourcesAi.share.downloadError')
+    : manualCopy
+      ? t('resourcesAi.share.manualCopy')
+      : copied
+        ? t('resourcesAi.share.copied')
       : shareError
         ? t('resourcesAi.share.error')
         : ''
@@ -125,6 +178,21 @@ export default function ResourceShareActions({
             : <Copy size={16} aria-hidden="true" />}
           {copied ? t('resourcesAi.share.copied') : t('resourcesAi.share.copy')}
         </button>
+        {downloadUrl && downloadFileName && (
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={downloading}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-navy/15 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep disabled:cursor-wait disabled:opacity-65"
+          >
+            {downloading
+              ? <LoaderCircle className="animate-spin" size={16} aria-hidden="true" />
+              : <Download size={16} aria-hidden="true" />}
+            {downloading
+              ? t('resourcesAi.share.downloading')
+              : t('resourcesAi.share.download')}
+          </button>
+        )}
       </div>
 
       <div className="min-h-6 pt-2 text-center text-sm text-navy/70" role="status" aria-live="polite">

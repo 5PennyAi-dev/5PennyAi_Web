@@ -3,6 +3,7 @@ import { calculateArticleReadingTime } from './articleMarkdown.js'
 import { getInfographicImageCandidates } from './infographicThumbnails.js'
 import { fetchPublishedArticlesForCatalog } from './publicArticles.js'
 import { applyPublishedFilter } from './publicInfographicQuery.js'
+import { createSeriesSlug } from './resourceSeries.js'
 import {
   loadPublishedCatalog,
   mergePublicResources,
@@ -16,6 +17,7 @@ const PUBLIC_COLUMNS =
   'id, published_at, image_path, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, sources'
 const PUBLIC_SHOWCASE_COLUMNS =
   'id, published_at, image_path, thumbnail_path, title, summary, theme, level, reading_time_minutes, series_name, episode_number'
+const DOWNLOADABLE_IMAGE_EXTENSIONS = new Set(['avif', 'gif', 'jpeg', 'jpg', 'png', 'webp'])
 
 export async function fetchPublishedInfographics(client = supabase) {
   const query = client.from('infographics').select(PUBLIC_COLUMNS)
@@ -100,6 +102,15 @@ export async function fetchPublishedSeriesResources(
 export function getInfographicImageUrl(imagePath, client = supabase) {
   if (!imagePath) return null
   return client.storage.from(BUCKET).getPublicUrl(imagePath).data.publicUrl
+}
+
+export function getInfographicDownloadFileName(title, imagePath) {
+  if (typeof imagePath !== 'string') return null
+
+  const extension = imagePath.split(/[?#]/, 1)[0].match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase()
+  if (!extension || !DOWNLOADABLE_IMAGE_EXTENSIONS.has(extension)) return null
+
+  return `${createSeriesSlug(title) || 'infographie'}.${extension}`
 }
 
 export function getInfographicPreviewSources(resource, client = supabase) {

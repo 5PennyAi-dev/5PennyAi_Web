@@ -848,6 +848,9 @@
       "share": "Partager",
       "copy": "Copier le lien",
       "copied": "Lien copié",
+      "download": "Télécharger",
+      "downloading": "Téléchargement…",
+      "downloadError": "Impossible de télécharger l’infographie.",
       "error": "Impossible d’ouvrir le partage.",
       "manualCopy": "Copie automatique impossible. Le lien est sélectionné ci-dessous.",
       "manualCopyLabel": "Lien canonique à copier manuellement"

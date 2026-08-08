@@ -16,6 +16,7 @@ test.after(async () => {
 const {
   copyCanonicalUrl,
   default: ResourceShareActions,
+  downloadPublicAsset,
   getSafeShareText,
   shareCanonicalUrl,
 } = componentModule
@@ -43,6 +44,9 @@ await i18n.init({
             share: 'Partager',
             copy: 'Copier le lien',
             copied: 'Lien copié',
+            download: 'Télécharger',
+            downloading: 'Téléchargement…',
+            downloadError: 'Impossible de télécharger l’infographie.',
             error: 'Impossible d’ouvrir le partage.',
             manualCopy: 'Copie automatique impossible. Le lien est sélectionné ci-dessous.',
             manualCopyLabel: 'Lien canonique à copier manuellement',
@@ -86,6 +90,29 @@ test('masque Partager sans Web Share sans réserver de bouton vide', () => {
   assert.doesNotMatch(html, />Partager</)
   assert.match(html, />Copier le lien</)
   assert.equal((html.match(/<button/g) || []).length, 1)
+})
+
+test('un article sans configuration de téléchargement ne propose pas Télécharger', () => {
+  setNavigator({ clipboard: { writeText: async () => {} } })
+  const html = renderActions()
+  assert.doesNotMatch(html, />Télécharger</)
+})
+
+test('une infographie avec son asset complet propose Télécharger', () => {
+  setNavigator({ clipboard: { writeText: async () => {} } })
+  const html = renderActions({
+    resourceType: 'infographic',
+    downloadUrl: 'https://storage.example/infographics/full.png',
+    downloadFileName: 'infographie-complete.png',
+  })
+  assert.match(html, />Télécharger</)
+  assert.equal((html.match(/<button/g) || []).length, 2)
+})
+
+test('un asset ou un nom absent masque Télécharger', () => {
+  setNavigator({ clipboard: { writeText: async () => {} } })
+  assert.doesNotMatch(renderActions({ downloadFileName: 'image.png' }), />Télécharger</)
+  assert.doesNotMatch(renderActions({ downloadUrl: 'https://storage.example/full.png' }), />Télécharger</)
 })
 
 test('partage le titre, le texte et exactement la canonical', async () => {
@@ -153,6 +180,60 @@ test('demande le fallback manuel lorsque Clipboard est absent ou refusé', async
   assert.equal(await copyCanonicalUrl(canonicalUrl, {
     clipboard: { writeText: async () => { throw new Error('denied') } },
   }), false)
+})
+
+test('télécharge le Blob sous le nom fourni puis libère l’URL temporaire', async () => {
+  const calls = []
+  const link = {
+    click() { calls.push(['click', this.href, this.download]) },
+    remove() { calls.push(['remove']) },
+  }
+  const documentObject = {
+    createElement(tag) { calls.push(['create', tag]); return link },
+    body: { appendChild(value) { calls.push(['append', value === link]) } },
+  }
+  const urlObject = {
+    createObjectURL(blob) { calls.push(['object', blob.type]); return 'blob:test' },
+    revokeObjectURL(url) { calls.push(['revoke', url]) },
+  }
+
+  await downloadPublicAsset(
+    'https://storage.example/full.png',
+    'infographie-complete.png',
+    {
+      fetchObject: async () => ({
+        ok: true,
+        blob: async () => ({ type: 'image/png' }),
+      }),
+      documentObject,
+      urlObject,
+    },
+  )
+
+  assert.deepEqual(calls, [
+    ['object', 'image/png'],
+    ['create', 'a'],
+    ['append', true],
+    ['click', 'blob:test', 'infographie-complete.png'],
+    ['remove'],
+    ['revoke', 'blob:test'],
+  ])
+})
+
+test('un échec HTTP rejette le téléchargement sans masquer les autres actions', async () => {
+  await assert.rejects(
+    downloadPublicAsset('https://storage.example/missing.png', 'missing.png', {
+      fetchObject: async () => ({ ok: false }),
+    }),
+    /download_failed/,
+  )
+  const html = renderActions({
+    resourceType: 'infographic',
+    downloadUrl: 'https://storage.example/full.png',
+    downloadFileName: 'full.png',
+  })
+  assert.match(html, /role="status"/)
+  assert.match(html, />Copier le lien</)
 })
 
 test('le fallback contient un champ readOnly sélectionnable avec la canonical intacte', () => {

@@ -9,6 +9,7 @@ import SeriesNavigation from '@/components/resources/SeriesNavigation'
 import {
   fetchPublishedInfographic,
   fetchPublishedSeriesResources,
+  getInfographicDownloadFileName,
   getInfographicImageUrl,
 } from '@/lib/publicInfographics'
 import { buildInfographicSeoData } from '@/lib/infographicSeo'
@@ -92,9 +93,10 @@ function InfographicDetailById({ id }) {
 function InfographicContent({ infographic, seriesContext, t }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [imageFailed, setImageFailed] = useState(false)
-  const imageUrl = getInfographicImageUrl(infographic.image_path)
-  const hasImage = Boolean(imageUrl && !imageFailed)
   const title = infographic.title || t('resourcesAi.type')
+  const imageUrl = getInfographicImageUrl(infographic.image_path)
+  const downloadFileName = getInfographicDownloadFileName(title, infographic.image_path)
+  const hasImage = Boolean(imageUrl && !imageFailed)
   const seo = buildInfographicSeoData(infographic)
   const shareText = getInfographicShareText(infographic)
   const series = formatSeries(infographic, t)
@@ -216,6 +218,8 @@ function InfographicContent({ infographic, seriesContext, t }) {
             title={title}
             shareText={shareText}
             canonicalUrl={seo.canonicalUrl}
+            downloadUrl={hasImage && downloadFileName ? imageUrl : undefined}
+            downloadFileName={hasImage ? downloadFileName : undefined}
             className={hasImage ? 'mt-5' : 'mt-10'}
           />
 
