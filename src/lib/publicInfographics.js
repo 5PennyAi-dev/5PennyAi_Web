@@ -14,7 +14,7 @@ const BUCKET = 'infographics'
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const PUBLIC_COLUMNS =
-  'id, published_at, image_path, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, sources'
+  'id, published_at, image_path, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, keywords, sources'
 const PUBLIC_SHOWCASE_COLUMNS =
   'id, published_at, image_path, thumbnail_path, title, summary, theme, level, reading_time_minutes, series_name, episode_number'
 const DOWNLOADABLE_IMAGE_EXTENSIONS = new Set(['avif', 'gif', 'jpeg', 'jpg', 'png', 'webp'])

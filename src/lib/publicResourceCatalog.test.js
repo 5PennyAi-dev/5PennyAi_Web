@@ -3,10 +3,14 @@ import assert from 'node:assert/strict'
 import {
   adaptArticleToPublicResource,
   adaptInfographicToPublicResource,
+  buildResourceSearchText,
   filterPublicResources,
   getPublicResourceKey,
+  matchesResourceSearch,
   mergePublicResources,
+  normalizeResourceLevel,
   normalizeResourceFormat,
+  normalizeSearchText,
   RESOURCE_FORMATS,
   sortResourcesByPublishedAt,
 } from './publicResourceCatalog.js'
@@ -23,9 +27,11 @@ test('adapte une infographie complète avec thumbnail prioritaire et URL publiqu
   const resource = adaptInfographicToPublicResource({
     id: 'info-1',
     title: 'Infographie',
+    subtitle: 'Sous-titre',
     summary: 'Résumé',
     theme: 'RAG',
     level: 'beginner',
+    keywords: ['rag', ' recherche '],
     series_name: 'Série',
     episode_number: 1,
     published_at: '2026-01-01T00:00:00Z',
@@ -35,6 +41,8 @@ test('adapte une infographie complète avec thumbnail prioritaire et URL publiqu
   }, { getImageUrl: (path) => `public:${path}` })
 
   assert.equal(resource.contentType, 'infographic')
+  assert.equal(resource.subtitle, 'Sous-titre')
+  assert.deepEqual(resource.keywords, ['rag', 'recherche'])
   assert.equal(resource.thumbnailUrl, 'public:thumbnail.webp')
   assert.deepEqual(resource.thumbnailSources.map(({ kind }) => kind), ['thumbnail', 'fallback'])
   assert.equal(resource.publicUrl, '/ressources-ia/infographies/info-1')
@@ -55,6 +63,8 @@ test('adapte un article avec ou sans couverture sans inventer les métadonnées'
     id: 'article-1',
     slug: 'article-public',
     title: null,
+    subtitle: null,
+    keywords: null,
     cover_path: 'cover.webp',
     content_markdown: 'Contenu',
   }
@@ -65,6 +75,8 @@ test('adapte un article avec ou sans couverture sans inventer les métadonnées'
   const withoutCover = adaptArticleToPublicResource(row, { readingTime: () => 3 })
 
   assert.equal(withCover.contentType, 'article')
+  assert.equal(withCover.subtitle, '')
+  assert.deepEqual(withCover.keywords, [])
   assert.equal(withCover.thumbnailUrl, 'signed:cover.webp')
   assert.equal(withCover.publicUrl, '/ressources-ia/articles/article-public')
   assert.equal(withCover.readingTimeMinutes, 3)
@@ -157,6 +169,123 @@ test('forme une série mixte unique et résout l’adjacence entre formats', () 
     previous: null,
     next: null,
   })
+})
+
+test('normalizes search text and matches public resource fields', () => {
+  assert.equal(normalizeSearchText('  GÉNÉRATIVE   IA  '), 'generative ia')
+  assert.equal(normalizeSearchText(null), '')
+
+  const resource = {
+    title: 'Introduction au RAG',
+    subtitle: 'Recherche augmentée',
+    summary: 'Des documents utiles pour votre assistant.',
+    theme: 'IA générative',
+    seriesName: 'Parcours découverte',
+    keywords: ['embeddings', 'base vectorielle'],
+  }
+
+  assert.equal(buildResourceSearchText(resource).includes('generative'), true)
+  for (const query of ['rag', 'augmentee', 'documents', 'generative', 'decouverte', 'vectorielle']) {
+    assert.equal(matchesResourceSearch(resource, query), true, query)
+  }
+  assert.equal(matchesResourceSearch(resource, 'rag documents'), true)
+  assert.equal(matchesResourceSearch(resource, 'rag absent'), false)
+  assert.equal(matchesResourceSearch(resource, '   '), true)
+})
+
+test('combines search, level, format and series without changing series order', () => {
+  const resources = [
+    {
+      id: 'latest', contentType: 'article', title: 'RAG documents', level: 'intermediate',
+      seriesName: 'Parcours RAG', publishedAt: '2026-02-02T00:00:00Z',
+    },
+    {
+      id: 'first', contentType: 'article', title: 'RAG débutant', level: 'beginner',
+      seriesName: 'Parcours RAG', episodeNumber: 1, publishedAt: '2026-02-01T00:00:00Z',
+    },
+    {
+      id: 'second', contentType: 'infographic', title: 'Documents RAG', level: 'intermediate',
+      seriesName: 'Parcours RAG', episodeNumber: 2, publishedAt: '2026-01-01T00:00:00Z',
+    },
+  ]
+
+  assert.deepEqual(filterPublicResources(resources, {
+    query: 'rag documents',
+    level: 'intermediate',
+    format: RESOURCE_FORMATS.INFOGRAPHICS,
+    seriesSlug: 'parcours-rag',
+  }).map(({ id }) => id), ['second'])
+  assert.deepEqual(
+    filterPublicResources(resources, { query: 'rag', level: 'beginner' }).map(({ id }) => id),
+    ['first'],
+  )
+  assert.deepEqual(
+    filterPublicResources(resources, { query: 'documents', format: RESOURCE_FORMATS.ARTICLES }).map(({ id }) => id),
+    ['latest'],
+  )
+  assert.deepEqual(
+    filterPublicResources(resources, { query: 'documents', seriesSlug: 'parcours-rag' }).map(({ id }) => id),
+    ['second', 'latest'],
+  )
+  assert.deepEqual(
+    filterPublicResources(resources, { level: 'intermediate', format: RESOURCE_FORMATS.ARTICLES }).map(({ id }) => id),
+    ['latest'],
+  )
+  assert.deepEqual(
+    filterPublicResources(resources, { level: 'intermediate', seriesSlug: 'parcours-rag' }).map(({ id }) => id),
+    ['second', 'latest'],
+  )
+  assert.equal(normalizeResourceLevel('advanced'), 'advanced')
+  assert.equal(normalizeResourceLevel('unknown'), '')
+  assert.deepEqual(
+    filterPublicResources(resources, { level: 'unknown' }).map(({ id }) => id),
+    ['latest', 'first', 'second'],
+  )
+  assert.deepEqual(
+    filterPublicResources(resources, { seriesSlug: 'parcours-rag' }).map(({ id }) => id),
+    ['first', 'second', 'latest'],
+  )
+})
+
+test('filters each valid level and excludes resources without a selected level', () => {
+  const resources = [
+    { id: 'beginner', level: 'beginner' },
+    { id: 'intermediate', level: 'intermediate' },
+    { id: 'advanced', level: 'advanced' },
+    { id: 'none', level: null },
+  ]
+
+  for (const level of ['beginner', 'intermediate', 'advanced']) {
+    assert.deepEqual(filterPublicResources(resources, { level }).map(({ id }) => id), [level])
+  }
+  assert.deepEqual(filterPublicResources(resources).map(({ id }) => id), [
+    'beginner', 'intermediate', 'advanced', 'none',
+  ])
+})
+
+test('combines topic with the existing resource filters without changing series order', () => {
+  const resources = [
+    {
+      id: 'first', contentType: 'article', title: 'IA générative', theme: 'IA générative', level: 'beginner',
+      seriesName: 'Parcours IA', episodeNumber: 1, publishedAt: '2026-01-01T00:00:00Z',
+    },
+    {
+      id: 'second', contentType: 'infographic', title: 'Utilisation de l’IA générative', theme: 'Utilisation de l’IA générative', level: 'beginner',
+      seriesName: 'Parcours IA', episodeNumber: 2, publishedAt: '2026-01-02T00:00:00Z',
+    },
+    {
+      id: 'third', contentType: 'infographic', title: 'Prompting', theme: 'Prompting', level: 'advanced',
+      seriesName: 'Parcours IA', episodeNumber: 3, publishedAt: '2026-01-03T00:00:00Z',
+    },
+  ]
+
+  assert.deepEqual(filterPublicResources(resources, {
+    topic: 'ia-generative', query: 'ia', level: 'beginner', seriesSlug: 'parcours-ia',
+  }).map(({ id }) => id), ['first', 'second'])
+  assert.deepEqual(filterPublicResources(resources, {
+    topic: 'ia-generative', format: RESOURCE_FORMATS.INFOGRAPHICS,
+  }).map(({ id }) => id), ['second'])
+  assert.deepEqual(filterPublicResources(resources, { topic: 'prompting' }).map(({ id }) => id), ['third'])
 })
 
 function createMixedCatalog() {

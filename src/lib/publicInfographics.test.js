@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { applyPublishedFilter } from './publicInfographicQuery.js'
 import { loadPublishedCatalog } from './publicResourceCatalog.js'
 import {
+  fetchPublishedInfographics,
   fetchPublishedInfographicsBySeries,
   fetchPublishedInfographicsForShowcase,
   getInfographicDownloadFileName,
@@ -120,6 +121,23 @@ test('conserve les ressources et le fallback si la lecture des couvertures écho
   assert.equal(result.infographics.length, 1)
   assert.deepEqual(result.seriesThumbnailRows, [])
   assert.equal(warnings.length, 1)
+})
+
+test('the catalog query includes public keywords and subtitle', async () => {
+  const calls = []
+  const client = {
+    from(table) {
+      return {
+        select(columns) { calls.push([table, 'select', columns]); return this },
+        eq() { return this },
+        async order() { return { data: [], error: null } },
+      }
+    },
+  }
+
+  await fetchPublishedInfographics(client)
+  assert.equal(calls[0][2].includes('subtitle'), true)
+  assert.equal(calls[0][2].includes('keywords'), true)
 })
 
 function createCatalogClient(calls, { infographics, rows = [], seriesError = null }) {

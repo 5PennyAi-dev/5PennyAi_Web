@@ -36,6 +36,8 @@ test('la requête de catalogue sélectionne les colonnes publiques et filtre les
 
   const selectCall = calls.find(([table, method]) => table === 'articles' && method === 'select')
   assert.match(selectCall[2], /id, slug, title/)
+  assert.match(selectCall[2], /subtitle/)
+  assert.match(selectCall[2], /keywords/)
   assert.match(selectCall[2], /content_markdown/)
   assert.equal(selectCall[2].includes('media'), false)
   assert.equal(selectCall[2].includes('seo'), false)

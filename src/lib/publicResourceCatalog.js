@@ -1,11 +1,20 @@
 import { getInfographicImageCandidates } from './infographicThumbnails.js'
 import { createSeriesSlug, sortSeriesEpisodes } from './resourceSeries.js'
+import { matchesResourceTopic } from './resourceTopics.js'
 
 export const RESOURCE_FORMATS = Object.freeze({
   ALL: 'all',
   INFOGRAPHICS: 'infographies',
   ARTICLES: 'articles',
 })
+
+export const RESOURCE_LEVELS = Object.freeze([
+  'beginner',
+  'intermediate',
+  'advanced',
+])
+
+const RESOURCE_LEVEL_SET = new Set(RESOURCE_LEVELS)
 
 export function adaptInfographicToPublicResource(row = {}, { getImageUrl = () => null } = {}) {
   const thumbnailSources = getInfographicImageCandidates(row)
@@ -20,9 +29,11 @@ export function adaptInfographicToPublicResource(row = {}, { getImageUrl = () =>
     id: row.id,
     contentType: 'infographic',
     title: row.title,
+    subtitle: cleanText(row.subtitle),
     summary: row.summary,
     theme: row.theme,
     level: row.level,
+    keywords: cleanStringArray(row.keywords),
     seriesName: row.series_name,
     episodeNumber: row.episode_number,
     publishedAt: row.published_at,
@@ -42,9 +53,11 @@ export function adaptArticleToPublicResource(row = {}, { coverUrl = null, readin
     id: row.id,
     contentType: 'article',
     title: row.title,
+    subtitle: cleanText(row.subtitle),
     summary: row.summary,
     theme: row.theme,
     level: row.level,
+    keywords: cleanStringArray(row.keywords),
     seriesName: row.series_name,
     episodeNumber: row.episode_number,
     publishedAt: row.published_at,
@@ -103,14 +116,51 @@ export function normalizeResourceFormat(value, hasPublishedArticles = true) {
   return RESOURCE_FORMATS.ALL
 }
 
+export function normalizeResourceLevel(value) {
+  return RESOURCE_LEVEL_SET.has(value) ? value : ''
+}
+
+export function normalizeSearchText(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+export function buildResourceSearchText(resource = {}) {
+  return normalizeSearchText([
+    resource?.title,
+    resource?.subtitle,
+    resource?.summary,
+    resource?.theme,
+    resource?.seriesName,
+    ...cleanStringArray(resource?.keywords),
+  ].filter(Boolean).join(' '))
+}
+
+export function matchesResourceSearch(resource, query) {
+  const terms = normalizeSearchText(query).split(' ').filter(Boolean)
+  if (terms.length === 0) return true
+
+  const searchText = buildResourceSearchText(resource)
+  return terms.every((term) => searchText.includes(term))
+}
+
 export function filterPublicResources(
   resources,
-  { format = RESOURCE_FORMATS.ALL, seriesSlug = '' } = {},
+  { format = RESOURCE_FORMATS.ALL, level = '', query = '', seriesSlug = '', topic = '' } = {},
 ) {
   if (!Array.isArray(resources)) return []
 
+  const selectedLevel = normalizeResourceLevel(level)
+
   const filtered = resources.filter((resource) => {
+    if (!matchesResourceSearch(resource, query)) return false
     if (seriesSlug && createSeriesSlug(resource?.seriesName) !== seriesSlug) return false
+    if (selectedLevel && resource?.level !== selectedLevel) return false
+    if (!matchesResourceTopic(resource, topic)) return false
     if (format === RESOURCE_FORMATS.INFOGRAPHICS) return resource?.contentType === 'infographic'
     if (format === RESOURCE_FORMATS.ARTICLES) return resource?.contentType === 'article'
     return true
@@ -183,6 +233,12 @@ function publishedRows(rows) {
 
 function cleanText(value) {
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function cleanStringArray(value) {
+  return Array.isArray(value)
+    ? value.filter((item) => typeof item === 'string').map((item) => item.trim()).filter(Boolean)
+    : []
 }
 
 function validTimestamp(value) {

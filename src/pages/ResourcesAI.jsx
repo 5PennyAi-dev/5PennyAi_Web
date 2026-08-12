@@ -15,6 +15,8 @@ import { fetchPublishedCatalog } from '@/lib/publicInfographics'
 import {
   filterPublicResources,
   getPublicResourceKey,
+  normalizeResourceLevel,
+  normalizeSearchText,
   normalizeResourceFormat,
   RESOURCE_FORMATS,
 } from '@/lib/publicResourceCatalog'
@@ -22,6 +24,7 @@ import {
   groupResourcesBySeries,
   selectFeaturedSeries,
 } from '@/lib/resourceSeries'
+import { findResourceTopic, getAvailableResourceTopics } from '@/lib/resourceTopics'
 import { attachSeriesThumbnails } from '@/lib/seriesThumbnails'
 
 const SERIES_PATH = '/ressources-ia/series'
@@ -40,6 +43,14 @@ export default function ResourcesAI() {
   const isSeriesView = searchParams.get('vue') === 'series'
   const selectedSeriesSlug = isSeriesView ? '' : searchParams.get('serie') || ''
   const rawFormat = searchParams.get('format') || ''
+  const rawQuery = searchParams.get('q') || ''
+  const rawLevel = searchParams.get('niveau') || ''
+  const rawTopic = searchParams.get('sujet') || ''
+  const selectedQuery = isSeriesView ? '' : rawQuery
+  const selectedLevel = isSeriesView ? '' : normalizeResourceLevel(rawLevel)
+  const topics = useMemo(() => getAvailableResourceTopics(resources), [resources])
+  const selectedTopic = isSeriesView ? null : findResourceTopic(resources, rawTopic)
+  const selectedTopicKey = selectedTopic?.key || ''
   const selectedFormat = isSeriesView
     ? RESOURCE_FORMATS.ALL
     : normalizeResourceFormat(rawFormat, articles.length > 0)
@@ -48,13 +59,19 @@ export default function ResourcesAI() {
     [selectedSeriesSlug, series],
   )
   const featuredSeries = useMemo(() => selectFeaturedSeries(series), [series])
-  const visibleResources = useMemo(
-    () => filterPublicResources(resources, {
-      format: selectedFormat,
-      seriesSlug: selectedSeriesSlug,
-    }),
-    [resources, selectedFormat, selectedSeriesSlug],
-  )
+  const visibleResources = filterPublicResources(resources, {
+    format: selectedFormat,
+    level: selectedLevel,
+    query: selectedQuery,
+    seriesSlug: selectedSeriesSlug,
+    topic: selectedTopicKey,
+  })
+  const hasActiveResourceFilters = Boolean(normalizeSearchText(selectedQuery))
+    || Boolean(selectedLevel)
+    || selectedFormat !== RESOURCE_FORMATS.ALL
+    || Boolean(selectedSeriesSlug)
+    || Boolean(selectedTopicKey)
+  const isNeutralResourceView = !isSeriesView && !hasActiveResourceFilters
 
   const loadInfographics = useCallback(async () => {
     setState('loading')
@@ -93,15 +110,40 @@ export default function ResourcesAI() {
   }, [])
 
   useEffect(() => {
-    if (!rawFormat || state !== 'ready') return
-    const isValid = rawFormat === RESOURCE_FORMATS.INFOGRAPHICS
-      || (rawFormat === RESOURCE_FORMATS.ARTICLES && articles.length > 0)
-    if (isValid && !isSeriesView) return
+    if (state !== 'ready') return
 
     const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete('format')
-    setSearchParams(nextParams, { replace: true })
-  }, [articles.length, isSeriesView, rawFormat, searchParams, setSearchParams, state])
+    let hasChanges = false
+    const removeParameter = (parameter) => {
+      if (!nextParams.has(parameter)) return
+      nextParams.delete(parameter)
+      hasChanges = true
+    }
+
+    if (isSeriesView) {
+      const resourceViewParameters = ['serie', 'format', 'q', 'niveau', 'sujet']
+      resourceViewParameters.forEach(removeParameter)
+    } else {
+      const isValidFormat = rawFormat === RESOURCE_FORMATS.INFOGRAPHICS
+        || (rawFormat === RESOURCE_FORMATS.ARTICLES && articles.length > 0)
+
+      if (rawFormat && !isValidFormat) removeParameter('format')
+      if (rawLevel && !normalizeResourceLevel(rawLevel)) removeParameter('niveau')
+      if (rawTopic && !selectedTopic) removeParameter('sujet')
+    }
+
+    if (hasChanges) setSearchParams(nextParams, { replace: true })
+  }, [
+    articles.length,
+    isSeriesView,
+    rawFormat,
+    rawLevel,
+    rawTopic,
+    searchParams,
+    selectedTopic,
+    setSearchParams,
+    state,
+  ])
 
   const showResourcesView = () => {
     const nextParams = new URLSearchParams(searchParams)
@@ -115,6 +157,33 @@ export default function ResourcesAI() {
     nextParams.set('vue', 'series')
     nextParams.delete('serie')
     nextParams.delete('format')
+    nextParams.delete('q')
+    nextParams.delete('niveau')
+    nextParams.delete('sujet')
+    setSearchParams(nextParams)
+  }
+
+  const filterBySearch = (query) => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('vue')
+    if (query.trim()) nextParams.set('q', query)
+    else nextParams.delete('q')
+    setSearchParams(nextParams, { replace: true })
+  }
+
+  const filterByLevel = (level) => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('vue')
+    if (normalizeResourceLevel(level)) nextParams.set('niveau', level)
+    else nextParams.delete('niveau')
+    setSearchParams(nextParams)
+  }
+
+  const filterByTopic = (topicKey) => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('vue')
+    if (findResourceTopic(resources, topicKey)) nextParams.set('sujet', topicKey)
+    else nextParams.delete('sujet')
     setSearchParams(nextParams)
   }
 
@@ -134,6 +203,23 @@ export default function ResourcesAI() {
     nextParams.delete('vue')
     if (slug) nextParams.set('serie', slug)
     else nextParams.delete('serie')
+    setSearchParams(nextParams)
+  }
+
+  const clearResourceFilters = () => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('vue')
+    nextParams.delete('q')
+    nextParams.delete('niveau')
+    nextParams.delete('sujet')
+    nextParams.delete('format')
+    nextParams.delete('serie')
+    setSearchParams(nextParams)
+  }
+
+  const removeResourceFilter = (parameter) => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete(parameter)
     setSearchParams(nextParams)
   }
 
@@ -171,13 +257,37 @@ export default function ResourcesAI() {
                 hasPublishedArticles={articles.length > 0}
                 onFilterChange={filterBySeries}
                 onFormatChange={filterByFormat}
+                onLevelChange={filterByLevel}
+                onSearchChange={filterBySearch}
+                onTopicChange={filterByTopic}
                 onShowResources={showResourcesView}
                 onShowSeries={showSeriesView}
+                selectedLevel={selectedLevel}
+                selectedQuery={selectedQuery}
+                selectedTopicKey={selectedTopicKey}
                 selectedSeriesSlug={selectedSeriesSlug}
                 selectedFormat={selectedFormat}
                 series={series}
+                topics={topics}
                 t={t}
               />
+
+              {!isSeriesView && hasActiveResourceFilters && (
+                <ActiveResourceFilters
+                  filters={getActiveResourceFilters({
+                    query: selectedQuery,
+                    format: selectedFormat,
+                    level: selectedLevel,
+                    topic: selectedTopic,
+                    series: selectedSeries,
+                    seriesSlug: selectedSeriesSlug,
+                    t,
+                  })}
+                  onClearAll={clearResourceFilters}
+                  onRemove={removeResourceFilter}
+                  t={t}
+                />
+              )}
 
               {isSeriesView ? (
                 <SeriesView
@@ -187,13 +297,11 @@ export default function ResourcesAI() {
                 />
               ) : (
                 <ResourcesView
-                  featuredSeries={selectedSeriesSlug ? null : featuredSeries}
+                  featuredSeries={isNeutralResourceView ? featuredSeries : null}
                   resources={visibleResources}
-                  onClearFilter={() => filterBySeries('')}
-                  onClearFormat={() => filterByFormat(RESOURCE_FORMATS.ALL)}
+                  onClearAll={clearResourceFilters}
                   selectedSeries={selectedSeries}
                   selectedSeriesSlug={selectedSeriesSlug}
-                  selectedFormat={selectedFormat}
                   t={t}
                 />
               )}
@@ -210,14 +318,21 @@ function CatalogControls({
   isSeriesView,
   onFilterChange,
   onFormatChange,
+  onLevelChange,
+  onSearchChange,
+  onTopicChange,
   onShowResources,
   onShowSeries,
+  selectedLevel,
+  selectedQuery,
+  selectedTopicKey,
   selectedFormat,
   selectedSeriesSlug,
   series,
+  topics,
   t,
 }) {
-  const showFilter = !isSeriesView && (series.length > 0 || selectedSeriesSlug)
+  const showSeriesFilter = !isSeriesView && (series.length > 0 || selectedSeriesSlug)
 
   return (
     <div className="mb-10 flex flex-col gap-5 rounded-2xl border border-navy/[0.08] bg-white/85 p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between sm:p-5">
@@ -252,21 +367,52 @@ function CatalogControls({
         </button>
       </div>
 
-      {!isSeriesView && (hasPublishedArticles || showFilter) && (
-        <div className="grid w-full gap-4 sm:max-w-2xl sm:grid-cols-2">
-          {hasPublishedArticles && (
-            <FormatFilter onChange={onFormatChange} selectedFormat={selectedFormat} t={t} />
-          )}
-          {showFilter && (
-            <SeriesFilter
-              onChange={onFilterChange}
-              selectedSeriesSlug={selectedSeriesSlug}
-              series={series}
+      {!isSeriesView && (
+        <div className="w-full space-y-4 sm:max-w-3xl">
+          <SearchFilter onChange={onSearchChange} query={selectedQuery} t={t} />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(13.5rem,1.25fr)_repeat(3,minmax(9rem,1fr))]">
+            {hasPublishedArticles && (
+              <FormatFilter onChange={onFormatChange} selectedFormat={selectedFormat} t={t} />
+            )}
+            <LevelFilter onChange={onLevelChange} selectedLevel={selectedLevel} t={t} />
+            <TopicFilter
+              onChange={onTopicChange}
+              selectedTopicKey={selectedTopicKey}
+              topics={topics}
               t={t}
             />
-          )}
+            {showSeriesFilter && (
+              <SeriesFilter
+                onChange={onFilterChange}
+                selectedSeriesSlug={selectedSeriesSlug}
+                series={series}
+                t={t}
+              />
+            )}
+          </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function SearchFilter({ onChange, query, t }) {
+  return (
+    <div>
+      <label
+        htmlFor="resource-search"
+        className="mb-1.5 block text-xs font-bold text-navy/70"
+      >
+        {t('resourcesAi.catalog.searchLabel')}
+      </label>
+      <input
+        id="resource-search"
+        type="search"
+        value={query}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={t('resourcesAi.catalog.searchPlaceholder')}
+        className="w-full rounded-xl border border-navy/15 bg-white px-3.5 py-2.5 text-sm font-medium text-navy shadow-sm placeholder:text-navy/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+      />
     </div>
   )
 }
@@ -283,14 +429,17 @@ function FormatFilter({ onChange, selectedFormat, t }) {
       <legend className="mb-1.5 text-xs font-bold text-navy/70">
         {t('resourcesAi.catalog.formatFilterLabel')}
       </legend>
-      <div className="grid grid-cols-3 rounded-xl bg-navy/[0.055] p-1" role="group">
+      <div
+        className="grid grid-cols-[auto_minmax(0,1.45fr)_minmax(0,1fr)] rounded-xl bg-navy/[0.055] p-1"
+        role="group"
+      >
         {options.map(([value, label]) => (
           <button
             key={value}
             type="button"
             aria-pressed={selectedFormat === value}
             onClick={() => onChange(value)}
-            className={`rounded-lg px-2 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+            className={`whitespace-nowrap rounded-lg px-1.5 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
               selectedFormat === value
                 ? 'bg-navy text-white shadow-sm'
                 : 'text-navy/65 hover:bg-white hover:text-navy'
@@ -341,29 +490,101 @@ function SeriesFilter({ onChange, selectedSeriesSlug, series, t }) {
   )
 }
 
+function LevelFilter({ onChange, selectedLevel, t }) {
+  return (
+    <div className="w-full">
+      <label
+        htmlFor="resource-level-filter"
+        className="mb-1.5 block text-xs font-bold text-navy/70"
+      >
+        {t('resourcesAi.catalog.levelFilterLabel')}
+      </label>
+      <select
+        id="resource-level-filter"
+        value={selectedLevel}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-xl border border-navy/15 bg-white px-3.5 py-2.5 text-sm font-medium text-navy shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+      >
+        <option value="">{t('resourcesAi.catalog.allLevels')}</option>
+        {['beginner', 'intermediate', 'advanced'].map((level) => (
+          <option key={level} value={level}>
+            {t(`resourcesAi.levels.${level}`)}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+function TopicFilter({ onChange, selectedTopicKey, topics, t }) {
+  return (
+    <div className="w-full">
+      <label
+        htmlFor="resource-topic-filter"
+        className="mb-1.5 block text-xs font-bold text-navy/70"
+      >
+        {t('resourcesAi.catalog.topicFilterLabel')}
+      </label>
+      <select
+        id="resource-topic-filter"
+        value={selectedTopicKey}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-xl border border-navy/15 bg-white px-3.5 py-2.5 text-sm font-medium text-navy shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+      >
+        <option value="">{t('resourcesAi.catalog.allTopics')}</option>
+        {topics.map((topic) => (
+          <option key={topic.key} value={topic.key}>
+            {getTopicLabel(topic, t)}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+function ActiveResourceFilters({ filters, onClearAll, onRemove, t }) {
+  return (
+    <div
+      aria-label={t('resourcesAi.catalog.activeFiltersLabel')}
+      className="mb-6 flex flex-wrap items-center gap-2"
+    >
+      {filters.map((filter) => (
+        <button
+          key={filter.parameter}
+          type="button"
+          aria-label={filter.removeLabel}
+          onClick={() => onRemove(filter.parameter)}
+          className="inline-flex min-h-9 items-center gap-2 rounded-full bg-lavender/35 px-3 py-1.5 text-xs font-bold text-navy transition-colors hover:bg-lavender/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        >
+          <span>{filter.label}</span>
+          <span aria-hidden="true">×</span>
+        </button>
+      ))}
+      <button
+        type="button"
+        onClick={onClearAll}
+        className="ml-1 text-sm font-bold text-accent-deep underline decoration-accent/35 underline-offset-4 hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      >
+        {t('resourcesAi.catalog.clearAll')}
+      </button>
+    </div>
+  )
+}
+
 function ResourcesView({
   featuredSeries,
   resources,
-  onClearFilter,
-  onClearFormat,
+  onClearAll,
   selectedSeries,
   selectedSeriesSlug,
-  selectedFormat,
   t,
 }) {
   if (selectedSeriesSlug && !selectedSeries) {
-    return <FilteredEmptyState onClearFilter={onClearFilter} t={t} />
+    return <FilteredEmptyState onClearAll={onClearAll} t={t} />
   }
 
   if (resources.length === 0) {
-    return (
-      <FormatEmptyState
-        hasSeries={Boolean(selectedSeries)}
-        onClearFormat={onClearFormat}
-        selectedFormat={selectedFormat}
-        t={t}
-      />
-    )
+    return <NoResultsState onClearAll={onClearAll} t={t} />
   }
 
   return (
@@ -378,29 +599,64 @@ function ResourcesView({
             <h2 id="resources-list-title" className="font-heading text-2xl font-bold text-navy">
               {selectedSeries?.name || t('resourcesAi.catalog.allResources')}
             </h2>
-            {selectedSeries && (
-              <p className="mt-1 text-sm text-muted">
-                {t('resourcesAi.catalog.episodeCount', {
-                  count: selectedSeries.episodeCount,
-                })}
-              </p>
-            )}
+            <p className="mt-1 text-sm text-muted">
+              {t('resourcesAi.catalog.resourceCount', { count: resources.length })}
+            </p>
           </div>
-          {selectedSeries && (
-            <button
-              type="button"
-              onClick={onClearFilter}
-              className="w-fit text-sm font-bold text-accent-deep underline decoration-accent/35 underline-offset-4 hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4"
-            >
-              {t('resourcesAi.catalog.clearFilter')}
-            </button>
-          )}
         </div>
 
         <ResourceGrid resources={resources} t={t} />
       </section>
     </>
   )
+}
+
+function getActiveResourceFilters({ format, level, query, series, seriesSlug, t, topic }) {
+  const filters = []
+  if (normalizeSearchText(query)) {
+    filters.push({
+      parameter: 'q',
+      label: t('resourcesAi.catalog.activeSearch', { query }),
+      removeLabel: t('resourcesAi.catalog.removeSearch', { query }),
+    })
+  }
+  if (format !== RESOURCE_FORMATS.ALL) {
+    const label = t(`resourcesAi.catalog.${format}`)
+    filters.push({
+      parameter: 'format',
+      label,
+      removeLabel: t('resourcesAi.catalog.removeFilter', { filter: label }),
+    })
+  }
+  if (level) {
+    const label = t(`resourcesAi.levels.${level}`)
+    filters.push({
+      parameter: 'niveau',
+      label,
+      removeLabel: t('resourcesAi.catalog.removeFilter', { filter: label }),
+    })
+  }
+  if (topic) {
+    const label = getTopicLabel(topic, t)
+    filters.push({
+      parameter: 'sujet',
+      label,
+      removeLabel: t('resourcesAi.catalog.removeFilter', { filter: label }),
+    })
+  }
+  if (seriesSlug) {
+    const label = series?.name || t('resourcesAi.catalog.unknownSeries')
+    filters.push({
+      parameter: 'serie',
+      label,
+      removeLabel: t('resourcesAi.catalog.removeFilter', { filter: label }),
+    })
+  }
+  return filters
+}
+
+function getTopicLabel(topic, t) {
+  return topic?.labelKey ? t(topic.labelKey) : topic?.label || ''
 }
 
 function FeaturedSeries({ series, t }) {
@@ -537,33 +793,26 @@ function ResourceGrid({ resources, t }) {
   )
 }
 
-function FormatEmptyState({ hasSeries, onClearFormat, selectedFormat, t }) {
-  const formatKey = selectedFormat === RESOURCE_FORMATS.ARTICLES ? 'articles' : 'infographics'
-  const title = hasSeries
-    ? t('resourcesAi.catalog.noFormatInSeriesTitle')
-    : t(`resourcesAi.catalog.no${formatKey === 'articles' ? 'Articles' : 'Infographics'}Title`)
-
+function NoResultsState({ onClearAll, t }) {
   return (
     <div role="status" className="mx-auto max-w-xl rounded-2xl border border-navy/[0.08] bg-white p-10 text-center shadow-sm">
       <Layers3 className="mx-auto text-steel" size={36} strokeWidth={1.4} aria-hidden="true" />
-      <h2 className="mt-5 text-xl font-bold text-navy">{title}</h2>
+      <h2 className="mt-5 text-xl font-bold text-navy">{t('resourcesAi.catalog.noResultsTitle')}</h2>
       <p className="mt-3 text-sm leading-relaxed text-muted">
-        {hasSeries
-          ? t('resourcesAi.catalog.noFormatInSeriesDescription')
-          : t('resourcesAi.catalog.noFormatDescription')}
+        {t('resourcesAi.catalog.noResultsDescription')}
       </p>
       <button
         type="button"
-        onClick={onClearFormat}
+        onClick={onClearAll}
         className="mt-6 rounded-full bg-navy px-5 py-2.5 text-sm font-bold text-white hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       >
-        {t('resourcesAi.catalog.clearFilter')}
+        {t('resourcesAi.catalog.clearAll')}
       </button>
     </div>
   )
 }
 
-function FilteredEmptyState({ onClearFilter, t }) {
+function FilteredEmptyState({ onClearAll, t }) {
   return (
     <div
       role="status"
@@ -578,10 +827,10 @@ function FilteredEmptyState({ onClearFilter, t }) {
       </p>
       <button
         type="button"
-        onClick={onClearFilter}
+        onClick={onClearAll}
         className="mt-6 rounded-full bg-navy px-5 py-2.5 text-sm font-bold text-white hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       >
-        {t('resourcesAi.catalog.clearFilter')}
+        {t('resourcesAi.catalog.clearAll')}
       </button>
     </div>
   )
