@@ -1,11 +1,17 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { Buffer } from 'node:buffer'
+import { readFileSync } from 'node:fs'
 import {
   createDependencies,
   validatePromptThumbnailRequestBody,
 } from './generate-prompt-thumbnail.js'
 import { PROMPT_THUMBNAIL_SOURCE_SIZE } from './_lib/promptThumbnail.js'
+
+test('dispose de 300 secondes dans la configuration Vercel de production', () => {
+  const vercel = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'))
+  assert.equal(vercel.functions['api/generate-prompt-thumbnail.js'].maxDuration, 300)
+})
 
 test('utilise images.generate sans image source, une seule fois avec gpt-image-2', async () => {
   const calls = []
