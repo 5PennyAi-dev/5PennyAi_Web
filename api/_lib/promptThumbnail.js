@@ -10,7 +10,7 @@ import {
 import {
   buildPromptThumbnailPath,
   isPromptThumbnailPath,
-} from '../../src/lib/promptThumbnails.js'
+} from '../../src/lib/promptThumbnailRules.js'
 
 export const PROMPT_THUMBNAIL_PROMPT_VERSION = 'prompt-thumbnail-v2'
 export const PROMPT_THUMBNAIL_SOURCE_SIZE = '1536x1024'

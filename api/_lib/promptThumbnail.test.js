@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { Buffer } from 'node:buffer'
+import { readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import {
   PROMPT_THUMBNAIL_PROMPT_VERSION,
@@ -18,6 +19,12 @@ const GENERATED_WEBP = await sharp({
   create: { width: 1536, height: 1024, channels: 3, background: '#143054' },
 }).webp({ quality: 90 }).toBuffer()
 const NORMALIZED_WEBP = await normalizePromptThumbnail(GENERATED_WEBP)
+
+test('le module serveur dépend uniquement des règles pures de thumbnail Prompt', () => {
+  const source = readFileSync(new URL('./promptThumbnail.js', import.meta.url), 'utf8')
+  assert.match(source, /src\/lib\/promptThumbnailRules\.js/)
+  assert.doesNotMatch(source, /src\/lib\/promptThumbnails\.js/)
+})
 
 test('construit le prompt visuel versionné avec seulement le contexte autorisé', () => {
   const visualPrompt = buildPromptThumbnailPrompt({
