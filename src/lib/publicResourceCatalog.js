@@ -1,11 +1,13 @@
 import { getInfographicImageCandidates } from './infographicThumbnails.js'
 import { createSeriesSlug, sortSeriesEpisodes } from './resourceSeries.js'
 import { matchesResourceTopic } from './resourceTopics.js'
+import { isPromptCategory } from './promptTaxonomies.js'
 
 export const RESOURCE_FORMATS = Object.freeze({
   ALL: 'all',
   INFOGRAPHICS: 'infographies',
   ARTICLES: 'articles',
+  PROMPTS: 'prompt',
 })
 
 export const RESOURCE_LEVELS = Object.freeze([
@@ -68,10 +70,33 @@ export function adaptArticleToPublicResource(row = {}, { coverUrl = null, readin
   }
 }
 
+export function adaptPromptToPublicResource(row = {}, { thumbnailUrl = null } = {}) {
+  const thumbnailSources = thumbnailUrl
+    ? [{ path: row.thumbnail_path || null, url: thumbnailUrl, kind: 'thumbnail' }]
+    : []
+
+  return {
+    id: row.id,
+    contentType: 'prompt',
+    title: row.title,
+    summary: row.summary,
+    level: row.level,
+    publishedAt: row.published_at,
+    thumbnailUrl: thumbnailUrl || null,
+    thumbnailSources,
+    publicUrl: row.slug ? `/ressources-ia/prompts/${row.slug}` : '',
+    category: cleanText(row.category),
+    contexts: cleanStringArray(row.contexts),
+    keywords: cleanStringArray(row.keywords),
+  }
+}
+
 export function mergePublicResources({
   infographicRows = [],
   articleRows = [],
+  promptRows = [],
   articleCoverUrls = {},
+  promptThumbnailUrls = {},
   getInfographicImageUrl = () => null,
   calculateArticleReadingTime = () => null,
 } = {}) {
@@ -82,11 +107,16 @@ export function mergePublicResources({
       coverUrl: articleCoverUrls[row.id] || null,
       readingTime: calculateArticleReadingTime,
     }))
+  const prompts = publishedRows(promptRows).map((row) =>
+    adaptPromptToPublicResource(row, {
+      thumbnailUrl: promptThumbnailUrls[row.id] || null,
+    }))
 
   return {
-    resources: sortResourcesByPublishedAt([...infographics, ...articles]),
+    resources: sortResourcesByPublishedAt([...infographics, ...articles, ...prompts]),
     infographics,
     articles,
+    prompts,
   }
 }
 
@@ -110,14 +140,62 @@ export function sortResourcesByPublishedAt(resources) {
     .map(({ resource }) => resource)
 }
 
-export function normalizeResourceFormat(value, hasPublishedArticles = true) {
+export function normalizeResourceFormat(
+  value,
+  hasPublishedArticles = true,
+  hasPublishedPrompts = false,
+) {
   if (value === RESOURCE_FORMATS.INFOGRAPHICS) return RESOURCE_FORMATS.INFOGRAPHICS
   if (value === RESOURCE_FORMATS.ARTICLES && hasPublishedArticles) return RESOURCE_FORMATS.ARTICLES
+  if (value === RESOURCE_FORMATS.PROMPTS && hasPublishedPrompts) return RESOURCE_FORMATS.PROMPTS
   return RESOURCE_FORMATS.ALL
 }
 
 export function normalizeResourceLevel(value) {
   return RESOURCE_LEVEL_SET.has(value) ? value : ''
+}
+
+export function normalizeCatalogSearchParams(
+  searchParams,
+  {
+    hasPublishedArticles = false,
+    hasPublishedPrompts = false,
+    hasValidTopic = false,
+    isSeriesView = false,
+  } = {},
+) {
+  const nextParams = new URLSearchParams(searchParams)
+  let hasChanges = false
+  const remove = (parameter) => {
+    if (!nextParams.has(parameter)) return
+    nextParams.delete(parameter)
+    hasChanges = true
+  }
+
+  if (isSeriesView) {
+    ['serie', 'format', 'q', 'niveau', 'sujet', 'categorie'].forEach(remove)
+    return { hasChanges, nextParams }
+  }
+
+  const rawFormat = nextParams.get('format') || ''
+  const isValidFormat = rawFormat === RESOURCE_FORMATS.INFOGRAPHICS
+    || (rawFormat === RESOURCE_FORMATS.ARTICLES && hasPublishedArticles)
+    || (rawFormat === RESOURCE_FORMATS.PROMPTS && hasPublishedPrompts)
+  if (rawFormat && !isValidFormat) remove('format')
+  if (nextParams.has('niveau') && !normalizeResourceLevel(nextParams.get('niveau'))) remove('niveau')
+
+  if (rawFormat === RESOURCE_FORMATS.PROMPTS && hasPublishedPrompts) {
+    remove('sujet')
+    remove('serie')
+    if (nextParams.has('categorie') && !isPromptCategory(nextParams.get('categorie'))) {
+      remove('categorie')
+    }
+  } else {
+    if (nextParams.has('sujet') && !hasValidTopic) remove('sujet')
+    remove('categorie')
+  }
+
+  return { hasChanges, nextParams }
 }
 
 export function normalizeSearchText(value) {
@@ -129,40 +207,53 @@ export function normalizeSearchText(value) {
     .trim()
 }
 
-export function buildResourceSearchText(resource = {}) {
+export function buildResourceSearchText(resource = {}, promptTaxonomyLabels = []) {
   return normalizeSearchText([
     resource?.title,
     resource?.subtitle,
     resource?.summary,
     resource?.theme,
     resource?.seriesName,
+    resource?.category,
+    ...cleanStringArray(resource?.contexts),
     ...cleanStringArray(resource?.keywords),
+    ...(resource?.contentType === 'prompt' ? cleanStringArray(promptTaxonomyLabels) : []),
   ].filter(Boolean).join(' '))
 }
 
-export function matchesResourceSearch(resource, query) {
+export function matchesResourceSearch(resource, query, promptTaxonomyLabels = []) {
   const terms = normalizeSearchText(query).split(' ').filter(Boolean)
   if (terms.length === 0) return true
 
-  const searchText = buildResourceSearchText(resource)
+  const searchText = buildResourceSearchText(resource, promptTaxonomyLabels)
   return terms.every((term) => searchText.includes(term))
 }
 
 export function filterPublicResources(
   resources,
-  { format = RESOURCE_FORMATS.ALL, level = '', query = '', seriesSlug = '', topic = '' } = {},
+  {
+    format = RESOURCE_FORMATS.ALL,
+    level = '',
+    query = '',
+    seriesSlug = '',
+    topic = '',
+    category = '',
+    getPromptTaxonomyLabels = () => [],
+  } = {},
 ) {
   if (!Array.isArray(resources)) return []
 
   const selectedLevel = normalizeResourceLevel(level)
 
   const filtered = resources.filter((resource) => {
-    if (!matchesResourceSearch(resource, query)) return false
+    if (!matchesResourceSearch(resource, query, getPromptTaxonomyLabels(resource))) return false
     if (seriesSlug && createSeriesSlug(resource?.seriesName) !== seriesSlug) return false
     if (selectedLevel && resource?.level !== selectedLevel) return false
+    if (category && resource?.category !== category) return false
     if (!matchesResourceTopic(resource, topic)) return false
     if (format === RESOURCE_FORMATS.INFOGRAPHICS) return resource?.contentType === 'infographic'
     if (format === RESOURCE_FORMATS.ARTICLES) return resource?.contentType === 'article'
+    if (format === RESOURCE_FORMATS.PROMPTS) return resource?.contentType === 'prompt'
     return true
   })
 
@@ -195,20 +286,26 @@ export async function loadPublishedCatalog({
   client,
   fetchInfographics,
   fetchArticles = async () => ({ rows: [], coverUrls: {} }),
+  fetchPrompts = async () => ({ rows: [], thumbnailUrls: {} }),
   getInfographicImageUrl,
   calculateArticleReadingTime,
   logger = console,
 }) {
-  const [infographicRows, articleResult] = await Promise.all([
+  const [infographicRows, articleResult, promptResult] = await Promise.all([
     fetchInfographics(client),
     fetchArticles(client, { logger }),
+    fetchPrompts(client, { logger }),
   ])
   const articleRows = Array.isArray(articleResult) ? articleResult : articleResult?.rows || []
   const articleCoverUrls = Array.isArray(articleResult) ? {} : articleResult?.coverUrls || {}
+  const promptRows = Array.isArray(promptResult) ? promptResult : promptResult?.rows || []
+  const promptThumbnailUrls = Array.isArray(promptResult) ? {} : promptResult?.thumbnailUrls || {}
   const catalog = mergePublicResources({
     infographicRows,
     articleRows,
     articleCoverUrls,
+    promptRows,
+    promptThumbnailUrls,
     getInfographicImageUrl,
     calculateArticleReadingTime,
   })

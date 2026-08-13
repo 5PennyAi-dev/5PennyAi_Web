@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Trouver plusieurs idées à partir d’un objectif",
+  "summary": "Générez des pistes variées et réalistes à partir d’un objectif, puis repérez celles qui méritent d’être explorées.",
+  "category": "think", "level": "beginner", "contexts": ["daily_life", "work", "creativity"], "resultTypes": ["ideas", "list"],
+  "whenToUse": "Utilisez ce modèle lorsque vous avez un objectif clair mais manquez de façons concrètes de l’atteindre.",
+  "promptTemplate": "Propose plusieurs idées pour atteindre l’objectif suivant : [OBJECTIF].\n\nContexte : [CONTEXTE]\nContraintes : [CONTRAINTES]\n\nCommence par des idées simples et réalisables, puis ajoute quelques pistes plus originales. Varie réellement les approches au lieu de reformuler la même idée. Pour chaque proposition, indique son principal avantage, son effort probable et une première petite étape. Termine par trois questions qui m’aideraient à choisir quoi explorer.",
+  "variables": [
+    {"key": "OBJECTIF", "label": "Objectif", "description": "Le résultat que vous voulez obtenir.", "example": "Créer plus de liens entre les collègues qui travaillent à distance."},
+    {"key": "CONTEXTE", "label": "Contexte", "description": "Les éléments utiles pour comprendre votre situation.", "example": "Équipe de 12 personnes réparties sur trois fuseaux horaires."},
+    {"key": "CONTRAINTES", "label": "Contraintes", "description": "Les limites de temps, budget ou organisation.", "example": "Petit budget, activités facultatives et maximum 30 minutes par semaine."}
+  ],
+  "tip": "Demandez d’abord de la variété; l’évaluation des idées vient mieux dans un second temps.",
+  "editorialObjective": "Débloquer l’idéation autour d’un objectif concret sans produire une liste de variantes superficielles.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 montrant plusieurs chemins visuels distincts qui partent d’un objectif central. Afficher exactement le titre « Trouver plusieurs idées à partir d’un objectif » entièrement dans une zone sûre généreuse, aucune lettre coupée ni débordement. Pas de cerveau IA, robot, paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["idées", "objectif", "créativité", "pistes", "brainstorming"],
+  "seo": {"primaryQuery": "prompt pour trouver des idées", "secondaryQueries": ["générer des idées à partir d'un objectif", "prompt brainstorming pratique"], "seoTitle": "Prompt pour trouver des idées utiles", "metaDescription": "Trouvez des pistes variées et réalistes à partir d’un objectif, de votre contexte et de vos contraintes.", "suggestedSlug": "trouver-plusieurs-idees-partir-objectif", "internalLinkSuggestions": []}
+}

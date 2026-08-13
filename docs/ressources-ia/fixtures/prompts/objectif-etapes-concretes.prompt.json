@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Transformer un objectif en étapes concrètes",
+  "summary": "Découpez un objectif en étapes faisables, dépendances, premiers gestes et points de contrôle.",
+  "category": "organize", "level": "beginner", "contexts": ["daily_life", "work", "studies"], "resultTypes": ["plan", "checklist"],
+  "whenToUse": "Utilisez ce modèle lorsqu’un objectif vous semble trop large pour savoir par où commencer.",
+  "promptTemplate": "Transforme cet objectif en étapes concrètes : [OBJECTIF].\n\nPoint de départ : [SITUATION]\nÉchéance ou rythme : [ECHEANCE]\nContraintes : [CONTRAINTES]\n\nDécoupe l’objectif en étapes assez petites pour être réalisées. Pour chacune, indique le résultat attendu, les dépendances et un signe simple de progression. Propose la toute première action faisable en moins de 30 minutes. Signale si l’objectif, l’échéance ou les informations semblent irréalistes ou incomplets.",
+  "variables": [
+    {"key": "OBJECTIF", "label": "Objectif", "description": "Le résultat que vous voulez atteindre.", "example": "Créer un portfolio simple pour présenter mes projets."},
+    {"key": "SITUATION", "label": "Point de départ", "description": "Ce que vous avez déjà et ce qui reste à faire.", "example": "J’ai choisi quatre projets, mais je n’ai encore rédigé aucune description."},
+    {"key": "ECHEANCE", "label": "Échéance ou rythme", "description": "La date cible ou le temps disponible.", "example": "Dans six semaines, avec deux heures par semaine."},
+    {"key": "CONTRAINTES", "label": "Contraintes", "description": "Les limites importantes à respecter.", "example": "Utiliser un outil gratuit et éviter le développement sur mesure."}
+  ],
+  "tip": "Commencez par la première action proposée, puis ajustez le plan à partir de ce que vous apprenez réellement.",
+  "editorialObjective": "Rendre un objectif intimidant actionnable sans cacher les dépendances ou une échéance irréaliste.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 représentant un grand objectif décomposé en marches ou blocs concrets et atteignables. Afficher exactement le titre « Transformer un objectif en étapes concrètes » en entier dans une grande zone sûre, sans texte coupé. Pas de paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["objectif", "étapes", "plan", "action", "organiser"],
+  "seo": {"primaryQuery": "prompt pour transformer un objectif en étapes", "secondaryQueries": ["découper un objectif en actions", "plan d'action avec une IA"], "seoTitle": "Prompt pour transformer un objectif en étapes", "metaDescription": "Découpez un objectif en étapes concrètes, dépendances et premiers gestes adaptés à votre situation.", "suggestedSlug": "transformer-objectif-en-etapes-concretes", "internalLinkSuggestions": []}
+}

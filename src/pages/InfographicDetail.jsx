@@ -192,13 +192,16 @@ function InfographicContent({ infographic, seriesContext, t }) {
 
           {hasImage && (
             <section className="mt-12" aria-label={t('resourcesAi.detail.imageSection')}>
-              <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-navy/[0.08] bg-white p-3 shadow-sm sm:p-5">
-                <img
-                  src={imageUrl}
-                  alt={infographic.image_alt || t('resourcesAi.imageAlt')}
-                  className="h-auto max-w-full object-contain"
-                  onError={() => setImageFailed(true)}
-                />
+              <div className="relative mx-auto max-w-5xl">
+                <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-navy/[0.08] bg-white p-3 shadow-sm sm:p-5">
+                  <img
+                    src={imageUrl}
+                    alt={infographic.image_alt || t('resourcesAi.imageAlt')}
+                    className="h-auto max-w-full object-contain"
+                    onError={() => setImageFailed(true)}
+                  />
+                </div>
+                {seriesContext && <SeriesNavigation context={seriesContext} placement="sides" t={t} />}
               </div>
               <div className="mt-5 text-center">
                 <button
@@ -287,7 +290,7 @@ function InfographicContent({ infographic, seriesContext, t }) {
             </section>
           )}
 
-          {seriesContext && (
+          {seriesContext && !hasImage && (
             <SeriesNavigation context={seriesContext} t={t} />
           )}
 

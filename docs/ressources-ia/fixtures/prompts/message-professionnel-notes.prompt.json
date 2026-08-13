@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Rédiger un message professionnel à partir de quelques notes",
+  "summary": "Transformez quelques points en un message professionnel clair, courtois et orienté vers l’action.",
+  "category": "write", "level": "beginner", "contexts": ["work", "communication"], "resultTypes": ["text"],
+  "whenToUse": "Utilisez ce modèle pour préparer rapidement un courriel ou un message de travail à partir de notes brèves.",
+  "promptTemplate": "Rédige un message professionnel à partir de mes notes.\n\nDestinataire : [DESTINATAIRE]\nObjectif : [OBJECTIF]\nNotes :\n[NOTES]\nTon : [TON]\n\nRédige un objet court, puis un message clair et courtois. Place la demande ou la prochaine étape au bon endroit, conserve seulement les détails utiles et n’invente ni engagement, ni date, ni fait absent de mes notes. Marque [À CONFIRMER] lorsqu’une précision essentielle manque.",
+  "variables": [
+    {"key": "DESTINATAIRE", "label": "Destinataire", "description": "La personne ou le groupe qui recevra le message.", "example": "Une cliente avec qui nous avons eu une première rencontre."},
+    {"key": "OBJECTIF", "label": "Objectif", "description": "Ce que vous voulez obtenir grâce au message.", "example": "Confirmer les prochaines étapes et demander les documents manquants."},
+    {"key": "NOTES", "label": "Notes", "description": "Les informations qui doivent apparaître dans le message.", "example": "Merci pour mardi; envoyer proposition vendredi; il manque les chiffres de ventes 2025; proposer appel de 20 minutes si questions."},
+    {"key": "TON", "label": "Ton", "description": "Le ton souhaité.", "example": "Chaleureux, concis et professionnel."}
+  ],
+  "tip": "Vérifiez toujours les noms, dates, pièces jointes et engagements avant l’envoi.",
+  "quickTemplate": "Rédige un message à [DESTINATAIRE] pour [OBJECTIF] à partir de [NOTES], avec un ton [TON]. N’invente aucun détail manquant.",
+  "editorialObjective": "Aider à passer de notes télégraphiques à un message de travail prêt à relire.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 montrant quelques notes qui se composent en un message élégant, avec une métaphore d’enveloppe abstraite. Afficher exactement le titre « Rédiger un message professionnel à partir de quelques notes » entièrement dans une vaste zone sûre, aucune lettre coupée ni débordement. Pas de paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["message professionnel", "courriel", "notes", "rédiger", "travail"],
+  "seo": {"primaryQuery": "prompt pour rédiger un message professionnel", "secondaryQueries": ["écrire un courriel à partir de notes", "prompt courriel professionnel"], "seoTitle": "Prompt pour rédiger un message professionnel", "metaDescription": "Transformez quelques notes en un courriel professionnel clair, courtois et orienté vers la prochaine étape.", "suggestedSlug": "rediger-message-professionnel-partir-notes", "internalLinkSuggestions": []}
+}

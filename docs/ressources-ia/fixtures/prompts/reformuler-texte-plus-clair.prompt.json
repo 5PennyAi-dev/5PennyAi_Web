@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Reformuler un texte pour le rendre plus clair",
+  "summary": "Améliorez la clarté d’un texte sans changer son sens ni ajouter d’informations.",
+  "category": "write", "level": "beginner", "contexts": ["work", "studies", "communication"], "resultTypes": ["text", "list"],
+  "whenToUse": "Utilisez ce modèle lorsqu’un texte est lourd, répétitif ou difficile à suivre.",
+  "promptTemplate": "Reformule le texte suivant pour le rendre plus clair et plus fluide, sans changer son sens ni ajouter de faits.\n\nTexte :\n[TEXTE]\n\nPublic visé : [PUBLIC]\n\nUtilise des phrases directes, réduis les répétitions et explique les termes inutilement complexes. Conserve les nuances importantes. Après la version reformulée, liste brièvement les principaux changements. Si une phrase est ambiguë, signale-la au lieu de choisir silencieusement une interprétation.",
+  "variables": [
+    {"key": "TEXTE", "label": "Texte", "description": "Le passage à clarifier.", "example": "Dans l’optique de procéder à l’optimisation de nos échanges, il serait pertinent que les demandes soient acheminées préalablement à la rencontre."},
+    {"key": "PUBLIC", "label": "Public", "description": "Les personnes qui doivent comprendre le texte.", "example": "Mes collègues de différents services."}
+  ],
+  "tip": "Comparez les deux versions et rétablissez toute nuance que la reformulation aurait affaiblie.",
+  "quickTemplate": "Reformule [TEXTE] pour [PUBLIC] en langage clair, sans changer le sens ni ajouter de faits. Signale les ambiguïtés.",
+  "editorialObjective": "Aider à clarifier un texte existant sans laisser l’IA en modifier discrètement le message.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 montrant une transformation visuelle d’un tracé dense vers une composition nette et lisible. Afficher exactement le titre « Reformuler un texte pour le rendre plus clair » entièrement dans une zone sûre avec marges généreuses. Aucun texte coupé, paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["reformuler", "texte", "clair", "réécrire", "simplifier"],
+  "seo": {"primaryQuery": "prompt pour reformuler un texte", "secondaryQueries": ["rendre un texte plus clair", "réécrire sans changer le sens"], "seoTitle": "Prompt pour reformuler un texte clairement", "metaDescription": "Reformulez un texte pour le rendre plus clair et fluide sans changer son sens ni inventer d’informations.", "suggestedSlug": "reformuler-texte-pour-rendre-plus-clair", "internalLinkSuggestions": []}
+}

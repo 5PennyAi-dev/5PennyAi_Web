@@ -3,11 +3,13 @@ import assert from 'node:assert/strict'
 import {
   adaptArticleToPublicResource,
   adaptInfographicToPublicResource,
+  adaptPromptToPublicResource,
   buildResourceSearchText,
   filterPublicResources,
   getPublicResourceKey,
   matchesResourceSearch,
   mergePublicResources,
+  normalizeCatalogSearchParams,
   normalizeResourceLevel,
   normalizeResourceFormat,
   normalizeSearchText,
@@ -85,6 +87,29 @@ test('adapte un article avec ou sans couverture sans inventer les métadonnées'
   assert.deepEqual(withoutCover.thumbnailSources, [])
 })
 
+test('adapte un prompt de catalogue sans lui inventer de sujet ou de série', () => {
+  const resource = adaptPromptToPublicResource({
+    id: 'prompt-1',
+    slug: 'comparer-options',
+    title: 'Comparer deux options',
+    summary: 'Préparer une décision.',
+    category: 'decide',
+    level: 'beginner',
+    contexts: ['work', 'daily_life'],
+    keywords: ['choix'],
+    published_at: '2026-01-02T00:00:00Z',
+    thumbnail_path: 'prompts/prompt-1/thumbnail/image.webp',
+  }, { thumbnailUrl: 'signed:prompt-cover' })
+
+  assert.equal(resource.contentType, 'prompt')
+  assert.equal(resource.publicUrl, '/ressources-ia/prompts/comparer-options')
+  assert.equal(resource.thumbnailUrl, 'signed:prompt-cover')
+  assert.deepEqual(resource.contexts, ['work', 'daily_life'])
+  assert.equal('theme' in resource, false)
+  assert.equal('seriesName' in resource, false)
+  assert.equal('episodeNumber' in resource, false)
+})
+
 test('fusionne, exclut le brouillon et trie le catalogue par publication décroissante', () => {
   const catalog = createMixedCatalog()
   assert.deepEqual(catalog.resources.map(getPublicResourceKey), [
@@ -94,6 +119,21 @@ test('fusionne, exclut le brouillon et trie le catalogue par publication décroi
     'infographic:infographic-1',
   ])
   assert.equal(catalog.articles.some(({ id }) => id === 'article-draft'), false)
+})
+
+test('fusionne les trois formats par date et exclut les brouillons Prompt', () => {
+  const catalog = mergePublicResources({
+    infographicRows: [{ id: 'info', status: 'published', published_at: '2026-01-01' }],
+    articleRows: [{ id: 'article', status: 'published', published_at: '2026-01-03' }],
+    promptRows: [
+      { id: 'prompt', slug: 'prompt', status: 'published', published_at: '2026-01-02' },
+      { id: 'draft', slug: 'draft', status: 'draft', published_at: '2026-01-04' },
+    ],
+  })
+  assert.deepEqual(catalog.resources.map(getPublicResourceKey), [
+    'article:article', 'prompt:prompt', 'infographic:info',
+  ])
+  assert.deepEqual(catalog.prompts.map(({ id }) => id), ['prompt'])
 })
 
 test('place les dates absentes ou invalides à la fin de façon stable', () => {
@@ -120,6 +160,8 @@ test('normalise et combine les filtres de format et de série', () => {
   const catalog = createMixedCatalog()
   assert.equal(normalizeResourceFormat('inconnu'), RESOURCE_FORMATS.ALL)
   assert.equal(normalizeResourceFormat(RESOURCE_FORMATS.ARTICLES, false), RESOURCE_FORMATS.ALL)
+  assert.equal(normalizeResourceFormat(RESOURCE_FORMATS.PROMPTS, true, false), RESOURCE_FORMATS.ALL)
+  assert.equal(normalizeResourceFormat(RESOURCE_FORMATS.PROMPTS, true, true), RESOURCE_FORMATS.PROMPTS)
   assert.equal(filterPublicResources(catalog.resources).length, 4)
   assert.equal(filterPublicResources(catalog.resources, { format: RESOURCE_FORMATS.INFOGRAPHICS }).length, 2)
   assert.equal(filterPublicResources(catalog.resources, { format: RESOURCE_FORMATS.ARTICLES }).length, 2)
@@ -132,6 +174,63 @@ test('normalise et combine les filtres de format et de série', () => {
 
   const independent = { id: 'standalone', contentType: 'article', seriesName: null }
   assert.equal(filterPublicResources([...catalog.resources, independent]).includes(independent), true)
+})
+
+test('combine format Prompt, catégorie, niveau et recherche avec une logique AND', () => {
+  const prompts = [
+    {
+      id: 'matching', contentType: 'prompt', title: 'Comparer des options', summary: 'Choisir clairement',
+      category: 'decide', level: 'beginner', contexts: ['work'], keywords: ['priorités'],
+    },
+    {
+      id: 'wrong-level', contentType: 'prompt', title: 'Comparer des options',
+      category: 'decide', level: 'advanced', contexts: ['work'],
+    },
+    {
+      id: 'wrong-category', contentType: 'prompt', title: 'Comparer des options',
+      category: 'think', level: 'beginner', contexts: ['work'],
+    },
+    { id: 'article', contentType: 'article', title: 'Comparer des options', level: 'beginner' },
+  ]
+  const labels = (resource) => resource.id === 'matching' ? ['Décider', 'Travail'] : []
+
+  assert.deepEqual(filterPublicResources(prompts, {
+    format: RESOURCE_FORMATS.PROMPTS,
+    category: 'decide',
+    level: 'beginner',
+    query: 'décider travail priorités',
+    getPromptTaxonomyLabels: labels,
+  }).map(({ id }) => id), ['matching'])
+  assert.equal(matchesResourceSearch(prompts[0], 'comparer choisir'), true)
+  assert.equal(matchesResourceSearch(prompts[0], 'explique'), false)
+})
+
+test('normalise atomiquement les paramètres incompatibles du mode Prompt', () => {
+  const promptParams = new URLSearchParams(
+    'format=prompt&categorie=decide&niveau=beginner&q=options&sujet=prompting&serie=parcours',
+  )
+  const promptResult = normalizeCatalogSearchParams(promptParams, {
+    hasPublishedArticles: true,
+    hasPublishedPrompts: true,
+    hasValidTopic: true,
+  })
+  assert.equal(promptResult.hasChanges, true)
+  assert.equal(
+    promptResult.nextParams.toString(),
+    'format=prompt&categorie=decide&niveau=beginner&q=options',
+  )
+
+  const invalidCategory = normalizeCatalogSearchParams(
+    new URLSearchParams('format=prompt&categorie=foobar'),
+    { hasPublishedPrompts: true },
+  )
+  assert.equal(invalidCategory.nextParams.toString(), 'format=prompt')
+
+  const articleResult = normalizeCatalogSearchParams(
+    new URLSearchParams('format=articles&categorie=write&sujet=prompting'),
+    { hasPublishedArticles: true, hasValidTopic: true },
+  )
+  assert.equal(articleResult.nextParams.toString(), 'format=articles&sujet=prompting')
 })
 
 test('forme une série mixte unique et résout l’adjacence entre formats', () => {

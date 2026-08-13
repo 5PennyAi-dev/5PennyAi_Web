@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "M’aider à comprendre mes erreurs et progresser",
+  "summary": "Analysez une tentative et une correction pour comprendre l’erreur et choisir un prochain exercice utile.",
+  "category": "learn", "level": "intermediate",
+  "contexts": ["studies", "work"], "resultTypes": ["analysis", "plan"],
+  "whenToUse": "Utilisez ce modèle lorsqu’une réponse est fausse ou incomplète et que vous voulez comprendre comment éviter la même erreur.",
+  "promptTemplate": "Aide-moi à comprendre mon erreur sur [SUJET].\n\nLa consigne :\n[CONSIGNE]\n\nMa tentative :\n[TENTATIVE]\n\nLa correction ou le résultat attendu :\n[CORRECTION]\n\nIdentifie l’étape précise où mon raisonnement ou ma méthode a dévié. Explique pourquoi, avec des mots simples, puis propose une façon correcte de procéder. Donne enfin un petit exercice différent pour vérifier que j’ai compris. Si la correction fournie semble ambiguë ou possiblement erronée, signale-le au lieu de l’accepter automatiquement.",
+  "variables": [
+    {"key": "SUJET", "label": "Sujet", "description": "Le domaine de l’exercice ou de la tâche.", "example": "Calculer un pourcentage de variation"},
+    {"key": "CONSIGNE", "label": "Consigne", "description": "La question ou la tâche demandée.", "example": "Un prix passe de 80 $ à 92 $. Calcule le pourcentage d’augmentation."},
+    {"key": "TENTATIVE", "label": "Ma tentative", "description": "Votre réponse et les étapes suivies.", "example": "J’ai calculé 12 ÷ 92 et obtenu environ 13 %."},
+    {"key": "CORRECTION", "label": "Correction", "description": "La correction reçue ou le résultat attendu.", "example": "L’augmentation est de 15 %, car il faut diviser la différence par le prix initial : 12 ÷ 80."}
+  ],
+  "tip": "Incluez vos étapes, pas seulement votre réponse finale : c’est là que l’erreur devient souvent visible.",
+  "caution": "Une correction fournie peut elle-même contenir une erreur; vérifiez les points importants auprès d’une source fiable.",
+  "editorialObjective": "Aider à apprendre d’une erreur précise plutôt que de simplement recevoir la bonne réponse.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 montrant un chemin qui corrige une bifurcation et reprend sa progression. Afficher exactement le titre « M’aider à comprendre mes erreurs et progresser » entièrement dans une grande zone sûre, marges généreuses, aucun texte coupé. Pas de robot, mini-infographie, paragraphe, microtexte, source, URL, logo ni filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["erreur", "progresser", "correction", "apprendre", "exercice"],
+  "seo": {"primaryQuery": "prompt pour comprendre ses erreurs", "secondaryQueries": ["analyser une erreur avec une IA", "apprendre à partir d'une correction"], "seoTitle": "Prompt pour comprendre une erreur et progresser", "metaDescription": "Analysez votre tentative, repérez l’étape qui pose problème et entraînez-vous avec un nouvel exercice.", "suggestedSlug": "comprendre-mes-erreurs-et-progresser", "internalLinkSuggestions": []}
+}

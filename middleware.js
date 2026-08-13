@@ -8,10 +8,16 @@ import {
   buildInfographicSeoData,
   isValidInfographicId,
 } from './src/lib/infographicSeo.js'
+import {
+  buildPromptBreadcrumbStructuredData,
+  buildPromptSeoMetadata,
+  serializeJsonLd as serializePromptJsonLd,
+} from './src/lib/promptSeo.js'
 import { buildDefaultSocialImageUrl, buildSiteUrl, SITE_NAME } from './src/lib/siteConfig.js'
 import {
   fetchPublishedArticleSeo,
   fetchPublishedInfographicSeo,
+  fetchPublishedPromptSeo,
   getPublicSupabaseConfig,
 } from './api/_lib/publicSeoData.js'
 
@@ -39,6 +45,13 @@ export default async function middleware(request, dependencies = {}) {
     return crawler
       ? handleArticleCrawler(articleMatch[1], dependencies)
       : handleArticleAppShell(articleMatch[1], request, dependencies)
+  }
+
+  const promptMatch = url.pathname.match(/^\/ressources-ia\/prompts\/([^/]+)\/?$/)
+  if (promptMatch) {
+    return crawler
+      ? handlePromptCrawler(promptMatch[1], dependencies)
+      : handlePromptAppShell(promptMatch[1], request, dependencies)
   }
 
   if (!crawler) return
@@ -85,6 +98,26 @@ async function handleArticleAppShell(slug, request, dependencies = {}) {
     }), dependencies)
   } catch (error) {
     console.warn('Unable to render article app-shell metadata:', error?.message)
+  }
+}
+
+async function handlePromptAppShell(slug, request, dependencies = {}) {
+  try {
+    const prompt = await fetchPublishedPromptSeo(decodePathSegment(slug), dependencies)
+    if (!prompt) return
+    const metadata = buildPromptSeoMetadata(prompt)
+    return renderAppShell(request, buildShellSeoTags({
+      canonicalUrl: metadata.canonicalUrl,
+      description: metadata.description,
+      imageAlt: metadata.imageAlt,
+      imageUrl: metadata.imageUrl,
+      locale: metadata.ogLocale,
+      pageTitle: metadata.pageTitle,
+      socialTitle: metadata.socialTitle,
+      type: 'website',
+    }), dependencies)
+  } catch (error) {
+    console.warn('Unable to render prompt app-shell metadata:', error?.message)
   }
 }
 
@@ -174,6 +207,18 @@ async function handleArticleCrawler(slug, { env, fetchImpl = fetch } = {}) {
   } catch (error) {
     console.warn('Unable to render article crawler metadata:', error?.message)
     return
+  }
+}
+
+async function handlePromptCrawler(slug, { env, fetchImpl = fetch } = {}) {
+  try {
+    const prompt = await fetchPublishedPromptSeo(decodePathSegment(slug), { env, fetchImpl })
+    if (!prompt) return unavailablePromptResponse()
+    const metadata = buildPromptSeoMetadata(prompt)
+    const breadcrumbData = buildPromptBreadcrumbStructuredData(prompt, metadata)
+    return htmlResponse(buildPromptCrawlerHtml({ prompt, breadcrumbData, metadata }))
+  } catch (error) {
+    console.warn('Unable to render prompt crawler metadata:', error?.message)
   }
 }
 
@@ -307,6 +352,37 @@ export function buildInfographicCrawlerHtml({ metadata }) {
 </html>`
 }
 
+export function buildPromptCrawlerHtml({ prompt, breadcrumbData, metadata }) {
+  return `<!DOCTYPE html>
+<html lang="${metadata.language}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(metadata.pageTitle)}</title>
+<meta name="description" content="${escapeHtml(metadata.description)}">
+<meta name="robots" content="${metadata.robots}">
+<link rel="canonical" href="${escapeHtml(metadata.canonicalUrl)}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${escapeHtml(metadata.socialTitle)}">
+<meta property="og:description" content="${escapeHtml(metadata.description)}">
+<meta property="og:url" content="${escapeHtml(metadata.canonicalUrl)}">
+<meta property="og:image" content="${escapeHtml(metadata.imageUrl)}">
+<meta property="og:image:alt" content="${escapeHtml(metadata.imageAlt)}">
+<meta property="og:site_name" content="${escapeHtml(metadata.siteName)}">
+<meta property="og:locale" content="${metadata.ogLocale}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escapeHtml(metadata.socialTitle)}">
+<meta name="twitter:description" content="${escapeHtml(metadata.description)}">
+<meta name="twitter:image" content="${escapeHtml(metadata.imageUrl)}">
+<meta name="twitter:image:alt" content="${escapeHtml(metadata.imageAlt)}">
+<script type="application/ld+json">${serializePromptJsonLd(breadcrumbData)}</script>
+</head>
+<body>
+<main><h1>${escapeHtml(metadata.headline)}</h1>${prompt.summary ? `<p>${escapeHtml(prompt.summary)}</p>` : ''}<p><a href="${escapeHtml(metadata.canonicalUrl)}">${escapeHtml(metadata.headline)}</a></p></main>
+</body>
+</html>`
+}
+
 function unavailableArticleResponse() {
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Article indisponible — ${SITE_NAME}</title><meta name="robots" content="noindex, nofollow"></head><body><h1>Article indisponible</h1></body></html>`
   return new Response(html, {
@@ -321,6 +397,18 @@ function unavailableArticleResponse() {
 
 function unavailableInfographicResponse() {
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Infographie indisponible — ${SITE_NAME}</title><meta name="robots" content="noindex, nofollow"></head><body><h1>Infographie indisponible</h1></body></html>`
+  return new Response(html, {
+    status: 404,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      Vary: 'User-Agent',
+    },
+  })
+}
+
+function unavailablePromptResponse() {
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Prompt indisponible — ${SITE_NAME}</title><meta name="robots" content="noindex, nofollow"></head><body><h1>Prompt indisponible</h1></body></html>`
   return new Response(html, {
     status: 404,
     headers: {
@@ -363,5 +451,6 @@ export const config = {
     '/blog/:slug*',
     '/ressources-ia/articles/:slug*',
     '/ressources-ia/infographies/:id*',
+    '/ressources-ia/prompts/:slug*',
   ],
 }

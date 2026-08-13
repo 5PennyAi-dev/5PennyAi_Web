@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Créer un plan pour apprendre un nouveau sujet",
+  "summary": "Transformez un objectif d’apprentissage en parcours réaliste, progressif et adapté au temps disponible.",
+  "category": "learn", "level": "beginner",
+  "contexts": ["studies", "work", "daily_life"], "resultTypes": ["plan", "checklist"],
+  "whenToUse": "Utilisez ce modèle au début d’un apprentissage pour savoir quoi étudier, dans quel ordre et comment pratiquer.",
+  "promptTemplate": "Crée un plan pour m’aider à apprendre [SUJET].\n\nMon niveau actuel : [NIVEAU]\nMon objectif concret : [OBJECTIF]\nTemps disponible : [TEMPS]\n\nOrganise le parcours en étapes progressives. Pour chaque étape, indique ce que je dois comprendre, une activité pratique et un moyen simple de vérifier mes progrès. Garde une charge réaliste, distingue l’essentiel du facultatif et signale les prérequis qui pourraient me manquer.",
+  "variables": [
+    {"key": "SUJET", "label": "Sujet", "description": "Ce que vous souhaitez apprendre.", "example": "Les bases de l’analyse de données avec un tableur"},
+    {"key": "NIVEAU", "label": "Niveau actuel", "description": "Ce que vous savez déjà faire.", "example": "Je sais créer un tableau et utiliser des formules simples."},
+    {"key": "OBJECTIF", "label": "Objectif", "description": "Le résultat concret que vous voulez atteindre.", "example": "Analyser les ventes mensuelles de mon équipe et présenter trois constats utiles."},
+    {"key": "TEMPS", "label": "Temps disponible", "description": "Votre rythme et votre échéance.", "example": "Trois heures par semaine pendant six semaines."}
+  ],
+  "tip": "Choisissez un objectif observable : il sera plus facile d’adapter le plan et de mesurer vos progrès.",
+  "caution": "Les ressources et exigences peuvent évoluer; vérifiez les prérequis et références importantes avant de commencer.",
+  "editorialObjective": "Donner un point de départ réaliste à une personne qui veut apprendre sans savoir organiser son parcours.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 représentant une progression claire par étapes vers une compétence, comme un sentier de jalons. Afficher exactement le titre « Créer un plan pour apprendre un nouveau sujet » entièrement dans une zone sûre avec larges marges, sans texte coupé ni débordement. Pas de robot, paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["apprendre", "plan", "progression", "étudier", "compétence"],
+  "seo": {"primaryQuery": "prompt pour créer un plan d'apprentissage", "secondaryQueries": ["plan pour apprendre un sujet", "parcours apprentissage IA"], "seoTitle": "Prompt pour créer un plan d’apprentissage", "metaDescription": "Créez un parcours d’apprentissage progressif selon votre niveau, votre objectif et le temps dont vous disposez.", "suggestedSlug": "creer-plan-pour-apprendre-nouveau-sujet", "internalLinkSuggestions": []}
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Clarifier la différence entre deux concepts",
+  "summary": "Distinguez deux notions proches à partir de leurs points communs, différences et usages concrets.",
+  "category": "understand", "level": "beginner",
+  "contexts": ["studies", "work", "daily_life"], "resultTypes": ["table", "text"],
+  "whenToUse": "Utilisez ce modèle lorsque deux termes se ressemblent et que vous ne savez pas clairement quand employer chacun.",
+  "promptTemplate": "Aide-moi à distinguer [CONCEPT_A] et [CONCEPT_B].\n\nMon contexte : [CONTEXTE]\n\nExplique d’abord leur point commun en une phrase. Présente ensuite leurs différences importantes dans un tableau simple : définition, objectif, usage typique et exemple. Termine par un moyen facile de retenir la distinction. Si la frontière dépend du domaine ou fait débat, précise-le.",
+  "variables": [
+    {"key": "CONCEPT_A", "label": "Premier concept", "description": "Le premier terme à distinguer.", "example": "Corrélation"},
+    {"key": "CONCEPT_B", "label": "Deuxième concept", "description": "Le second terme à distinguer.", "example": "Causalité"},
+    {"key": "CONTEXTE", "label": "Contexte", "description": "Le domaine dans lequel la distinction vous intéresse.", "example": "Je lis un article sur les effets du sommeil sur la concentration."}
+  ],
+  "tip": "Ajoutez votre contexte : une même paire de termes peut être distinguée différemment selon le domaine.",
+  "quickTemplate": "Compare [CONCEPT_A] et [CONCEPT_B] dans le contexte [CONTEXTE] : point commun, différences clés, exemples et moyen de retenir la distinction.",
+  "editorialObjective": "Aider à distinguer des notions proches sans créer une opposition artificielle.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture de catalogue 16:9 fondée sur une comparaison visuelle de deux formes proches dont les différences deviennent évidentes. Afficher exactement le titre « Clarifier la différence entre deux concepts » dans une zone sûre généreuse; texte complet, aucune lettre coupée, aucun débordement. Style épuré, pas de mini-infographie, paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["différence", "comparer", "concepts", "distinguer", "définition"],
+  "seo": {"primaryQuery": "prompt pour comparer deux concepts", "secondaryQueries": ["clarifier différence entre deux notions", "distinguer deux concepts avec une IA"], "seoTitle": "Prompt pour clarifier deux concepts proches", "metaDescription": "Comparez deux concepts proches dans un tableau clair avec définitions, usages, exemples et nuances.", "suggestedSlug": "clarifier-difference-entre-deux-concepts", "internalLinkSuggestions": []}
+}

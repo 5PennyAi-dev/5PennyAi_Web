@@ -9,6 +9,7 @@ test('achemine les pages de ressources vers le middleware crawler en développem
     '/ressources-ia/infographies/11111111-1111-4111-8111-111111111111',
     MIDDLEWARE_PATH_PATTERN,
   )
+  assert.match('/ressources-ia/prompts/expliquer-un-concept', MIDDLEWARE_PATH_PATTERN)
   assert.doesNotMatch('/ressources-ia', MIDDLEWARE_PATH_PATTERN)
 })
 
@@ -18,6 +19,10 @@ test('résout une URL sociale propre vers le handler existant en développement'
     'article-social-image',
   )
   assert.equal(resolveApiHandlerPath('/api/sitemap'), 'sitemap')
+  assert.equal(
+    resolveApiHandlerPath('/api/prompt-social-image/expliquer-un-concept'),
+    'prompt-social-image',
+  )
 })
 
 test('réécrit la nouvelle URL sociale avant le catch-all API en production', () => {
@@ -32,5 +37,14 @@ test('réécrit la nouvelle URL sociale avant le catch-all API en production', (
   assert.equal(
     config.rewrites[socialIndex].destination,
     '/api/article-social-image?slug=:slug',
+  )
+  const promptSocialIndex = config.rewrites.findIndex(
+    (rewrite) => rewrite.source === '/api/prompt-social-image/:slug',
+  )
+  assert.ok(promptSocialIndex >= 0)
+  assert.ok(promptSocialIndex < apiIndex)
+  assert.equal(
+    config.rewrites[promptSocialIndex].destination,
+    '/api/prompt-social-image?slug=:slug',
   )
 })

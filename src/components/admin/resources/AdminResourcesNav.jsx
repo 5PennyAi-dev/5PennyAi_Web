@@ -1,5 +1,5 @@
 import { createElement } from 'react'
-import { BookOpenText, Images } from 'lucide-react'
+import { BookOpenText, Images, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Card from '@/components/ui/Card'
@@ -16,6 +16,12 @@ const ITEMS = [
     to: '/admin/ressources-ia/articles',
     icon: BookOpenText,
     labelKey: 'admin.resourcesAi.articles.navLabel',
+  },
+  {
+    key: 'prompts',
+    to: '/admin/ressources-ia/prompts',
+    icon: Sparkles,
+    labelKey: 'admin.resourcesAi.prompts.navLabel',
   },
 ]
 

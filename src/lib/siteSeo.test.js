@@ -14,11 +14,17 @@ test('inclut publications, infographie et série non vide, puis exclut les broui
     infographicRows: [
       { id: INFOGRAPHIC_ID, status: 'published', series_name: 'Série mixte', published_at: '2026-08-01T00:00:00Z' },
     ],
+    promptRows: [
+      { slug: 'prompt-public', status: 'published', updated_at: '2026-08-03T00:00:00Z' },
+      { slug: 'prompt-brouillon', status: 'draft' },
+      { slug: '', status: 'published' },
+    ],
   })
   const urls = entries.map(({ url }) => url)
   assert.ok(urls.includes('https://5pennyai.com/ressources-ia/articles/article-public'))
   assert.ok(urls.includes(`https://5pennyai.com/ressources-ia/infographies/${INFOGRAPHIC_ID}`))
   assert.ok(urls.includes('https://5pennyai.com/ressources-ia/series/serie-mixte'))
+  assert.ok(urls.includes('https://5pennyai.com/ressources-ia/prompts/prompt-public'))
   assert.ok(!urls.some((url) => url.includes('brouillon') || url.includes('serie-vide')))
   assert.ok(!urls.some((url) => url.includes('/admin') || url.includes('?') || url.includes('#')))
   assert.equal(new Set(urls).size, urls.length)

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Produire un premier brouillon à partir de mes idées",
+  "summary": "Transformez des idées brutes en un premier texte structuré qui reste fidèle à votre intention.",
+  "category": "write", "level": "beginner", "contexts": ["work", "studies", "creativity"], "resultTypes": ["text"],
+  "whenToUse": "Utilisez ce modèle lorsque vous savez ce que vous voulez dire, mais que la page blanche vous bloque.",
+  "promptTemplate": "Rédige un premier brouillon à partir de mes idées.\n\nObjectif du texte : [OBJECTIF]\nPublic : [PUBLIC]\nMes idées et notes :\n[IDEES]\n\nOrganise les idées dans un ordre logique et rédige un texte clair de [LONGUEUR]. Conserve le sens de mes notes, n’invente pas de faits et marque clairement les informations manquantes par [À PRÉCISER]. Le résultat doit être un brouillon facile à relire et à personnaliser, pas une version prétendument finale.",
+  "variables": [
+    {"key": "OBJECTIF", "label": "Objectif", "description": "Ce que le texte doit permettre au lecteur de comprendre ou de faire.", "example": "Présenter une idée d’activité d’équipe à ma gestionnaire."},
+    {"key": "PUBLIC", "label": "Public", "description": "Les personnes qui liront le texte.", "example": "Ma gestionnaire, qui connaît déjà le contexte de l’équipe."},
+    {"key": "IDEES", "label": "Idées et notes", "description": "Vos points bruts, même dans le désordre.", "example": "Atelier de cuisine; vendredi après-midi; budget à confirmer; objectif : mieux connaître les nouveaux collègues; prévoir une option sans allergènes."},
+    {"key": "LONGUEUR", "label": "Longueur", "description": "La taille approximative souhaitée.", "example": "Environ 250 mots."}
+  ],
+  "tip": "Relisez le brouillon pour y remettre vos mots et confirmer chaque fait avant de l’envoyer.",
+  "editorialObjective": "Réduire la friction de la page blanche tout en gardant l’utilisateur responsable du fond et de la version finale.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 illustrant des notes dispersées qui se composent en une page claire. Afficher exactement le titre « Produire un premier brouillon à partir de mes idées » dans une zone sûre généreuse, titre complet, aucune lettre coupée ni débordement. Pas de paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["brouillon", "écrire", "idées", "rédiger", "texte"],
+  "seo": {"primaryQuery": "prompt pour rédiger un premier brouillon", "secondaryQueries": ["transformer des idées en texte", "écrire à partir de notes"], "seoTitle": "Prompt pour rédiger un brouillon depuis vos idées", "metaDescription": "Transformez vos notes et idées brutes en un premier brouillon clair, structuré et facile à personnaliser.", "suggestedSlug": "produire-premier-brouillon-partir-idees", "internalLinkSuggestions": []}
+}

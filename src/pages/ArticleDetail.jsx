@@ -152,10 +152,13 @@ export function ArticleContent({ result, seriesContext, t, locale }) {
             className="mt-8"
           />
 
-          <div className="mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl border border-navy/[0.08] bg-white">
-            <div className="aspect-video">
-              {coverUrl && !coverFailed ? <img src={coverUrl} alt={article.cover?.altText || ''} onError={() => setCoverFailed(true)} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center bg-lavender/25 text-navy/35"><ImageIcon size={52} strokeWidth={1.3} aria-hidden="true" /></div>}
+          <div className="relative mx-auto mt-10 max-w-5xl">
+            <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-navy/[0.08] bg-white">
+              <div className="aspect-video">
+                {coverUrl && !coverFailed ? <img src={coverUrl} alt={article.cover?.altText || ''} onError={() => setCoverFailed(true)} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center bg-lavender/25 text-navy/35"><ImageIcon size={52} strokeWidth={1.3} aria-hidden="true" /></div>}
+              </div>
             </div>
+            {seriesContext && <SeriesNavigation context={seriesContext} placement="sides" t={t} />}
           </div>
 
           {(article.learningObjectives.length > 0 || article.prerequisites.length > 0) && (

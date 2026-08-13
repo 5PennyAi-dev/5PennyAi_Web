@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, Copy, Download, LoaderCircle, Share2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { downloadPublicAsset } from '@/lib/publicAssetDownload'
+import { copyText } from '@/lib/clipboard'
 
 export { downloadPublicAsset } from '@/lib/publicAssetDownload'
 
@@ -36,14 +37,7 @@ export async function shareCanonicalUrl(
 }
 
 export async function copyCanonicalUrl(canonicalUrl, navigatorObject = globalThis.navigator) {
-  if (typeof navigatorObject?.clipboard?.writeText !== 'function') return false
-
-  try {
-    await navigatorObject.clipboard.writeText(canonicalUrl)
-    return true
-  } catch {
-    return false
-  }
+  return copyText(canonicalUrl, navigatorObject)
 }
 
 export default function ResourceShareActions({

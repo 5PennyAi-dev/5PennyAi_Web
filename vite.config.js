@@ -12,7 +12,7 @@ const PUBLIC_FUNCTION_ROUTES = new Map([
   ['/robots.txt', 'robots'],
 ])
 export const MIDDLEWARE_PATH_PATTERN =
-  /^\/(?:blog\/[^/]+|ressources-ia\/(?:articles|infographies)\/[^/]+)\/?$/
+  /^\/(?:blog\/[^/]+|ressources-ia\/(?:articles|infographies|prompts)\/[^/]+)\/?$/
 
 // Dev-only middleware that runs Vercel-style functions and crawler middleware
 // during `npm run dev`, so the SEO HTTP routes can be validated locally.
@@ -85,6 +85,9 @@ function apiMiddleware(env) {
 export function resolveApiHandlerPath(urlPath) {
   if (/^\/api\/article-social-image\/[^/]+\/?$/.test(urlPath)) {
     return 'article-social-image'
+  }
+  if (/^\/api\/prompt-social-image\/[^/]+\/?$/.test(urlPath)) {
+    return 'prompt-social-image'
   }
   return urlPath.startsWith('/api/')
     ? urlPath.replace(/^\/api\//, '')

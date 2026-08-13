@@ -24,6 +24,7 @@
   ],
   "rewrites": [
     { "source": "/api/article-social-image/:slug", "destination": "/api/article-social-image?slug=:slug" },
+    { "source": "/api/prompt-social-image/:slug", "destination": "/api/prompt-social-image?slug=:slug" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/robots.txt", "destination": "/api/robots" },

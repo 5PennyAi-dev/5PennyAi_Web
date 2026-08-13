@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Adapter un texte à un public et à un ton",
+  "summary": "Ajustez le vocabulaire, le niveau de détail et le ton d’un texte pour un public précis.",
+  "category": "write", "level": "intermediate", "contexts": ["work", "communication", "creativity"], "resultTypes": ["text", "analysis"],
+  "whenToUse": "Utilisez ce modèle lorsqu’un même message doit être compris ou reçu différemment selon son public.",
+  "promptTemplate": "Adapte le texte suivant au public et au ton demandés.\n\nTexte source :\n[TEXTE]\n\nPublic cible : [PUBLIC]\nTon souhaité : [TON]\nContexte de diffusion : [CONTEXTE]\n\nPréserve l’intention, les faits et les réserves du texte source. Ajuste le vocabulaire, les exemples et le niveau de détail sans caricaturer le public. Produis la version adaptée, puis indique les trois choix d’adaptation les plus importants. Signale toute information qui devrait être confirmée avant diffusion.",
+  "variables": [
+    {"key": "TEXTE", "label": "Texte source", "description": "Le message à adapter.", "example": "Notre équipe déploiera progressivement le nouvel outil de suivi. Une courte formation sera offerte et l’ancien système restera accessible deux semaines."},
+    {"key": "PUBLIC", "label": "Public cible", "description": "À qui le texte s’adresse et ce que ce public connaît déjà.", "example": "Des collègues qui utiliseront l’outil pour la première fois."},
+    {"key": "TON", "label": "Ton", "description": "L’impression que le texte doit donner.", "example": "Rassurant, direct et professionnel."},
+    {"key": "CONTEXTE", "label": "Contexte", "description": "Le canal et la situation de communication.", "example": "Une annonce courte dans l’infolettre interne."}
+  ],
+  "tip": "Décrivez le public par ses besoins et connaissances, pas par des stéréotypes.",
+  "editorialObjective": "Faire adapter un message avec intention tout en préservant son fond et ses nuances.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 où un même message se décline harmonieusement vers plusieurs publics, par une métaphore de prismes ou de formes. Afficher exactement le titre « Adapter un texte à un public et à un ton » en entier dans une zone sûre généreuse, sans lettre coupée. Pas de paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["adapter", "public", "ton", "communication", "texte"],
+  "seo": {"primaryQuery": "prompt pour adapter un texte à un public", "secondaryQueries": ["changer le ton d'un texte", "adapter un message professionnel"], "seoTitle": "Prompt pour adapter un texte au bon public", "metaDescription": "Adaptez le vocabulaire, le ton et le niveau de détail d’un texte tout en préservant son intention et ses faits.", "suggestedSlug": "adapter-texte-public-et-ton", "internalLinkSuggestions": []}
+}

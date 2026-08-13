@@ -13,12 +13,15 @@ import ResourcesAI from '@/pages/ResourcesAI'
 import ResourceSeriesDetail from '@/pages/ResourceSeriesDetail'
 import InfographicDetail from '@/pages/InfographicDetail'
 import ArticleDetail from '@/pages/ArticleDetail'
+import PromptDetail from '@/pages/PromptDetail'
 import AdminBlog from '@/pages/AdminBlog'
 import AdminBlogEditor from '@/pages/AdminBlogEditor'
 import AdminInfographics from '@/pages/admin/resources/AdminInfographics'
 import AdminInfographicForm from '@/pages/admin/resources/AdminInfographicForm'
 import AdminArticles from '@/pages/admin/resources/AdminArticles'
 import AdminArticleForm from '@/pages/admin/resources/AdminArticleForm'
+import AdminPrompts from '@/pages/admin/resources/AdminPrompts'
+import AdminPromptForm from '@/pages/admin/resources/AdminPromptForm'
 import { initCal } from '@/lib/cal'
 
 function ScrollToTop() {
@@ -39,7 +42,10 @@ function App() {
   const { pathname } = useLocation()
 
   useEffect(() => {
-    if (!pathname.startsWith('/ressources-ia/articles/')) {
+    if (
+      !pathname.startsWith('/ressources-ia/articles/') &&
+      !pathname.startsWith('/ressources-ia/prompts/')
+    ) {
       document.documentElement.lang = i18n.language
     }
   }, [i18n.language, pathname])
@@ -68,6 +74,7 @@ function App() {
           <Route path="/ressources-ia/series/:seriesSlug" element={<ResourceSeriesDetail />} />
           <Route path="/ressources-ia/infographies/:id" element={<InfographicDetail />} />
           <Route path="/ressources-ia/articles/:slug" element={<ArticleDetail />} />
+          <Route path="/ressources-ia/prompts/:slug" element={<PromptDetail />} />
           <Route path="/admin/blog" element={<AdminBlog />} />
           <Route path="/admin/blog/topics" element={<AdminBlog />} />
           <Route path="/admin/blog/new" element={<AdminBlogEditor />} />
@@ -95,6 +102,18 @@ function App() {
           <Route
             path="/admin/ressources-ia/articles/:id/modifier"
             element={<AdminArticleForm />}
+          />
+          <Route
+            path="/admin/ressources-ia/prompts"
+            element={<AdminPrompts />}
+          />
+          <Route
+            path="/admin/ressources-ia/prompts/nouveau"
+            element={<AdminPromptForm />}
+          />
+          <Route
+            path="/admin/ressources-ia/prompts/:id/modifier"
+            element={<AdminPromptForm />}
           />
         </Routes>
       </main>

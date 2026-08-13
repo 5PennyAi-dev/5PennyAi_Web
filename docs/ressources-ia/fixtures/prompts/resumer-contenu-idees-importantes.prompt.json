@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Résumer un contenu sans perdre les idées importantes",
+  "summary": "Obtenez un résumé fidèle qui distingue le message central, les idées clés et les limites du contenu.",
+  "category": "summarize", "level": "beginner", "contexts": ["studies", "work", "daily_life"], "resultTypes": ["text", "list"],
+  "whenToUse": "Utilisez ce modèle pour retenir l’essentiel d’un texte, de notes ou d’une transcription sans tout relire.",
+  "promptTemplate": "Résume le contenu suivant sans perdre les idées importantes.\n\nContenu :\n[CONTENU]\n\nLongueur souhaitée : [LONGUEUR]\nUsage du résumé : [USAGE]\n\nCommence par le message central en une ou deux phrases. Présente ensuite les idées clés dans leur ordre logique, puis les réserves, limites ou désaccords importants. N’ajoute aucune information externe et distingue clairement ce qui n’est pas explicite ou reste ambigu dans le contenu.",
+  "variables": [
+    {"key": "CONTENU", "label": "Contenu", "description": "Le texte, les notes ou la transcription à résumer.", "example": "Une transcription de réunion de 1 500 mots sur le lancement d’un nouveau service."},
+    {"key": "LONGUEUR", "label": "Longueur", "description": "La taille approximative du résumé.", "example": "Environ 200 mots."},
+    {"key": "USAGE", "label": "Usage", "description": "Ce que vous comptez faire du résumé.", "example": "Me préparer pour la réunion de suivi de demain."}
+  ],
+  "tip": "Pour un contenu long, vérifiez que les exceptions et désaccords importants n’ont pas disparu du résumé.",
+  "caution": "Un résumé peut omettre une nuance utile; revenez au contenu original avant de prendre une décision importante.",
+  "editorialObjective": "Produire un résumé utile sans présenter une compression automatique comme une copie parfaite du contenu.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 représentant un contenu abondant qui converge vers quelques idées fortes, comme un entonnoir visuel élégant. Afficher exactement le titre « Résumer un contenu sans perdre les idées importantes » entièrement dans une zone sûre généreuse, sans lettre coupée. Pas de paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["résumer", "résumé", "idées importantes", "contenu", "essentiel"],
+  "seo": {"primaryQuery": "prompt pour résumer un contenu", "secondaryQueries": ["résumer un texte sans perdre l'essentiel", "prompt résumé fidèle"], "seoTitle": "Prompt pour résumer sans perdre l’essentiel", "metaDescription": "Résumez un contenu en distinguant message central, idées clés, limites et ambiguïtés sans ajouter d’informations.", "suggestedSlug": "resumer-contenu-sans-perdre-idees-importantes", "internalLinkSuggestions": []}
+}

@@ -133,9 +133,19 @@ function createMarkdownComponents({ assetIndex, assetUrls, media, mode, sourceIn
     ol: ({ children }) => <ol className="my-4 list-decimal space-y-1 pl-6">{children}</ol>,
     hr: () => <hr className="my-8 border-gray-200" />,
     blockquote: ({ children }) => <blockquote className="my-5 border-l-4 border-steel pl-4 text-navy/70">{children}</blockquote>,
-    table: ({ children }) => <div className="my-5 max-w-full overflow-x-auto" tabIndex="0"><table className="min-w-full border-collapse text-sm">{children}</table></div>,
-    th: ({ children }) => <th className="border border-gray-200 bg-surface px-3 py-2 text-left font-semibold">{children}</th>,
-    td: ({ children }) => <td className="border border-gray-200 px-3 py-2 align-top">{children}</td>,
+    table: ({ children, node }) => {
+      const hasFourOrMoreColumns = getTableColumnCount(node) >= 4
+      return (
+        <div className="my-8 max-w-full overflow-x-auto overscroll-x-contain rounded-xl border border-navy/[0.1] bg-white shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2" tabIndex="0">
+          <table className={`${hasFourOrMoreColumns ? 'min-w-[42rem]' : 'min-w-full'} border-separate border-spacing-0 text-sm leading-6`}>{children}</table>
+        </div>
+      )
+    },
+    thead: ({ children }) => <thead className="bg-steel/20 text-navy">{children}</thead>,
+    tbody: ({ children }) => <tbody className="[&>tr:nth-child(even)]:bg-steel/[0.06] [&>tr>td:first-child]:font-semibold [&>tr>td:first-child]:text-navy [&>tr:last-child>td]:border-b-0">{children}</tbody>,
+    tr: ({ children }) => <tr>{children}</tr>,
+    th: ({ children }) => <th className="border-b-2 border-navy/[0.12] px-4 py-2.5 text-left align-top font-semibold">{children}</th>,
+    td: ({ children }) => <td className="border-b border-navy/[0.08] px-4 py-2.5 align-top text-navy/80">{children}</td>,
     pre: ({ children }) => <pre className="my-5 max-w-full overflow-x-auto rounded-xl bg-navy p-4 text-sm text-white" tabIndex="0">{children}</pre>,
     code: ({ children, className }) => className
       ? <code className={className}>{children}</code>
@@ -168,6 +178,24 @@ function createMarkdownComponents({ assetIndex, assetUrls, media, mode, sourceIn
       return <a href={href} className="text-steel underline" {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>{children}</a>
     },
   }
+}
+
+function getTableColumnCount(node) {
+  const row = findFirstTableRow(node)
+  if (!row?.children) return 0
+  return row.children.filter((child) =>
+    child?.tagName === 'th' || child?.tagName === 'td' || child?.type === 'tableCell').length
+}
+
+function findFirstTableRow(node) {
+  if (!node || typeof node !== 'object') return null
+  if (node.tagName === 'tr' || node.type === 'tableRow') return node
+  if (!Array.isArray(node.children)) return null
+  for (const child of node.children) {
+    const row = findFirstTableRow(child)
+    if (row) return row
+  }
+  return null
 }
 
 function PreviewList({ title, values = [] }) {

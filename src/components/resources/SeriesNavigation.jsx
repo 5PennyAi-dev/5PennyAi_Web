@@ -3,9 +3,23 @@ import { Link } from 'react-router-dom'
 
 const SERIES_PATH = '/ressources-ia/series'
 
-export default function SeriesNavigation({ context, t }) {
+export default function SeriesNavigation({ context, t, placement = 'footer' }) {
   if (!context?.series) return null
   const { next, previous, series } = context
+
+  if (placement === 'sides') {
+    if (!previous && !next) return null
+
+    return (
+      <nav
+        aria-label={t('resourcesAi.detail.seriesNavigationLabel', { series: series.name })}
+        className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 items-center justify-between px-1 sm:px-3"
+      >
+        {previous ? <SideEpisodeLink direction="previous" resource={previous} t={t} /> : <span />}
+        {next ? <SideEpisodeLink direction="next" resource={next} t={t} /> : <span />}
+      </nav>
+    )
+  }
 
   return (
     <nav
@@ -26,6 +40,31 @@ export default function SeriesNavigation({ context, t }) {
         {next ? <EpisodeLink direction="next" resource={next} t={t} /> : <span aria-hidden="true" className="hidden md:block" />}
       </div>
     </nav>
+  )
+}
+
+function SideEpisodeLink({ direction, resource, t }) {
+  const isPrevious = direction === 'previous'
+  const title = resource.title || t(`resourcesAi.formats.${resource.contentType}`)
+  const episodeNumber = formatEpisodeNumber(resource.episodeNumber)
+  const episode = episodeNumber
+    ? t('resourcesAi.episode', { number: episodeNumber })
+    : t('resourcesAi.detail.unnumberedEpisode')
+  const label = t(
+    isPrevious ? 'resourcesAi.detail.previousEpisodeLabel' : 'resourcesAi.detail.nextEpisodeLabel',
+    { episode, title },
+  )
+  const Icon = isPrevious ? ArrowLeft : ArrowRight
+
+  return (
+    <Link
+      to={resource.publicUrl}
+      aria-label={label}
+      title={label}
+      className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-navy text-white shadow-lg transition hover:scale-105 hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:h-12 sm:w-12"
+    >
+      <Icon size={22} aria-hidden="true" />
+    </Link>
   )
 }
 

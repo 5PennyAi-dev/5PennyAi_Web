@@ -242,6 +242,96 @@ test('injecte la couverture d’un article dans le HTML initial de la SPA', asyn
   assert.doesNotMatch(html, /og-christian\.jpg/)
 })
 
+test('sert les métadonnées Prompt réelles et une image stable au crawler', async () => {
+  const thumbnailPath = `prompts/${INFOGRAPHIC_ID}/thumbnail/22222222-2222-4222-8222-222222222222.webp`
+  const response = await middleware(crawlerRequest('/ressources-ia/prompts/prompt-public'), {
+    env: ENV,
+    fetchImpl: async () => jsonResponse([{
+      id: INFOGRAPHIC_ID,
+      slug: 'prompt-public',
+      title: 'Prompt public',
+      summary: 'Résumé public',
+      language: 'fr',
+      seo: { seoTitle: 'Titre SEO Prompt' },
+      thumbnail: { altText: 'Couverture Prompt' },
+      thumbnail_path: thumbnailPath,
+      status: 'published',
+      published_at: '2026-08-13T00:00:00Z',
+      updated_at: '2026-08-13T01:00:00Z',
+    }]),
+  })
+  const html = await response.text()
+  assert.equal(response.status, 200)
+  assert.match(html, /<html lang="fr">/)
+  assert.match(html, /<link rel="canonical" href="https:\/\/5pennyai\.com\/ressources-ia\/prompts\/prompt-public">/)
+  assert.match(html, /property="og:type" content="website"/)
+  assert.match(html, /api\/prompt-social-image\/prompt-public\?v=\d+/)
+  assert.match(html, /"@type":"BreadcrumbList"/)
+  assert.doesNotMatch(html, /"@type":"Article"|"@type":"HowTo"|thumbnail_path|prompt_template|token/i)
+})
+
+test('utilise le fallback pour un Prompt publié sans thumbnail et refuse draft ou inconnu', async () => {
+  const fallbackResponse = await middleware(crawlerRequest('/ressources-ia/prompts/sans-image'), {
+    env: ENV,
+    fetchImpl: async () => jsonResponse([{
+      id: INFOGRAPHIC_ID,
+      slug: 'sans-image',
+      title: 'Sans image',
+      summary: 'Résumé',
+      language: 'fr',
+      seo: {},
+      thumbnail: {},
+      thumbnail_path: null,
+      status: 'published',
+    }]),
+  })
+  assert.match(await fallbackResponse.text(), /og-christian\.jpg/)
+
+  for (const rows of [[], [{
+    id: INFOGRAPHIC_ID,
+    slug: 'secret',
+    title: 'Titre secret',
+    thumbnail_path: `prompts/${INFOGRAPHIC_ID}/thumbnail/22222222-2222-4222-8222-222222222222.webp`,
+    status: 'draft',
+  }]]) {
+    const response = await middleware(crawlerRequest('/ressources-ia/prompts/secret'), {
+      env: ENV,
+      fetchImpl: async () => jsonResponse(rows),
+    })
+    const html = await response.text()
+    assert.equal(response.status, 404)
+    assert.match(html, /noindex, nofollow/)
+    assert.doesNotMatch(html, /Titre secret|og:image|twitter:/i)
+  }
+})
+
+test('injecte les métadonnées Prompt dans le HTML initial de la SPA', async () => {
+  const response = await middleware(
+    new Request('https://5pennyai.com/ressources-ia/prompts/prompt-public', {
+      headers: { 'user-agent': 'Mozilla/5.0 Chrome/140' },
+    }),
+    {
+      env: ENV,
+      fetchImpl: async () => jsonResponse([{
+        id: INFOGRAPHIC_ID,
+        slug: 'prompt-public',
+        title: 'Prompt public',
+        summary: 'Résumé public',
+        language: 'fr',
+        seo: {},
+        thumbnail: {},
+        thumbnail_path: null,
+        status: 'published',
+      }]),
+      shellFetchImpl: async () => new Response(SHELL_HTML, { status: 200 }),
+    },
+  )
+  const html = await response.text()
+  assert.equal(response.status, 200)
+  assert.match(html, /property="og:title" content="Prompt public — 5PennyAi"/)
+  assert.match(html, /property="og:image" content="https:\/\/5pennyai\.com\/images\/og-christian\.jpg"/)
+})
+
 test('refuse une injection partielle si les marqueurs du shell sont absents', () => {
   assert.equal(injectShellSeo('<html><head></head></html>', '<meta>'), '')
 })

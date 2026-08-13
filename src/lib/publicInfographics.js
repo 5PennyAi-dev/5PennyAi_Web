@@ -2,6 +2,7 @@ import { supabase } from './supabase.js'
 import { calculateArticleReadingTime } from './articleMarkdown.js'
 import { getInfographicImageCandidates } from './infographicThumbnails.js'
 import { fetchPublishedArticlesForCatalog } from './publicArticles.js'
+import { fetchPublishedPromptsForCatalog } from './publicPrompts.js'
 import { applyPublishedFilter } from './publicInfographicQuery.js'
 import { createSeriesSlug } from './resourceSeries.js'
 import {
@@ -71,6 +72,7 @@ export async function fetchPublishedCatalog(client = supabase, logger = console)
     client,
     fetchInfographics: fetchPublishedInfographics,
     fetchArticles: fetchPublishedArticlesForCatalog,
+    fetchPrompts: fetchPublishedPromptsForCatalog,
     getInfographicImageUrl: (path) => getInfographicImageUrl(path, client),
     calculateArticleReadingTime,
     logger,

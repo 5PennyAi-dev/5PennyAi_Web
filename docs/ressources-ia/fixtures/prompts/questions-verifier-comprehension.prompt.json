@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Me poser des questions pour vérifier ma compréhension",
+  "summary": "Testez votre compréhension avec des questions progressives et une rétroaction concise.",
+  "category": "learn", "level": "beginner",
+  "contexts": ["studies", "work"], "resultTypes": ["questions", "analysis"],
+  "whenToUse": "Utilisez ce modèle après avoir étudié un sujet et avant un examen, une présentation ou une mise en pratique.",
+  "promptTemplate": "Pose-moi des questions pour vérifier ma compréhension de [SUJET].\n\nCe que j’ai étudié : [CONTENU]\nNiveau souhaité : [DIFFICULTE]\n\nPose une seule question à la fois et attends ma réponse. Commence par les idées essentielles, puis augmente progressivement la difficulté. Après chaque réponse, indique brièvement ce qui est juste, ce qui manque et une piste pour corriger mon erreur, sans donner immédiatement toute la réponse. À la fin, résume les points à revoir.",
+  "variables": [
+    {"key": "SUJET", "label": "Sujet", "description": "Le thème sur lequel vous voulez être questionné.", "example": "Le cycle de l’eau"},
+    {"key": "CONTENU", "label": "Contenu étudié", "description": "Vos notes, le plan du cours ou les notions couvertes.", "example": "Évaporation, condensation, précipitations, infiltration et ruissellement."},
+    {"key": "DIFFICULTE", "label": "Difficulté", "description": "Le niveau de questions attendu.", "example": "Secondaire, avec quelques questions d’application."}
+  ],
+  "tip": "Répondez avant de consulter vos notes; l’hésitation révèle souvent ce qu’il faut revoir.",
+  "editorialObjective": "Transformer une révision passive en vérification active et progressive de la compréhension.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 évoquant un dialogue de questions progressives et des jalons de compréhension, avec composition minimale. Afficher exactement le titre « Me poser des questions pour vérifier ma compréhension » dans une zone sûre généreuse, entièrement lisible, aucune lettre coupée ni débordement. Sans paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["questions", "comprendre", "révision", "quiz", "apprendre"],
+  "seo": {"primaryQuery": "prompt pour vérifier sa compréhension", "secondaryQueries": ["questions de révision avec une IA", "prompt quiz apprentissage"], "seoTitle": "Prompt de questions pour vérifier sa compréhension", "metaDescription": "Demandez des questions progressives, une rétroaction concise et un résumé des notions à revoir.", "suggestedSlug": "questions-pour-verifier-ma-comprehension", "internalLinkSuggestions": []}
+}

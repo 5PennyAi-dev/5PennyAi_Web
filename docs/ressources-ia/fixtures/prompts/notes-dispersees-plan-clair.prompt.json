@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Transformer des notes dispersées en plan clair",
+  "summary": "Regroupez et ordonnez des notes brutes pour obtenir un plan logique sans perdre les idées utiles.",
+  "category": "organize", "level": "beginner", "contexts": ["work", "studies", "creativity"], "resultTypes": ["plan", "list"],
+  "whenToUse": "Utilisez ce modèle lorsque vos notes sont nombreuses, répétitives ou prises dans le désordre.",
+  "promptTemplate": "Transforme mes notes dispersées en un plan clair.\n\nObjectif du plan : [OBJECTIF]\nNotes :\n[NOTES]\n\nRegroupe les idées qui vont ensemble, supprime seulement les répétitions évidentes et organise le tout en sections et sous-sections dans un ordre logique. Conserve les formulations importantes entre guillemets. Place à la fin les éléments difficiles à classer et les questions qui restent ouvertes. N’ajoute pas de nouvelles informations.",
+  "variables": [
+    {"key": "OBJECTIF", "label": "Objectif du plan", "description": "Le document ou l’activité que le plan doit préparer.", "example": "Préparer une présentation de dix minutes sur notre bilan trimestriel."},
+    {"key": "NOTES", "label": "Notes", "description": "Toutes vos notes, même répétées ou désordonnées.", "example": "Ventes +8 %; retard projet Atlas; remercier équipe soutien; priorité prochain trimestre : fidélisation; deux nouveaux clients; expliquer cause du retard; question : budget formation."}
+  ],
+  "tip": "Relisez la section des éléments non classés : elle révèle souvent une question oubliée ou un second sujet.",
+  "editorialObjective": "Donner une structure exploitable à des notes brutes sans enrichissement factuel silencieux.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 montrant des fragments ou cartes dispersés qui s’alignent en structure hiérarchique claire. Afficher exactement le titre « Transformer des notes dispersées en plan clair » entièrement dans une zone sûre généreuse, sans lettre coupée ni débordement. Pas de paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["notes", "plan", "organiser", "structure", "idées"],
+  "seo": {"primaryQuery": "prompt pour organiser des notes en plan", "secondaryQueries": ["transformer notes dispersées en plan", "structurer des notes avec une IA"], "seoTitle": "Prompt pour transformer des notes en plan clair", "metaDescription": "Regroupez, dédupliquez et ordonnez vos notes brutes dans un plan logique sans ajouter d’informations.", "suggestedSlug": "transformer-notes-dispersees-plan-clair", "internalLinkSuggestions": []}
+}

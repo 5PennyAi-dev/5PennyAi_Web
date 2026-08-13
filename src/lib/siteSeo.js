@@ -1,6 +1,7 @@
 import { createSeriesSlug } from './resourceSeries.js'
 import { buildSiteUrl, SITE_ORIGIN } from './siteConfig.js'
 import { slugifyArticle } from './articleSlug.js'
+import { normalizePromptSlug } from './promptSlug.js'
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const STATIC_PUBLIC_PATHS = [
@@ -12,7 +13,7 @@ const STATIC_PUBLIC_PATHS = [
   '/ressources-ia',
 ]
 
-export function buildSitemapEntries({ articleRows = [], infographicRows = [] } = {}) {
+export function buildSitemapEntries({ articleRows = [], infographicRows = [], promptRows = [] } = {}) {
   const entries = new Map(STATIC_PUBLIC_PATHS.map((path) => [buildSiteUrl(path), {}]))
   const series = new Map()
 
@@ -29,6 +30,13 @@ export function buildSitemapEntries({ articleRows = [], infographicRows = [] } =
     if (!UUID_PATTERN.test(row?.id || '')) continue
     addEntry(entries, buildSiteUrl(`/ressources-ia/infographies/${row.id}`), resolveLastmod(row))
     addSeries(series, row?.series_name, resolveLastmod(row))
+  }
+
+  for (const row of promptRows) {
+    if (row?.status !== 'published') continue
+    const slug = normalizePromptSlug(row?.slug || '')
+    if (!slug) continue
+    addEntry(entries, buildSiteUrl(`/ressources-ia/prompts/${encodeURIComponent(slug)}`), resolveLastmod(row))
   }
 
   for (const [slug, details] of series) {

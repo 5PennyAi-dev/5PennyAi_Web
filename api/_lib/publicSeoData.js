@@ -1,6 +1,8 @@
 import { isArticleCoverPath } from '../../src/lib/articleAssetRules.js'
 import { slugifyArticle } from '../../src/lib/articleSlug.js'
 import { isValidInfographicId } from '../../src/lib/infographicSeo.js'
+import { normalizePromptSlug } from '../../src/lib/promptSlug.js'
+import { isPromptThumbnailPath, PROMPT_ASSETS_BUCKET } from '../../src/lib/promptThumbnailRules.js'
 
 export function getPublicSupabaseConfig(env = globalThis.process?.env || {}) {
   const url = env.SUPABASE_URL || env.VITE_SUPABASE_URL
@@ -72,6 +74,41 @@ export async function fetchPublishedInfographicSeo(
   }
 }
 
+export async function fetchPublishedPromptSeo(
+  requestedSlug,
+  { env, fetchImpl = fetch } = {},
+) {
+  const slug = normalizePromptSlug(requestedSlug)
+  if (!slug) return null
+  const config = getPublicSupabaseConfig(env)
+  const url = new URL('/rest/v1/prompts', `${config.url}/`)
+  url.searchParams.set('slug', `eq.${slug}`)
+  url.searchParams.set('status', 'eq.published')
+  url.searchParams.set(
+    'select',
+    'id,slug,title,summary,language,seo,thumbnail,thumbnail_path,published_at,updated_at,status',
+  )
+  url.searchParams.set('limit', '1')
+  const rows = await fetchSupabaseJson(url, config, fetchImpl)
+  const row = rows?.[0]
+  if (!row || row.status !== 'published' || normalizePromptSlug(row.slug) !== slug) return null
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    summary: row.summary,
+    language: row.language,
+    seo: row.seo && typeof row.seo === 'object' ? row.seo : {},
+    thumbnail: row.thumbnail && typeof row.thumbnail === 'object'
+      ? { altText: row.thumbnail.altText }
+      : {},
+    thumbnailPath: isPromptThumbnailPath(row.thumbnail_path, row.id) ? row.thumbnail_path : '',
+    hasThumbnail: isPromptThumbnailPath(row.thumbnail_path, row.id),
+    publishedAt: row.published_at,
+    updatedAt: row.updated_at,
+  }
+}
+
 export async function fetchPublishedSitemapRows({ env, fetchImpl = fetch } = {}) {
   const config = getPublicSupabaseConfig(env)
   const articleUrl = createPublishedRowsUrl(
@@ -84,11 +121,21 @@ export async function fetchPublishedSitemapRows({ env, fetchImpl = fetch } = {})
     'infographics',
     'id,series_name,published_at,updated_at,status',
   )
-  const [articleRows, infographicRows] = await Promise.all([
+  const promptUrl = createPublishedRowsUrl(
+    config.url,
+    'prompts',
+    'slug,published_at,updated_at,status',
+  )
+  const [articleRows, infographicRows, promptRows] = await Promise.all([
     fetchSupabaseJson(articleUrl, config, fetchImpl),
     fetchSupabaseJson(infographicUrl, config, fetchImpl),
+    fetchSupabaseJson(promptUrl, config, fetchImpl),
   ])
-  return { articleRows: articleRows || [], infographicRows: infographicRows || [] }
+  return {
+    articleRows: articleRows || [],
+    infographicRows: infographicRows || [],
+    promptRows: promptRows || [],
+  }
 }
 
 export async function createSignedArticleCoverUrl(
@@ -108,6 +155,26 @@ export async function createSignedArticleCoverUrl(
   const result = await response.json()
   const signedPath = result?.signedURL || result?.signedUrl || result?.signed_url
   if (!signedPath) throw new Error('Article cover signature is missing')
+  return resolveSupabaseStorageUrl(signedPath, config.url)
+}
+
+export async function createSignedPromptThumbnailUrl(
+  prompt,
+  { env, expiresIn = 600, fetchImpl = fetch } = {},
+) {
+  if (!prompt?.thumbnailPath || !isPromptThumbnailPath(prompt.thumbnailPath, prompt.id)) return ''
+  const config = getPublicSupabaseConfig(env)
+  const encodedPath = prompt.thumbnailPath.split('/').map(encodeURIComponent).join('/')
+  const url = `${config.url}/storage/v1/object/sign/${PROMPT_ASSETS_BUCKET}/${encodedPath}`
+  const response = await fetchImpl(url, {
+    method: 'POST',
+    headers: supabaseHeaders(config, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ expiresIn }),
+  })
+  if (!response.ok) throw new Error(`Unable to sign prompt thumbnail (${response.status})`)
+  const result = await response.json()
+  const signedPath = result?.signedURL || result?.signedUrl || result?.signed_url
+  if (!signedPath) throw new Error('Prompt thumbnail signature is missing')
   return resolveSupabaseStorageUrl(signedPath, config.url)
 }
 

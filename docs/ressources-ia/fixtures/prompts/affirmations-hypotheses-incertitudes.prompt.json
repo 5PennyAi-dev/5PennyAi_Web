@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Repérer les affirmations, hypothèses et incertitudes d’un texte",
+  "summary": "Distinguez ce qu’un texte affirme, suppose, interprète ou laisse incertain pour mieux l’évaluer.",
+  "category": "verify", "level": "intermediate", "contexts": ["studies", "work", "daily_life"], "resultTypes": ["table", "analysis"],
+  "whenToUse": "Utilisez ce modèle pour lire de manière critique un argumentaire, une analyse, une proposition ou un texte persuasif.",
+  "promptTemplate": "Analyse le texte suivant en distinguant clairement ses affirmations, ses hypothèses et ses incertitudes.\n\nTexte :\n[TEXTE]\n\nContexte ou objectif du texte : [CONTEXTE]\n\nPour chaque élément important, indique s’il s’agit d’un fait présenté comme certain, d’une interprétation, d’une hypothèse nécessaire au raisonnement ou d’une incertitude reconnue. Repère aussi les généralisations, les liens de cause à effet non démontrés et les informations manquantes. Appuie chaque point sur un court passage du texte. Ne juge pas automatiquement qu’une affirmation est vraie ou fausse sans preuve externe.",
+  "variables": [
+    {"key": "TEXTE", "label": "Texte", "description": "Le contenu à examiner de façon critique.", "example": "Une note proposant le télétravail quatre jours par semaine et affirmant que cela augmentera nécessairement la productivité."},
+    {"key": "CONTEXTE", "label": "Contexte", "description": "L’origine et le but du texte, si vous les connaissez.", "example": "Proposition interne préparée pour une réunion de direction."}
+  ],
+  "tip": "Utilisez les passages repérés comme point de départ pour chercher les preuves manquantes ou demander des précisions.",
+  "caution": "L’analyse de la formulation ne suffit pas à établir la vérité; les affirmations importantes doivent être confrontées à des sources.",
+  "editorialObjective": "Aider à lire un texte de façon critique sans confondre analyse du discours et vérification factuelle.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 où différentes couches d’un texte sont révélées et classées visuellement par inspection, avec composition sobre. Afficher exactement le titre « Repérer les affirmations, hypothèses et incertitudes d’un texte » entièrement dans une zone sûre généreuse, sans lettre coupée. Pas de paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["affirmations", "hypothèses", "incertitudes", "texte", "analyse critique"],
+  "seo": {"primaryQuery": "prompt pour analyser les affirmations d'un texte", "secondaryQueries": ["repérer les hypothèses d'un texte", "analyser les incertitudes avec une IA"], "seoTitle": "Prompt pour repérer affirmations et hypothèses", "metaDescription": "Distinguez faits présentés, interprétations, hypothèses, incertitudes et preuves manquantes dans un texte.", "suggestedSlug": "reperer-affirmations-hypotheses-incertitudes-texte", "internalLinkSuggestions": []}
+}

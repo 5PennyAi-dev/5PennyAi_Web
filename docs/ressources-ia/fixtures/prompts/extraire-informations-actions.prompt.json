@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Extraire les informations et actions importantes d’un contenu",
+  "summary": "Repérez rapidement les faits, décisions, responsabilités, échéances et questions ouvertes d’un contenu.",
+  "category": "summarize", "level": "beginner", "contexts": ["work", "studies"], "resultTypes": ["table", "checklist"],
+  "whenToUse": "Utilisez ce modèle après une réunion, un échange ou un document contenant plusieurs informations à suivre.",
+  "promptTemplate": "Analyse le contenu suivant pour en extraire les éléments utiles au suivi.\n\nContenu :\n[CONTENU]\n\nPrésente séparément :\n1. les faits et décisions explicites;\n2. les actions à faire, avec responsable et échéance seulement s’ils sont mentionnés;\n3. les questions encore ouvertes;\n4. les informations ambiguës ou à confirmer.\n\nUtilise un tableau pour les actions. N’invente ni responsable, ni date, ni décision. Cite de courts repères du contenu lorsque cela aide à vérifier l’extraction.",
+  "variables": [
+    {"key": "CONTENU", "label": "Contenu", "description": "Les notes, la transcription ou le document à analyser.", "example": "Notes d’une réunion où l’équipe a choisi le fournisseur B, où Sam doit confirmer le budget vendredi et où la date de lancement reste à décider."}
+  ],
+  "tip": "Comparez la liste d’actions au contenu source avant de la partager aux personnes concernées.",
+  "editorialObjective": "Transformer un contenu dense en éléments de suivi vérifiables sans inventer les détails absents.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 évoquant l’extraction de repères importants depuis un document, par des cartes ou marqueurs sélectionnés. Afficher exactement le titre « Extraire les informations et actions importantes d’un contenu » dans une zone sûre généreuse, titre entier et non coupé. Pas de paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["extraire", "actions", "informations", "réunion", "suivi", "notes"],
+  "seo": {"primaryQuery": "prompt pour extraire les actions d'un texte", "secondaryQueries": ["extraire décisions d'une réunion", "résumer notes et tâches"], "seoTitle": "Prompt pour extraire informations et actions", "metaDescription": "Repérez faits, décisions, actions, responsables, échéances et questions ouvertes sans inventer les détails absents.", "suggestedSlug": "extraire-informations-actions-importantes-contenu", "internalLinkSuggestions": []}
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1, "contentType": "prompt", "language": "fr",
+  "title": "Explorer un problème sous plusieurs angles",
+  "summary": "Examinez un problème selon plusieurs perspectives pour découvrir les causes, effets et questions négligées.",
+  "category": "think", "level": "intermediate", "contexts": ["work", "studies", "daily_life"], "resultTypes": ["analysis", "questions"],
+  "whenToUse": "Utilisez ce modèle lorsqu’un problème résiste à votre première interprétation ou touche plusieurs personnes.",
+  "promptTemplate": "Aide-moi à explorer ce problème sous plusieurs angles :\n[PROBLEME]\n\nContexte connu :\n[CONTEXTE]\n\nExamine-le successivement du point de vue des personnes concernées, des causes possibles, des effets à court et à long terme, des contraintes du système et des hypothèses que je fais peut-être. Pour chaque angle, distingue les faits fournis des interprétations. Signale les informations manquantes et termine par les cinq questions qui changeraient le plus notre compréhension du problème. Ne propose pas encore une solution définitive.",
+  "variables": [
+    {"key": "PROBLEME", "label": "Problème", "description": "La situation que vous voulez mieux comprendre.", "example": "Les clients abandonnent souvent notre formulaire de demande avant de l’envoyer."},
+    {"key": "CONTEXTE", "label": "Contexte connu", "description": "Les observations, limites et personnes concernées.", "example": "Le formulaire compte 18 champs; nous savons seulement que les abandons sont plus fréquents sur mobile."}
+  ],
+  "tip": "Résistez à l’envie de chercher immédiatement une solution; vérifiez d’abord quelles hypothèses reposent sur des faits.",
+  "caution": "Cette exploration formule des hypothèses, pas des conclusions; recueillez des données ou des témoignages avant d’agir.",
+  "editorialObjective": "Élargir la compréhension d’un problème avant de figer trop vite son explication ou sa solution.",
+  "thumbnail": {"altText": "", "generationBrief": "Créer une couverture 16:9 avec un même objet observé depuis plusieurs perspectives visuelles complémentaires. Afficher exactement le titre « Explorer un problème sous plusieurs angles » dans une zone sûre vaste, titre entier, aucune lettre coupée. Pas de mini-infographie, paragraphe, microtexte, source, URL, logo ou filigrane.", "preferredAspectRatio": "16:9"},
+  "keywords": ["problème", "angles", "perspectives", "hypothèses", "réfléchir"],
+  "seo": {"primaryQuery": "prompt pour analyser un problème sous plusieurs angles", "secondaryQueries": ["explorer différentes perspectives", "questionner ses hypothèses avec une IA"], "seoTitle": "Prompt pour explorer un problème sous plusieurs angles", "metaDescription": "Examinez un problème par ses acteurs, causes, effets, contraintes et hypothèses avant de choisir une solution.", "suggestedSlug": "explorer-probleme-sous-plusieurs-angles", "internalLinkSuggestions": []}
+}

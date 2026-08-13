@@ -10,11 +10,13 @@ import { Helmet } from 'react-helmet-async'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import ResourceCard from '@/components/resources/ResourceCard'
+import PromptCard from '@/components/resources/PromptCard'
 import SeriesArtwork from '@/components/resources/SeriesArtwork'
 import { fetchPublishedCatalog } from '@/lib/publicInfographics'
 import {
   filterPublicResources,
   getPublicResourceKey,
+  normalizeCatalogSearchParams,
   normalizeResourceLevel,
   normalizeSearchText,
   normalizeResourceFormat,
@@ -26,14 +28,20 @@ import {
 } from '@/lib/resourceSeries'
 import { findResourceTopic, getAvailableResourceTopics } from '@/lib/resourceTopics'
 import { attachSeriesThumbnails } from '@/lib/seriesThumbnails'
+import {
+  isPromptCategory,
+  PROMPT_CATEGORIES,
+  promptTaxonomyLabelKey,
+} from '@/lib/promptTaxonomies'
 
 const SERIES_PATH = '/ressources-ia/series'
 
 export default function ResourcesAI() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [resources, setResources] = useState([])
   const [articles, setArticles] = useState([])
+  const [prompts, setPrompts] = useState([])
   const [seriesThumbnailRows, setSeriesThumbnailRows] = useState([])
   const [state, setState] = useState('loading')
   const series = useMemo(
@@ -46,31 +54,49 @@ export default function ResourcesAI() {
   const rawQuery = searchParams.get('q') || ''
   const rawLevel = searchParams.get('niveau') || ''
   const rawTopic = searchParams.get('sujet') || ''
+  const rawCategory = searchParams.get('categorie') || ''
   const selectedQuery = isSeriesView ? '' : rawQuery
   const selectedLevel = isSeriesView ? '' : normalizeResourceLevel(rawLevel)
-  const topics = useMemo(() => getAvailableResourceTopics(resources), [resources])
-  const selectedTopic = isSeriesView ? null : findResourceTopic(resources, rawTopic)
-  const selectedTopicKey = selectedTopic?.key || ''
   const selectedFormat = isSeriesView
     ? RESOURCE_FORMATS.ALL
-    : normalizeResourceFormat(rawFormat, articles.length > 0)
+    : normalizeResourceFormat(rawFormat, articles.length > 0, prompts.length > 0)
+  const isPromptMode = selectedFormat === RESOURCE_FORMATS.PROMPTS
+  const topics = useMemo(() => getAvailableResourceTopics(resources), [resources])
+  const selectedTopic = isSeriesView || isPromptMode ? null : findResourceTopic(resources, rawTopic)
+  const selectedTopicKey = selectedTopic?.key || ''
+  const selectedCategory = isPromptMode && isPromptCategory(rawCategory) ? rawCategory : ''
   const selectedSeries = useMemo(
     () => series.find(({ slug }) => slug === selectedSeriesSlug) || null,
     [selectedSeriesSlug, series],
   )
   const featuredSeries = useMemo(() => selectFeaturedSeries(series), [series])
+  const getPromptTaxonomyLabels = useCallback((resource) => {
+    if (resource?.contentType !== 'prompt') return []
+    return ['fr', 'en'].flatMap((language) => {
+      const translate = i18n.getFixedT(language)
+      return [resource.category, ...(resource.contexts || [])]
+        .filter(Boolean)
+        .map((value) => translate(promptTaxonomyLabelKey(
+          value === resource.category ? 'categories' : 'contexts',
+          value,
+        )))
+    })
+  }, [i18n])
   const visibleResources = filterPublicResources(resources, {
     format: selectedFormat,
     level: selectedLevel,
     query: selectedQuery,
     seriesSlug: selectedSeriesSlug,
     topic: selectedTopicKey,
+    category: selectedCategory,
+    getPromptTaxonomyLabels,
   })
   const hasActiveResourceFilters = Boolean(normalizeSearchText(selectedQuery))
     || Boolean(selectedLevel)
     || selectedFormat !== RESOURCE_FORMATS.ALL
     || Boolean(selectedSeriesSlug)
     || Boolean(selectedTopicKey)
+    || Boolean(selectedCategory)
   const isNeutralResourceView = !isSeriesView && !hasActiveResourceFilters
 
   const loadInfographics = useCallback(async () => {
@@ -79,6 +105,7 @@ export default function ResourcesAI() {
       const catalog = await fetchPublishedCatalog()
       setResources(catalog.resources)
       setArticles(catalog.articles)
+      setPrompts(catalog.prompts)
       setSeriesThumbnailRows(catalog.seriesCovers)
       setState('ready')
     } catch (error) {
@@ -95,6 +122,7 @@ export default function ResourcesAI() {
         if (!cancelled) {
           setResources(catalog.resources)
           setArticles(catalog.articles)
+          setPrompts(catalog.prompts)
           setSeriesThumbnailRows(catalog.seriesCovers)
           setState('ready')
         }
@@ -111,38 +139,21 @@ export default function ResourcesAI() {
 
   useEffect(() => {
     if (state !== 'ready') return
-
-    const nextParams = new URLSearchParams(searchParams)
-    let hasChanges = false
-    const removeParameter = (parameter) => {
-      if (!nextParams.has(parameter)) return
-      nextParams.delete(parameter)
-      hasChanges = true
-    }
-
-    if (isSeriesView) {
-      const resourceViewParameters = ['serie', 'format', 'q', 'niveau', 'sujet']
-      resourceViewParameters.forEach(removeParameter)
-    } else {
-      const isValidFormat = rawFormat === RESOURCE_FORMATS.INFOGRAPHICS
-        || (rawFormat === RESOURCE_FORMATS.ARTICLES && articles.length > 0)
-
-      if (rawFormat && !isValidFormat) removeParameter('format')
-      if (rawLevel && !normalizeResourceLevel(rawLevel)) removeParameter('niveau')
-      if (rawTopic && !selectedTopic) removeParameter('sujet')
-    }
-
+    const { hasChanges, nextParams } = normalizeCatalogSearchParams(searchParams, {
+      hasPublishedArticles: articles.length > 0,
+      hasPublishedPrompts: prompts.length > 0,
+      hasValidTopic: Boolean(selectedTopic),
+      isSeriesView,
+    })
     if (hasChanges) setSearchParams(nextParams, { replace: true })
   }, [
     articles.length,
     isSeriesView,
-    rawFormat,
-    rawLevel,
-    rawTopic,
     searchParams,
     selectedTopic,
     setSearchParams,
     state,
+    prompts.length,
   ])
 
   const showResourcesView = () => {
@@ -160,6 +171,7 @@ export default function ResourcesAI() {
     nextParams.delete('q')
     nextParams.delete('niveau')
     nextParams.delete('sujet')
+    nextParams.delete('categorie')
     setSearchParams(nextParams)
   }
 
@@ -190,11 +202,29 @@ export default function ResourcesAI() {
   const filterByFormat = (format) => {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('vue')
-    if (format === RESOURCE_FORMATS.INFOGRAPHICS || format === RESOURCE_FORMATS.ARTICLES) {
+    if (
+      format === RESOURCE_FORMATS.INFOGRAPHICS
+      || format === RESOURCE_FORMATS.ARTICLES
+      || format === RESOURCE_FORMATS.PROMPTS
+    ) {
       nextParams.set('format', format)
     } else {
       nextParams.delete('format')
     }
+    if (format === RESOURCE_FORMATS.PROMPTS) {
+      nextParams.delete('sujet')
+      nextParams.delete('serie')
+    } else {
+      nextParams.delete('categorie')
+    }
+    setSearchParams(nextParams)
+  }
+
+  const filterByCategory = (category) => {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('vue')
+    if (isPromptCategory(category)) nextParams.set('categorie', category)
+    else nextParams.delete('categorie')
     setSearchParams(nextParams)
   }
 
@@ -214,6 +244,7 @@ export default function ResourcesAI() {
     nextParams.delete('sujet')
     nextParams.delete('format')
     nextParams.delete('serie')
+    nextParams.delete('categorie')
     setSearchParams(nextParams)
   }
 
@@ -237,10 +268,10 @@ export default function ResourcesAI() {
               {t('resourcesAi.eyebrow')}
             </p>
             <h1 className="text-display text-4xl font-bold text-navy md:text-5xl">
-              {t('resourcesAi.title')}
+              {t(isPromptMode ? 'resourcesAi.promptLibrary.title' : 'resourcesAi.title')}
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted md:text-lg">
-              {t('resourcesAi.subtitle')}
+              {t(isPromptMode ? 'resourcesAi.promptLibrary.subtitle' : 'resourcesAi.subtitle')}
             </p>
           </header>
 
@@ -255,8 +286,10 @@ export default function ResourcesAI() {
               <CatalogControls
                 isSeriesView={isSeriesView}
                 hasPublishedArticles={articles.length > 0}
+                hasPublishedPrompts={prompts.length > 0}
                 onFilterChange={filterBySeries}
                 onFormatChange={filterByFormat}
+                onCategoryChange={filterByCategory}
                 onLevelChange={filterByLevel}
                 onSearchChange={filterBySearch}
                 onTopicChange={filterByTopic}
@@ -267,6 +300,8 @@ export default function ResourcesAI() {
                 selectedTopicKey={selectedTopicKey}
                 selectedSeriesSlug={selectedSeriesSlug}
                 selectedFormat={selectedFormat}
+                selectedCategory={selectedCategory}
+                isPromptMode={isPromptMode}
                 series={series}
                 topics={topics}
                 t={t}
@@ -281,6 +316,7 @@ export default function ResourcesAI() {
                     topic: selectedTopic,
                     series: selectedSeries,
                     seriesSlug: selectedSeriesSlug,
+                    category: selectedCategory,
                     t,
                   })}
                   onClearAll={clearResourceFilters}
@@ -315,7 +351,10 @@ export default function ResourcesAI() {
 
 function CatalogControls({
   hasPublishedArticles,
+  hasPublishedPrompts,
   isSeriesView,
+  isPromptMode,
+  onCategoryChange,
   onFilterChange,
   onFormatChange,
   onLevelChange,
@@ -324,6 +363,7 @@ function CatalogControls({
   onShowResources,
   onShowSeries,
   selectedLevel,
+  selectedCategory,
   selectedQuery,
   selectedTopicKey,
   selectedFormat,
@@ -369,19 +409,34 @@ function CatalogControls({
 
       {!isSeriesView && (
         <div className="w-full space-y-4 sm:max-w-3xl">
-          <SearchFilter onChange={onSearchChange} query={selectedQuery} t={t} />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(13.5rem,1.25fr)_repeat(3,minmax(9rem,1fr))]">
-            {hasPublishedArticles && (
-              <FormatFilter onChange={onFormatChange} selectedFormat={selectedFormat} t={t} />
-            )}
-            <LevelFilter onChange={onLevelChange} selectedLevel={selectedLevel} t={t} />
-            <TopicFilter
-              onChange={onTopicChange}
-              selectedTopicKey={selectedTopicKey}
-              topics={topics}
+          {isPromptMode && (
+            <CategoryFilter
+              onChange={onCategoryChange}
+              selectedCategory={selectedCategory}
               t={t}
             />
-            {showSeriesFilter && (
+          )}
+          <SearchFilter onChange={onSearchChange} query={selectedQuery} t={t} />
+          <div className={`grid gap-4 sm:grid-cols-2 ${isPromptMode ? 'lg:grid-cols-2' : 'lg:grid-cols-[minmax(13.5rem,1.25fr)_repeat(3,minmax(9rem,1fr))]'}`}>
+            {(hasPublishedArticles || hasPublishedPrompts) && (
+              <FormatFilter
+                hasPublishedArticles={hasPublishedArticles}
+                hasPublishedPrompts={hasPublishedPrompts}
+                onChange={onFormatChange}
+                selectedFormat={selectedFormat}
+                t={t}
+              />
+            )}
+            <LevelFilter onChange={onLevelChange} selectedLevel={selectedLevel} t={t} />
+            {!isPromptMode && (
+              <TopicFilter
+                onChange={onTopicChange}
+                selectedTopicKey={selectedTopicKey}
+                topics={topics}
+                t={t}
+              />
+            )}
+            {!isPromptMode && showSeriesFilter && (
               <SeriesFilter
                 onChange={onFilterChange}
                 selectedSeriesSlug={selectedSeriesSlug}
@@ -417,11 +472,16 @@ function SearchFilter({ onChange, query, t }) {
   )
 }
 
-function FormatFilter({ onChange, selectedFormat, t }) {
+function FormatFilter({ hasPublishedArticles, hasPublishedPrompts, onChange, selectedFormat, t }) {
   const options = [
     [RESOURCE_FORMATS.ALL, t('resourcesAi.catalog.allFormats')],
     [RESOURCE_FORMATS.INFOGRAPHICS, t('resourcesAi.catalog.infographics')],
-    [RESOURCE_FORMATS.ARTICLES, t('resourcesAi.catalog.articles')],
+    ...(hasPublishedArticles
+      ? [[RESOURCE_FORMATS.ARTICLES, t('resourcesAi.catalog.articles')]]
+      : []),
+    ...(hasPublishedPrompts
+      ? [[RESOURCE_FORMATS.PROMPTS, t('resourcesAi.catalog.prompts')]]
+      : []),
   ]
 
   return (
@@ -430,7 +490,7 @@ function FormatFilter({ onChange, selectedFormat, t }) {
         {t('resourcesAi.catalog.formatFilterLabel')}
       </legend>
       <div
-        className="grid grid-cols-[auto_minmax(0,1.45fr)_minmax(0,1fr)] rounded-xl bg-navy/[0.055] p-1"
+        className="flex flex-wrap rounded-xl bg-navy/[0.055] p-1"
         role="group"
       >
         {options.map(([value, label]) => (
@@ -439,7 +499,7 @@ function FormatFilter({ onChange, selectedFormat, t }) {
             type="button"
             aria-pressed={selectedFormat === value}
             onClick={() => onChange(value)}
-            className={`whitespace-nowrap rounded-lg px-1.5 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+            className={`min-w-fit flex-1 whitespace-nowrap rounded-lg px-2 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
               selectedFormat === value
                 ? 'bg-navy text-white shadow-sm'
                 : 'text-navy/65 hover:bg-white hover:text-navy'
@@ -448,6 +508,45 @@ function FormatFilter({ onChange, selectedFormat, t }) {
             {label}
           </button>
         ))}
+      </div>
+    </fieldset>
+  )
+}
+
+function CategoryFilter({ onChange, selectedCategory, t }) {
+  const options = ['', ...PROMPT_CATEGORIES]
+
+  return (
+    <fieldset className="min-w-0">
+      <legend className="mb-2 text-xs font-bold text-navy/70">
+        {t('resourcesAi.promptLibrary.categoryQuestion')}
+      </legend>
+      <div
+        role="group"
+        aria-label={t('resourcesAi.promptLibrary.categoryFilterLabel')}
+        className="flex flex-wrap gap-2"
+      >
+        {options.map((category) => {
+          const selected = selectedCategory === category
+          const label = category
+            ? t(promptTaxonomyLabelKey('categories', category))
+            : t('resourcesAi.promptLibrary.allCategories')
+          return (
+            <button
+              key={category || 'all'}
+              type="button"
+              aria-pressed={selected}
+              onClick={() => onChange(category)}
+              className={`rounded-full border px-3.5 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+                selected
+                  ? 'border-navy bg-navy text-white shadow-sm'
+                  : 'border-navy/10 bg-white text-navy/70 hover:border-navy/25 hover:text-navy'
+              }`}
+            >
+              {label}
+            </button>
+          )
+        })}
       </div>
     </fieldset>
   )
@@ -611,7 +710,7 @@ function ResourcesView({
   )
 }
 
-function getActiveResourceFilters({ format, level, query, series, seriesSlug, t, topic }) {
+function getActiveResourceFilters({ category, format, level, query, series, seriesSlug, t, topic }) {
   const filters = []
   if (normalizeSearchText(query)) {
     filters.push({
@@ -621,9 +720,22 @@ function getActiveResourceFilters({ format, level, query, series, seriesSlug, t,
     })
   }
   if (format !== RESOURCE_FORMATS.ALL) {
-    const label = t(`resourcesAi.catalog.${format}`)
+    const formatKeys = {
+      [RESOURCE_FORMATS.INFOGRAPHICS]: 'infographics',
+      [RESOURCE_FORMATS.ARTICLES]: 'articles',
+      [RESOURCE_FORMATS.PROMPTS]: 'prompts',
+    }
+    const label = t(`resourcesAi.catalog.${formatKeys[format]}`)
     filters.push({
       parameter: 'format',
+      label,
+      removeLabel: t('resourcesAi.catalog.removeFilter', { filter: label }),
+    })
+  }
+  if (category) {
+    const label = t(promptTaxonomyLabelKey('categories', category))
+    filters.push({
+      parameter: 'categorie',
       label,
       removeLabel: t('resourcesAi.catalog.removeFilter', { filter: label }),
     })
@@ -786,7 +898,9 @@ function ResourceGrid({ resources, t }) {
     >
       {resources.map((resource) => (
         <li key={getPublicResourceKey(resource)}>
-          <ResourceCard resource={resource} t={t} />
+          {resource.contentType === 'prompt'
+            ? <PromptCard resource={resource} t={t} />
+            : <ResourceCard resource={resource} t={t} />}
         </li>
       ))}
     </ul>
