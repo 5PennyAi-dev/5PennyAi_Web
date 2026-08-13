@@ -5,6 +5,7 @@ import {
   Image as ImageIcon,
   Layers3,
   RotateCw,
+  Search,
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -263,7 +264,7 @@ export default function ResourcesAI() {
 
       <section className="min-h-[75vh] bg-warm-gray pt-28 pb-20 md:pt-36 md:pb-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <header className="mx-auto mb-10 max-w-3xl text-center md:mb-12">
+          <header className="mx-auto mb-8 max-w-3xl text-center md:mb-10">
             <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-accent">
               {t('resourcesAi.eyebrow')}
             </p>
@@ -375,11 +376,11 @@ function CatalogControls({
   const showSeriesFilter = !isSeriesView && (series.length > 0 || selectedSeriesSlug)
 
   return (
-    <div className="mb-10 flex flex-col gap-5 rounded-2xl border border-navy/[0.08] bg-white/85 p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between sm:p-5">
+    <div className="mb-10">
       <div
         role="group"
         aria-label={t('resourcesAi.catalog.viewControlLabel')}
-        className="grid w-full grid-cols-2 rounded-xl bg-navy/[0.055] p-1 sm:w-auto"
+        className="mx-auto mb-6 grid w-full max-w-md grid-cols-2 rounded-xl border border-navy/[0.08] bg-white/70 p-1 shadow-sm sm:w-fit sm:max-w-none"
       >
         <button
           type="button"
@@ -388,7 +389,7 @@ function CatalogControls({
           className={`rounded-lg px-4 py-2.5 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
             !isSeriesView
               ? 'bg-navy text-white shadow-sm'
-              : 'text-navy/65 hover:bg-white hover:text-navy'
+              : 'text-navy/65 hover:bg-navy/[0.045] hover:text-navy'
           }`}
         >
           {t('resourcesAi.catalog.allResources')}
@@ -400,7 +401,7 @@ function CatalogControls({
           className={`rounded-lg px-4 py-2.5 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
             isSeriesView
               ? 'bg-navy text-white shadow-sm'
-              : 'text-navy/65 hover:bg-white hover:text-navy'
+              : 'text-navy/65 hover:bg-navy/[0.045] hover:text-navy'
           }`}
         >
           {t('resourcesAi.catalog.series')}
@@ -408,16 +409,15 @@ function CatalogControls({
       </div>
 
       {!isSeriesView && (
-        <div className="w-full space-y-4 sm:max-w-3xl">
-          {isPromptMode && (
-            <CategoryFilter
-              onChange={onCategoryChange}
-              selectedCategory={selectedCategory}
+        <div className="rounded-3xl border border-navy/[0.08] bg-white p-5 shadow-sm sm:p-6 lg:p-7">
+          <div className="space-y-6">
+            <SearchFilter
+              isPromptMode={isPromptMode}
+              onChange={onSearchChange}
+              query={selectedQuery}
               t={t}
             />
-          )}
-          <SearchFilter onChange={onSearchChange} query={selectedQuery} t={t} />
-          <div className={`grid gap-4 sm:grid-cols-2 ${isPromptMode ? 'lg:grid-cols-2' : 'lg:grid-cols-[minmax(13.5rem,1.25fr)_repeat(3,minmax(9rem,1fr))]'}`}>
+
             {(hasPublishedArticles || hasPublishedPrompts) && (
               <FormatFilter
                 hasPublishedArticles={hasPublishedArticles}
@@ -427,22 +427,37 @@ function CatalogControls({
                 t={t}
               />
             )}
-            <LevelFilter onChange={onLevelChange} selectedLevel={selectedLevel} t={t} />
-            {!isPromptMode && (
-              <TopicFilter
-                onChange={onTopicChange}
-                selectedTopicKey={selectedTopicKey}
-                topics={topics}
+
+            {isPromptMode && (
+              <CategoryFilter
+                onChange={onCategoryChange}
+                selectedCategory={selectedCategory}
                 t={t}
               />
             )}
-            {!isPromptMode && showSeriesFilter && (
-              <SeriesFilter
-                onChange={onFilterChange}
-                selectedSeriesSlug={selectedSeriesSlug}
-                series={series}
-                t={t}
-              />
+
+            {isPromptMode ? (
+              <div className="max-w-xs">
+                <LevelFilter onChange={onLevelChange} selectedLevel={selectedLevel} t={t} />
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <LevelFilter onChange={onLevelChange} selectedLevel={selectedLevel} t={t} />
+                <TopicFilter
+                  onChange={onTopicChange}
+                  selectedTopicKey={selectedTopicKey}
+                  topics={topics}
+                  t={t}
+                />
+                {showSeriesFilter && (
+                  <SeriesFilter
+                    onChange={onFilterChange}
+                    selectedSeriesSlug={selectedSeriesSlug}
+                    series={series}
+                    t={t}
+                  />
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -451,7 +466,7 @@ function CatalogControls({
   )
 }
 
-function SearchFilter({ onChange, query, t }) {
+function SearchFilter({ isPromptMode, onChange, query, t }) {
   return (
     <div>
       <label
@@ -460,14 +475,24 @@ function SearchFilter({ onChange, query, t }) {
       >
         {t('resourcesAi.catalog.searchLabel')}
       </label>
-      <input
-        id="resource-search"
-        type="search"
-        value={query}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={t('resourcesAi.catalog.searchPlaceholder')}
-        className="w-full rounded-xl border border-navy/15 bg-white px-3.5 py-2.5 text-sm font-medium text-navy shadow-sm placeholder:text-navy/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
-      />
+      <div className="relative">
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-navy/40"
+          size={18}
+          strokeWidth={2}
+        />
+        <input
+          id="resource-search"
+          type="search"
+          value={query}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={t(isPromptMode
+            ? 'resourcesAi.catalog.promptSearchPlaceholder'
+            : 'resourcesAi.catalog.searchPlaceholder')}
+          className="min-h-12 w-full rounded-xl border border-navy/15 bg-white py-3 pl-11 pr-4 text-sm font-medium text-navy shadow-sm placeholder:text-navy/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
+        />
+      </div>
     </div>
   )
 }
@@ -487,10 +512,10 @@ function FormatFilter({ hasPublishedArticles, hasPublishedPrompts, onChange, sel
   return (
     <fieldset className="min-w-0">
       <legend className="mb-1.5 text-xs font-bold text-navy/70">
-        {t('resourcesAi.catalog.formatFilterLabel')}
+        {t('resourcesAi.catalog.formatLabel')}
       </legend>
       <div
-        className="flex flex-wrap rounded-xl bg-navy/[0.055] p-1"
+        className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
         role="group"
       >
         {options.map(([value, label]) => (
@@ -499,10 +524,10 @@ function FormatFilter({ hasPublishedArticles, hasPublishedPrompts, onChange, sel
             type="button"
             aria-pressed={selectedFormat === value}
             onClick={() => onChange(value)}
-            className={`min-w-fit flex-1 whitespace-nowrap rounded-lg px-2 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+            className={`min-h-11 min-w-fit whitespace-nowrap rounded-xl border px-4 py-2.5 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:flex-none ${
               selectedFormat === value
-                ? 'bg-navy text-white shadow-sm'
-                : 'text-navy/65 hover:bg-white hover:text-navy'
+                ? 'border-navy bg-navy text-white shadow-sm'
+                : 'border-navy/10 bg-white text-navy/65 hover:border-navy/25 hover:bg-navy/[0.025] hover:text-navy'
             }`}
           >
             {label}
@@ -537,7 +562,7 @@ function CategoryFilter({ onChange, selectedCategory, t }) {
               type="button"
               aria-pressed={selected}
               onClick={() => onChange(category)}
-              className={`rounded-full border px-3.5 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+              className={`min-h-10 rounded-full border px-3.5 py-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
                 selected
                   ? 'border-navy bg-navy text-white shadow-sm'
                   : 'border-navy/10 bg-white text-navy/70 hover:border-navy/25 hover:text-navy'
@@ -560,7 +585,7 @@ function SeriesFilter({ onChange, selectedSeriesSlug, series, t }) {
     selectedSeriesSlug && !series.some(({ slug }) => slug === selectedSeriesSlug)
 
   return (
-    <div className="w-full sm:max-w-xs">
+    <div className="w-full">
       <label
         htmlFor="resource-series-filter"
         className="mb-1.5 block text-xs font-bold text-navy/70"
