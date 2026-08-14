@@ -1,6 +1,7 @@
 import { Check, Copy, Sparkles } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { copyText } from '@/lib/clipboard'
+import { scrollPromptSectionIntoView } from '@/lib/promptCustomization'
 import {
   isPromptCategory,
   isPromptContext,
@@ -20,6 +21,8 @@ export default function PromptContent({ allowCustomization = false, headingLevel
   const [isCustomizing, setIsCustomizing] = useState(false)
   const [customValues, setCustomValues] = useState({})
   const customizationId = useId()
+  const customizationSectionRef = useRef(null)
+  const customizedPreviewRef = useRef(null)
   const title = cleanText(prompt?.title) || t('resourcesAi.prompt.fallbackTitle')
   const category = isPromptCategory(prompt?.category) ? prompt.category : ''
   const level = isPromptLevel(prompt?.level) ? prompt.level : ''
@@ -38,6 +41,18 @@ export default function PromptContent({ allowCustomization = false, headingLevel
   const example = buildPromptExampleSegments(template, variables)
   const showExample = template && extractPromptPlaceholders(template).length > 0 && example.complete
   const Heading = `h${Math.min(6, Math.max(1, headingLevel))}`
+  const handleOpenCustomization = () => setIsCustomizing(true)
+  const handleCloseCustomization = () => setIsCustomizing(false)
+
+  useEffect(() => {
+    if (!isCustomizing) return undefined
+    const frame = window.requestAnimationFrame(() => {
+      const section = customizationSectionRef.current
+      if (!section) return
+      scrollPromptSectionIntoView(section, { focus: true })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [isCustomizing])
 
   return (
     <article className="mx-auto max-w-6xl">
@@ -113,7 +128,7 @@ export default function PromptContent({ allowCustomization = false, headingLevel
                   type="button"
                   aria-controls={customizationId}
                   aria-expanded={isCustomizing}
-                  onClick={() => setIsCustomizing((active) => !active)}
+                  onClick={isCustomizing ? handleCloseCustomization : handleOpenCustomization}
                   className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-navy/20 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent/50 hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep sm:w-auto"
                 >
                   {isCustomizing ? t('resourcesAi.prompt.closeCustomization') : t('resourcesAi.prompt.customize')}
@@ -136,77 +151,91 @@ export default function PromptContent({ allowCustomization = false, headingLevel
       </div>
 
       <div className="mt-10 space-y-9">
-        {variables.length > 0 && (
-          <Section title={t('resourcesAi.prompt.variables')}>
-            {isCustomizing && (
-              <p id={`${customizationId}-privacy`} className="mb-4 text-sm leading-6 text-navy/70">
+        {isCustomizing && customizationAvailable ? (
+          <div
+            id={customizationId}
+            ref={customizationSectionRef}
+            tabIndex="-1"
+            aria-labelledby={`${customizationId}-title`}
+            className="scroll-mt-24 outline-none lg:grid lg:grid-cols-2 lg:items-start lg:gap-8"
+          >
+            <section>
+              <h2 id={`${customizationId}-title`} className="font-heading text-2xl font-bold text-navy">
+                {t('resourcesAi.prompt.customizationActiveTitle')}
+              </h2>
+              <p className="mt-3 leading-7 text-navy/80">{t('resourcesAi.prompt.customizationInstruction')}</p>
+              <p id={`${customizationId}-privacy`} className="mt-2 text-sm leading-6 text-navy/65">
                 {t('resourcesAi.prompt.customizationPrivacy')}
               </p>
-            )}
-            <div id={customizationId} className="grid gap-4 sm:grid-cols-2">
-              {(isCustomizing ? applicableVariables : variables).map((variable, index) => {
-                const fieldId = `${customizationId}-field-${index}`
-                const descriptionId = `${fieldId}-description`
-                const exampleId = `${fieldId}-example`
-                const describedBy = [
-                  cleanText(variable.description) ? descriptionId : '',
-                  cleanTextPreservingWhitespace(variable.example) ? exampleId : '',
-                  `${customizationId}-privacy`,
-                ].filter(Boolean).join(' ')
-                return (
-                <div key={`${variable.key || 'variable'}-${index}`} className="rounded-2xl border border-navy/10 bg-white p-5">
-                  {cleanText(variable.key) && <p className="font-mono text-sm font-bold text-accent-deep">[{variable.key}]</p>}
-                  {isCustomizing ? (
-                    <label htmlFor={fieldId} className="mt-2 block font-semibold text-navy">
-                      {cleanText(variable.label) || variable.key}
-                    </label>
-                  ) : cleanText(variable.label) ? <h3 className="mt-2 font-semibold text-navy">{variable.label}</h3> : null}
-                  {cleanText(variable.description) && <p id={isCustomizing ? descriptionId : undefined} className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">{variable.description}</p>}
-                  {isCustomizing && (
-                    <textarea
-                      id={fieldId}
-                      aria-describedby={describedBy || undefined}
-                      rows={4}
-                      value={customValues[variable.key] || ''}
-                      onChange={(event) => setCustomValues((values) => ({ ...values, [variable.key]: event.target.value }))}
-                      placeholder={t('resourcesAi.prompt.customValuePlaceholder')}
-                      className="mt-4 min-h-28 w-full resize-y rounded-xl border border-navy/20 bg-white p-3 text-base leading-6 text-navy placeholder:text-navy/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
-                    />
-                  )}
-                  {cleanTextPreservingWhitespace(variable.example) && (
-                    <p id={isCustomizing ? exampleId : undefined} className="mt-3 whitespace-pre-wrap text-sm text-navy/70">
-                      <span className="font-semibold">{t('resourcesAi.prompt.exampleLabel')}</span> {variable.example}
-                    </p>
-                  )}
-                </div>
-                )
-              })}
-            </div>
+              <p className="mt-3 text-sm font-semibold text-navy/70" aria-live="polite">
+                {t('resourcesAi.prompt.customizationProgress', { count: filledCount, filled: filledCount, total: usedVariableKeys.length })}
+              </p>
+              <div className="mt-4">
+                <PromptVariableCards
+                  customValues={customValues}
+                  customizationId={customizationId}
+                  isCustomizing
+                  onChange={setCustomValues}
+                  t={t}
+                  variables={applicableVariables}
+                />
+              </div>
+              <button
+                type="button"
+                aria-controls={`${customizationId}-preview`}
+                onClick={() => scrollPromptSectionIntoView(customizedPreviewRef.current, { focus: true })}
+                className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full border border-navy/20 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent/50 hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep lg:hidden"
+              >
+                {t('resourcesAi.prompt.viewCustomizedPrompt')} ↓
+              </button>
+            </section>
+
+            <section
+              id={`${customizationId}-preview`}
+              ref={customizedPreviewRef}
+              tabIndex="-1"
+              aria-labelledby={`${customizationId}-preview-title`}
+              className="mt-9 scroll-mt-24 outline-none lg:sticky lg:top-24 lg:mt-0 lg:self-start"
+            >
+              <h2 id={`${customizationId}-preview-title`} className="font-heading text-2xl font-bold text-navy">
+                {t('resourcesAi.prompt.customizedPrompt')}
+              </h2>
+              <CopyableText
+                buttonLabel={t('resourcesAi.prompt.copyCustomizedPrompt')}
+                copiedLabel={t('resourcesAi.prompt.customizedPromptCopied')}
+                manualLabel={t('resourcesAi.prompt.manualCopyCustomizedPrompt')}
+                manualFieldLabel={t('resourcesAi.prompt.manualCopyCustomizedPromptLabel')}
+                renderedText={<PromptSegments segments={customizedPrompt.segments} />}
+                responsiveActions
+                secondaryAction={(
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setCustomValues({})}
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-navy/20 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent/50 hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep sm:w-auto"
+                    >
+                      {t('resourcesAi.prompt.resetCustomization')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCloseCustomization}
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-navy/20 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent/50 hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep sm:w-auto"
+                    >
+                      {t('resourcesAi.prompt.closeCustomization')}
+                    </button>
+                  </>
+                )}
+                text={customizedPrompt.text}
+              />
+            </section>
+          </div>
+        ) : variables.length > 0 && (
+          <Section title={t('resourcesAi.prompt.variables')}>
+            <PromptVariableCards customizationId={customizationId} t={t} variables={variables} />
           </Section>
         )}
 
-        {isCustomizing && customizationAvailable ? (
-          <Section title={t('resourcesAi.prompt.customizedPrompt')}>
-            <CopyableText
-              buttonLabel={t('resourcesAi.prompt.copyCustomizedPrompt')}
-              copiedLabel={t('resourcesAi.prompt.customizedPromptCopied')}
-              manualLabel={t('resourcesAi.prompt.manualCopyCustomizedPrompt')}
-              manualFieldLabel={t('resourcesAi.prompt.manualCopyCustomizedPromptLabel')}
-              renderedText={<PromptSegments segments={customizedPrompt.segments} />}
-              responsiveActions
-              secondaryAction={(
-                <button
-                  type="button"
-                  onClick={() => setCustomValues({})}
-                  className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-navy/20 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent/50 hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep sm:w-auto"
-                >
-                  {t('resourcesAi.prompt.resetCustomization')}
-                </button>
-              )}
-              text={customizedPrompt.text}
-            />
-          </Section>
-        ) : showExample && (
+        {!isCustomizing && showExample && (
           <Section title={t('resourcesAi.prompt.filledExample')}>
             <RawText><PromptSegments segments={example.segments} /></RawText>
           </Section>
@@ -237,6 +266,55 @@ export default function PromptContent({ allowCustomization = false, headingLevel
         )}
       </div>
     </article>
+  )
+}
+
+function PromptVariableCards({ customValues = {}, customizationId, isCustomizing = false, onChange, t, variables }) {
+  return (
+    <div className={isCustomizing ? 'grid gap-4' : 'grid gap-4 sm:grid-cols-2'}>
+      {variables.map((variable, index) => {
+        const fieldId = `${customizationId}-field-${index}`
+        const descriptionId = `${fieldId}-description`
+        const exampleId = `${fieldId}-example`
+        const describedBy = isCustomizing ? [
+          cleanText(variable.description) ? descriptionId : '',
+          cleanTextPreservingWhitespace(variable.example) ? exampleId : '',
+          `${customizationId}-privacy`,
+        ].filter(Boolean).join(' ') : ''
+
+        return (
+          <div key={`${variable.key || 'variable'}-${index}`} className="rounded-2xl border border-navy/10 bg-white p-5">
+            {cleanText(variable.key) && <p className="font-mono text-sm font-bold text-accent-deep">[{variable.key}]</p>}
+            {isCustomizing ? (
+              <label htmlFor={fieldId} className="mt-2 block font-semibold text-navy">
+                {cleanText(variable.label) || variable.key}
+              </label>
+            ) : cleanText(variable.label) ? <h3 className="mt-2 font-semibold text-navy">{variable.label}</h3> : null}
+            {cleanText(variable.description) && (
+              <p id={isCustomizing ? descriptionId : undefined} className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">
+                {variable.description}
+              </p>
+            )}
+            {isCustomizing && (
+              <textarea
+                id={fieldId}
+                aria-describedby={describedBy || undefined}
+                rows={2}
+                value={customValues[variable.key] || ''}
+                onChange={(event) => onChange((values) => ({ ...values, [variable.key]: event.target.value }))}
+                placeholder={t('resourcesAi.prompt.customValuePlaceholder')}
+                className="mt-3 min-h-16 w-full resize-y rounded-xl border border-navy/20 bg-white px-3 py-2.5 text-base leading-6 text-navy placeholder:text-navy/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
+              />
+            )}
+            {cleanTextPreservingWhitespace(variable.example) && (
+              <p id={isCustomizing ? exampleId : undefined} className={`${isCustomizing ? 'mt-2.5' : 'mt-3'} whitespace-pre-wrap text-sm text-navy/70`}>
+                <span className="font-semibold">{t('resourcesAi.prompt.exampleLabel')}</span> {variable.example}
+              </p>
+            )}
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
