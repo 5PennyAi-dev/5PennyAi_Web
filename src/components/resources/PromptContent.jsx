@@ -6,18 +6,36 @@ import {
   isPromptContext,
   isPromptLevel,
 } from '@/lib/promptTaxonomies'
-import { buildPromptExample, extractPromptPlaceholders } from '@/lib/promptVariables'
+import {
+  buildCustomizedPromptSegments,
+  buildPromptExampleSegments,
+  extractPromptPlaceholders,
+  getUsedPromptVariableKeys,
+  splitPromptTemplateForDisplay,
+} from '@/lib/promptVariables'
 
 const COPY_SUCCESS_DURATION = 2500
 
-export default function PromptContent({ headingLevel = 1, prompt, shareActions, thumbnailUrl, t }) {
+export default function PromptContent({ allowCustomization = false, headingLevel = 1, prompt, shareActions, thumbnailUrl, t }) {
+  const [isCustomizing, setIsCustomizing] = useState(false)
+  const [customValues, setCustomValues] = useState({})
+  const customizationId = useId()
   const title = cleanText(prompt?.title) || t('resourcesAi.prompt.fallbackTitle')
   const category = isPromptCategory(prompt?.category) ? prompt.category : ''
   const level = isPromptLevel(prompt?.level) ? prompt.level : ''
   const contexts = array(prompt?.contexts).filter(isPromptContext)
   const variables = array(prompt?.variables).filter(hasVariableContent)
   const template = cleanTextPreservingWhitespace(prompt?.promptTemplate)
-  const example = buildPromptExample(template, variables)
+  const usedVariableKeys = getUsedPromptVariableKeys(template, variables)
+  const firstVariableByKey = new Map()
+  variables.forEach((variable) => {
+    if (!firstVariableByKey.has(variable.key)) firstVariableByKey.set(variable.key, variable)
+  })
+  const applicableVariables = usedVariableKeys.map((key) => firstVariableByKey.get(key)).filter(Boolean)
+  const customizationAvailable = allowCustomization && applicableVariables.length > 0
+  const filledCount = usedVariableKeys.filter((key) => typeof customValues[key] === 'string' && customValues[key].trim()).length
+  const customizedPrompt = buildCustomizedPromptSegments(template, customValues, usedVariableKeys)
+  const example = buildPromptExampleSegments(template, variables)
   const showExample = template && extractPromptPlaceholders(template).length > 0 && example.complete
   const Heading = `h${Math.min(6, Math.max(1, headingLevel))}`
 
@@ -48,9 +66,10 @@ export default function PromptContent({ headingLevel = 1, prompt, shareActions, 
               </div>
             </div>
           )}
+          {shareActions}
         </header>
 
-        <div className="order-3 overflow-hidden rounded-2xl border border-navy/10 bg-surface lg:order-2 lg:row-span-2">
+        <div className="order-3 overflow-hidden rounded-2xl border border-navy/10 bg-surface lg:order-2">
           <div className="aspect-video">
             {thumbnailUrl ? (
               <img
@@ -67,54 +86,129 @@ export default function PromptContent({ headingLevel = 1, prompt, shareActions, 
           </div>
         </div>
 
-        <section className="order-2 min-w-0 lg:order-3" aria-labelledby="prompt-main-title">
-          <h2 id="prompt-main-title" className="font-heading text-2xl font-bold text-navy">
-            {t('resourcesAi.prompt.mainPrompt')}
-          </h2>
+        <section className="order-2 min-w-0 lg:order-3 lg:col-span-2" aria-labelledby="prompt-main-title">
+          {cleanText(prompt?.whenToUse) && (
+            <div className="mb-6">
+              <h2 className="font-heading text-2xl font-bold text-navy">
+                {t('resourcesAi.prompt.whenToUse')}
+              </h2>
+              <div className="mt-3"><PlainText>{prompt.whenToUse}</PlainText></div>
+            </div>
+          )}
           {template ? (
             <CopyableText
               buttonLabel={t('resourcesAi.prompt.copyPrompt')}
               copiedLabel={t('resourcesAi.prompt.promptCopied')}
+              heading={t('resourcesAi.prompt.mainPrompt')}
+              highlightedKeys={usedVariableKeys}
               manualLabel={t('resourcesAi.prompt.manualCopyPrompt')}
               manualFieldLabel={t('resourcesAi.prompt.manualCopyPromptLabel')}
+              meta={usedVariableKeys.length > 0
+                ? isCustomizing
+                  ? t('resourcesAi.prompt.customizationProgress', { count: filledCount, filled: filledCount, total: usedVariableKeys.length })
+                  : t('resourcesAi.prompt.customizableCount', { count: usedVariableKeys.length })
+                : ''}
+              headerAction={customizationAvailable ? (
+                <button
+                  type="button"
+                  aria-controls={customizationId}
+                  aria-expanded={isCustomizing}
+                  onClick={() => setIsCustomizing((active) => !active)}
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-navy/20 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent/50 hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep sm:w-auto"
+                >
+                  {isCustomizing ? t('resourcesAi.prompt.closeCustomization') : t('resourcesAi.prompt.customize')}
+                </button>
+              ) : null}
+              primary
               text={template}
             />
           ) : (
-            <p className="mt-3 rounded-xl border border-navy/10 bg-white p-4 text-sm text-muted">
-              {t('resourcesAi.prompt.missingPrompt')}
-            </p>
+            <div>
+              <h2 id="prompt-main-title" className="font-heading text-2xl font-bold text-navy">
+                {t('resourcesAi.prompt.mainPrompt')}
+              </h2>
+              <p className="mt-3 rounded-xl border border-navy/10 bg-white p-4 text-sm text-muted">
+                {t('resourcesAi.prompt.missingPrompt')}
+              </p>
+            </div>
           )}
-          {shareActions}
         </section>
       </div>
 
       <div className="mt-10 space-y-9">
-        {cleanText(prompt?.whenToUse) && (
-          <Section title={t('resourcesAi.prompt.whenToUse')}><PlainText>{prompt.whenToUse}</PlainText></Section>
-        )}
-
         {variables.length > 0 && (
           <Section title={t('resourcesAi.prompt.variables')}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {variables.map((variable, index) => (
+            {isCustomizing && (
+              <p id={`${customizationId}-privacy`} className="mb-4 text-sm leading-6 text-navy/70">
+                {t('resourcesAi.prompt.customizationPrivacy')}
+              </p>
+            )}
+            <div id={customizationId} className="grid gap-4 sm:grid-cols-2">
+              {(isCustomizing ? applicableVariables : variables).map((variable, index) => {
+                const fieldId = `${customizationId}-field-${index}`
+                const descriptionId = `${fieldId}-description`
+                const exampleId = `${fieldId}-example`
+                const describedBy = [
+                  cleanText(variable.description) ? descriptionId : '',
+                  cleanTextPreservingWhitespace(variable.example) ? exampleId : '',
+                  `${customizationId}-privacy`,
+                ].filter(Boolean).join(' ')
+                return (
                 <div key={`${variable.key || 'variable'}-${index}`} className="rounded-2xl border border-navy/10 bg-white p-5">
                   {cleanText(variable.key) && <p className="font-mono text-sm font-bold text-accent-deep">[{variable.key}]</p>}
-                  {cleanText(variable.label) && <h3 className="mt-2 font-semibold text-navy">{variable.label}</h3>}
-                  {cleanText(variable.description) && <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">{variable.description}</p>}
+                  {isCustomizing ? (
+                    <label htmlFor={fieldId} className="mt-2 block font-semibold text-navy">
+                      {cleanText(variable.label) || variable.key}
+                    </label>
+                  ) : cleanText(variable.label) ? <h3 className="mt-2 font-semibold text-navy">{variable.label}</h3> : null}
+                  {cleanText(variable.description) && <p id={isCustomizing ? descriptionId : undefined} className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">{variable.description}</p>}
+                  {isCustomizing && (
+                    <textarea
+                      id={fieldId}
+                      aria-describedby={describedBy || undefined}
+                      rows={4}
+                      value={customValues[variable.key] || ''}
+                      onChange={(event) => setCustomValues((values) => ({ ...values, [variable.key]: event.target.value }))}
+                      placeholder={t('resourcesAi.prompt.customValuePlaceholder')}
+                      className="mt-4 min-h-28 w-full resize-y rounded-xl border border-navy/20 bg-white p-3 text-base leading-6 text-navy placeholder:text-navy/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
+                    />
+                  )}
                   {cleanTextPreservingWhitespace(variable.example) && (
-                    <p className="mt-3 whitespace-pre-wrap text-sm text-navy/70">
+                    <p id={isCustomizing ? exampleId : undefined} className="mt-3 whitespace-pre-wrap text-sm text-navy/70">
                       <span className="font-semibold">{t('resourcesAi.prompt.exampleLabel')}</span> {variable.example}
                     </p>
                   )}
                 </div>
-              ))}
+                )
+              })}
             </div>
           </Section>
         )}
 
-        {showExample && (
+        {isCustomizing && customizationAvailable ? (
+          <Section title={t('resourcesAi.prompt.customizedPrompt')}>
+            <CopyableText
+              buttonLabel={t('resourcesAi.prompt.copyCustomizedPrompt')}
+              copiedLabel={t('resourcesAi.prompt.customizedPromptCopied')}
+              manualLabel={t('resourcesAi.prompt.manualCopyCustomizedPrompt')}
+              manualFieldLabel={t('resourcesAi.prompt.manualCopyCustomizedPromptLabel')}
+              renderedText={<PromptSegments segments={customizedPrompt.segments} />}
+              responsiveActions
+              secondaryAction={(
+                <button
+                  type="button"
+                  onClick={() => setCustomValues({})}
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-navy/20 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent/50 hover:text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep sm:w-auto"
+                >
+                  {t('resourcesAi.prompt.resetCustomization')}
+                </button>
+              )}
+              text={customizedPrompt.text}
+            />
+          </Section>
+        ) : showExample && (
           <Section title={t('resourcesAi.prompt.filledExample')}>
-            <RawText>{example.text}</RawText>
+            <RawText><PromptSegments segments={example.segments} /></RawText>
           </Section>
         )}
 
@@ -146,7 +240,21 @@ export default function PromptContent({ headingLevel = 1, prompt, shareActions, 
   )
 }
 
-export function CopyableText({ buttonLabel, copiedLabel, manualFieldLabel, manualLabel, text }) {
+export function CopyableText({
+  buttonLabel,
+  copiedLabel,
+  heading,
+  headerAction,
+  highlightedKeys = [],
+  manualFieldLabel,
+  manualLabel,
+  meta,
+  primary = false,
+  renderedText,
+  responsiveActions = false,
+  secondaryAction,
+  text,
+}) {
   const [state, setState] = useState('idle')
   const manualId = useId()
   const inputRef = useRef(null)
@@ -170,36 +278,105 @@ export function CopyableText({ buttonLabel, copiedLabel, manualFieldLabel, manua
     timerRef.current = setTimeout(() => setState('idle'), COPY_SUCCESS_DURATION)
   }
 
+  const copyButton = (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep ${primary || responsiveActions ? 'w-full sm:w-auto' : ''}`}
+    >
+      {state === 'copied' ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+      {state === 'copied' ? copiedLabel : buttonLabel}
+    </button>
+  )
+
+  if (primary) return (
+    <div className="min-w-0 overflow-hidden rounded-3xl border border-navy/20 bg-white shadow-[var(--shadow-card)]">
+      <div className="flex flex-col gap-4 border-b border-navy/10 bg-navy/[0.025] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div>
+          <h2 id="prompt-main-title" className="font-heading text-2xl font-bold text-navy">{heading}</h2>
+          {meta && <p className="mt-1 text-sm font-semibold text-navy/60">{meta}</p>}
+        </div>
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+          {headerAction}
+          {copyButton}
+        </div>
+      </div>
+      <div className="p-5 sm:p-6 lg:p-7">
+        <PromptTemplateText highlightedKeys={highlightedKeys} text={text} />
+        <span className="sr-only" role="status" aria-live="polite">
+          {state === 'copied' ? copiedLabel : state === 'manual' ? manualLabel : ''}
+        </span>
+        {state === 'manual' && (
+          <ManualCopyField inputRef={inputRef} manualFieldLabel={manualFieldLabel} manualId={manualId} text={text} />
+        )}
+      </div>
+    </div>
+  )
+
   return (
     <div className="mt-3 min-w-0">
-      <RawText>{text}</RawText>
+      <RawText>{renderedText || text}</RawText>
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
-        >
-          {state === 'copied' ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
-          {state === 'copied' ? copiedLabel : buttonLabel}
-        </button>
+        {copyButton}
+        {secondaryAction}
         <span className="min-h-5 text-sm text-navy/70" role="status" aria-live="polite">
           {state === 'copied' ? copiedLabel : state === 'manual' ? manualLabel : ''}
         </span>
       </div>
       {state === 'manual' && (
-        <div className="mt-3">
-          <label className="sr-only" htmlFor={manualId}>{manualFieldLabel}</label>
-          <textarea
-            id={manualId}
-            ref={inputRef}
-            readOnly
-            rows={Math.min(12, Math.max(4, text.split('\n').length + 1))}
-            value={text}
-            onFocus={(event) => event.currentTarget.select()}
-            className="w-full resize-y rounded-xl border border-navy/20 bg-white p-3 font-mono text-sm text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
-          />
-        </div>
+        <ManualCopyField inputRef={inputRef} manualFieldLabel={manualFieldLabel} manualId={manualId} text={text} />
       )}
+    </div>
+  )
+}
+
+function PromptTemplateText({ highlightedKeys, text }) {
+  return (
+    <div className="whitespace-pre-wrap break-words font-mono text-[15px] leading-8 text-navy sm:text-base" tabIndex="0">
+      {splitPromptTemplateForDisplay(text, highlightedKeys).map((part, index) => (
+        part.highlighted ? (
+          <span
+            key={`${part.key}-${index}`}
+            data-prompt-placeholder={part.key}
+            className="rounded-md bg-orange-50 px-1 py-0.5 font-bold text-accent-deep ring-1 ring-inset ring-orange-200/80"
+          >
+            {part.text}
+          </span>
+        ) : <span key={`text-${index}`}>{part.text}</span>
+      ))}
+    </div>
+  )
+}
+
+function PromptSegments({ segments }) {
+  return segments.map((segment, index) => {
+    if (segment.injected) return <strong key={`${segment.key}-${index}`}>{segment.text}</strong>
+    if (segment.origin === 'placeholder') return (
+      <span
+        key={`${segment.key}-${index}`}
+        data-prompt-placeholder={segment.key}
+        className="rounded-md bg-orange-50 px-1 py-0.5 font-bold text-accent-deep ring-1 ring-inset ring-orange-200/80"
+      >
+        {segment.text}
+      </span>
+    )
+    return <span key={`prompt-text-${index}`}>{segment.text}</span>
+  })
+}
+
+function ManualCopyField({ inputRef, manualFieldLabel, manualId, text }) {
+  return (
+    <div className="mt-3">
+      <label className="sr-only" htmlFor={manualId}>{manualFieldLabel}</label>
+      <textarea
+        id={manualId}
+        ref={inputRef}
+        readOnly
+        rows={Math.min(12, Math.max(4, text.split('\n').length + 1))}
+        value={text}
+        onFocus={(event) => event.currentTarget.select()}
+        className="w-full resize-y rounded-xl border border-navy/20 bg-white p-3 font-mono text-sm text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
+      />
     </div>
   )
 }

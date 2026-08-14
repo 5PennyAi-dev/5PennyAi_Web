@@ -13,6 +13,32 @@ export function extractPromptPlaceholders(value) {
   return keys
 }
 
+export function getUsedPromptVariableKeys(promptTemplate, variables = []) {
+  const declaredKeys = new Set(
+    (Array.isArray(variables) ? variables : [])
+      .map((variable) => typeof variable?.key === 'string' ? variable.key : '')
+      .filter((key) => VARIABLE_KEY_PATTERN.test(key)),
+  )
+  return extractPromptPlaceholders(promptTemplate).filter((key) => declaredKeys.has(key))
+}
+
+export function splitPromptTemplateForDisplay(value, highlightedKeys = []) {
+  const allowedKeys = new Set(Array.isArray(highlightedKeys) ? highlightedKeys : [])
+  return buildPromptSubstitutionSegments(value).segments.map((segment) => ({
+    highlighted: segment.origin === 'placeholder' && allowedKeys.has(segment.key),
+    key: segment.key,
+    text: segment.text,
+  }))
+}
+
+export function buildCustomizedPromptSegments(promptTemplate, customValues = {}, allowedKeys = []) {
+  const allowed = new Set(Array.isArray(allowedKeys) ? allowedKeys : [])
+  const values = new Map(
+    Object.entries(customValues || {}).filter(([key]) => allowed.has(key)),
+  )
+  return buildPromptSubstitutionSegments(promptTemplate, values)
+}
+
 export function analyzePromptVariables({ promptTemplate = '', quickTemplate = '', variables = [] } = {}) {
   const items = Array.isArray(variables) ? variables : []
   const mainPlaceholders = extractPromptPlaceholders(promptTemplate)
@@ -55,7 +81,11 @@ export function analyzePromptVariables({ promptTemplate = '', quickTemplate = ''
 }
 
 export function buildPromptExample(promptTemplate, variables = []) {
-  const template = typeof promptTemplate === 'string' ? promptTemplate : ''
+  const { complete, text, unresolvedKeys } = buildPromptExampleSegments(promptTemplate, variables)
+  return { complete, text, unresolvedKeys }
+}
+
+export function buildPromptExampleSegments(promptTemplate, variables = []) {
   const firstExamples = new Map()
   for (const variable of Array.isArray(variables) ? variables : []) {
     const key = typeof variable?.key === 'string' ? variable.key : ''
@@ -65,18 +95,40 @@ export function buildPromptExample(promptTemplate, variables = []) {
     }
   }
 
+  return buildPromptSubstitutionSegments(promptTemplate, firstExamples)
+}
+
+function buildPromptSubstitutionSegments(promptTemplate, values = new Map()) {
+  const template = typeof promptTemplate === 'string' ? promptTemplate : ''
+
   const unresolvedKeys = []
-  const text = template.replace(new RegExp(PLACEHOLDER_PATTERN.source, 'g'), (match, key) => {
-    if (!firstExamples.has(key)) {
-      unresolvedKeys.push(key)
-      return match
+  const segments = []
+  let cursor = 0
+
+  for (const match of template.matchAll(new RegExp(PLACEHOLDER_PATTERN.source, 'g'))) {
+    if (match.index > cursor) {
+      segments.push({ injected: false, origin: 'fixed', text: template.slice(cursor, match.index) })
     }
-    return firstExamples.get(key)
-  })
+
+    const key = match[1]
+    const value = values.get(key)
+    if (typeof value !== 'string' || !value.trim()) {
+      unresolvedKeys.push(key)
+      segments.push({ injected: false, key, origin: 'placeholder', text: match[0] })
+    } else {
+      segments.push({ injected: true, key, origin: 'injected', text: value })
+    }
+    cursor = match.index + match[0].length
+  }
+
+  if (cursor < template.length || segments.length === 0) {
+    segments.push({ injected: false, origin: 'fixed', text: template.slice(cursor) })
+  }
 
   return {
     complete: unique(unresolvedKeys).length === 0,
-    text,
+    segments,
+    text: segments.map((segment) => segment.text).join(''),
     unresolvedKeys: unique(unresolvedKeys),
   }
 }

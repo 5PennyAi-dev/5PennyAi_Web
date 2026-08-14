@@ -40,7 +40,7 @@ export default function PromptDetail() {
       title={metadata.headline}
       shareText={prompt.summary}
       canonicalUrl={metadata.canonicalUrl}
-      className="mt-5 !mx-0 !max-w-none"
+      className="mt-5 !mx-0 !max-w-none [&>div:first-child]:justify-start"
     />
   )
 
@@ -72,7 +72,14 @@ export default function PromptDetail() {
           <Link to={RESOURCES_PATH} className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep">
             <ArrowLeft size={16} aria-hidden="true" />{t('resourcesAi.prompt.back')}
           </Link>
-          <PromptContent prompt={prompt} thumbnailUrl={thumbnailUrl} shareActions={shareActions} t={t} />
+          <PromptContent
+            key={prompt.id || prompt.slug}
+            allowCustomization
+            prompt={prompt}
+            thumbnailUrl={thumbnailUrl}
+            shareActions={shareActions}
+            t={t}
+          />
         </div>
       </section>
     </>
