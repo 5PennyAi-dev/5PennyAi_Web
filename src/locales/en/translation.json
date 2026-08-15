@@ -914,7 +914,14 @@
       "noSeriesDescription": "The published resources are not part of a series yet.",
       "backToResources": "Back to resources",
       "seriesListLabel": "Published series",
-      "resourceListLabel": "Published resources"
+      "resourceListLabel": "Published resources",
+      "pagination": {
+        "label": "Resources pagination",
+        "previous": "Previous page",
+        "next": "Next page",
+        "goToPage": "Go to page {{page}}",
+        "currentPage": "Page {{page}}, current page"
+      }
     },
     "levels": {
       "beginner": "Beginner",

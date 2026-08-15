@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
+  ArrowLeft,
   ArrowRight,
   BookOpen,
   Image as ImageIcon,
@@ -16,12 +17,15 @@ import SeriesArtwork from '@/components/resources/SeriesArtwork'
 import { fetchPublishedCatalog } from '@/lib/publicInfographics'
 import {
   filterPublicResources,
+  getCatalogPaginationItems,
   getPublicResourceKey,
   normalizeCatalogSearchParams,
   normalizeResourceLevel,
   normalizeSearchText,
   normalizeResourceFormat,
+  paginatePublicResources,
   RESOURCE_FORMATS,
+  updateCatalogCriteria,
 } from '@/lib/publicResourceCatalog'
 import { selectFeaturedSeries } from '@/lib/resourceSeries'
 import { findResourceTopic, getAvailableResourceTopics } from '@/lib/resourceTopics'
@@ -41,6 +45,7 @@ export default function ResourcesAI() {
   const [prompts, setPrompts] = useState([])
   const [series, setSeries] = useState([])
   const [state, setState] = useState('loading')
+  const resourcesListRef = useRef(null)
   const isSeriesView = searchParams.get('vue') === 'series'
   const selectedSeriesSlug = isSeriesView ? '' : searchParams.get('serie') || ''
   const rawFormat = searchParams.get('format') || ''
@@ -48,6 +53,7 @@ export default function ResourcesAI() {
   const rawLevel = searchParams.get('niveau') || ''
   const rawTopic = searchParams.get('sujet') || ''
   const rawCategory = searchParams.get('categorie') || ''
+  const rawPage = searchParams.get('page') || ''
   const selectedQuery = isSeriesView ? '' : rawQuery
   const selectedLevel = isSeriesView ? '' : normalizeResourceLevel(rawLevel)
   const selectedFormat = isSeriesView
@@ -84,6 +90,7 @@ export default function ResourcesAI() {
     category: selectedCategory,
     getPromptTaxonomyLabels,
   })
+  const pagination = paginatePublicResources(visibleResources, rawPage)
   const hasActiveResourceFilters = Boolean(normalizeSearchText(selectedQuery))
     || Boolean(selectedLevel)
     || selectedFormat !== RESOURCE_FORMATS.ALL
@@ -137,6 +144,7 @@ export default function ResourcesAI() {
       hasPublishedPrompts: prompts.length > 0,
       hasValidTopic: Boolean(selectedTopic),
       isSeriesView,
+      totalPages: pagination.totalPages,
     })
     if (hasChanges) setSearchParams(nextParams, { replace: true })
   }, [
@@ -147,12 +155,14 @@ export default function ResourcesAI() {
     setSearchParams,
     state,
     prompts.length,
+    pagination.totalPages,
   ])
 
   const showResourcesView = () => {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('vue')
     nextParams.delete('serie')
+    nextParams.delete('page')
     setSearchParams(nextParams)
   }
 
@@ -165,67 +175,65 @@ export default function ResourcesAI() {
     nextParams.delete('niveau')
     nextParams.delete('sujet')
     nextParams.delete('categorie')
+    nextParams.delete('page')
     setSearchParams(nextParams)
   }
 
   const filterBySearch = (query) => {
-    const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete('vue')
-    if (query.trim()) nextParams.set('q', query)
-    else nextParams.delete('q')
+    const nextParams = updateCatalogCriteria(searchParams, {
+      vue: null,
+      q: query.trim() ? query : null,
+    })
     setSearchParams(nextParams, { replace: true })
   }
 
   const filterByLevel = (level) => {
-    const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete('vue')
-    if (normalizeResourceLevel(level)) nextParams.set('niveau', level)
-    else nextParams.delete('niveau')
+    const nextParams = updateCatalogCriteria(searchParams, {
+      vue: null,
+      niveau: normalizeResourceLevel(level) ? level : null,
+    })
     setSearchParams(nextParams)
   }
 
   const filterByTopic = (topicKey) => {
-    const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete('vue')
-    if (findResourceTopic(resources, topicKey)) nextParams.set('sujet', topicKey)
-    else nextParams.delete('sujet')
+    const nextParams = updateCatalogCriteria(searchParams, {
+      vue: null,
+      sujet: findResourceTopic(resources, topicKey) ? topicKey : null,
+    })
     setSearchParams(nextParams)
   }
 
   const filterByFormat = (format) => {
-    const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete('vue')
+    const updates = { vue: null }
     if (
       format === RESOURCE_FORMATS.INFOGRAPHICS
       || format === RESOURCE_FORMATS.ARTICLES
       || format === RESOURCE_FORMATS.PROMPTS
     ) {
-      nextParams.set('format', format)
+      updates.format = format
     } else {
-      nextParams.delete('format')
+      updates.format = null
     }
     if (format === RESOURCE_FORMATS.PROMPTS) {
-      nextParams.delete('sujet')
-      nextParams.delete('serie')
+      updates.sujet = null
+      updates.serie = null
     } else {
-      nextParams.delete('categorie')
+      updates.categorie = null
     }
+    const nextParams = updateCatalogCriteria(searchParams, updates)
     setSearchParams(nextParams)
   }
 
   const filterByCategory = (category) => {
-    const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete('vue')
-    if (isPromptCategory(category)) nextParams.set('categorie', category)
-    else nextParams.delete('categorie')
+    const nextParams = updateCatalogCriteria(searchParams, {
+      vue: null,
+      categorie: isPromptCategory(category) ? category : null,
+    })
     setSearchParams(nextParams)
   }
 
   const filterBySeries = (slug) => {
-    const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete('vue')
-    if (slug) nextParams.set('serie', slug)
-    else nextParams.delete('serie')
+    const nextParams = updateCatalogCriteria(searchParams, { vue: null, serie: slug || null })
     setSearchParams(nextParams)
   }
 
@@ -238,14 +246,22 @@ export default function ResourcesAI() {
     nextParams.delete('format')
     nextParams.delete('serie')
     nextParams.delete('categorie')
+    nextParams.delete('page')
     setSearchParams(nextParams)
   }
 
   const removeResourceFilter = (parameter) => {
-    const nextParams = new URLSearchParams(searchParams)
-    nextParams.delete(parameter)
+    const nextParams = updateCatalogCriteria(searchParams, { [parameter]: null })
     setSearchParams(nextParams)
   }
+
+  const goToPage = useCallback((page) => {
+    const nextParams = new URLSearchParams(searchParams)
+    if (page <= 1) nextParams.delete('page')
+    else nextParams.set('page', String(page))
+    setSearchParams(nextParams)
+    resourcesListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [searchParams, setSearchParams])
 
   return (
     <>
@@ -327,7 +343,12 @@ export default function ResourcesAI() {
               ) : (
                 <ResourcesView
                   featuredSeries={isNeutralResourceView ? featuredSeries : null}
-                  resources={visibleResources}
+                  currentPage={pagination.currentPage}
+                  listRef={resourcesListRef}
+                  onPageChange={goToPage}
+                  resources={pagination.resources}
+                  totalPages={pagination.totalPages}
+                  totalResources={pagination.totalResults}
                   onClearAll={clearResourceFilters}
                   selectedSeries={selectedSeries}
                   selectedSeriesSlug={selectedSeriesSlug}
@@ -688,12 +709,17 @@ function ActiveResourceFilters({ filters, onClearAll, onRemove, t }) {
 }
 
 function ResourcesView({
+  currentPage,
   featuredSeries,
+  listRef,
+  onPageChange,
   resources,
   onClearAll,
   selectedSeries,
   selectedSeriesSlug,
   t,
+  totalPages,
+  totalResources,
 }) {
   if (selectedSeriesSlug && !selectedSeries) {
     return <FilteredEmptyState onClearAll={onClearAll} t={t} />
@@ -709,21 +735,83 @@ function ResourcesView({
         <FeaturedSeries series={featuredSeries} t={t} />
       )}
 
-      <section aria-labelledby="resources-list-title">
+      <section ref={listRef} aria-labelledby="resources-list-title" className="scroll-mt-24">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 id="resources-list-title" className="font-heading text-2xl font-bold text-navy">
               {selectedSeries?.name || t('resourcesAi.catalog.allResources')}
             </h2>
             <p className="mt-1 text-sm text-muted">
-              {t('resourcesAi.catalog.resourceCount', { count: resources.length })}
+              {t('resourcesAi.catalog.resourceCount', { count: totalResources })}
             </p>
           </div>
         </div>
 
         <ResourceGrid resources={resources} selectedSeriesSlug={selectedSeriesSlug} t={t} />
+        <CatalogPagination
+          currentPage={currentPage}
+          onPageChange={onPageChange}
+          t={t}
+          totalPages={totalPages}
+        />
       </section>
     </>
+  )
+}
+
+function CatalogPagination({ currentPage, onPageChange, t, totalPages }) {
+  const items = getCatalogPaginationItems(currentPage, totalPages)
+  if (items.length === 0) return null
+
+  const buttonBaseClass = 'inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border px-3 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40'
+  const buttonClass = `${buttonBaseClass} border-navy/15 bg-white text-navy/70 hover:border-navy/35 hover:text-navy`
+
+  return (
+    <nav
+      aria-label={t('resourcesAi.catalog.pagination.label')}
+      className="mt-12 flex flex-wrap items-center justify-center gap-2 sm:mt-14"
+    >
+      <button
+        type="button"
+        aria-label={t('resourcesAi.catalog.pagination.previous')}
+        disabled={currentPage <= 1}
+        onClick={() => onPageChange(currentPage - 1)}
+        className={buttonClass}
+      >
+        <ArrowLeft size={16} aria-hidden="true" />
+        <span className="ml-2 hidden sm:inline">{t('resourcesAi.catalog.pagination.previous')}</span>
+      </button>
+
+      {items.map((item) => typeof item === 'number' ? (
+        <button
+          key={item}
+          type="button"
+          aria-current={item === currentPage ? 'page' : undefined}
+          aria-label={item === currentPage
+            ? t('resourcesAi.catalog.pagination.currentPage', { page: item })
+            : t('resourcesAi.catalog.pagination.goToPage', { page: item })}
+          onClick={() => onPageChange(item)}
+          className={item === currentPage
+            ? `${buttonBaseClass} border-navy bg-navy text-white hover:border-navy hover:bg-navy-deep`
+            : buttonClass}
+        >
+          {item}
+        </button>
+      ) : (
+        <span key={item} aria-hidden="true" className="min-w-5 text-center text-sm text-muted">…</span>
+      ))}
+
+      <button
+        type="button"
+        aria-label={t('resourcesAi.catalog.pagination.next')}
+        disabled={currentPage >= totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+        className={buttonClass}
+      >
+        <span className="mr-2 hidden sm:inline">{t('resourcesAi.catalog.pagination.next')}</span>
+        <ArrowRight size={16} aria-hidden="true" />
+      </button>
+    </nav>
   )
 }
 

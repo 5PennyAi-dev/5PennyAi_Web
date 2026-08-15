@@ -424,10 +424,6 @@ function AdminArticleFormPage() {
                   </div>
                 )}
 
-                <FormSection number="3" title={t('admin.resourcesAi.memberships.title')}>
-                  <ResourceSeriesMembershipsField resourceId={id} resourceType="article" />
-                </FormSection>
-
                 <fieldset disabled={publishedLocked} className="space-y-6 disabled:opacity-80">
 
                 {!publishedLocked && <FormSection number="1" title={t('admin.resourcesAi.articleForm.sections.import')}>
@@ -497,6 +493,14 @@ function AdminArticleFormPage() {
                     />
                   </div>
                 </FormSection>
+
+                </fieldset>
+
+                <FormSection number="3" title={t('admin.resourcesAi.memberships.title')}>
+                  <ResourceSeriesMembershipsField resourceId={id} resourceType="article" />
+                </FormSection>
+
+                <fieldset disabled={publishedLocked} className="space-y-6 disabled:opacity-80">
 
                 <FormSection number="4" title={t('admin.resourcesAi.articleForm.sections.learning')}>
                   <div className="grid gap-6 lg:grid-cols-2">
@@ -740,7 +744,7 @@ function AdminArticleFormPage() {
                 </FormSection>
                 </fieldset>
 
-                <FormSection number="15" title={t('admin.resourcesAi.socialPosts.title')}>
+                <FormSection number="14" title={t('admin.resourcesAi.socialPosts.title')}>
                   <ResourceSocialPostsPanel
                     disabledReason={socialDisabledReason}
                     publicUrl={socialPublicUrl}
@@ -752,7 +756,7 @@ function AdminArticleFormPage() {
                   />
                 </FormSection>
 
-                <FormSection number="16" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
+                <FormSection number="15" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
                   <p className="text-sm leading-relaxed text-muted">
                     {publishedLocked ? t('admin.resourcesAi.articleForm.publishedReadOnly') : dirty && editing ? t('admin.resourcesAi.articleForm.messages.saveBeforePublish') : t('admin.resourcesAi.articleForm.draftOnly')}
                   </p>

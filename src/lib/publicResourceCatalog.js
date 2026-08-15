@@ -16,6 +16,8 @@ export const RESOURCE_LEVELS = Object.freeze([
   'advanced',
 ])
 
+export const RESOURCE_PAGE_SIZE = 12
+
 const RESOURCE_LEVEL_SET = new Set(RESOURCE_LEVELS)
 
 export function adaptInfographicToPublicResource(row = {}, { getImageUrl = () => null } = {}) {
@@ -202,6 +204,7 @@ export function normalizeCatalogSearchParams(
     hasPublishedPrompts = false,
     hasValidTopic = false,
     isSeriesView = false,
+    totalPages = null,
   } = {},
 ) {
   const nextParams = new URLSearchParams(searchParams)
@@ -213,7 +216,7 @@ export function normalizeCatalogSearchParams(
   }
 
   if (isSeriesView) {
-    ['serie', 'format', 'q', 'niveau', 'sujet', 'categorie'].forEach(remove)
+    ['serie', 'format', 'q', 'niveau', 'sujet', 'categorie', 'page'].forEach(remove)
     return { hasChanges, nextParams }
   }
 
@@ -235,7 +238,90 @@ export function normalizeCatalogSearchParams(
     remove('categorie')
   }
 
+  if (nextParams.has('page')) {
+    const rawPage = nextParams.get('page')
+    const page = parseCatalogPage(rawPage)
+    const hasKnownPageCount = Number.isInteger(totalPages) && totalPages >= 0
+
+    if (page === 1 || (hasKnownPageCount && totalPages <= 1)) {
+      remove('page')
+    } else if (hasKnownPageCount && page > totalPages) {
+      nextParams.set('page', String(totalPages))
+      hasChanges = true
+    } else if (rawPage !== String(page)) {
+      nextParams.set('page', String(page))
+      hasChanges = true
+    }
+  }
+
   return { hasChanges, nextParams }
+}
+
+export function parseCatalogPage(value) {
+  const rawValue = String(value ?? '')
+  if (!/^\d+$/.test(rawValue)) return 1
+
+  const page = Number(rawValue)
+  return Number.isSafeInteger(page) && page >= 1 ? page : 1
+}
+
+export function paginatePublicResources(
+  resources,
+  requestedPage,
+  pageSize = RESOURCE_PAGE_SIZE,
+) {
+  const items = Array.isArray(resources) ? resources : []
+  const safePageSize = Number.isSafeInteger(pageSize) && pageSize > 0
+    ? pageSize
+    : RESOURCE_PAGE_SIZE
+  const totalResults = items.length
+  const totalPages = Math.ceil(totalResults / safePageSize)
+  const currentPage = totalPages > 0
+    ? Math.min(parseCatalogPage(requestedPage), totalPages)
+    : 1
+  const start = (currentPage - 1) * safePageSize
+
+  return {
+    currentPage,
+    resources: items.slice(start, start + safePageSize),
+    totalPages,
+    totalResults,
+  }
+}
+
+export function updateCatalogCriteria(searchParams, updates = {}) {
+  const nextParams = new URLSearchParams(searchParams)
+
+  for (const [parameter, value] of Object.entries(updates)) {
+    if (value == null || value === '') nextParams.delete(parameter)
+    else nextParams.set(parameter, String(value))
+  }
+  nextParams.delete('page')
+  return nextParams
+}
+
+export function getCatalogPaginationItems(currentPage, totalPages) {
+  if (!Number.isSafeInteger(totalPages) || totalPages <= 1) return []
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1)
+
+  const pages = new Set([1, totalPages, currentPage - 1, currentPage, currentPage + 1])
+  if (currentPage <= 4) [2, 3, 4, 5].forEach((page) => pages.add(page))
+  if (currentPage >= totalPages - 3) {
+    [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1]
+      .forEach((page) => pages.add(page))
+  }
+
+  const visiblePages = [...pages]
+    .filter((page) => page >= 1 && page <= totalPages)
+    .sort((left, right) => left - right)
+  const items = []
+  visiblePages.forEach((page, index) => {
+    if (index > 0 && page - visiblePages[index - 1] > 1) {
+      items.push(`ellipsis-${visiblePages[index - 1]}`)
+    }
+    items.push(page)
+  })
+  return items
 }
 
 export function normalizeSearchText(value) {

@@ -914,7 +914,14 @@
       "noSeriesDescription": "Les ressources publiées ne sont associées à aucune série pour le moment.",
       "backToResources": "Retour aux ressources",
       "seriesListLabel": "Séries publiées",
-      "resourceListLabel": "Ressources publiées"
+      "resourceListLabel": "Ressources publiées",
+      "pagination": {
+        "label": "Pagination des ressources",
+        "previous": "Page précédente",
+        "next": "Page suivante",
+        "goToPage": "Aller à la page {{page}}",
+        "currentPage": "Page {{page}}, page actuelle"
+      }
     },
     "levels": {
       "beginner": "Débutant",

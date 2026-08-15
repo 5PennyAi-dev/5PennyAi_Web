@@ -6,6 +6,7 @@ const appSource = await readFile(new URL('../../../App.jsx', import.meta.url), '
 const navSource = await readFile(new URL('../../../components/admin/resources/AdminResourcesNav.jsx', import.meta.url), 'utf8')
 const listSource = await readFile(new URL('./AdminSeries.jsx', import.meta.url), 'utf8')
 const formSource = await readFile(new URL('./AdminSeriesForm.jsx', import.meta.url), 'utf8')
+const articleFormSource = await readFile(new URL('./AdminArticleForm.jsx', import.meta.url), 'utf8')
 const dataSource = await readFile(new URL('../../../lib/adminResourceSeries.js', import.meta.url), 'utf8')
 
 test('expose les routes UUID et l’entrée Séries après Prompts', () => {
@@ -35,4 +36,17 @@ test('la fiche lit les memberships sans écrire les colonnes legacy', () => {
 test('le slug est proposé à la création puis verrouillé en modification', () => {
   assert.match(formSource, /!editing && !slugTouched \? proposeResourceSeriesSlug\(value\)/)
   assert.match(formSource, /readOnly=\{editing\}/)
+})
+
+test('place les séries associées à la section 3 et conserve une numérotation continue', () => {
+  const generalSection = articleFormSource.indexOf('<FormSection number="2"')
+  const membershipsSection = articleFormSource.indexOf('<FormSection number="3"')
+  const learningSection = articleFormSource.indexOf('<FormSection number="4"')
+
+  assert.ok(generalSection < membershipsSection)
+  assert.ok(membershipsSection < learningSection)
+  for (let number = 1; number <= 15; number += 1) {
+    assert.match(articleFormSource, new RegExp(`<FormSection number="${number}"`))
+  }
+  assert.doesNotMatch(articleFormSource, /<FormSection number="16"/)
 })

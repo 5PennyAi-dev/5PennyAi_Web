@@ -9,16 +9,21 @@ import {
   filterPublicResources,
   fetchPublicSeriesMembershipRows,
   fetchPublicSeriesRows,
+  getCatalogPaginationItems,
   getPublicResourceKey,
   getResourceSeriesDisplay,
   matchesResourceSearch,
   mergePublicResources,
   normalizeCatalogSearchParams,
+  paginatePublicResources,
+  parseCatalogPage,
   normalizeResourceLevel,
   normalizeResourceFormat,
   normalizeSearchText,
   RESOURCE_FORMATS,
+  RESOURCE_PAGE_SIZE,
   sortResourcesByPublishedAt,
+  updateCatalogCriteria,
 } from './publicResourceCatalog.js'
 import {
   getAdjacentEpisodes,
@@ -321,6 +326,99 @@ test('normalise atomiquement les paramètres incompatibles du mode Prompt', () =
     { hasPublishedArticles: true, hasValidTopic: true },
   )
   assert.equal(articleResult.nextParams.toString(), 'format=articles&sujet=prompting')
+})
+
+test('pagine 12 résultats sur une page et 13 résultats sur deux pages', () => {
+  const twelve = Array.from({ length: 12 }, (_, index) => ({ id: index + 1 }))
+  const thirteen = [...twelve, { id: 13 }]
+
+  assert.equal(RESOURCE_PAGE_SIZE, 12)
+  assert.deepEqual(paginatePublicResources(twelve, 1), {
+    currentPage: 1,
+    resources: twelve,
+    totalPages: 1,
+    totalResults: 12,
+  })
+
+  const firstPage = paginatePublicResources(thirteen, 1)
+  const lastPage = paginatePublicResources(thirteen, 2)
+  assert.equal(firstPage.totalPages, 2)
+  assert.deepEqual(firstPage.resources.map(({ id }) => id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+  assert.deepEqual(lastPage.resources.map(({ id }) => id), [13])
+})
+
+test('calcule les pages sans page vide et conserve l’ordre du résultat final', () => {
+  const resources = Array.from({ length: 24 }, (_, index) => ({ id: `resource-${index + 1}` }))
+  const result = paginatePublicResources(resources, 2)
+
+  assert.equal(result.totalPages, 2)
+  assert.deepEqual(
+    result.resources.map(({ id }) => id),
+    resources.slice(12).map(({ id }) => id),
+  )
+})
+
+test('normalise les pages invalides et borne une page supérieure au maximum', () => {
+  for (const value of ['0', '-1', 'abc', '1.5', '', '999999999999999999999']) {
+    assert.equal(parseCatalogPage(value), 1, value)
+  }
+  assert.equal(parseCatalogPage('2'), 2)
+
+  const invalid = normalizeCatalogSearchParams(new URLSearchParams('q=rag&page=abc'), {
+    totalPages: 3,
+  })
+  assert.equal(invalid.nextParams.toString(), 'q=rag')
+
+  const overflow = normalizeCatalogSearchParams(new URLSearchParams('format=prompt&page=8'), {
+    hasPublishedPrompts: true,
+    totalPages: 4,
+  })
+  assert.equal(overflow.nextParams.toString(), 'format=prompt&page=4')
+  assert.equal(paginatePublicResources(Array.from({ length: 48 }), 8).currentPage, 4)
+})
+
+test('canonise la page 1 et restaure une combinaison de paramètres valide', () => {
+  const pageOne = normalizeCatalogSearchParams(
+    new URLSearchParams('format=articles&niveau=beginner&q=embedding&page=1'),
+    { hasPublishedArticles: true, totalPages: 3 },
+  )
+  assert.equal(pageOne.nextParams.toString(), 'format=articles&niveau=beginner&q=embedding')
+
+  const restored = normalizeCatalogSearchParams(
+    new URLSearchParams('format=prompt&categorie=write&niveau=beginner&q=texte&page=2'),
+    { hasPublishedPrompts: true, totalPages: 3 },
+  )
+  assert.equal(
+    restored.nextParams.toString(),
+    'format=prompt&categorie=write&niveau=beginner&q=texte&page=2',
+  )
+})
+
+test('retire atomiquement page lors d’un changement ou retrait de critère', () => {
+  const initial = new URLSearchParams('q=rag&niveau=beginner&serie=parcours&page=3')
+
+  assert.equal(
+    updateCatalogCriteria(initial, { q: 'embedding' }).toString(),
+    'q=embedding&niveau=beginner&serie=parcours',
+  )
+  assert.equal(
+    updateCatalogCriteria(initial, { niveau: 'advanced' }).toString(),
+    'q=rag&niveau=advanced&serie=parcours',
+  )
+  assert.equal(
+    updateCatalogCriteria(initial, { serie: null }).toString(),
+    'q=rag&niveau=beginner',
+  )
+})
+
+test('retire page de la vue Séries et compacte les grandes paginations', () => {
+  const seriesView = normalizeCatalogSearchParams(
+    new URLSearchParams('vue=series&page=4&q=rag'),
+    { isSeriesView: true, totalPages: 12 },
+  )
+  assert.equal(seriesView.nextParams.toString(), 'vue=series')
+  assert.deepEqual(getCatalogPaginationItems(1, 1), [])
+  assert.deepEqual(getCatalogPaginationItems(5, 12), [1, 'ellipsis-1', 4, 5, 6, 'ellipsis-6', 12])
 })
 
 test('forme une série mixte unique et résout l’adjacence entre formats', () => {
