@@ -4,6 +4,7 @@ import { Buffer } from 'node:buffer'
 import {
   authorizeSeriesThumbnailRequest,
   editSeriesThumbnail,
+  loadPersistedSeriesEpisodes,
 } from './generate-series-thumbnail.js'
 
 test('refuse une requête sans jeton et un utilisateur non administrateur', async () => {
@@ -77,4 +78,48 @@ test('refuse un appel sans référence ou une réponse fournisseur sans image', 
     }),
     (error) => error.code === 'provider_invalid_image_count',
   )
+})
+
+test('charge une série persistante depuis les memberships', async () => {
+  const calls = []
+  const client = {
+    from(table) {
+      calls.push(table)
+      if (table === 'resource_series_memberships') {
+        return {
+          select() { return this },
+          async eq() {
+            return {
+              data: [
+                { article_id: 'article-1', infographic_id: null, position: 2 },
+                { article_id: null, infographic_id: 'infographic-1', position: 1 },
+              ],
+              error: null,
+            }
+          },
+        }
+      }
+      return {
+        select() { return this },
+        async in() {
+          return table === 'articles'
+            ? { data: [{ id: 'article-1', title: 'Article' }], error: null }
+            : { data: [{ id: 'infographic-1', title: 'Infographie' }], error: null }
+        },
+      }
+    },
+  }
+
+  const result = await loadPersistedSeriesEpisodes(client, {
+    id: 'series-1',
+    slug: 'slug-stable',
+    name: 'Nom renommé sans changer le slug',
+  })
+
+  assert.equal(result.seriesName, 'Nom renommé sans changer le slug')
+  assert.deepEqual(result.episodes.map(({ contentType, seriesMemberships }) => [contentType, seriesMemberships[0].position]), [
+    ['article', 2],
+    ['infographic', 1],
+  ])
+  assert.deepEqual(calls, ['resource_series_memberships', 'articles', 'infographics'])
 })

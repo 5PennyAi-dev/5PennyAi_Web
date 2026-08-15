@@ -62,15 +62,15 @@ test('la requête d’accueil exclut le Markdown et filtre les publications', as
   ])
 })
 
-test('la requête de série d’articles conserve le filtre publié et le nom exact', async () => {
+test('la requête publique d’articles ne lit plus les colonnes de série legacy', async () => {
   const calls = []
-  await fetchPublishedArticlesForCatalog(createPublicClient(calls, { catalogRows: [] }), {
-    seriesName: ' Série Alpha ',
-  })
+  await fetchPublishedArticlesForCatalog(createPublicClient(calls, { catalogRows: [] }))
   assert.deepEqual(calls.filter(([table, method]) => table === 'articles' && method === 'eq'), [
     ['articles', 'eq', 'status', 'published'],
-    ['articles', 'eq', 'series_name', 'Série Alpha'],
   ])
+  const select = calls.find(([table, method]) => table === 'articles' && method === 'select')
+  assert.equal(select[2].includes('series_name'), false)
+  assert.equal(select[2].includes('episode_number'), false)
 })
 
 test('exclut brouillon, slug inconnu et slug invalide avec le même état neutre', async () => {

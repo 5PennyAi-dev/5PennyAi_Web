@@ -15,7 +15,7 @@ import {
   isInfographicThumbnailPathForResource,
 } from '../../src/lib/infographicThumbnails.js'
 import { isArticleCoverPath } from '../../src/lib/articleAssetRules.js'
-import { createSeriesSlug, sortSeriesEpisodes } from '../../src/lib/resourceSeries.js'
+import { sortSeriesEpisodes } from '../../src/lib/resourceSeries.js'
 import {
   buildSeriesThumbnailPath,
   isSeriesThumbnailPathForSlug,
@@ -77,25 +77,6 @@ export function getEpisodeReferenceCandidates(episode) {
 
 export function validateSeriesSlug(value) {
   return typeof value === 'string' && value.length <= 200 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)
-}
-
-export function resolveSeriesName({ seriesSlug, existingSeries, articleRows, infographicRows }) {
-  if (!validateSeriesSlug(seriesSlug)) {
-    throw new ResourceThumbnailError('invalid_series_slug', 400)
-  }
-
-  const persistedName = cleanName(existingSeries?.name)
-  if (persistedName && createSeriesSlug(persistedName) === seriesSlug) return persistedName
-
-  const candidates = [...new Set([
-    ...(Array.isArray(articleRows) ? articleRows : []),
-    ...(Array.isArray(infographicRows) ? infographicRows : []),
-  ].map((row) => cleanName(row?.series_name)).filter((name) =>
-    name && createSeriesSlug(name) === seriesSlug))]
-
-  if (candidates.length === 0) throw new ResourceThumbnailError('series_not_found', 404)
-  if (candidates.length > 1) throw new ResourceThumbnailError('series_ambiguous', 409)
-  return candidates[0]
 }
 
 export function buildSeriesThumbnailPrompt({ seriesName, episodes }) {
@@ -280,9 +261,7 @@ export async function generateAndStoreSeriesThumbnail({ seriesSlug, dependencies
   const seriesContext = await dependencies.resolveSeries(seriesSlug)
   const seriesName = cleanName(seriesContext?.seriesName)
   const episodes = seriesContext?.episodes
-  if (!seriesName || createSeriesSlug(seriesName) !== seriesSlug) {
-    throw new ResourceThumbnailError('series_not_found', 404)
-  }
+  if (!seriesName) throw new ResourceThumbnailError('series_not_found', 404)
   if (!Array.isArray(episodes) || episodes.length === 0) {
     throw new ResourceThumbnailError('series_has_no_episodes', 422)
   }
@@ -305,9 +284,8 @@ export async function generateAndStoreSeriesThumbnail({ seriesSlug, dependencies
   await dependencies.uploadThumbnail(newPath, normalized.buffer, normalized.mimeType)
 
   try {
-    await dependencies.upsertSeries({
+    await dependencies.updateSeriesThumbnail({
       slug: seriesSlug,
-      name: seriesName,
       thumbnailPath: newPath,
       generatedAt: dependencies.now(),
     })

@@ -8,17 +8,11 @@ import ResourceShareActions from '@/components/resources/ResourceShareActions'
 import SeriesNavigation from '@/components/resources/SeriesNavigation'
 import {
   fetchPublishedInfographic,
-  fetchPublishedSeriesResources,
   getInfographicDownloadFileName,
   getInfographicImageUrl,
+  loadPublishedSeriesNavigation,
 } from '@/lib/publicInfographics'
 import { buildInfographicSeoData } from '@/lib/infographicSeo'
-import {
-  createSeriesSlug,
-  findSeriesBySlug,
-  getAdjacentEpisodes,
-  groupResourcesBySeries,
-} from '@/lib/resourceSeries'
 
 const RESOURCES_PATH = '/ressources-ia'
 const SERIES_PATH = '/ressources-ia/series'
@@ -32,7 +26,7 @@ export default function InfographicDetail() {
 function InfographicDetailById({ id }) {
   const { t } = useTranslation()
   const [infographic, setInfographic] = useState(null)
-  const [seriesContext, setSeriesContext] = useState(null)
+  const [seriesContexts, setSeriesContexts] = useState([])
   const [state, setState] = useState('loading')
 
   useEffect(() => {
@@ -44,23 +38,12 @@ function InfographicDetailById({ id }) {
         setInfographic(data)
         setState(data ? 'ready' : 'missing')
 
-        if (!data?.series_name) return
+        if (!data) return
 
-        fetchPublishedSeriesResources(data.series_name)
-          .then((resources) => {
+        loadPublishedSeriesNavigation({ contentType: 'infographic', id: data.id })
+          .then((contexts) => {
             if (cancelled) return
-            const series = findSeriesBySlug(
-              groupResourcesBySeries(resources),
-              createSeriesSlug(data.series_name),
-            )
-            const current = { contentType: 'infographic', id: data.id }
-            if (!series || !series.resources.some((resource) =>
-              resource.id === current.id && resource.contentType === current.contentType)) return
-
-            setSeriesContext({
-              series,
-              ...getAdjacentEpisodes(series.resources, current),
-            })
+            setSeriesContexts(contexts)
           })
           .catch((error) => {
             console.warn('Unable to load infographic series navigation:', error.message)
@@ -84,13 +67,13 @@ function InfographicDetailById({ id }) {
     <InfographicContent
       key={infographic.id}
       infographic={infographic}
-      seriesContext={seriesContext}
+      seriesContexts={seriesContexts}
       t={t}
     />
   )
 }
 
-function InfographicContent({ infographic, seriesContext, t }) {
+function InfographicContent({ infographic, seriesContexts, t }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [imageFailed, setImageFailed] = useState(false)
   const title = infographic.title || t('resourcesAi.type')
@@ -99,7 +82,7 @@ function InfographicContent({ infographic, seriesContext, t }) {
   const hasImage = Boolean(imageUrl && !imageFailed)
   const seo = buildInfographicSeoData(infographic)
   const shareText = getInfographicShareText(infographic)
-  const series = formatSeries(infographic, t)
+  const series = formatSeriesContexts(seriesContexts, t)
   const keyPoints = usableKeyPoints(infographic.key_points)
   const sources = usableSources(infographic.sources)
 
@@ -134,14 +117,21 @@ function InfographicContent({ infographic, seriesContext, t }) {
               {t('resourcesAi.title')}
             </Link>
             <span aria-hidden="true">/</span>
-            {seriesContext && (
+            {seriesContexts.length > 0 && (
               <>
-                <Link
-                  to={`${SERIES_PATH}/${seriesContext.series.slug}`}
-                  className="max-w-full truncate font-medium hover:text-accent-deep"
-                >
-                  {seriesContext.series.name}
-                </Link>
+                <span className="flex min-w-0 flex-wrap items-center gap-1">
+                  {seriesContexts.map((context, index) => (
+                    <span key={context.series.id} className="contents">
+                      {index > 0 && <span aria-hidden="true">,</span>}
+                      <Link
+                        to={`${SERIES_PATH}/${context.series.slug}`}
+                        className="max-w-full truncate font-medium hover:text-accent-deep"
+                      >
+                        {context.series.name}
+                      </Link>
+                    </span>
+                  ))}
+                </span>
                 <span aria-hidden="true">/</span>
               </>
             )}
@@ -201,7 +191,7 @@ function InfographicContent({ infographic, seriesContext, t }) {
                     onError={() => setImageFailed(true)}
                   />
                 </div>
-                {seriesContext && <SeriesNavigation context={seriesContext} placement="sides" t={t} />}
+                {seriesContexts.length === 1 && <SeriesNavigation contexts={seriesContexts} placement="sides" t={t} />}
               </div>
               <div className="mt-5 text-center">
                 <button
@@ -290,8 +280,8 @@ function InfographicContent({ infographic, seriesContext, t }) {
             </section>
           )}
 
-          {seriesContext && !hasImage && (
-            <SeriesNavigation context={seriesContext} t={t} />
+          {seriesContexts.length > 0 && (
+            <SeriesNavigation contexts={seriesContexts} t={t} />
           )}
 
           <div className="mx-auto mt-16 max-w-4xl border-t border-navy/[0.1] pt-8">
@@ -367,13 +357,15 @@ function UnavailableState({ isError = false, t }) {
   )
 }
 
-function formatSeries(infographic, t) {
-  const episodeNumber = formatEpisodeNumber(infographic.episode_number)
-  const episode = episodeNumber
-    ? t('resourcesAi.episode', { number: episodeNumber })
+function formatSeriesContexts(contexts, t) {
+  if (!Array.isArray(contexts) || contexts.length === 0) return ''
+  const [first] = contexts
+  const episodeNumber = formatEpisodeNumber(first.membership?.position)
+  const episode = episodeNumber ? t('resourcesAi.episode', { number: episodeNumber }) : ''
+  const suffix = contexts.length > 1
+    ? t('resourcesAi.catalog.additionalSeries', { count: contexts.length - 1 })
     : ''
-  if (infographic.series_name && episode) return `${infographic.series_name} · ${episode}`
-  return infographic.series_name || episode
+  return [first.series.name, episode, suffix].filter(Boolean).join(' · ')
 }
 
 function getInfographicShareText(infographic) {

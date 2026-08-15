@@ -181,9 +181,9 @@ function ArticleList({ articles, locale, onDelete, t }) {
   return (
     <>
       <div className="hidden overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm md:block">
-        <div className="min-w-[1250px]">
-        <div className="grid grid-cols-[minmax(170px,1.3fr)_100px_70px_90px_minmax(130px,1fr)_90px_110px_110px_240px] items-center gap-3 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
-          {['title', 'status', 'language', 'level', 'series', 'episode', 'updated', 'publishedAt', 'actions'].map((column) => (
+        <div className="min-w-[1160px]">
+        <div className="grid grid-cols-[minmax(170px,1.3fr)_100px_70px_90px_minmax(180px,1fr)_110px_110px_240px] items-center gap-3 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
+          {['title', 'status', 'language', 'level', 'series', 'updated', 'publishedAt', 'actions'].map((column) => (
             <span key={column} className={column === 'actions' ? 'text-right' : ''}>
               {t(`admin.resourcesAi.articles.columns.${column}`)}
             </span>
@@ -193,7 +193,7 @@ function ArticleList({ articles, locale, onDelete, t }) {
           {articles.map((article) => (
             <li
               key={article.id}
-              className="grid grid-cols-[minmax(170px,1.3fr)_100px_70px_90px_minmax(130px,1fr)_90px_110px_110px_240px] items-center gap-3 px-5 py-4"
+              className="grid grid-cols-[minmax(170px,1.3fr)_100px_70px_90px_minmax(180px,1fr)_110px_110px_240px] items-center gap-3 px-5 py-4"
             >
               <p className="truncate font-heading text-sm font-semibold text-navy">
                 {article.title || t('admin.resourcesAi.articles.untitled')}
@@ -201,12 +201,7 @@ function ArticleList({ articles, locale, onDelete, t }) {
               <StatusBadge status={article.status} t={t} />
               <span className="text-sm text-navy/75">{article.language || '—'}</span>
               <span className="text-sm text-navy/75">{formatLevel(article.level, t)}</span>
-              <span className="truncate text-sm text-navy/75">{article.series_name || '\u2014'}</span>
-              <span className="tnum text-sm text-navy/75">
-                {article.episode_number
-                  ? t('admin.resourcesAi.articles.episode', { number: article.episode_number })
-                  : '\u2014'}
-              </span>
+              <span className="truncate text-sm text-navy/75">{formatSeries(article, t) || '\u2014'}</span>
               <time className="tnum text-xs text-muted" dateTime={article.updated_at}>
                 {formatDate(article.updated_at, locale)}
               </time>
@@ -428,10 +423,13 @@ function FilteredEmpty({ onShowAll, t }) {
 }
 
 function formatSeries(article, t) {
-  if (!article.series_name && !article.episode_number) return ''
-  if (!article.series_name) return t('admin.resourcesAi.articles.episode', { number: article.episode_number })
-  if (!article.episode_number) return article.series_name
-  return `${article.series_name} · ${t('admin.resourcesAi.articles.episode', { number: article.episode_number })}`
+  const memberships = article.seriesMemberships || []
+  if (memberships.length === 0) return ''
+  if (memberships.length === 1) return memberships[0].seriesName
+  return t('admin.resourcesAi.memberships.summary', {
+    name: memberships[0].seriesName,
+    count: memberships.length - 1,
+  })
 }
 
 function formatLevel(level, t) {

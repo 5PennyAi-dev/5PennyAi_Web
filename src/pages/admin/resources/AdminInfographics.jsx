@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
 import AdminResourcesNav from '@/components/admin/resources/AdminResourcesNav'
 import Card from '@/components/ui/Card'
+import { listMembershipsForResources } from '@/lib/adminResourceSeriesMemberships'
 import { isInfographicThumbnailPathForResource } from '@/lib/infographicThumbnails'
 import { supabase } from '@/lib/supabase'
 
@@ -21,7 +22,7 @@ const INFOGRAPHICS_PATH = '/admin/ressources-ia/infographies'
 const NEW_INFOGRAPHIC_PATH = `${INFOGRAPHICS_PATH}/nouvelle`
 const BUCKET = 'infographics'
 const LIST_COLUMNS =
-  'id, status, title, theme, series_name, episode_number, updated_at, image_path, image_metadata, thumbnail_path'
+  'id, status, title, theme, updated_at, image_path, image_metadata, thumbnail_path'
 
 export default function AdminInfographics() {
   return (
@@ -282,13 +283,12 @@ function InfographicList({ infographics, locale, onDelete, t }) {
   return (
     <>
       <div className="hidden overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm md:block">
-        <div className="min-w-[1160px]">
-          <div className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(110px,0.8fr)_minmax(150px,1fr)_90px_100px_110px_220px] items-center gap-3 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
+        <div className="min-w-[1080px]">
+          <div className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(110px,0.8fr)_minmax(190px,1fr)_100px_110px_220px] items-center gap-3 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
           <span>{t('admin.resourcesAi.infographics.columns.infographic')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.title')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.theme')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.series')}</span>
-          <span>{t('admin.resourcesAi.infographics.columns.episode')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.status')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.updated')}</span>
           <span className="text-right">{t('admin.resourcesAi.infographics.columns.actions')}</span>
@@ -298,17 +298,12 @@ function InfographicList({ infographics, locale, onDelete, t }) {
           {infographics.map((infographic) => (
             <li
               key={infographic.id}
-              className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(110px,0.8fr)_minmax(150px,1fr)_90px_100px_110px_220px] items-center gap-3 px-5 py-4"
+              className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(110px,0.8fr)_minmax(190px,1fr)_100px_110px_220px] items-center gap-3 px-5 py-4"
             >
               <InfographicThumbnail infographic={infographic} t={t} />
               <InfographicIdentity infographic={infographic} t={t} />
               <p className="text-sm text-navy/75">{infographic.theme || '—'}</p>
-              <p className="truncate text-sm text-navy/75">{infographic.series_name || '\u2014'}</p>
-              <p className="tnum text-sm text-navy/75">
-                {infographic.episode_number
-                  ? t('admin.resourcesAi.infographics.episode', { number: infographic.episode_number })
-                  : '\u2014'}
-              </p>
+              <p className="truncate text-sm text-navy/75">{formatSeries(infographic, t) || '\u2014'}</p>
               <StatusBadge status={infographic.status} t={t} />
               <time
                 dateTime={infographic.updated_at}
@@ -670,11 +665,13 @@ function FilteredEmptyState({ onShowAll, t }) {
 }
 
 function formatSeries(infographic, t) {
-  if (!infographic.series_name) return null
-  if (!infographic.episode_number) return infographic.series_name
-  return `${infographic.series_name} · ${t('admin.resourcesAi.infographics.episode', {
-    number: infographic.episode_number,
-  })}`
+  const memberships = infographic.seriesMemberships || []
+  if (memberships.length === 0) return null
+  if (memberships.length === 1) return memberships[0].seriesName
+  return t('admin.resourcesAi.memberships.summary', {
+    name: memberships[0].seriesName,
+    count: memberships.length - 1,
+  })
 }
 
 function formatDate(value, locale) {
@@ -696,5 +693,13 @@ async function fetchInfographics() {
     .order('updated_at', { ascending: false })
 
   if (error) throw error
-  return data || []
+  const infographics = data || []
+  const memberships = await listMembershipsForResources({
+    resourceType: 'infographic',
+    resourceIds: infographics.map(({ id }) => id),
+  })
+  return infographics.map((infographic) => ({
+    ...infographic,
+    seriesMemberships: memberships.get(infographic.id) || [],
+  }))
 }

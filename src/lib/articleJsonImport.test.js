@@ -18,20 +18,23 @@ test('importe un objet vide sans modifier un formulaire vide', () => {
   assert.deepEqual(result.nextForm, current)
 })
 
-test('importe un objet partiel sans effacer les propriétés absentes', () => {
+test('réimporte un JSON Article legacy sans modifier ses memberships', () => {
   const current = createEmptyArticleForm()
   current.summary = 'Résumé conservé'
   current.infographicAltText = 'Alt conservé'
   current.infographicPath = 'articles/article/infographic/existante.webp'
   current.coverPath = 'articles/article/cover/existante.webp'
   current.articleMediaAssets = [{ media_key: 'schema', storage_path: 'media.webp' }]
+  current.seriesMemberships = [{ id: 'membership-existing' }]
   const result = importArticleJson(
     JSON.stringify({ title: 'Titre importé', series: { name: 'Série' } }),
     current,
   )
   assert.equal(result.nextForm.title, 'Titre importé')
   assert.equal(result.nextForm.summary, 'Résumé conservé')
-  assert.equal(result.nextForm.series.name, 'Série')
+  assert.deepEqual(result.nextForm.seriesMemberships, current.seriesMemberships)
+  assert.equal('series' in result.patch, false)
+  assert.ok(result.warnings.some(({ code }) => code === 'legacySeriesIgnored'))
   assert.equal(result.nextForm.infographicAltText, 'Alt conservé')
   assert.equal(result.nextForm.infographicPath, current.infographicPath)
   assert.equal(result.nextForm.coverPath, current.coverPath)

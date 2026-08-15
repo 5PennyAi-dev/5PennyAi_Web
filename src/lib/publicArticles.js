@@ -13,8 +13,6 @@ const PUBLIC_CATALOG_COLUMNS = [
   'theme',
   'level',
   'keywords',
-  'series_name',
-  'episode_number',
   'content_markdown',
   'cover_path',
   'published_at',
@@ -27,8 +25,6 @@ const PUBLIC_SHOWCASE_COLUMNS = [
   'summary',
   'theme',
   'level',
-  'series_name',
-  'episode_number',
   'cover_path',
   'published_at',
 ].join(', ')
@@ -41,8 +37,6 @@ const PUBLIC_COLUMNS = [
   'summary',
   'theme',
   'level',
-  'series_name',
-  'episode_number',
   'learning_objectives',
   'prerequisites',
   'takeaway',
@@ -76,15 +70,16 @@ export function getArticleInfographicDownloadFileName({ articleId, path, slug, t
 
 export async function fetchPublishedArticlesForCatalog(
   client = supabase,
-  { expiresIn = 3600, logger = console, seriesName = '' } = {},
+  { expiresIn = 3600, ids = null, logger = console } = {},
 ) {
+  const cleanIds = Array.isArray(ids) ? [...new Set(ids.filter(Boolean))] : null
+  if (cleanIds && cleanIds.length === 0) return { rows: [], coverUrls: {} }
+
   let query = client
     .from('articles')
     .select(PUBLIC_CATALOG_COLUMNS)
     .eq('status', 'published')
-
-  const cleanSeriesName = typeof seriesName === 'string' ? seriesName.trim() : ''
-  if (cleanSeriesName) query = query.eq('series_name', cleanSeriesName)
+  if (cleanIds) query = query.in('id', cleanIds)
 
   const { data, error } = await query.order('published_at', { ascending: false })
   if (error) throw error
@@ -243,7 +238,6 @@ export function sanitizePublishedArticle(row = {}) {
     summary: row.summary,
     theme: row.theme,
     level: row.level,
-    series: { name: row.series_name, episodeNumber: row.episode_number },
     learningObjectives: Array.isArray(row.learning_objectives) ? row.learning_objectives : [],
     prerequisites: Array.isArray(row.prerequisites) ? row.prerequisites : [],
     takeaway: row.takeaway,

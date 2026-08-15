@@ -10,8 +10,6 @@ export const ARTICLE_SOCIAL_COLUMNS = [
   'summary',
   'theme',
   'level',
-  'series_name',
-  'episode_number',
   'learning_objectives',
   'takeaway',
   'content_markdown',
@@ -28,8 +26,6 @@ export const INFOGRAPHIC_SOCIAL_COLUMNS = [
   'introduction',
   'theme',
   'level',
-  'series_name',
-  'episode_number',
   'key_points',
   'takeaway',
   'keywords',
@@ -87,8 +83,6 @@ export function adaptArticleSocialContext(article = {}) {
     summary,
     theme: clean(article.theme),
     level: clean(article.level),
-    seriesName: clean(article.series_name),
-    episodeNumber: normalizeEpisodeNumber(article.episode_number),
     mainIdea,
     supportingContext: supportingParts.join(' | '),
   })
@@ -122,8 +116,6 @@ export function adaptInfographicSocialContext(infographic = {}) {
     summary,
     theme: clean(infographic.theme),
     level: clean(infographic.level),
-    seriesName: clean(infographic.series_name),
-    episodeNumber: normalizeEpisodeNumber(infographic.episode_number),
     mainIdea,
     supportingContext: supportingParts.join(' | '),
   })
@@ -144,7 +136,6 @@ export function countContextCharacters(context) {
     context.subtitle,
     context.theme,
     context.level,
-    context.seriesName,
     context.mainIdea,
     context.supportingContext,
   ].filter(Boolean).join('\n')).length
@@ -164,7 +155,6 @@ function limitContext(context) {
     subtitle: truncateUnicode(context.subtitle, 300),
     theme: truncateUnicode(context.theme, 100),
     level: truncateUnicode(context.level, 50),
-    seriesName: truncateUnicode(context.seriesName, 160),
     mainIdea: truncateUnicode(context.mainIdea, 600),
   }
   const withoutSupporting = { ...result, supportingContext: '' }
@@ -195,10 +185,6 @@ function uniqueParts(values) {
     seen.add(key)
     return true
   })
-}
-
-function normalizeEpisodeNumber(value) {
-  return Number.isInteger(value) && value > 0 ? value : null
 }
 
 export { MAX_CONTEXT_CHARACTERS }

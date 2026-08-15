@@ -12,7 +12,6 @@ import {
 import {
   generateAndStoreSeriesThumbnail,
   normalizeSeriesThumbnail,
-  resolveSeriesName,
   validateSeriesSlug,
 } from './_lib/seriesThumbnail.js'
 import { ARTICLE_ASSETS_BUCKET } from '../src/lib/articleAssetRules.js'
@@ -22,9 +21,9 @@ export const config = { maxDuration: 300 }
 const ADMIN_EMAIL = 'christian.couillard@5pennyai.com'
 const BUCKET = 'infographics'
 const INFOGRAPHIC_EPISODE_COLUMNS =
-  'id, status, published_at, image_path, thumbnail_path, title, summary, theme, level, episode_number, series_name'
+  'id, status, published_at, image_path, thumbnail_path, title, summary, theme, level'
 const ARTICLE_EPISODE_COLUMNS =
-  'id, status, published_at, cover_path, title, summary, theme, level, episode_number, series_name'
+  'id, status, published_at, cover_path, title, summary, theme, level'
 
 export async function authorizeSeriesThumbnailRequest(req, supabase, adminEmail = ADMIN_EMAIL) {
   const header = req.headers?.authorization || req.headers?.Authorization || ''
@@ -81,7 +80,7 @@ export default async function handler(req, res) {
   }
 }
 
-function createDependencies({ supabase, openAiKey }) {
+export function createDependencies({ supabase, openAiKey }) {
   const openai = new OpenAI({ apiKey: openAiKey })
 
   return {
@@ -91,44 +90,15 @@ function createDependencies({ supabase, openAiKey }) {
     async resolveSeries(seriesSlug) {
       const { data: existingSeries, error: seriesError } = await supabase
         .from('resource_series')
-        .select('slug, name, thumbnail_path')
+        .select('id, slug, name, thumbnail_path')
         .eq('slug', seriesSlug)
         .maybeSingle()
       if (seriesError) throw seriesError
 
-      let articleNameRows = []
-      let infographicNameRows = []
-      if (!existingSeries?.name) {
-        const [articleNames, infographicNames] = await Promise.all([
-          supabase.from('articles').select('series_name').not('series_name', 'is', null),
-          supabase.from('infographics').select('series_name').not('series_name', 'is', null),
-        ])
-        if (articleNames.error) throw articleNames.error
-        if (infographicNames.error) throw infographicNames.error
-        articleNameRows = articleNames.data || []
-        infographicNameRows = infographicNames.data || []
+      if (!existingSeries?.id || !existingSeries?.name) {
+        throw new ResourceThumbnailError('series_not_found', 404)
       }
-
-      const seriesName = resolveSeriesName({
-        seriesSlug,
-        existingSeries,
-        articleRows: articleNameRows,
-        infographicRows: infographicNameRows,
-      })
-      const [articleEpisodes, infographicEpisodes] = await Promise.all([
-        supabase.from('articles').select(ARTICLE_EPISODE_COLUMNS).eq('series_name', seriesName),
-        supabase.from('infographics').select(INFOGRAPHIC_EPISODE_COLUMNS).eq('series_name', seriesName),
-      ])
-      if (articleEpisodes.error) throw articleEpisodes.error
-      if (infographicEpisodes.error) throw infographicEpisodes.error
-
-      return {
-        seriesName,
-        episodes: [
-          ...(articleEpisodes.data || []).map((episode) => ({ ...episode, contentType: 'article' })),
-          ...(infographicEpisodes.data || []).map((episode) => ({ ...episode, contentType: 'infographic' })),
-        ],
-      }
+      return loadPersistedSeriesEpisodes(supabase, existingSeries)
     },
     async getSeries(seriesSlug) {
       const { data, error } = await supabase
@@ -163,18 +133,14 @@ function createDependencies({ supabase, openAiKey }) {
       })
       if (error) throw error
     },
-    async upsertSeries({ slug, name, thumbnailPath, generatedAt }) {
+    async updateSeriesThumbnail({ slug, thumbnailPath, generatedAt }) {
       const { data, error } = await supabase
         .from('resource_series')
-        .upsert(
-          {
-            slug,
-            name,
-            thumbnail_path: thumbnailPath,
-            thumbnail_generated_at: generatedAt,
-          },
-          { onConflict: 'slug' },
-        )
+        .update({
+          thumbnail_path: thumbnailPath,
+          thumbnail_generated_at: generatedAt,
+        })
+        .eq('slug', slug)
         .select('slug')
         .maybeSingle()
       if (error) throw error
@@ -185,6 +151,60 @@ function createDependencies({ supabase, openAiKey }) {
       if (error) throw error
     },
   }
+}
+
+export async function loadPersistedSeriesEpisodes(supabase, series) {
+  const { data: memberships, error: membershipError } = await supabase
+    .from('resource_series_memberships')
+    .select('article_id, infographic_id, position')
+    .eq('series_id', series.id)
+  if (membershipError) throw membershipError
+
+  const articlePositions = new Map()
+  const infographicPositions = new Map()
+  for (const membership of memberships || []) {
+    if (membership.article_id) articlePositions.set(membership.article_id, membership.position)
+    if (membership.infographic_id) infographicPositions.set(membership.infographic_id, membership.position)
+  }
+
+  const [articleResult, infographicResult] = await Promise.all([
+    fetchSeriesResources(supabase, 'articles', ARTICLE_EPISODE_COLUMNS, articlePositions),
+    fetchSeriesResources(supabase, 'infographics', INFOGRAPHIC_EPISODE_COLUMNS, infographicPositions),
+  ])
+
+  return {
+    seriesId: series.id,
+    seriesName: series.name,
+    episodes: [
+      ...articleResult.map((episode) => ({
+        ...episode,
+        contentType: 'article',
+        seriesMemberships: [seriesMembership(series, articlePositions.get(episode.id))],
+      })),
+      ...infographicResult.map((episode) => ({
+        ...episode,
+        contentType: 'infographic',
+        seriesMemberships: [seriesMembership(series, infographicPositions.get(episode.id))],
+      })),
+    ],
+  }
+}
+
+function seriesMembership(series, position) {
+  return {
+    seriesId: series.id,
+    slug: series.slug,
+    name: series.name,
+    position: Number.isInteger(position) && position > 0 ? position : null,
+  }
+}
+
+async function fetchSeriesResources(supabase, table, columns, positions) {
+  const ids = [...positions.keys()]
+  if (ids.length === 0) return []
+  const { data, error } = await supabase.from(table).select(columns).in('id', ids)
+  if (error) throw error
+  return data || []
 }
 
 export async function editSeriesThumbnail({ openai, prompt, references, toFileImpl = toFile }) {

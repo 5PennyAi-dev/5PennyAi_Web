@@ -39,8 +39,6 @@ test('construit le prompt v3 avec la référence, une composition libre et les m
     subtitle: 'Des réponses mieux ancrées',
     summary: 'Recherche puis génération.',
     theme: 'IA générative',
-    series_name: 'Fondamentaux',
-    episode_number: 2,
     key_points: [{ title: 'Chercher', description: 'Trouver le bon contexte' }],
     takeaway: 'La qualité du contexte compte.',
     sources: [{ title: 'Interdit', url: 'https://example.com' }],
@@ -63,7 +61,6 @@ test('construit le prompt v3 avec la référence, une composition libre et les m
   assert.match(prompt, /source, une URL/)
   assert.match(prompt, /microtexte/)
   assert.match(prompt, /16:9/)
-  assert.doesNotMatch(prompt, /Fondamentaux/)
   assert.doesNotMatch(prompt, /https:\/\/example\.com/)
   assert.doesNotMatch(prompt, /undefined|null/)
 })

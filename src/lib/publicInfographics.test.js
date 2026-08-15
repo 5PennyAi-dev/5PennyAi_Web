@@ -4,7 +4,6 @@ import { applyPublishedFilter } from './publicInfographicQuery.js'
 import { loadPublishedCatalog } from './publicResourceCatalog.js'
 import {
   fetchPublishedInfographics,
-  fetchPublishedInfographicsBySeries,
   fetchPublishedInfographicsForShowcase,
   getInfographicDownloadFileName,
 } from './publicInfographics.js'
@@ -71,56 +70,36 @@ test('la requête d’accueil limite les colonnes et filtre les publications', a
   ])
 })
 
-test('la lecture publique d’une série combine statut publié et nom exact', async () => {
+test('charge séries et memberships en deux requêtes globales sans N+1', async () => {
   const calls = []
-  const client = createCatalogClient(calls, { infographics: [] })
-  await fetchPublishedInfographicsBySeries(' Série Alpha ', client)
-  assert.deepEqual(calls.filter(([table, column]) => table === 'infographics' && column !== undefined), [
-    ['infographics', 'status', 'published'],
-    ['infographics', 'series_name', 'Série Alpha'],
-  ])
-})
-
-test('charge toutes les couvertures des séries visibles en une seule requête supplémentaire', async () => {
-  const calls = []
-  const client = createCatalogClient(calls, {
-    infographics: [
-      { id: 'one', series_name: 'Série Alpha' },
-      { id: 'two', series_name: 'Série Alpha' },
-      { id: 'three', series_name: 'Série Bêta' },
-    ],
-    rows: [{ slug: 'serie-alpha', thumbnail_path: 'thumbnails/series/serie-alpha/a.webp' }],
-  })
-
   const result = await loadPublishedCatalog({
-    client,
-    fetchInfographics: async (catalogClient) => {
-      const query = catalogClient.from('infographics').select('columns').eq('status', 'published')
-      const { data } = await query.order('published_at')
-      return data
+    client: {},
+    fetchInfographics: async () => [{ id: 'one', status: 'published' }],
+    fetchArticles: async () => ({ rows: [], coverUrls: {} }),
+    fetchPrompts: async () => ({ rows: [], thumbnailUrls: {} }),
+    fetchSeries: async () => {
+      calls.push('series')
+      return [{ id: 'alpha', slug: 'serie-alpha', name: 'Série Alpha' }]
+    },
+    fetchMemberships: async () => {
+      calls.push('memberships')
+      return [{ id: 'm1', series_id: 'alpha', infographic_id: 'one', position: 1 }]
     },
   })
-  assert.equal(result.infographics.length, 3)
-  assert.equal(result.seriesThumbnailRows.length, 1)
-  assert.deepEqual(calls.filter(([table]) => table === 'resource_series'), [
-    ['resource_series', ['serie-alpha', 'serie-beta']],
-  ])
+  assert.deepEqual(calls, ['series', 'memberships'])
+  assert.equal(result.infographics[0].seriesMemberships[0].slug, 'serie-alpha')
+  assert.equal(result.series.length, 1)
 })
 
-test('conserve les ressources et le fallback si la lecture des couvertures échoue', async () => {
-  const warnings = []
-  const result = await loadPublishedCatalog({
-    client: createCatalogClient([], {
-      infographics: [{ id: 'one', series_name: 'Série Alpha' }],
-      seriesError: new Error('migration missing'),
-    }),
-    fetchInfographics: async () => [{ id: 'one', series_name: 'Série Alpha' }],
-    logger: { warn: (...args) => warnings.push(args) },
-  })
-
-  assert.equal(result.infographics.length, 1)
-  assert.deepEqual(result.seriesThumbnailRows, [])
-  assert.equal(warnings.length, 1)
+test('ne réactive aucun fallback legacy si les memberships échouent', async () => {
+  await assert.rejects(loadPublishedCatalog({
+    client: {},
+    fetchInfographics: async () => [{ id: 'one', status: 'published' }],
+    fetchArticles: async () => ({ rows: [], coverUrls: {} }),
+    fetchPrompts: async () => ({ rows: [], thumbnailUrls: {} }),
+    fetchSeries: async () => [],
+    fetchMemberships: async () => { throw new Error('offline') },
+  }), /offline/)
 })
 
 test('the catalog query includes public keywords and subtitle', async () => {
@@ -139,24 +118,3 @@ test('the catalog query includes public keywords and subtitle', async () => {
   assert.equal(calls[0][2].includes('subtitle'), true)
   assert.equal(calls[0][2].includes('keywords'), true)
 })
-
-function createCatalogClient(calls, { infographics, rows = [], seriesError = null }) {
-  return {
-    from(table) {
-      if (table === 'infographics') {
-        return {
-          select() { return this },
-          eq(column, value) { calls.push([table, column, value]); return this },
-          async order() { return { data: infographics, error: null } },
-        }
-      }
-      return {
-        select() { return this },
-        async in(_column, slugs) {
-          calls.push([table, slugs])
-          return { data: rows, error: seriesError }
-        },
-      }
-    },
-  }
-}

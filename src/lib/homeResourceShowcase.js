@@ -5,18 +5,15 @@ import {
 } from './publicArticles.js'
 import {
   fetchPublishedInfographicsForShowcase,
-  fetchSeriesThumbnailRows,
   getInfographicImageUrl,
 } from './publicInfographics.js'
 import {
+  fetchPublicSeriesMembershipRows,
+  fetchPublicSeriesRows,
   mergePublicResources,
   sortResourcesByPublishedAt,
 } from './publicResourceCatalog.js'
-import {
-  groupResourcesBySeries,
-  selectFeaturedSeries,
-} from './resourceSeries.js'
-import { attachSeriesThumbnails } from './seriesThumbnails.js'
+import { selectFeaturedSeries } from './resourceSeries.js'
 
 export async function fetchHomeResourceShowcase(client = supabase, logger = console) {
   return loadHomeResourceShowcase({
@@ -24,7 +21,8 @@ export async function fetchHomeResourceShowcase(client = supabase, logger = cons
     fetchInfographics: fetchPublishedInfographicsForShowcase,
     fetchArticles: fetchPublishedArticlesForShowcase,
     fetchArticleCovers: fetchPublicArticleCoverUrls,
-    fetchSeriesCovers: fetchSeriesThumbnailRows,
+    fetchSeries: fetchPublicSeriesRows,
+    fetchMemberships: fetchPublicSeriesMembershipRows,
     getInfographicImageUrl: (path) => getInfographicImageUrl(path, client),
     logger,
   })
@@ -35,13 +33,16 @@ export async function loadHomeResourceShowcase({
   fetchInfographics,
   fetchArticles,
   fetchArticleCovers,
-  fetchSeriesCovers,
+  fetchSeries,
+  fetchMemberships,
   getInfographicImageUrl = () => null,
   logger = console,
 } = {}) {
-  const [infographicResult, articleResult] = await Promise.allSettled([
+  const [infographicResult, articleResult, seriesResult, membershipResult] = await Promise.allSettled([
     fetchInfographics(client),
     fetchArticles(client),
+    fetchSeries(client),
+    fetchMemberships(client),
   ])
 
   if (infographicResult.status === 'rejected' && articleResult.status === 'rejected') {
@@ -54,18 +55,26 @@ export async function loadHomeResourceShowcase({
   if (articleResult.status === 'rejected') {
     logger?.warn?.('Unable to load homepage articles:', articleResult.reason?.message)
   }
+  if (seriesResult.status === 'rejected') {
+    logger?.warn?.('Unable to load homepage series:', seriesResult.reason?.message)
+  }
+  if (membershipResult.status === 'rejected') {
+    logger?.warn?.('Unable to load homepage series memberships:', membershipResult.reason?.message)
+  }
 
   const infographicRows =
     infographicResult.status === 'fulfilled' ? infographicResult.value : []
   const articleRows = articleResult.status === 'fulfilled' ? articleResult.value : []
+  const seriesRows = seriesResult.status === 'fulfilled' ? seriesResult.value : []
+  const membershipRows = membershipResult.status === 'fulfilled' ? membershipResult.value : []
   const initialCatalog = createCatalog({
     infographicRows,
     articleRows,
     getInfographicImageUrl,
+    seriesRows,
+    membershipRows,
   })
-  const initialFeaturedSeries = selectFeaturedSeries(
-    groupResourcesBySeries(initialCatalog.resources),
-  )
+  const initialFeaturedSeries = selectFeaturedSeries(initialCatalog.series)
   const initialSecondaryResources = selectHomeSecondaryResources(initialCatalog.resources)
   const articleIdsNeedingCovers = new Set(
     [
@@ -94,25 +103,17 @@ export async function loadHomeResourceShowcase({
     articleRows,
     articleCoverUrls,
     getInfographicImageUrl,
+    seriesRows,
+    membershipRows,
   })
-  let series = groupResourcesBySeries(catalog.resources)
-  const featuredSeries = selectFeaturedSeries(series)
-
-  if (featuredSeries) {
-    try {
-      const coverRows = await fetchSeriesCovers([featuredSeries.slug], client)
-      series = attachSeriesThumbnails(series, coverRows)
-    } catch (error) {
-      logger?.warn?.('Unable to load homepage series cover:', error?.message)
-    }
-  }
 
   return {
     resources: catalog.resources,
-    featuredSeries: selectFeaturedSeries(series),
+    featuredSeries: selectFeaturedSeries(catalog.series),
     secondaryResources: selectHomeSecondaryResources(catalog.resources),
     partial:
-      infographicResult.status === 'rejected' || articleResult.status === 'rejected',
+      [infographicResult, articleResult, seriesResult, membershipResult]
+        .some((result) => result.status === 'rejected'),
   }
 }
 
@@ -151,6 +152,8 @@ function createCatalog({
   articleRows,
   articleCoverUrls = {},
   getInfographicImageUrl,
+  seriesRows = [],
+  membershipRows = [],
 }) {
   return mergePublicResources({
     infographicRows,
@@ -158,5 +161,7 @@ function createCatalog({
     articleCoverUrls,
     getInfographicImageUrl,
     calculateArticleReadingTime: () => null,
+    seriesRows,
+    membershipRows,
   })
 }

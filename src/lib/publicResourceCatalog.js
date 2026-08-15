@@ -1,5 +1,5 @@
 import { getInfographicImageCandidates } from './infographicThumbnails.js'
-import { createSeriesSlug, sortSeriesEpisodes } from './resourceSeries.js'
+import { buildPublicSeries, sortSeriesEpisodes } from './resourceSeries.js'
 import { matchesResourceTopic } from './resourceTopics.js'
 import { isPromptCategory } from './promptTaxonomies.js'
 
@@ -36,8 +36,7 @@ export function adaptInfographicToPublicResource(row = {}, { getImageUrl = () =>
     theme: row.theme,
     level: row.level,
     keywords: cleanStringArray(row.keywords),
-    seriesName: row.series_name,
-    episodeNumber: row.episode_number,
+    seriesMemberships: [],
     publishedAt: row.published_at,
     readingTimeMinutes: row.reading_time_minutes,
     thumbnailUrl: thumbnailSources[0]?.url || null,
@@ -60,8 +59,7 @@ export function adaptArticleToPublicResource(row = {}, { coverUrl = null, readin
     theme: row.theme,
     level: row.level,
     keywords: cleanStringArray(row.keywords),
-    seriesName: row.series_name,
-    episodeNumber: row.episode_number,
+    seriesMemberships: [],
     publishedAt: row.published_at,
     readingTimeMinutes: readingTime(row.content_markdown),
     thumbnailUrl: coverUrl || null,
@@ -88,6 +86,7 @@ export function adaptPromptToPublicResource(row = {}, { thumbnailUrl = null } = 
     category: cleanText(row.category),
     contexts: cleanStringArray(row.contexts),
     keywords: cleanStringArray(row.keywords),
+    seriesMemberships: [],
   }
 }
 
@@ -99,6 +98,8 @@ export function mergePublicResources({
   promptThumbnailUrls = {},
   getInfographicImageUrl = () => null,
   calculateArticleReadingTime = () => null,
+  seriesRows = [],
+  membershipRows = [],
 } = {}) {
   const infographics = publishedRows(infographicRows).map((row) =>
     adaptInfographicToPublicResource(row, { getImageUrl: getInfographicImageUrl }))
@@ -112,12 +113,51 @@ export function mergePublicResources({
       thumbnailUrl: promptThumbnailUrls[row.id] || null,
     }))
 
+  const attachedResources = attachSeriesMemberships(
+    [...infographics, ...articles, ...prompts],
+    seriesRows,
+    membershipRows,
+  )
+  const byKey = new Map(attachedResources.map((resource) => [getPublicResourceKey(resource), resource]))
+  const withMemberships = (items) => items.map((resource) => byKey.get(getPublicResourceKey(resource)))
+  const resources = sortResourcesByPublishedAt(attachedResources)
+
   return {
-    resources: sortResourcesByPublishedAt([...infographics, ...articles, ...prompts]),
-    infographics,
-    articles,
-    prompts,
+    resources,
+    infographics: withMemberships(infographics),
+    articles: withMemberships(articles),
+    prompts: withMemberships(prompts),
+    series: buildPublicSeries(seriesRows, resources),
   }
+}
+
+export function attachSeriesMemberships(resources, seriesRows, membershipRows) {
+  const seriesById = new Map((Array.isArray(seriesRows) ? seriesRows : [])
+    .filter((series) => cleanText(series?.id) && cleanText(series?.slug) && cleanText(series?.name))
+    .map((series) => [series.id, series]))
+  const membershipsByResource = new Map()
+
+  for (const row of Array.isArray(membershipRows) ? membershipRows : []) {
+    const series = seriesById.get(row?.series_id)
+    const resourceKey = membershipResourceKey(row)
+    if (!series || !resourceKey) continue
+    const memberships = membershipsByResource.get(resourceKey) || []
+    memberships.push({
+      membershipId: row.id,
+      seriesId: series.id,
+      slug: cleanText(series.slug),
+      name: cleanText(series.name),
+      position: normalizeMembershipPosition(row.position),
+    })
+    membershipsByResource.set(resourceKey, memberships)
+  }
+
+  return (Array.isArray(resources) ? resources : []).map((resource) => ({
+    ...resource,
+    seriesMemberships: resource?.contentType === 'prompt'
+      ? []
+      : sortMemberships(membershipsByResource.get(getPublicResourceKey(resource)) || []),
+  }))
 }
 
 export function sortResourcesByPublishedAt(resources) {
@@ -213,7 +253,7 @@ export function buildResourceSearchText(resource = {}, promptTaxonomyLabels = []
     resource?.subtitle,
     resource?.summary,
     resource?.theme,
-    resource?.seriesName,
+    ...(resource?.seriesMemberships || []).map((membership) => membership.name),
     resource?.category,
     ...cleanStringArray(resource?.contexts),
     ...cleanStringArray(resource?.keywords),
@@ -247,7 +287,7 @@ export function filterPublicResources(
 
   const filtered = resources.filter((resource) => {
     if (!matchesResourceSearch(resource, query, getPromptTaxonomyLabels(resource))) return false
-    if (seriesSlug && createSeriesSlug(resource?.seriesName) !== seriesSlug) return false
+    if (seriesSlug && !getSeriesMembership(resource, seriesSlug)) return false
     if (selectedLevel && resource?.level !== selectedLevel) return false
     if (category && resource?.category !== category) return false
     if (!matchesResourceTopic(resource, topic)) return false
@@ -257,12 +297,26 @@ export function filterPublicResources(
     return true
   })
 
-  return seriesSlug ? sortSeriesEpisodes(filtered) : filtered
+  return seriesSlug ? sortSeriesEpisodes(filtered, seriesSlug) : filtered
 }
 
 export function getPublicResourceKey(resource) {
   if (!resource || resource.id == null) return ''
   return `${resource.contentType || 'resource'}:${resource.id}`
+}
+
+export function getResourceSeriesDisplay(resource, selectedSeriesSlug = '') {
+  const memberships = Array.isArray(resource?.seriesMemberships) ? resource.seriesMemberships : []
+  const membership = selectedSeriesSlug
+    ? memberships.find((item) => item.slug === selectedSeriesSlug) || null
+    : memberships[0] || null
+  const multipleInGeneralView = !selectedSeriesSlug && memberships.length > 1
+
+  return {
+    membership,
+    additionalCount: multipleInGeneralView ? memberships.length - 1 : 0,
+    position: multipleInGeneralView ? null : normalizeMembershipPosition(membership?.position),
+  }
 }
 
 export async function querySeriesThumbnailRows(slugs, client) {
@@ -282,6 +336,32 @@ export async function querySeriesThumbnailRows(slugs, client) {
   return data || []
 }
 
+export async function fetchPublicSeriesRows(client, { ids = [], slug = '' } = {}) {
+  let query = client
+    .from('resource_series')
+    .select('id, slug, name, description, objective, thumbnail_path')
+  if (slug) query = query.eq('slug', slug)
+  if (ids.length > 0) query = query.in('id', ids)
+  const { data, error } = await query
+  if (error) throw error
+  return data || []
+}
+
+export async function fetchPublicSeriesMembershipRows(
+  client,
+  { resourceId = '', resourceType = '', seriesIds = [] } = {},
+) {
+  let query = client
+    .from('resource_series_memberships')
+    .select('id, series_id, article_id, infographic_id, position')
+  if (seriesIds.length > 0) query = query.in('series_id', seriesIds)
+  if (resourceId && resourceType === 'article') query = query.eq('article_id', resourceId)
+  if (resourceId && resourceType === 'infographic') query = query.eq('infographic_id', resourceId)
+  const { data, error } = await query
+  if (error) throw error
+  return data || []
+}
+
 export async function loadPublishedCatalog({
   client,
   fetchInfographics,
@@ -289,12 +369,16 @@ export async function loadPublishedCatalog({
   fetchPrompts = async () => ({ rows: [], thumbnailUrls: {} }),
   getInfographicImageUrl,
   calculateArticleReadingTime,
+  fetchSeries = fetchPublicSeriesRows,
+  fetchMemberships = fetchPublicSeriesMembershipRows,
   logger = console,
 }) {
-  const [infographicRows, articleResult, promptResult] = await Promise.all([
+  const [infographicRows, articleResult, promptResult, seriesRows, membershipRows] = await Promise.all([
     fetchInfographics(client),
     fetchArticles(client, { logger }),
     fetchPrompts(client, { logger }),
+    fetchSeries(client),
+    fetchMemberships(client),
   ])
   const articleRows = Array.isArray(articleResult) ? articleResult : articleResult?.rows || []
   const articleCoverUrls = Array.isArray(articleResult) ? {} : articleResult?.coverUrls || {}
@@ -308,18 +392,10 @@ export async function loadPublishedCatalog({
     promptThumbnailUrls,
     getInfographicImageUrl,
     calculateArticleReadingTime,
+    seriesRows,
+    membershipRows,
   })
-  const seriesSlugs = catalog.resources
-    .map((resource) => createSeriesSlug(resource.seriesName))
-    .filter(Boolean)
-
-  try {
-    const seriesCovers = await querySeriesThumbnailRows(seriesSlugs, client)
-    return { ...catalog, seriesCovers, seriesThumbnailRows: seriesCovers }
-  } catch (error) {
-    logger?.warn?.('Unable to load series thumbnails; using catalog fallbacks:', error?.message)
-    return { ...catalog, seriesCovers: [], seriesThumbnailRows: [] }
-  }
+  return { ...catalog, seriesRows, membershipRows }
 }
 
 function publishedRows(rows) {
@@ -341,4 +417,28 @@ function cleanStringArray(value) {
 function validTimestamp(value) {
   const timestamp = typeof value === 'string' ? Date.parse(value) : Number.NaN
   return Number.isFinite(timestamp) ? timestamp : Number.NEGATIVE_INFINITY
+}
+
+function membershipResourceKey(row) {
+  const hasArticle = cleanText(row?.article_id)
+  const hasInfographic = cleanText(row?.infographic_id)
+  if (Boolean(hasArticle) === Boolean(hasInfographic)) return ''
+  return hasArticle ? `article:${hasArticle}` : `infographic:${hasInfographic}`
+}
+
+function normalizeMembershipPosition(value) {
+  return Number.isInteger(value) && value > 0 ? value : null
+}
+
+function sortMemberships(memberships) {
+  return [...memberships].sort((left, right) => (
+    left.name.localeCompare(right.name, undefined, { sensitivity: 'base' })
+    || left.slug.localeCompare(right.slug)
+    || String(left.membershipId).localeCompare(String(right.membershipId))
+  ))
+}
+
+function getSeriesMembership(resource, slug) {
+  return (Array.isArray(resource?.seriesMemberships) ? resource.seriesMemberships : [])
+    .find((membership) => membership.slug === slug)
 }

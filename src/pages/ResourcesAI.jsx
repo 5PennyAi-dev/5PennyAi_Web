@@ -23,12 +23,8 @@ import {
   normalizeResourceFormat,
   RESOURCE_FORMATS,
 } from '@/lib/publicResourceCatalog'
-import {
-  groupResourcesBySeries,
-  selectFeaturedSeries,
-} from '@/lib/resourceSeries'
+import { selectFeaturedSeries } from '@/lib/resourceSeries'
 import { findResourceTopic, getAvailableResourceTopics } from '@/lib/resourceTopics'
-import { attachSeriesThumbnails } from '@/lib/seriesThumbnails'
 import {
   isPromptCategory,
   PROMPT_CATEGORIES,
@@ -43,12 +39,8 @@ export default function ResourcesAI() {
   const [resources, setResources] = useState([])
   const [articles, setArticles] = useState([])
   const [prompts, setPrompts] = useState([])
-  const [seriesThumbnailRows, setSeriesThumbnailRows] = useState([])
+  const [series, setSeries] = useState([])
   const [state, setState] = useState('loading')
-  const series = useMemo(
-    () => attachSeriesThumbnails(groupResourcesBySeries(resources), seriesThumbnailRows),
-    [resources, seriesThumbnailRows],
-  )
   const isSeriesView = searchParams.get('vue') === 'series'
   const selectedSeriesSlug = isSeriesView ? '' : searchParams.get('serie') || ''
   const rawFormat = searchParams.get('format') || ''
@@ -107,7 +99,7 @@ export default function ResourcesAI() {
       setResources(catalog.resources)
       setArticles(catalog.articles)
       setPrompts(catalog.prompts)
-      setSeriesThumbnailRows(catalog.seriesCovers)
+      setSeries(catalog.series)
       setState('ready')
     } catch (error) {
       console.error('Unable to load published resources:', error.message)
@@ -124,7 +116,7 @@ export default function ResourcesAI() {
           setResources(catalog.resources)
           setArticles(catalog.articles)
           setPrompts(catalog.prompts)
-          setSeriesThumbnailRows(catalog.seriesCovers)
+          setSeries(catalog.series)
           setState('ready')
         }
       })
@@ -729,7 +721,7 @@ function ResourcesView({
           </div>
         </div>
 
-        <ResourceGrid resources={resources} t={t} />
+        <ResourceGrid resources={resources} selectedSeriesSlug={selectedSeriesSlug} t={t} />
       </section>
     </>
   )
@@ -812,6 +804,11 @@ function FeaturedSeries({ series, t }) {
           >
             {series.name}
           </h2>
+          {series.description && (
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75">
+              {series.description}
+            </p>
+          )}
           <div className="mt-5 flex flex-wrap gap-2 text-sm font-semibold text-white/80">
             <span className="rounded-full bg-white/10 px-3 py-1.5">
               {t('resourcesAi.catalog.episodeCount', { count: series.episodeCount })}
@@ -870,7 +867,7 @@ function SeriesView({ onShowResources, series, t }) {
         className="grid gap-7 md:grid-cols-2"
       >
         {series.map((item) => (
-          <li key={item.name}>
+          <li key={item.id}>
             <SeriesCard series={item} t={t} />
           </li>
         ))}
@@ -892,6 +889,11 @@ function SeriesCard({ series, t }) {
         <h2 className="mt-3 font-heading text-2xl font-bold leading-tight text-navy">
           {series.name}
         </h2>
+        {series.description && (
+          <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted">
+            {series.description}
+          </p>
+        )}
         <div className="mt-5 flex flex-wrap gap-2 text-sm font-semibold text-navy/65">
           <span className="rounded-full bg-lavender/35 px-3 py-1.5">
             {t('resourcesAi.catalog.episodeCount', { count: series.episodeCount })}
@@ -915,7 +917,7 @@ function SeriesCard({ series, t }) {
   )
 }
 
-function ResourceGrid({ resources, t }) {
+function ResourceGrid({ resources, selectedSeriesSlug = '', t }) {
   return (
     <ul
       aria-label={t('resourcesAi.catalog.resourceListLabel')}
@@ -925,7 +927,7 @@ function ResourceGrid({ resources, t }) {
         <li key={getPublicResourceKey(resource)}>
           {resource.contentType === 'prompt'
             ? <PromptCard resource={resource} t={t} />
-            : <ResourceCard resource={resource} t={t} />}
+            : <ResourceCard resource={resource} selectedSeriesSlug={selectedSeriesSlug} t={t} />}
         </li>
       ))}
     </ul>

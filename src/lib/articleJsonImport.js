@@ -195,31 +195,12 @@ function analyzeStringField(source, property, target, context, path) {
 
 function analyzeSeries(series, context) {
   if (!isObject(series)) {
-    addWarning('series', 'expectedObject', context)
+    addWarning('series', 'legacySeriesIgnored', context)
     return
   }
 
   collectNestedProperties(series, ['name', 'episodeNumber'], 'series', context)
-  const patch = {}
-  let usable = false
-
-  if (analyzeStringField(series, 'name', patch, context, 'series.name')) usable = true
-  if ('episodeNumber' in series) {
-    if (Number.isInteger(series.episodeNumber)) {
-      patch.episodeNumber = String(series.episodeNumber)
-      usable = true
-      if (series.episodeNumber <= 0) {
-        addWarning('series.episodeNumber', 'expectedPositiveInteger', context)
-      }
-    } else {
-      addWarning('series.episodeNumber', 'expectedInteger', context)
-    }
-  }
-
-  if (usable || Object.keys(series).length === 0) {
-    context.patch.series = patch
-    context.imported.push('series')
-  }
+  addWarning('series', 'legacySeriesIgnored', context)
 }
 
 function analyzeStringArray(value, path, target, context) {

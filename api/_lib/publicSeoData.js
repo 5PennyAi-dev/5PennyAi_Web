@@ -114,27 +114,41 @@ export async function fetchPublishedSitemapRows({ env, fetchImpl = fetch } = {})
   const articleUrl = createPublishedRowsUrl(
     config.url,
     'articles',
-    'slug,series_name,published_at,updated_at,status',
+    'id,slug,published_at,updated_at,status',
   )
   const infographicUrl = createPublishedRowsUrl(
     config.url,
     'infographics',
-    'id,series_name,published_at,updated_at,status',
+    'id,published_at,updated_at,status',
   )
   const promptUrl = createPublishedRowsUrl(
     config.url,
     'prompts',
     'slug,published_at,updated_at,status',
   )
-  const [articleRows, infographicRows, promptRows] = await Promise.all([
+  const seriesUrl = createRowsUrl(
+    config.url,
+    'resource_series',
+    'id,slug',
+  )
+  const membershipUrl = createRowsUrl(
+    config.url,
+    'resource_series_memberships',
+    'series_id,article_id,infographic_id',
+  )
+  const [articleRows, infographicRows, promptRows, seriesRows, membershipRows] = await Promise.all([
     fetchSupabaseJson(articleUrl, config, fetchImpl),
     fetchSupabaseJson(infographicUrl, config, fetchImpl),
     fetchSupabaseJson(promptUrl, config, fetchImpl),
+    fetchSupabaseJson(seriesUrl, config, fetchImpl),
+    fetchSupabaseJson(membershipUrl, config, fetchImpl),
   ])
   return {
     articleRows: articleRows || [],
     infographicRows: infographicRows || [],
+    membershipRows: membershipRows || [],
     promptRows: promptRows || [],
+    seriesRows: seriesRows || [],
   }
 }
 
@@ -196,8 +210,13 @@ async function fetchSupabaseJson(url, config, fetchImpl) {
 }
 
 function createPublishedRowsUrl(baseUrl, table, select) {
-  const url = new URL(`/rest/v1/${table}`, `${baseUrl}/`)
+  const url = createRowsUrl(baseUrl, table, select)
   url.searchParams.set('status', 'eq.published')
+  return url
+}
+
+function createRowsUrl(baseUrl, table, select) {
+  const url = new URL(`/rest/v1/${table}`, `${baseUrl}/`)
   url.searchParams.set('select', select)
   return url
 }

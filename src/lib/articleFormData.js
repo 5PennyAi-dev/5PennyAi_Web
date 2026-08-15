@@ -11,7 +11,6 @@ export function createEmptyArticleForm() {
     theme: '',
     level: '',
     slug: '',
-    series: { name: '', episodeNumber: '' },
     learningObjectives: [],
     prerequisites: [],
     takeaway: '',
@@ -46,10 +45,6 @@ export function articleRowToForm(row = {}) {
     theme: optionalText(row.theme),
     level: optionalText(row.level),
     slug: optionalText(row.slug),
-    series: {
-      name: optionalText(row.series_name),
-      episodeNumber: optionalNumberText(row.episode_number),
-    },
     learningObjectives: stringArray(row.learning_objectives),
     prerequisites: stringArray(row.prerequisites),
     takeaway: optionalText(row.takeaway),
@@ -73,8 +68,6 @@ export function articleFormToDraftPayload(form) {
     summary: emptyStringToNull(form.summary),
     theme: emptyStringToNull(form.theme),
     level: emptyStringToNull(form.level),
-    series_name: emptyStringToNull(form.series?.name),
-    episode_number: optionalInteger(form.series?.episodeNumber),
     learning_objectives: cloneArray(form.learningObjectives),
     prerequisites: cloneArray(form.prerequisites),
     takeaway: emptyStringToNull(form.takeaway),
@@ -95,7 +88,6 @@ export function applyArticleImportPatch(currentForm, patch) {
   return {
     ...currentForm,
     ...patch,
-    series: patch.series ? { ...currentForm.series, ...patch.series } : currentForm.series,
     cover: patch.cover ? { ...currentForm.cover, ...patch.cover } : currentForm.cover,
     seo: patch.seo ? { ...currentForm.seo, ...patch.seo } : currentForm.seo,
   }

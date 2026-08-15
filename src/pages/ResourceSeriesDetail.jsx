@@ -5,10 +5,9 @@ import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import ResourceCard from '@/components/resources/ResourceCard'
 import SeriesArtwork from '@/components/resources/SeriesArtwork'
-import { fetchPublishedCatalog } from '@/lib/publicInfographics'
+import { loadPublishedSeriesBySlug } from '@/lib/publicInfographics'
 import { getPublicResourceKey } from '@/lib/publicResourceCatalog'
-import { findSeriesBySlug, groupResourcesBySeries } from '@/lib/resourceSeries'
-import { attachSeriesThumbnails } from '@/lib/seriesThumbnails'
+import { buildSiteUrl } from '@/lib/siteConfig'
 
 const RESOURCES_PATH = '/ressources-ia'
 const SERIES_VIEW_PATH = '/ressources-ia?vue=series'
@@ -34,16 +33,9 @@ function ResourceSeriesBySlug({ onRetry, seriesSlug }) {
   useEffect(() => {
     let cancelled = false
 
-    fetchPublishedCatalog()
-      .then((catalog) => {
+    loadPublishedSeriesBySlug(seriesSlug)
+      .then((resolvedSeries) => {
         if (cancelled) return
-        const resolvedSeries = findSeriesBySlug(
-          attachSeriesThumbnails(
-            groupResourcesBySeries(catalog.resources),
-            catalog.seriesCovers,
-          ),
-          seriesSlug,
-        )
         setSeries(resolvedSeries)
         setState(resolvedSeries ? 'ready' : 'missing')
       })
@@ -74,6 +66,7 @@ function SeriesContent({ series, t }) {
     <>
       <Helmet>
         <title>{t('resourcesAi.seriesPage.seoTitle', { series: series.name })}</title>
+        <link rel="canonical" href={buildSiteUrl(`/ressources-ia/series/${series.slug}`)} />
         <meta
           name="description"
           content={t('resourcesAi.seriesPage.seoDescription', {
@@ -110,6 +103,16 @@ function SeriesContent({ series, t }) {
               <h1 className="mt-4 max-w-4xl font-heading text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
                 {series.name}
               </h1>
+              {series.description && (
+                <p className="mt-5 max-w-3xl text-base leading-relaxed text-white/80 sm:text-lg">
+                  {series.description}
+                </p>
+              )}
+              {series.objective && (
+                <p className="mt-4 max-w-3xl border-l-2 border-accent-light/70 pl-4 text-sm leading-relaxed text-white/75">
+                  {series.objective}
+                </p>
+              )}
               <div className="mt-6 flex flex-wrap gap-2 text-sm font-semibold text-white/80">
                 <span className="rounded-full bg-white/10 px-3.5 py-1.5">
                   {t('resourcesAi.catalog.episodeCount', { count: series.episodeCount })}
@@ -164,7 +167,12 @@ function SeriesContent({ series, t }) {
             >
               {series.resources.map((resource) => (
                 <li key={getPublicResourceKey(resource)}>
-                  <ResourceCard resource={resource} showSeriesName={false} t={t} />
+                  <ResourceCard
+                    resource={resource}
+                    selectedSeriesSlug={series.slug}
+                    showSeriesName={false}
+                    t={t}
+                  />
                 </li>
               ))}
             </ul>

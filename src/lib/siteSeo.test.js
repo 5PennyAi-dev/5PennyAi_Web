@@ -7,12 +7,21 @@ const INFOGRAPHIC_ID = '11111111-1111-4111-8111-111111111111'
 test('inclut publications, infographie et série non vide, puis exclut les brouillons', () => {
   const entries = buildSitemapEntries({
     articleRows: [
-      { slug: 'article-public', status: 'published', series_name: 'Série mixte', updated_at: '2026-08-02T00:00:00Z' },
-      { slug: 'article-brouillon', status: 'draft', series_name: 'Série vide' },
+      { id: 'article-public-id', slug: 'article-public', status: 'published', updated_at: '2026-08-02T00:00:00Z' },
+      { id: 'article-draft-id', slug: 'article-brouillon', status: 'draft' },
       { slug: 'article-retire', status: 'archived' },
     ],
     infographicRows: [
-      { id: INFOGRAPHIC_ID, status: 'published', series_name: 'Série mixte', published_at: '2026-08-01T00:00:00Z' },
+      { id: INFOGRAPHIC_ID, status: 'published', published_at: '2026-08-01T00:00:00Z' },
+    ],
+    seriesRows: [
+      { id: 'series-mixed', slug: 'slug-stable' },
+      { id: 'series-empty', slug: 'serie-vide' },
+    ],
+    membershipRows: [
+      { series_id: 'series-mixed', article_id: 'article-public-id' },
+      { series_id: 'series-mixed', infographic_id: INFOGRAPHIC_ID },
+      { series_id: 'series-empty', article_id: 'article-draft-id' },
     ],
     promptRows: [
       { slug: 'prompt-public', status: 'published', updated_at: '2026-08-03T00:00:00Z' },
@@ -23,7 +32,7 @@ test('inclut publications, infographie et série non vide, puis exclut les broui
   const urls = entries.map(({ url }) => url)
   assert.ok(urls.includes('https://5pennyai.com/ressources-ia/articles/article-public'))
   assert.ok(urls.includes(`https://5pennyai.com/ressources-ia/infographies/${INFOGRAPHIC_ID}`))
-  assert.ok(urls.includes('https://5pennyai.com/ressources-ia/series/serie-mixte'))
+  assert.ok(urls.includes('https://5pennyai.com/ressources-ia/series/slug-stable'))
   assert.ok(urls.includes('https://5pennyai.com/ressources-ia/prompts/prompt-public'))
   assert.ok(!urls.some((url) => url.includes('brouillon') || url.includes('serie-vide')))
   assert.ok(!urls.some((url) => url.includes('/admin') || url.includes('?') || url.includes('#')))

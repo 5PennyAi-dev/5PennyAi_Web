@@ -17,7 +17,7 @@ import AdminGuard from '@/components/admin/AdminGuard'
 import ArticleAssetField from '@/components/admin/resources/ArticleAssetField'
 import ArticlePreview from '@/components/admin/resources/ArticlePreview'
 import AdminResourcesNav from '@/components/admin/resources/AdminResourcesNav'
-import SeriesThumbnailField from '@/components/admin/resources/SeriesThumbnailField'
+import ResourceSeriesMembershipsField from '@/components/admin/resources/ResourceSeriesMembershipsField'
 import ResourceSocialPostsPanel from '@/components/admin/ResourceSocialPostsPanel'
 import Card from '@/components/ui/Card'
 import {
@@ -42,7 +42,6 @@ import {
   fetchArticleAssets,
   resolveArticleAssets,
 } from '@/lib/articleAssets'
-import { shouldShowSeriesThumbnailField } from '@/lib/seriesThumbnails'
 import { buildArticleCanonicalUrl } from '@/lib/articleSeo'
 import { buildDefaultSocialImageUrl } from '@/lib/siteConfig'
 import { getResourceSocialDisabledReason } from '@/lib/resourceSocialPosts'
@@ -97,7 +96,6 @@ function AdminArticleFormPage() {
   const [assetLoadError, setAssetLoadError] = useState(false)
   const [coverPath, setCoverPath] = useState(null)
   const [infographicPath, setInfographicPath] = useState(null)
-  const [persistedSeriesName, setPersistedSeriesName] = useState('')
   const slugManuallyEdited = useRef(editing)
 
   const dirty = JSON.stringify(form) !== baseline
@@ -135,7 +133,6 @@ function AdminArticleFormPage() {
         setBaseline(JSON.stringify(next))
         setCoverPath(row.cover_path || null)
         setInfographicPath(row.infographic_path || null)
-        setPersistedSeriesName(next.series.name)
         try {
           const persistedAssets = await fetchArticleAssets(id)
           const urls = await createArticleAssetUrls({
@@ -309,7 +306,6 @@ function AdminArticleFormPage() {
       slugManuallyEdited.current = true
       setForm(next)
       setBaseline(JSON.stringify(next))
-      setPersistedSeriesName(next.series.name)
       setNotice({ type: 'success', text: t('admin.resourcesAi.articleForm.messages.saved') })
       if (!editing) navigate(`${ARTICLES_PATH}/${row.id}/modifier`, { replace: true })
     } catch (error) {
@@ -428,6 +424,10 @@ function AdminArticleFormPage() {
                   </div>
                 )}
 
+                <FormSection number="3" title={t('admin.resourcesAi.memberships.title')}>
+                  <ResourceSeriesMembershipsField resourceId={id} resourceType="article" />
+                </FormSection>
+
                 <fieldset disabled={publishedLocked} className="space-y-6 disabled:opacity-80">
 
                 {!publishedLocked && <FormSection number="1" title={t('admin.resourcesAi.articleForm.sections.import')}>
@@ -495,13 +495,6 @@ function AdminArticleFormPage() {
                       }}
                       onBlur={() => setForm((current) => ({ ...current, slug: slugifyArticle(current.slug) }))}
                     />
-                  </div>
-                </FormSection>
-
-                <FormSection number="3" title={t('admin.resourcesAi.articleForm.sections.series')}>
-                  <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
-                    <Field label={t('admin.resourcesAi.articleForm.fields.seriesName')} value={form.series.name} onChange={(value) => updateNested('series', 'name', value)} />
-                    <Field label={t('admin.resourcesAi.articleForm.fields.episodeNumber')} type="number" step="1" value={form.series.episodeNumber} onChange={(value) => updateNested('series', 'episodeNumber', value)} />
                   </div>
                 </FormSection>
 
@@ -746,19 +739,6 @@ function AdminArticleFormPage() {
                   />
                 </FormSection>
                 </fieldset>
-
-                {shouldShowSeriesThumbnailField(form.series.name) && (
-                  <FormSection number="14" title={t('admin.resourcesAi.articleForm.sections.seriesCover')}>
-                    <SeriesThumbnailField
-                      currentSeriesName={form.series.name}
-                      fallbackUrl={coverPath ? assetUrls[coverPath] : null}
-                      persistedSeriesName={persistedSeriesName}
-                      resourceSaved={editing}
-                      saveFirstMessage={t('admin.resourcesAi.articleForm.seriesCover.saveFirst')}
-                      t={t}
-                    />
-                  </FormSection>
-                )}
 
                 <FormSection number="15" title={t('admin.resourcesAi.socialPosts.title')}>
                   <ResourceSocialPostsPanel

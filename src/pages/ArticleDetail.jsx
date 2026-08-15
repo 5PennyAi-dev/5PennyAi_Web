@@ -14,13 +14,7 @@ import {
   serializeJsonLd,
 } from '@/lib/articleSeo'
 import { loadPublishedArticleBySlug } from '@/lib/publicArticles'
-import { fetchPublishedSeriesResources } from '@/lib/publicInfographics'
-import {
-  createSeriesSlug,
-  findSeriesBySlug,
-  getAdjacentEpisodes,
-  groupResourcesBySeries,
-} from '@/lib/resourceSeries'
+import { loadPublishedSeriesNavigation } from '@/lib/publicInfographics'
 
 const RESOURCES_PATH = '/ressources-ia'
 
@@ -32,7 +26,7 @@ export default function ArticleDetail() {
 function ArticleDetailBySlug({ slug }) {
   const { t, i18n } = useTranslation()
   const [result, setResult] = useState({ state: 'loading' })
-  const [seriesContext, setSeriesContext] = useState(null)
+  const [seriesContexts, setSeriesContexts] = useState([])
 
   useEffect(() => {
     let cancelled = false
@@ -41,22 +35,12 @@ function ArticleDetailBySlug({ slug }) {
         if (cancelled) return
         setResult(next)
         const article = next.state === 'found' ? next.article : null
-        if (!article?.series?.name) return
+        if (!article) return
 
-        fetchPublishedSeriesResources(article.series.name)
-          .then((resources) => {
+        loadPublishedSeriesNavigation({ contentType: 'article', id: article.id })
+          .then((contexts) => {
             if (cancelled) return
-            const series = findSeriesBySlug(
-              groupResourcesBySeries(resources),
-              createSeriesSlug(article.series.name),
-            )
-            const current = { contentType: 'article', id: article.id }
-            if (!series || !series.resources.some((resource) =>
-              resource.id === current.id && resource.contentType === current.contentType)) return
-            setSeriesContext({
-              series,
-              ...getAdjacentEpisodes(series.resources, current),
-            })
+            setSeriesContexts(contexts)
           })
           .catch((error) => {
             console.warn('Unable to load article series navigation:', error.message)
@@ -76,10 +60,10 @@ function ArticleDetailBySlug({ slug }) {
     return <UnavailableState isError t={t} />
   }
 
-  return <ArticleContent result={result} seriesContext={seriesContext} t={t} locale={i18n.language?.startsWith('en') ? 'en-CA' : 'fr-CA'} />
+  return <ArticleContent result={result} seriesContexts={seriesContexts} t={t} locale={i18n.language?.startsWith('en') ? 'en-CA' : 'fr-CA'} />
 }
 
-export function ArticleContent({ result, seriesContext, t, locale }) {
+export function ArticleContent({ result, seriesContexts, t, locale }) {
   const { article, assets, assetUrls, coverUrl, infographic } = result
   const [coverFailed, setCoverFailed] = useState(false)
   const title = article.title || t('resourcesAi.article.fallbackTitle')
@@ -89,7 +73,7 @@ export function ArticleContent({ result, seriesContext, t, locale }) {
   const readingTime = calculateArticleReadingTime(article.contentMarkdown)
   const publishedDate = formatDate(article.publishedAt, locale)
   const level = article.level ? t(`resourcesAi.levels.${article.level}`, { defaultValue: article.level }) : ''
-  const series = formatSeries(article, t)
+  const series = formatSeriesContexts(seriesContexts, t)
 
   return (
     <>
@@ -158,7 +142,7 @@ export function ArticleContent({ result, seriesContext, t, locale }) {
                 {coverUrl && !coverFailed ? <img src={coverUrl} alt={article.cover?.altText || ''} onError={() => setCoverFailed(true)} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center bg-lavender/25 text-navy/35"><ImageIcon size={52} strokeWidth={1.3} aria-hidden="true" /></div>}
               </div>
             </div>
-            {seriesContext && <SeriesNavigation context={seriesContext} placement="sides" t={t} />}
+            {seriesContexts.length === 1 && <SeriesNavigation contexts={seriesContexts} placement="sides" t={t} />}
           </div>
 
           {(article.learningObjectives.length > 0 || article.prerequisites.length > 0) && (
@@ -172,7 +156,7 @@ export function ArticleContent({ result, seriesContext, t, locale }) {
             <ArticleMarkdownContent assets={assets} assetUrls={assetUrls} companionInfographic={infographic} form={article} mode="public" t={t} />
           </div>
 
-          {seriesContext && <SeriesNavigation context={seriesContext} t={t} />}
+          {seriesContexts.length > 0 && <SeriesNavigation contexts={seriesContexts} t={t} />}
 
           <div className="mt-10 text-center">
             <Link to={RESOURCES_PATH} className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-navy hover:border-accent hover:text-accent-deep"><ArrowLeft size={16} aria-hidden="true" />{t('resourcesAi.article.back')}</Link>
@@ -196,9 +180,17 @@ function UnavailableState({ isError = false, t }) {
   return <><Helmet><title>{t('resourcesAi.article.unavailableSeoTitle')}</title><meta name="robots" content="noindex, nofollow" /></Helmet><section className="flex min-h-[75vh] items-center bg-warm-gray pt-24 pb-20"><div className="mx-auto max-w-xl px-4 text-center sm:px-6"><BookOpenText size={30} className="mx-auto text-steel" aria-hidden="true" /><h1 className="mt-5 text-3xl font-bold text-navy">{isError ? t('resourcesAi.article.errorTitle') : t('resourcesAi.article.unavailableTitle')}</h1><p className="mt-4 leading-relaxed text-muted">{isError ? t('resourcesAi.article.errorDescription') : t('resourcesAi.article.unavailableDescription')}</p><Link to={RESOURCES_PATH} className="mt-8 inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-deep"><ArrowLeft size={16} aria-hidden="true" />{t('resourcesAi.article.back')}</Link></div></section></>
 }
 
-function formatSeries(article, t) {
-  const episode = Number.isInteger(article.series?.episodeNumber) && article.series.episodeNumber > 0 ? t('resourcesAi.episode', { number: article.series.episodeNumber }) : ''
-  return [article.series?.name, episode].filter(Boolean).join(' · ')
+function formatSeriesContexts(contexts, t) {
+  if (!Array.isArray(contexts) || contexts.length === 0) return ''
+  const [first] = contexts
+  const position = first.membership?.position
+  const episode = Number.isInteger(position) && position > 0
+    ? t('resourcesAi.episode', { number: position })
+    : ''
+  const suffix = contexts.length > 1
+    ? t('resourcesAi.catalog.additionalSeries', { count: contexts.length - 1 })
+    : ''
+  return [first.series.name, episode, suffix].filter(Boolean).join(' · ')
 }
 
 function formatDate(value, locale) {

@@ -16,7 +16,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
 import InfographicThumbnailField from '@/components/admin/resources/InfographicThumbnailField'
-import SeriesThumbnailField from '@/components/admin/resources/SeriesThumbnailField'
+import ResourceSeriesMembershipsField from '@/components/admin/resources/ResourceSeriesMembershipsField'
 import ResourceSocialPostsPanel from '@/components/admin/ResourceSocialPostsPanel'
 import {
   hasInfographicMetadata,
@@ -46,15 +46,13 @@ const IMPORT_FIELD_TRANSLATION_KEYS = {
   theme: 'fields.theme',
   level: 'fields.level',
   readingTimeMinutes: 'fields.readingTime',
-  'series.name': 'fields.seriesName',
-  'series.episodeNumber': 'fields.episodeNumber',
   keyPoints: 'sections.keyPoints',
   takeaway: 'sections.takeaway',
   keywords: 'sections.keywords',
   sources: 'sections.sources',
 }
 const EDIT_COLUMNS =
-  'id, status, published_at, image_path, image_metadata, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, series_name, episode_number, key_points, takeaway, keywords, sources'
+  'id, status, published_at, image_path, image_metadata, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, key_points, takeaway, keywords, sources'
 
 const EMPTY_FORM = {
   title: '',
@@ -65,8 +63,6 @@ const EMPTY_FORM = {
   theme: '',
   level: '',
   reading_time_minutes: '',
-  series_name: '',
-  episode_number: '',
   key_points: [],
   takeaway: '',
   keywords: '',
@@ -90,7 +86,6 @@ function AdminInfographicFormPage() {
   const [publishedAt, setPublishedAt] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [persistedTitle, setPersistedTitle] = useState('')
-  const [persistedSeriesName, setPersistedSeriesName] = useState('')
   const [imagePath, setImagePath] = useState(null)
   const [imageMetadata, setImageMetadata] = useState(null)
   const [pendingImage, setPendingImage] = useState(null)
@@ -149,7 +144,6 @@ function AdminInfographicFormPage() {
         setImagePath(data.image_path)
         setImageMetadata(data.image_metadata)
         setThumbnailPath(data.thumbnail_path)
-        setPersistedSeriesName(data.series_name || '')
         setPersistedTitle(data.title || '')
         setForm(toFormState(data))
         setDirty(false)
@@ -563,7 +557,6 @@ function AdminInfographicFormPage() {
       setImagePath(nextImagePath)
       setImageMetadata(nextImageMetadata)
       setThumbnailPath(nextThumbnailPath)
-      setPersistedSeriesName(editorial.series_name || '')
       setPersistedTitle(editorial.title || '')
       setPendingImage(null)
       setRemoveImage(false)
@@ -792,39 +785,10 @@ function AdminInfographicFormPage() {
 
             <FormSection
               number="6"
-              title={t('admin.resourcesAi.infographicForm.sections.series')}
+              title={t('admin.resourcesAi.memberships.title')}
             >
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  label={t('admin.resourcesAi.infographicForm.fields.seriesName')}
-                  value={form.series_name}
-                  onChange={(value) => updateField('series_name', value)}
-                />
-                <Field
-                  min="0"
-                  step="1"
-                  type="number"
-                  label={t('admin.resourcesAi.infographicForm.fields.episodeNumber')}
-                  value={form.episode_number}
-                  onChange={(value) => updateField('episode_number', value)}
-                />
-              </div>
+              <ResourceSeriesMembershipsField resourceId={resourceId} resourceType="infographic" />
             </FormSection>
-
-            {resourceId && persistedSeriesName && (
-              <FormSection
-                number="7"
-                title={t('admin.resourcesAi.infographicForm.sections.seriesThumbnail')}
-              >
-                <SeriesThumbnailField
-                  currentSeriesName={form.series_name}
-                  fallbackUrl={existingThumbnailUrl || existingImageUrl}
-                  persistedSeriesName={persistedSeriesName}
-                  resourceSaved={Boolean(resourceId)}
-                  t={t}
-                />
-              </FormSection>
-            )}
 
             <RepeatableSection
               number="8"
@@ -1462,8 +1426,6 @@ function toFormState(data) {
     theme: data.theme || '',
     level: ['beginner', 'intermediate', 'advanced'].includes(data.level) ? data.level : '',
     reading_time_minutes: data.reading_time_minutes?.toString() || '',
-    series_name: data.series_name || '',
-    episode_number: data.episode_number?.toString() || '',
     key_points: Array.isArray(data.key_points) ? data.key_points : [],
     takeaway: data.takeaway || '',
     keywords: Array.isArray(data.keywords) ? data.keywords.join(', ') : '',
@@ -1481,8 +1443,6 @@ function toDatabasePayload(form) {
     theme: emptyToNull(form.theme),
     level: emptyToNull(form.level),
     reading_time_minutes: optionalInteger(form.reading_time_minutes),
-    series_name: emptyToNull(form.series_name),
-    episode_number: optionalInteger(form.episode_number),
     key_points: form.key_points,
     takeaway: emptyToNull(form.takeaway),
     keywords: [...new Set(form.keywords.split(',').map((item) => item.trim()).filter(Boolean))],

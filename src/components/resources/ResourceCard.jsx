@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import { ArrowRight, BookOpenText, Clock3, Image as ImageIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { getResourceSeriesDisplay } from '@/lib/publicResourceCatalog'
 
-export default function ResourceCard({ resource, showSeriesName = true, t }) {
+export default function ResourceCard({ resource, selectedSeriesSlug = '', showSeriesName = true, t }) {
   const title = resource.title || formatFallbackTitle(resource, t)
-  const seriesName = cleanText(resource.seriesName)
-  const episodeNumber = formatEpisodeNumber(resource.episodeNumber)
+  const { additionalCount, membership, position } = getResourceSeriesDisplay(
+    resource,
+    selectedSeriesSlug,
+  )
+  const seriesName = cleanText(membership?.name)
+  const episodeNumber = formatEpisodeNumber(position)
   const episodeLabel = seriesName && episodeNumber
     ? t('resourcesAi.episode', { number: episodeNumber })
     : ''
@@ -31,6 +36,14 @@ export default function ResourceCard({ resource, showSeriesName = true, t }) {
           <div className="flex flex-wrap items-center gap-2">
             {showSeriesName && seriesName && (
               <p className="min-w-0 text-xs font-bold leading-snug text-navy/70">{seriesName}</p>
+            )}
+            {additionalCount > 0 && (
+              <span
+                aria-label={t('resourcesAi.catalog.additionalSeriesLabel', { count: additionalCount })}
+                className="shrink-0 rounded-full bg-lavender/35 px-2.5 py-1 text-[11px] font-bold text-navy/70"
+              >
+                {t('resourcesAi.catalog.additionalSeries', { count: additionalCount })}
+              </span>
             )}
             {episodeLabel && (
               <span className="shrink-0 rounded-full bg-steel/18 px-2.5 py-1 text-[11px] font-bold tracking-wide text-navy">

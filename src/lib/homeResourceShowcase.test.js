@@ -15,8 +15,6 @@ test('sélectionne la série active et les ressources les plus récentes de chaq
         id: 'info-new',
         status: 'published',
         title: 'Infographie récente',
-        series_name: 'Fondations IA',
-        episode_number: 2,
         published_at: '2026-08-03T00:00:00Z',
         thumbnail_path: 'thumbnails/infographics/info-new/card.webp',
       },
@@ -33,8 +31,6 @@ test('sélectionne la série active et les ressources les plus récentes de chaq
         status: 'published',
         slug: 'article-recent',
         title: 'Article récent',
-        series_name: 'Fondations IA',
-        episode_number: 1,
         published_at: '2026-08-04T00:00:00Z',
         cover_path: 'articles/article-new/cover/card.webp',
       },
@@ -43,11 +39,13 @@ test('sélectionne la série active et les ressources les plus récentes de chaq
       coverRequests.push(...rows.map(({ id }) => id))
       return { 'article-new': 'signed:article-new' }
     },
-    fetchSeriesCovers: async (slugs) => [
-      {
-        slug: slugs[0],
-        thumbnail_path: 'thumbnails/series/fondations-ia/cover.webp',
-      },
+    fetchSeries: async () => [{
+      id: 'foundations', slug: 'fondations-ia', name: 'Fondations IA',
+      thumbnail_path: 'thumbnails/series/fondations-ia/cover.webp',
+    }],
+    fetchMemberships: async () => [
+      { id: 'ma', series_id: 'foundations', article_id: 'article-new', position: 1 },
+      { id: 'mi', series_id: 'foundations', infographic_id: 'info-new', position: 2 },
     ],
     getInfographicImageUrl: (path) => 'public:' + path,
   })
@@ -91,7 +89,8 @@ test('remplace le format absent par une autre ressource publiée sans espace vid
       },
     ],
     fetchArticleCovers: async () => ({}),
-    fetchSeriesCovers: async () => [],
+    fetchSeries: async () => [],
+    fetchMemberships: async () => [],
     logger: { warn() {} },
   })
 
@@ -119,6 +118,8 @@ test('échoue seulement lorsque les deux lectures publiques échouent', async ()
       fetchArticles: async () => {
         throw new Error('articles unavailable')
       },
+      fetchSeries: async () => [],
+      fetchMemberships: async () => [],
       logger: { warn() {} },
     }),
     /Unable to load public resources/,

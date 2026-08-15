@@ -12,12 +12,12 @@ export function createSeriesSlug(value) {
     .replace(/^-+|-+$/g, '')
 }
 
-export function sortSeriesEpisodes(resources) {
+export function sortSeriesEpisodes(resources, seriesReference = '') {
   if (!Array.isArray(resources)) return []
 
   return [...resources].sort((left, right) => {
-    const leftEpisode = getValidEpisodeNumber(getEpisodeNumber(left))
-    const rightEpisode = getValidEpisodeNumber(getEpisodeNumber(right))
+    const leftEpisode = getMembershipPosition(left, seriesReference)
+    const rightEpisode = getMembershipPosition(right, seriesReference)
 
     if (leftEpisode !== null && rightEpisode === null) return -1
     if (leftEpisode === null && rightEpisode !== null) return 1
@@ -50,20 +50,26 @@ export function groupResourcesBySeries(resources) {
   const groups = new Map()
 
   resources.forEach((resource) => {
-    const name = getSeriesName(resource)
-    if (!name) return
-
-    const groupedResources = groups.get(name) || []
-    groupedResources.push(resource)
-    groups.set(name, groupedResources)
+    for (const membership of getMemberships(resource)) {
+      if (!membership.seriesId || !membership.slug || !membership.name) continue
+      const group = groups.get(membership.seriesId) || {
+        id: membership.seriesId,
+        slug: membership.slug,
+        name: membership.name,
+        resources: [],
+      }
+      group.resources.push(resource)
+      groups.set(membership.seriesId, group)
+    }
   })
 
-  const series = Array.from(groups, ([name, groupedResources]) => {
-    const orderedResources = sortSeriesEpisodes(groupedResources)
+  const series = Array.from(groups.values(), (group) => {
+    const orderedResources = sortSeriesEpisodes(group.resources, group.id)
 
     return {
-      name,
-      slug: createSeriesSlug(name),
+      id: group.id,
+      name: group.name,
+      slug: group.slug,
       resources: orderedResources,
       episodeCount: orderedResources.length,
       latestActivity: getLatestActivity(orderedResources),
@@ -74,6 +80,55 @@ export function groupResourcesBySeries(resources) {
   })
 
   return sortSeriesByActivity(series)
+}
+
+export function buildPublicSeries(seriesRows, resources) {
+  const publishedResources = Array.isArray(resources) ? resources : []
+  const rows = Array.isArray(seriesRows) ? seriesRows : []
+
+  return sortSeriesByActivity(rows.flatMap((row) => {
+    const id = cleanText(row?.id)
+    const slug = cleanText(row?.slug)
+    const name = cleanText(row?.name)
+    if (!id || !slug || !name) return []
+
+    const members = publishedResources.filter((resource) =>
+      getMemberships(resource).some((membership) => membership.seriesId === id))
+    if (members.length === 0) return []
+
+    const orderedResources = sortSeriesEpisodes(members, id)
+    return [{
+      id,
+      slug,
+      name,
+      description: cleanText(row.description),
+      objective: cleanText(row.objective),
+      thumbnailPath: cleanText(row.thumbnail_path) || null,
+      resources: orderedResources,
+      episodeCount: orderedResources.length,
+      latestActivity: getLatestActivity(orderedResources),
+      commonLevel: getCommonSeriesLevel(orderedResources),
+      firstEpisode: orderedResources[0] || null,
+      previews: orderedResources.slice(0, 3),
+    }]
+  }))
+}
+
+export function buildSeriesNavigationContexts(series, currentResource) {
+  if (!Array.isArray(series)) return []
+
+  return series.flatMap((item) => {
+    const membership = getMemberships(currentResource)
+      .find((candidate) => candidate.seriesId === item?.id)
+    if (!membership) return []
+    const hasCurrent = item.resources?.some((resource) => matchesCurrentResource(resource, currentResource))
+    if (!hasCurrent) return []
+    return [{
+      series: item,
+      membership,
+      ...getAdjacentEpisodes(item.resources, currentResource),
+    }]
+  })
 }
 
 export function sortSeriesByActivity(series) {
@@ -120,25 +175,29 @@ export function getAdjacentEpisodes(orderedEpisodes, currentResource) {
   }
 }
 
-function getSeriesName(resource) {
-  const value = resource?.seriesName ?? resource?.series_name
-  return typeof value === 'string' ? value.trim() : ''
-}
-
-function getEpisodeNumber(resource) {
-  return resource?.episodeNumber ?? resource?.episode_number
-}
-
 function getPublishedAt(resource) {
   return resource?.publishedAt ?? resource?.published_at
 }
 
-function getValidEpisodeNumber(value) {
-  return Number.isInteger(value) && value > 0 ? value : null
-}
-
 function getTitle(resource) {
   return typeof resource?.title === 'string' ? resource.title.trim() : ''
+}
+
+function getMemberships(resource) {
+  return Array.isArray(resource?.seriesMemberships) ? resource.seriesMemberships : []
+}
+
+function getMembershipPosition(resource, reference) {
+  const membership = getMemberships(resource).find((item) => (
+    reference ? item.seriesId === reference || item.slug === reference : true
+  ))
+  return Number.isInteger(membership?.position) && membership.position > 0
+    ? membership.position
+    : null
+}
+
+function cleanText(value) {
+  return typeof value === 'string' ? value.trim() : ''
 }
 
 function compareDatesAscending(left, right) {

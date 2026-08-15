@@ -8,7 +8,6 @@ import {
   collectSeriesReferences,
   generateAndStoreSeriesThumbnail,
   getEpisodeReferenceCandidates,
-  resolveSeriesName,
   selectRepresentativeEpisodes,
   validateSeriesSlug,
 } from './seriesThumbnail.js'
@@ -24,14 +23,14 @@ const GENERATED = await sharp({
 }).webp().toBuffer()
 
 test('sélectionne un, deux ou trois épisodes dans leur ordre centralisé', () => {
-  assert.deepEqual(selectRepresentativeEpisodes(makeEpisodes(1)).map(({ episode_number }) => episode_number), [1])
-  assert.deepEqual(selectRepresentativeEpisodes(makeEpisodes(2).reverse()).map(({ episode_number }) => episode_number), [1, 2])
-  assert.deepEqual(selectRepresentativeEpisodes(makeEpisodes(3).reverse()).map(({ episode_number }) => episode_number), [1, 2, 3])
+  assert.deepEqual(selectRepresentativeEpisodes(makeEpisodes(1)).map(getPosition), [1])
+  assert.deepEqual(selectRepresentativeEpisodes(makeEpisodes(2).reverse()).map(getPosition), [1, 2])
+  assert.deepEqual(selectRepresentativeEpisodes(makeEpisodes(3).reverse()).map(getPosition), [1, 2, 3])
 })
 
 test('répartit quatre références dans toute la série au-delà de la limite', () => {
   assert.deepEqual(
-    selectRepresentativeEpisodes(makeEpisodes(6)).map(({ episode_number }) => episode_number),
+    selectRepresentativeEpisodes(makeEpisodes(6)).map(getPosition),
     [1, 3, 4, 6],
   )
 })
@@ -41,7 +40,7 @@ test('priorise les épisodes publiés et complète avec des brouillons seulement
     ...episode,
     status: index === 1 || index === 4 ? 'published' : 'draft',
   }))
-  assert.deepEqual(selectRepresentativeEpisodes(mixed).map(({ episode_number }) => episode_number), [1, 2, 5, 6])
+  assert.deepEqual(selectRepresentativeEpisodes(mixed).map(getPosition), [1, 2, 5, 6])
   assert.equal(selectRepresentativeEpisodes(mixed.map((episode) => ({ ...episode, status: 'draft' }))).length, 4)
 
   const enoughPublished = makeEpisodes(6).map((episode, index) => ({
@@ -49,7 +48,7 @@ test('priorise les épisodes publiés et complète avec des brouillons seulement
     status: index < 5 ? 'published' : 'draft',
   }))
   assert.deepEqual(
-    selectRepresentativeEpisodes(enoughPublished).map(({ episode_number }) => episode_number),
+    selectRepresentativeEpisodes(enoughPublished).map(getPosition),
     [1, 2, 4, 5],
   )
 })
@@ -72,14 +71,14 @@ test('équilibre les articles et les infographies dans une série mixte', () => 
     ...makeEpisodes(5),
     ...makeArticleEpisodes(5).map((episode) => ({
       ...episode,
-      episode_number: episode.episode_number + 5,
+      seriesMemberships: [{ ...episode.seriesMemberships[0], position: getPosition(episode) + 5 }],
     })),
   ]
   const selected = selectRepresentativeEpisodes(episodes)
   assert.equal(selected.length, 4)
   assert.equal(selected.filter(({ contentType }) => contentType === 'article').length, 2)
   assert.equal(selected.filter(({ contentType }) => contentType === 'infographic').length, 2)
-  assert.deepEqual(selected.map(({ episode_number }) => episode_number), [1, 5, 6, 10])
+  assert.deepEqual(selected.map(getPosition), [1, 5, 6, 10])
 })
 
 test('ignore les épisodes sans asset de référence avant la sélection', () => {
@@ -87,30 +86,12 @@ test('ignore les épisodes sans asset de référence avant la sélection', () =>
     index === 2 ? { ...episode, cover_path: null } : episode)
   const selected = selectRepresentativeEpisodes(episodes)
   assert.equal(selected.length, 4)
-  assert.equal(selected.some(({ episode_number }) => episode_number === 3), false)
+  assert.equal(selected.some((episode) => getPosition(episode) === 3), false)
 })
 
-test('résout un nom réel depuis le slug et refuse les collisions', () => {
+test('valide strictement le slug persistant', () => {
   assert.equal(validateSeriesSlug('serie-test'), true)
   assert.equal(validateSeriesSlug('../serie-test'), false)
-  assert.equal(resolveSeriesName({
-    seriesSlug: 'serie-test',
-    existingSeries: null,
-    articleRows: [{ series_name: 'Série test' }],
-    infographicRows: [],
-  }), 'Série test')
-  assert.throws(() => resolveSeriesName({
-    seriesSlug: 'serie-test',
-    existingSeries: null,
-    articleRows: [{ series_name: 'Série test' }],
-    infographicRows: [{ series_name: 'Serie test' }],
-  }), (error) => error.code === 'series_ambiguous')
-  assert.throws(() => resolveSeriesName({
-    seriesSlug: 'inconnue',
-    existingSeries: null,
-    articleRows: [],
-    infographicRows: [],
-  }), (error) => error.code === 'series_not_found')
 })
 
 test('construit le prompt versionné sans données techniques, niveau ni nombre d’épisodes', () => {
@@ -191,7 +172,7 @@ test('refuse une série sans référence utilisable', async () => {
   )
 })
 
-test('téléverse, upsert puis nettoie l’ancienne couverture', async () => {
+test('téléverse, met à jour l’entité persistante puis nettoie l’ancienne couverture', async () => {
   const calls = []
   const result = await generateAndStoreSeriesThumbnail({
     seriesSlug: 'serie-test',
@@ -199,19 +180,19 @@ test('téléverse, upsert puis nettoie l’ancienne couverture', async () => {
   })
   assert.deepEqual(calls, [
     'resolve', 'download', 'download', 'download', 'download', 'generate', 'normalize',
-    'series', 'upload', 'upsert', 'remove:old.webp',
+    'series', 'upload', 'update', 'remove:old.webp',
   ])
   assert.equal(result.referenceCount, 4)
   assert.equal(result.thumbnailPath, 'thumbnails/series/serie-test/new-id.webp')
 })
 
-test('nettoie le nouveau fichier si l’upsert échoue et garde l’ancien actif', async () => {
+test('nettoie le nouveau fichier si la mise à jour échoue et garde l’ancien actif', async () => {
   const calls = []
   await assert.rejects(
     generateAndStoreSeriesThumbnail({
       seriesSlug: 'serie-test',
       dependencies: makeDependencies(calls, {
-        upsertSeries: async () => { calls.push('upsert'); throw new Error('database') },
+        updateSeriesThumbnail: async () => { calls.push('update'); throw new Error('database') },
       }),
     }),
     /database/,
@@ -250,7 +231,7 @@ test('une erreur fournisseur ou d’upload conserve l’ancienne couverture', as
     }),
     /upload/,
   )
-  assert.equal(uploadCalls.includes('upsert'), false)
+  assert.equal(uploadCalls.includes('update'), false)
   assert.equal(uploadCalls.some((call) => call.startsWith?.('remove:')), false)
 })
 
@@ -269,7 +250,7 @@ function makeEpisodes(count) {
     id: IDS[index],
     status: 'published',
     published_at: `2026-01-${String(index + 1).padStart(2, '0')}T00:00:00Z`,
-    episode_number: index + 1,
+    seriesMemberships: [{ seriesId: 'series-1', slug: 'serie-test', name: 'Série test', position: index + 1 }],
     title: `Épisode ${index + 1}`,
     theme: index % 2 ? 'Agents' : 'IA générative',
     thumbnail_path: `thumbnails/infographics/${IDS[index]}/thumbnail.webp`,
@@ -283,7 +264,7 @@ function makeArticleEpisodes(count) {
     id: IDS[index],
     status: 'draft',
     published_at: null,
-    episode_number: index + 1,
+    seriesMemberships: [{ seriesId: 'series-1', slug: 'serie-test', name: 'Série test', position: index + 1 }],
     title: `Article ${index + 1}`,
     theme: index % 2 ? 'Agents' : 'IA générative',
     cover_path: `articles/${IDS[index]}/cover/223e4567-e89b-42d3-a456-42661417400${index}.webp`,
@@ -311,13 +292,16 @@ function makeDependencies(calls, overrides = {}) {
       return { slug: 'serie-test', thumbnail_path: 'thumbnails/series/serie-test/old.webp' }
     },
     uploadThumbnail: async () => calls.push('upload'),
-    upsertSeries: async ({ slug, name, thumbnailPath }) => {
-      calls.push('upsert')
+    updateSeriesThumbnail: async ({ slug, thumbnailPath }) => {
+      calls.push('update')
       assert.equal(slug, 'serie-test')
-      assert.equal(name, 'Série test')
       assert.equal(thumbnailPath, 'thumbnails/series/serie-test/new-id.webp')
     },
     removeThumbnail: async (path) => calls.push(`remove:${path.split('/').at(-1)}`),
     ...overrides,
   }
+}
+
+function getPosition(episode) {
+  return episode.seriesMemberships?.[0]?.position ?? null
 }

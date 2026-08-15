@@ -16,8 +16,6 @@ const CONTEXT = Object.freeze({
   subtitle: '',
   theme: 'IA générative',
   level: 'beginner',
-  seriesName: '',
-  episodeNumber: null,
   mainIdea: 'Le contexte récupéré soutient la génération.',
   supportingContext: 'La récupération précède la réponse.',
 })

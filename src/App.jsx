@@ -22,6 +22,8 @@ import AdminArticles from '@/pages/admin/resources/AdminArticles'
 import AdminArticleForm from '@/pages/admin/resources/AdminArticleForm'
 import AdminPrompts from '@/pages/admin/resources/AdminPrompts'
 import AdminPromptForm from '@/pages/admin/resources/AdminPromptForm'
+import AdminSeries from '@/pages/admin/resources/AdminSeries'
+import AdminSeriesForm from '@/pages/admin/resources/AdminSeriesForm'
 import { initCal } from '@/lib/cal'
 
 function ScrollToTop() {
@@ -114,6 +116,18 @@ function App() {
           <Route
             path="/admin/ressources-ia/prompts/:id/modifier"
             element={<AdminPromptForm />}
+          />
+          <Route
+            path="/admin/ressources-ia/series"
+            element={<AdminSeries />}
+          />
+          <Route
+            path="/admin/ressources-ia/series/nouvelle"
+            element={<AdminSeriesForm />}
+          />
+          <Route
+            path="/admin/ressources-ia/series/:id"
+            element={<AdminSeriesForm />}
           />
         </Routes>
       </main>

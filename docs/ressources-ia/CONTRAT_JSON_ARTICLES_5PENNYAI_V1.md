@@ -102,10 +102,6 @@ Cette exigence concerne le comportement attendu du générateur. Elle ne transfo
   "summary": "Découvrez comment un système RAG recherche des passages pertinents avant de les transmettre à un modèle de langage pour produire une réponse mieux fondée.",
   "theme": "IA générative",
   "level": "beginner",
-  "series": {
-    "name": "Les fondamentaux de l’IA générative",
-    "episodeNumber": 6
-  },
   "learningObjectives": [
     "Comprendre pourquoi un système RAG utilise une source de connaissances externe.",
     "Reconnaître les principales étapes de récupération et de génération.",
@@ -367,59 +363,13 @@ Le niveau décrit les connaissances supposées et la profondeur du contenu. Il n
 
 ---
 
-## 5. Série
+## 5. Associations aux séries
 
-### 5.1 `series`
+Les nouveaux paquets Article ne doivent pas contenir de propriété `series`.
 
-Type attendu :
+Les associations, ainsi que leur position pédagogique, sont gérées directement dans l’administration après l’import.
 
-```text
-objet
-```
-
-Propriétés possibles :
-
-- `name`;
-- `episodeNumber`.
-
-Exemple :
-
-```json
-{
-  "series": {
-    "name": "Les fondamentaux de l’IA générative",
-    "episodeNumber": 6
-  }
-}
-```
-
-### 5.2 `series.name`
-
-Type attendu :
-
-```text
-chaîne de caractères
-```
-
-Le nom doit correspondre exactement à une série existante lorsqu’elle existe déjà.
-
-Le générateur ne doit jamais inventer une série sans instruction ou contexte suffisant.
-
-### 5.3 `series.episodeNumber`
-
-Type attendu :
-
-```text
-nombre entier positif
-```
-
-Le numéro représente la position pédagogique de la ressource dans la série.
-
-Il ne dépend pas du format. Une même série peut contenir des articles et des infographies.
-
-Les deux propriétés sont indépendantes. Un nom sans numéro demeure valide.
-
-Si `series` est absente, l’article est indépendant.
+Pour préserver la rétrocompatibilité, les anciens fichiers peuvent encore contenir une propriété `series`. L’administration la reconnaît comme donnée legacy, l’ignore avec un avertissement et ne modifie aucun membership existant.
 
 ---
 
@@ -1437,7 +1387,6 @@ Le générateur doit vérifier que les éléments suivants décrivent le même a
 - résumé;
 - thème;
 - niveau;
-- série;
 - objectifs;
 - contenu Markdown;
 - message à retenir;
@@ -1455,7 +1404,6 @@ Exemples d’incohérences à éviter :
 - source citée pour une affirmation qu’elle ne soutient pas;
 - meta description promettant un tutoriel alors que l’article reste conceptuel;
 - couverture consacrée aux agents alors que l’article traite des embeddings;
-- numéro d’épisode inventé;
 - graphique utilisant des données absentes des sources.
 
 ---
@@ -1601,7 +1549,6 @@ Même dans ces cas, le formulaire existant ne doit pas être effacé.
 | `summary` | Masquer le résumé de la carte |
 | `theme` | Afficher seulement le type `Article` |
 | `level` | Masquer le niveau |
-| `series` | Masquer les informations de série |
 | `learningObjectives` | Masquer la section |
 | `prerequisites` | Masquer la section |
 | `contentMarkdown` | Afficher un message neutre indiquant que le contenu n’est pas disponible |
@@ -1748,7 +1695,7 @@ Pendant toute l’implantation :
 - les URL et sources ne sont jamais inventées;
 - un média manquant ne rend pas tout l’article inutilisable;
 - un tableau ordinaire reste du contenu HTML accessible;
-- une série demeure indépendante du format;
+- les associations aux séries sont gérées par l’application et non par le paquet JSON;
 - le temps de lecture est calculé par le site;
 - le slug suggéré n’est pas le slug définitif;
 - le SEO aide à découvrir l’article sans dicter artificiellement son contenu;
@@ -1762,7 +1709,6 @@ Pendant toute l’implantation :
 Article
 ├── Métadonnées générales
 ├── Classification et niveau
-├── Série facultative
 ├── Objectifs et prérequis
 ├── Contenu Markdown
 ├── Marqueurs de médias

@@ -9,9 +9,10 @@ import {
   getPublishTransition,
   getUnpublishTransition,
 } from './articlePublication.js'
+import { listMembershipsForResources } from './adminResourceSeriesMemberships.js'
 
 const LIST_COLUMNS =
-  'id, status, slug, title, language, level, series_name, episode_number, updated_at, published_at'
+  'id, status, slug, title, language, level, updated_at, published_at'
 
 export class ArticleAdminError extends Error {
   constructor(code, cause) {
@@ -22,14 +23,22 @@ export class ArticleAdminError extends Error {
   }
 }
 
-export async function fetchAdminArticles() {
-  const { data, error } = await supabase
+export async function fetchAdminArticles(client = supabase) {
+  const { data, error } = await client
     .from('articles')
     .select(LIST_COLUMNS)
     .order('updated_at', { ascending: false })
 
   if (error) throw mapArticleError(error, 'load')
-  return data || []
+  const articles = data || []
+  const memberships = await listMembershipsForResources(
+    { resourceType: 'article', resourceIds: articles.map(({ id }) => id) },
+    client,
+  )
+  return articles.map((article) => ({
+    ...article,
+    seriesMemberships: memberships.get(article.id) || [],
+  }))
 }
 
 export async function fetchAdminArticle(id) {

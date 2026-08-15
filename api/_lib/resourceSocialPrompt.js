@@ -174,8 +174,6 @@ function buildEditorialInput(context, platform, correction) {
     context.subtitle ? `Sous-titre : ${context.subtitle}` : '',
     context.theme ? `Thème : ${context.theme}` : '',
     context.level ? `Niveau : ${context.level}` : '',
-    context.seriesName ? `Série : ${context.seriesName}` : '',
-    context.episodeNumber ? `Épisode : ${context.episodeNumber}` : '',
     `Idée principale : ${context.mainIdea}`,
     context.supportingContext ? `Contexte d’appui : ${context.supportingContext}` : '',
   ].filter(Boolean)

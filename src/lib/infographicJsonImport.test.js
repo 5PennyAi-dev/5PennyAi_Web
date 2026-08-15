@@ -2,11 +2,11 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { importInfographicJson } from './infographicJsonImport.js'
 
-test('importe un objet partiel sans effacer les autres métadonnées', () => {
+test('réimporte un JSON Infographie legacy sans modifier ses memberships', () => {
   const currentForm = {
     title: 'Titre actuel',
     summary: 'Résumé conservé',
-    series_name: '',
+    seriesMemberships: [{ id: 'membership-existing' }],
   }
 
   const result = importInfographicJson(
@@ -21,18 +21,18 @@ test('importe un objet partiel sans effacer les autres métadonnées', () => {
   assert.deepEqual(result.nextForm, {
     title: 'Introduction au RAG',
     summary: 'Résumé conservé',
-    series_name: 'Ressources IA',
+    seriesMemberships: [{ id: 'membership-existing' }],
   })
-  assert.deepEqual(result.imported, ['title', 'series.name'])
+  assert.deepEqual(result.imported, ['title'])
+  assert.ok(result.warnings.some(({ code }) => code === 'legacySeriesIgnored'))
 })
 
-test('ignore les valeurs invalides tout en conservant les portions valides', () => {
+test('importe un JSON Infographie moderne sans modifier ses memberships', () => {
   const currentForm = {
     title: 'Titre actuel',
     level: 'beginner',
     reading_time_minutes: '7',
-    series_name: 'Série actuelle',
-    episode_number: '2',
+    seriesMemberships: [{ id: 'membership-existing' }],
     key_points: [{ title: 'Point actuel' }],
     keywords: 'mot-clé actuel',
     sources: [{ title: 'Source actuelle', url: 'https://example.com' }],
@@ -43,7 +43,6 @@ test('ignore les valeurs invalides tout en conservant les portions valides', () 
       title: 'Architecture agentique',
       level: 'expert',
       readingTimeMinutes: 'cinq',
-      series: { name: 'Agents IA', episodeNumber: -1 },
       keyPoints: [null],
       keywords: ['', 42],
       sources: [{ title: 'Titre conservé', url: 'ftp://example.com' }],
@@ -56,8 +55,7 @@ test('ignore les valeurs invalides tout en conservant les portions valides', () 
     title: 'Architecture agentique',
     level: 'beginner',
     reading_time_minutes: '7',
-    series_name: 'Agents IA',
-    episode_number: '2',
+    seriesMemberships: [{ id: 'membership-existing' }],
     key_points: [{ title: 'Point actuel' }],
     keywords: 'mot-clé actuel',
     sources: [{ title: 'Titre conservé' }],
@@ -67,7 +65,6 @@ test('ignore les valeurs invalides tout en conservant les portions valides', () 
     [
       'level',
       'readingTimeMinutes',
-      'series.episodeNumber',
       'keyPoints[0]',
       'keywords[0]',
       'keywords[1]',

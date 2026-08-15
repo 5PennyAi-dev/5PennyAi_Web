@@ -11,8 +11,6 @@ test('transforme une ligne Supabase en formulaire sans perdre les structures JSO
     schema_version: 2,
     content_type: 'tutorial',
     title: 'Titre',
-    series_name: 'Série',
-    episode_number: 3,
     learning_objectives: ['Objectif'],
     media: [{ key: 'schema', kind: 'custom' }],
     cover: { altText: 'Alt' },
@@ -23,7 +21,7 @@ test('transforme une ligne Supabase en formulaire sans perdre les structures JSO
 
   assert.equal(form.schemaVersion, '2')
   assert.equal(form.contentType, 'tutorial')
-  assert.deepEqual(form.series, { name: 'Série', episodeNumber: '3' })
+  assert.equal('series' in form, false)
   assert.deepEqual(form.media, [{ key: 'schema', kind: 'custom' }])
   assert.equal(form.cover.altText, 'Alt')
   assert.equal(form.infographicAltText, 'Synthèse accessible')
@@ -51,6 +49,8 @@ test('transforme le formulaire en payload de brouillon et normalise seulement le
   assert.deepEqual(payload.media, [{ key: 'media-1', required: true }])
   assert.equal(payload.infographic_alt_text, null)
   assert.equal('infographic_path' in payload, false)
+  assert.equal('series_name' in payload, false)
+  assert.equal('episode_number' in payload, false)
   assert.equal(payload.seo.searchIntent, 'commercial')
 })
 

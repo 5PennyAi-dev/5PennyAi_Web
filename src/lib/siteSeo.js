@@ -1,4 +1,3 @@
-import { createSeriesSlug } from './resourceSeries.js'
 import { buildSiteUrl, SITE_ORIGIN } from './siteConfig.js'
 import { slugifyArticle } from './articleSlug.js'
 import { normalizePromptSlug } from './promptSlug.js'
@@ -13,23 +12,32 @@ const STATIC_PUBLIC_PATHS = [
   '/ressources-ia',
 ]
 
-export function buildSitemapEntries({ articleRows = [], infographicRows = [], promptRows = [] } = {}) {
+export function buildSitemapEntries({
+  articleRows = [],
+  infographicRows = [],
+  membershipRows = [],
+  promptRows = [],
+  seriesRows = [],
+} = {}) {
   const entries = new Map(STATIC_PUBLIC_PATHS.map((path) => [buildSiteUrl(path), {}]))
-  const series = new Map()
+  const articleLastmod = new Map()
+  const infographicLastmod = new Map()
 
   for (const row of articleRows) {
     if (row?.status && row.status !== 'published') continue
     const slug = slugifyArticle(row?.slug || '')
     if (!slug) continue
-    addEntry(entries, buildSiteUrl(`/ressources-ia/articles/${encodeURIComponent(slug)}`), resolveLastmod(row))
-    addSeries(series, row?.series_name, resolveLastmod(row))
+    const lastmod = resolveLastmod(row)
+    addEntry(entries, buildSiteUrl(`/ressources-ia/articles/${encodeURIComponent(slug)}`), lastmod)
+    if (row.id) articleLastmod.set(row.id, lastmod)
   }
 
   for (const row of infographicRows) {
     if (row?.status && row.status !== 'published') continue
     if (!UUID_PATTERN.test(row?.id || '')) continue
-    addEntry(entries, buildSiteUrl(`/ressources-ia/infographies/${row.id}`), resolveLastmod(row))
-    addSeries(series, row?.series_name, resolveLastmod(row))
+    const lastmod = resolveLastmod(row)
+    addEntry(entries, buildSiteUrl(`/ressources-ia/infographies/${row.id}`), lastmod)
+    infographicLastmod.set(row.id, lastmod)
   }
 
   for (const row of promptRows) {
@@ -39,8 +47,20 @@ export function buildSitemapEntries({ articleRows = [], infographicRows = [], pr
     addEntry(entries, buildSiteUrl(`/ressources-ia/prompts/${encodeURIComponent(slug)}`), resolveLastmod(row))
   }
 
-  for (const [slug, details] of series) {
-    addEntry(entries, buildSiteUrl(`/ressources-ia/series/${encodeURIComponent(slug)}`), details.lastmod)
+  const seriesLastmod = new Map()
+  for (const membership of membershipRows) {
+    const lastmod = membership?.article_id
+      ? articleLastmod.get(membership.article_id)
+      : infographicLastmod.get(membership?.infographic_id)
+    if (!lastmod || !membership?.series_id) continue
+    const current = seriesLastmod.get(membership.series_id)
+    if (!current || isNewer(lastmod, current)) seriesLastmod.set(membership.series_id, lastmod)
+  }
+  for (const series of seriesRows) {
+    const slug = typeof series?.slug === 'string' ? series.slug.trim() : ''
+    const lastmod = seriesLastmod.get(series?.id)
+    if (!slug || !lastmod) continue
+    addEntry(entries, buildSiteUrl(`/ressources-ia/series/${encodeURIComponent(slug)}`), lastmod)
   }
 
   return [...entries.entries()]
@@ -69,13 +89,6 @@ function addEntry(entries, url, lastmod) {
   if (!url || !url.startsWith(`${SITE_ORIGIN}/`) || url.includes('?') || url.includes('#')) return
   const current = entries.get(url)
   if (!current || isNewer(lastmod, current.lastmod)) entries.set(url, lastmod ? { lastmod } : {})
-}
-
-function addSeries(series, name, lastmod) {
-  const slug = createSeriesSlug(typeof name === 'string' ? name.trim() : '')
-  if (!slug) return
-  const current = series.get(slug)
-  if (!current || isNewer(lastmod, current.lastmod)) series.set(slug, { lastmod })
 }
 
 function resolveLastmod(row) {

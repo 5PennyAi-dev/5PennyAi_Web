@@ -50,7 +50,6 @@ export default function ArticlePreview({ assets = [], assetUrls = {}, coverUrl, 
             {readingTime > 0 && (
               <span className="inline-flex items-center gap-1.5"><BookOpenText size={14} aria-hidden="true" />{t('admin.resourcesAi.articleForm.preview.readingTime', { count: readingTime })}</span>
             )}
-            {form.series?.name && <span>{form.series.name}{form.series.episodeNumber ? ` · ${t('admin.resourcesAi.articleForm.preview.episode', { number: form.series.episodeNumber })}` : ''}</span>}
           </div>
         </header>
 

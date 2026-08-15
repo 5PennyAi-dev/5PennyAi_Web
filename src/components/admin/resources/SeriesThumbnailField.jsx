@@ -18,33 +18,74 @@ const BUCKET = 'infographics'
 export default function SeriesThumbnailField({
   currentSeriesName,
   fallbackUrl,
+  onThumbnailChange,
   persistedSeriesName,
   resourceSaved,
   saveFirstMessage,
+  seriesId,
+  seriesName,
+  seriesSlug: directSeriesSlug,
   t,
 }) {
-  const seriesSlug = useMemo(() => createSeriesSlug(persistedSeriesName), [persistedSeriesName])
-  const displaySeriesName = persistedSeriesName?.trim() || currentSeriesName?.trim() || ''
+  const directSeries = Boolean(seriesId)
+  const seriesSlug = useMemo(
+    () => createSeriesSlug(directSeries ? directSeriesSlug : persistedSeriesName),
+    [directSeries, directSeriesSlug, persistedSeriesName],
+  )
+  const displaySeriesName = directSeries
+    ? seriesName?.trim() || ''
+    : persistedSeriesName?.trim() || currentSeriesName?.trim() || ''
+  const seriesSaved = directSeries || Boolean(resourceSaved)
   const [thumbnailPath, setThumbnailPath] = useState(null)
-  const [state, setState] = useState(resourceSaved && seriesSlug ? 'loading' : 'ready')
+  const [state, setState] = useState(seriesSaved && seriesSlug ? 'loading' : 'ready')
   const [busy, setBusy] = useState(null)
   const busyRef = useRef(null)
   const [feedback, setFeedback] = useState(null)
-  const actionsEnabled = Boolean(resourceSaved) && isPersistedSeriesName(currentSeriesName, persistedSeriesName)
+  const actionsEnabled = directSeries
+    ? Boolean(seriesId && seriesSlug)
+    : Boolean(resourceSaved) && isPersistedSeriesName(currentSeriesName, persistedSeriesName)
+
+  const querySeries = useCallback(() => {
+    const query = supabase
+      .from('resource_series')
+      .select('id, slug, name, thumbnail_path, thumbnail_generated_at')
+    return directSeries ? query.eq('id', seriesId) : query.eq('slug', seriesSlug)
+  }, [directSeries, seriesId, seriesSlug])
+
+  const persistThumbnail = useCallback(async (path) => {
+    if (directSeries) {
+      const { data, error } = await supabase
+        .from('resource_series')
+        .update({ thumbnail_path: path, thumbnail_generated_at: null })
+        .eq('id', seriesId)
+        .select('id')
+        .maybeSingle()
+      if (error) throw error
+      if (!data) throw new Error('series_not_found')
+      return
+    }
+
+    const { error } = await supabase.from('resource_series').upsert(
+      {
+        slug: seriesSlug,
+        name: persistedSeriesName.trim(),
+        thumbnail_path: path,
+        thumbnail_generated_at: null,
+      },
+      { onConflict: 'slug' },
+    )
+    if (error) throw error
+  }, [directSeries, persistedSeriesName, seriesId, seriesSlug])
 
   const loadSeries = useCallback(async () => {
-    if (!resourceSaved || !seriesSlug) {
+    if (!seriesSaved || !seriesSlug) {
       setThumbnailPath(null)
       setState('ready')
       return
     }
     setState('loading')
     setFeedback(null)
-    const { data, error } = await supabase
-      .from('resource_series')
-      .select('slug, name, thumbnail_path, thumbnail_generated_at')
-      .eq('slug', seriesSlug)
-      .maybeSingle()
+    const { data, error } = await querySeries().maybeSingle()
 
     if (error) {
       console.error('Unable to load series thumbnail:', error.message)
@@ -53,21 +94,18 @@ export default function SeriesThumbnailField({
     }
     setThumbnailPath(data?.thumbnail_path || null)
     setState('ready')
-  }, [resourceSaved, seriesSlug])
+  }, [querySeries, seriesSaved, seriesSlug])
 
   useEffect(() => {
     let cancelled = false
-    if (!resourceSaved || !seriesSlug) {
+    if (!seriesSaved || !seriesSlug) {
       setThumbnailPath(null)
       setState('ready')
       return undefined
     }
 
     setState('loading')
-    supabase
-      .from('resource_series')
-      .select('slug, name, thumbnail_path, thumbnail_generated_at')
-      .eq('slug', seriesSlug)
+    querySeries()
       .maybeSingle()
       .then(({ data, error }) => {
         if (cancelled) return
@@ -83,7 +121,7 @@ export default function SeriesThumbnailField({
     return () => {
       cancelled = true
     }
-  }, [resourceSaved, seriesSlug])
+  }, [querySeries, seriesSaved, seriesSlug])
 
   const thumbnailUrl = useMemo(
     () => thumbnailPath
@@ -120,6 +158,7 @@ export default function SeriesThumbnailField({
       }
 
       setThumbnailPath(result.thumbnailPath)
+      onThumbnailChange?.(result.thumbnailPath)
       setFeedback({
         type: 'status',
         text: result.cleanupWarning
@@ -181,19 +220,11 @@ export default function SeriesThumbnailField({
       if (uploadError) throw uploadError
       uploaded = true
 
-      const { error: databaseError } = await supabase.from('resource_series').upsert(
-        {
-          slug: seriesSlug,
-          name: persistedSeriesName.trim(),
-          thumbnail_path: newPath,
-          thumbnail_generated_at: null,
-        },
-        { onConflict: 'slug' },
-      )
-      if (databaseError) throw databaseError
+      await persistThumbnail(newPath)
 
       const oldPath = thumbnailPath
       setThumbnailPath(newPath)
+      onThumbnailChange?.(newPath)
       let cleanupWarning = false
       if (oldPath && oldPath !== newPath) {
         if (isSeriesThumbnailPathForSlug(oldPath, seriesSlug)) {
@@ -233,18 +264,10 @@ export default function SeriesThumbnailField({
     setFeedback(null)
     const oldPath = thumbnailPath
     try {
-      const { error } = await supabase.from('resource_series').upsert(
-        {
-          slug: seriesSlug,
-          name: persistedSeriesName.trim(),
-          thumbnail_path: null,
-          thumbnail_generated_at: null,
-        },
-        { onConflict: 'slug' },
-      )
-      if (error) throw error
+      await persistThumbnail(null)
 
       setThumbnailPath(null)
+      onThumbnailChange?.(null)
       let cleanupWarning = false
       if (isSeriesThumbnailPathForSlug(oldPath, seriesSlug)) {
         const { error: removeError } = await supabase.storage.from(BUCKET).remove([oldPath])

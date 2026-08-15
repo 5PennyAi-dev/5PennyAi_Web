@@ -33,9 +33,6 @@ export function getArticleWarnings(form, assetState = {}) {
   if (hasText(form.contentType) && form.contentType !== 'article') {
     add('contentType', 'unexpectedContentType', { value: form.contentType })
   }
-  if (hasText(form.series?.episodeNumber) && !isPositiveIntegerText(form.series.episodeNumber)) {
-    add('series.episodeNumber', 'invalidEpisodeNumber')
-  }
 
   const suggestedSlug = form.seo?.suggestedSlug
   if (hasText(suggestedSlug) && suggestedSlug !== suggestedSlug.toLowerCase()) {
@@ -226,10 +223,6 @@ function analyzeSeo(seo, add) {
   if (hasText(seo?.suggestedSlug) && !SLUG_PATTERN.test(seo.suggestedSlug)) {
     add('seo.suggestedSlug', 'invalidSuggestedSlug')
   }
-}
-
-function isPositiveIntegerText(value) {
-  return /^\d+$/.test(String(value)) && Number(value) > 0
 }
 
 function parseRatio(value) {

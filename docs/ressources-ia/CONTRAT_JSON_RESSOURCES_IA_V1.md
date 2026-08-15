@@ -53,7 +53,6 @@ Le JSON peut décrire :
 - le thème;
 - le niveau;
 - le temps de consultation;
-- la série et le numéro d’épisode;
 - les points essentiels;
 - le texte « À retenir »;
 - les mots-clés;
@@ -80,10 +79,6 @@ La structure suivante montre toutes les propriétés prévues. Elles ne sont pas
   "theme": "Agents IA",
   "level": "intermediate",
   "readingTimeMinutes": 5,
-  "series": {
-    "name": "Mon parcours AI-103",
-    "episodeNumber": 12
-  },
   "keyPoints": [
     {
       "title": "Des rôles spécialisés",
@@ -292,35 +287,13 @@ Une valeur absente, négative, décimale ou textuelle ne bloque pas l’import. 
 
 ---
 
-## `series`
+## Associations aux séries
 
-Type attendu : objet.
+Les nouveaux paquets Infographie ne doivent pas contenir de propriété `series`.
 
-Propriétés possibles :
+Les associations, ainsi que leur position pédagogique, sont gérées directement dans l’administration après l’import.
 
-- `name` : chaîne de caractères;
-- `episodeNumber` : nombre entier positif.
-
-Exemple complet :
-
-```json
-"series": {
-  "name": "Mon parcours AI-103",
-  "episodeNumber": 12
-}
-```
-
-Exemple partiel accepté :
-
-```json
-"series": {
-  "name": "Mon parcours AI-103"
-}
-```
-
-Le nom de la série et le numéro d’épisode sont indépendants. Une propriété manquante ne bloque pas l’autre.
-
-Si `series` est absente, aucune information de série n’est affichée.
+Pour préserver la rétrocompatibilité, les anciens fichiers peuvent encore contenir une propriété `series`. L’administration la reconnaît comme donnée legacy, l’ignore avec un avertissement et ne modifie aucun membership existant.
 
 ---
 
@@ -548,8 +521,6 @@ Le site public affiche uniquement les sections qui contiennent une valeur utilis
 | Thème | Afficher seulement le type `Infographie` |
 | Niveau | Masquer le niveau |
 | Temps | Masquer la durée |
-| Série | Masquer la série |
-| Numéro d’épisode | Afficher seulement le nom de série s’il existe |
 | Points essentiels | Masquer la section |
 | À retenir | Masquer le bloc |
 | Sources | Masquer la section |
@@ -595,10 +566,6 @@ Cette convention facilite l’importation, mais l’application ne doit pas dép
   "theme": "Agents IA",
   "level": "intermediate",
   "readingTimeMinutes": 5,
-  "series": {
-    "name": "Mon parcours AI-103",
-    "episodeNumber": 12
-  },
   "keyPoints": [
     {
       "title": "Des rôles spécialisés",
@@ -653,9 +620,6 @@ Ce fichier doit produire des avertissements, sans bloquer l’import.
 {
   "title": "Architecture agentique",
   "level": "expert",
-  "series": {
-    "name": "Mon parcours IA"
-  },
   "keyPoints": [
     {
       "title": "Planification"
@@ -679,7 +643,6 @@ Comportement attendu :
 
 - le titre est importé;
 - le niveau `expert` est ignoré ou laissé à corriger;
-- le nom de série est importé sans numéro;
 - les deux points partiels sont conservés;
 - la première source conserve son titre;
 - la seconde source conserve son URL si elle est valide;

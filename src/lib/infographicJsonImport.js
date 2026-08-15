@@ -84,7 +84,7 @@ export function analyzeInfographicJson(jsonText) {
   }
 
   if ('series' in data) {
-    analyzeSeries(data.series, patch, imported, warnings, unknown)
+    analyzeSeries(data.series, warnings, unknown)
   }
 
   if ('keyPoints' in data) {
@@ -123,31 +123,14 @@ export function hasInfographicMetadata(form) {
   })
 }
 
-function analyzeSeries(series, patch, imported, warnings, unknown) {
+function analyzeSeries(series, warnings, unknown) {
   if (!isObject(series)) {
-    warnings.push({ path: 'series', code: 'expectedObject' })
+    warnings.push({ path: 'series', code: 'legacySeriesIgnored' })
     return
   }
 
   collectUnknown(series, ['name', 'episodeNumber'], 'series', unknown)
-
-  if ('name' in series) {
-    if (typeof series.name === 'string') {
-      patch.series_name = series.name
-      imported.push('series.name')
-    } else {
-      warnings.push({ path: 'series.name', code: 'expectedString' })
-    }
-  }
-
-  if ('episodeNumber' in series) {
-    if (isPositiveInteger(series.episodeNumber)) {
-      patch.episode_number = String(series.episodeNumber)
-      imported.push('series.episodeNumber')
-    } else {
-      warnings.push({ path: 'series.episodeNumber', code: 'expectedPositiveInteger' })
-    }
-  }
+  warnings.push({ path: 'series', code: 'legacySeriesIgnored' })
 }
 
 function analyzeKeyPoints(keyPoints, patch, imported, warnings, unknown) {

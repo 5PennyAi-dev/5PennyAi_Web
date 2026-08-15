@@ -4,9 +4,13 @@ import {
   adaptArticleToPublicResource,
   adaptInfographicToPublicResource,
   adaptPromptToPublicResource,
+  attachSeriesMemberships,
   buildResourceSearchText,
   filterPublicResources,
+  fetchPublicSeriesMembershipRows,
+  fetchPublicSeriesRows,
   getPublicResourceKey,
+  getResourceSeriesDisplay,
   matchesResourceSearch,
   mergePublicResources,
   normalizeCatalogSearchParams,
@@ -25,6 +29,49 @@ import {
   mixedPublicSeriesFixture,
 } from './testFixtures/mixedPublicSeries.js'
 
+const TEST_SERIES = {
+  id: 'series-mixed',
+  slug: 'parcours-ia-mixte',
+  name: MIXED_SERIES_NAME,
+}
+
+test('cible les lectures de série par slug, identifiants et ressource sans requête unitaire', async () => {
+  const calls = []
+  const client = {
+    from(table) {
+      const query = {
+        select(columns) { calls.push([table, 'select', columns]); return this },
+        eq(column, value) { calls.push([table, 'eq', column, value]); return this },
+        in(column, values) { calls.push([table, 'in', column, values]); return this },
+        then(resolve) { return Promise.resolve({ data: [], error: null }).then(resolve) },
+      }
+      return query
+    },
+  }
+
+  await fetchPublicSeriesRows(client, { slug: 'parcours-ia' })
+  await fetchPublicSeriesRows(client, { ids: ['series-1', 'series-2'] })
+  await fetchPublicSeriesMembershipRows(client, {
+    resourceId: 'article-1',
+    resourceType: 'article',
+  })
+  await fetchPublicSeriesMembershipRows(client, {
+    resourceId: 'infographic-1',
+    resourceType: 'infographic',
+  })
+  await fetchPublicSeriesMembershipRows(client, { seriesIds: ['series-1', 'series-2'] })
+
+  assert.deepEqual(calls.filter(([, method]) => method === 'eq'), [
+    ['resource_series', 'eq', 'slug', 'parcours-ia'],
+    ['resource_series_memberships', 'eq', 'article_id', 'article-1'],
+    ['resource_series_memberships', 'eq', 'infographic_id', 'infographic-1'],
+  ])
+  assert.deepEqual(calls.filter(([, method]) => method === 'in'), [
+    ['resource_series', 'in', 'id', ['series-1', 'series-2']],
+    ['resource_series_memberships', 'in', 'series_id', ['series-1', 'series-2']],
+  ])
+})
+
 test('adapte une infographie complète avec thumbnail prioritaire et URL publique', () => {
   const resource = adaptInfographicToPublicResource({
     id: 'info-1',
@@ -34,8 +81,6 @@ test('adapte une infographie complète avec thumbnail prioritaire et URL publiqu
     theme: 'RAG',
     level: 'beginner',
     keywords: ['rag', ' recherche '],
-    series_name: 'Série',
-    episode_number: 1,
     published_at: '2026-01-01T00:00:00Z',
     reading_time_minutes: 4,
     thumbnail_path: 'thumbnail.webp',
@@ -48,7 +93,7 @@ test('adapte une infographie complète avec thumbnail prioritaire et URL publiqu
   assert.equal(resource.thumbnailUrl, 'public:thumbnail.webp')
   assert.deepEqual(resource.thumbnailSources.map(({ kind }) => kind), ['thumbnail', 'fallback'])
   assert.equal(resource.publicUrl, '/ressources-ia/infographies/info-1')
-  assert.equal(resource.seriesName, 'Série')
+  assert.deepEqual(resource.seriesMemberships, [])
 })
 
 test('utilise l’image originale comme fallback de catalogue d’une infographie', () => {
@@ -136,6 +181,51 @@ test('fusionne les trois formats par date et exclut les brouillons Prompt', () =
   assert.deepEqual(catalog.prompts.map(({ id }) => id), ['prompt'])
 })
 
+test('attache zéro, une ou plusieurs séries sans dupliquer les ressources et ignore les orphelins', () => {
+  const resources = [
+    { id: 'article-none', contentType: 'article' },
+    { id: 'article-shared', contentType: 'article' },
+    { id: 'info-shared', contentType: 'infographic' },
+    { id: 'prompt', contentType: 'prompt' },
+  ]
+  const secondSeries = { id: 'series-second', slug: 'second', name: 'Deuxième' }
+  const attached = attachSeriesMemberships(resources, [TEST_SERIES, secondSeries], [
+    { id: 'm1', series_id: TEST_SERIES.id, article_id: 'article-shared', position: 3 },
+    { id: 'm2', series_id: secondSeries.id, article_id: 'article-shared', position: 1 },
+    { id: 'm3', series_id: TEST_SERIES.id, infographic_id: 'info-shared', position: null },
+    { id: 'orphan-series', series_id: 'missing', article_id: 'article-shared', position: 2 },
+    { id: 'orphan-resource', series_id: TEST_SERIES.id, article_id: 'missing', position: 2 },
+    { id: 'invalid-two-fks', series_id: TEST_SERIES.id, article_id: 'article-shared', infographic_id: 'info-shared', position: 2 },
+  ])
+
+  assert.equal(attached.length, resources.length)
+  assert.deepEqual(attached.find(({ id }) => id === 'article-none').seriesMemberships, [])
+  assert.equal(attached.find(({ id }) => id === 'article-shared').seriesMemberships.length, 2)
+  assert.equal(attached.find(({ id }) => id === 'info-shared').seriesMemberships[0].position, null)
+  assert.deepEqual(attached.find(({ id }) => id === 'prompt').seriesMemberships, [])
+})
+
+test('présente une série unique, un résumé multi-séries et le membership filtré exact', () => {
+  const alpha = membership({ ...TEST_SERIES, name: 'Alpha' }, 3)
+  const beta = membership({ id: 'beta', slug: 'beta', name: 'Bêta' }, 1)
+
+  assert.deepEqual(getResourceSeriesDisplay({ seriesMemberships: [alpha] }), {
+    membership: alpha,
+    additionalCount: 0,
+    position: 3,
+  })
+  assert.deepEqual(getResourceSeriesDisplay({ seriesMemberships: [alpha, beta] }), {
+    membership: alpha,
+    additionalCount: 1,
+    position: null,
+  })
+  assert.deepEqual(getResourceSeriesDisplay({ seriesMemberships: [alpha, beta] }, 'beta'), {
+    membership: beta,
+    additionalCount: 0,
+    position: 1,
+  })
+})
+
 test('place les dates absentes ou invalides à la fin de façon stable', () => {
   const resources = [
     { id: 'valid', contentType: 'article', title: 'Z', publishedAt: '2026-01-01' },
@@ -172,7 +262,7 @@ test('normalise et combine les filtres de format et de série', () => {
   })
   assert.deepEqual(combined.map(({ id }) => id), ['article-2', 'article-extra'])
 
-  const independent = { id: 'standalone', contentType: 'article', seriesName: null }
+  const independent = { id: 'standalone', contentType: 'article', seriesMemberships: [] }
   assert.equal(filterPublicResources([...catalog.resources, independent]).includes(independent), true)
 })
 
@@ -279,7 +369,7 @@ test('normalizes search text and matches public resource fields', () => {
     subtitle: 'Recherche augmentée',
     summary: 'Des documents utiles pour votre assistant.',
     theme: 'IA générative',
-    seriesName: 'Parcours découverte',
+    seriesMemberships: [membership({ ...TEST_SERIES, name: 'Parcours découverte' }, 1)],
     keywords: ['embeddings', 'base vectorielle'],
   }
 
@@ -296,15 +386,15 @@ test('combines search, level, format and series without changing series order', 
   const resources = [
     {
       id: 'latest', contentType: 'article', title: 'RAG documents', level: 'intermediate',
-      seriesName: 'Parcours RAG', publishedAt: '2026-02-02T00:00:00Z',
+      seriesMemberships: [membership({ ...TEST_SERIES, slug: 'parcours-rag', name: 'Parcours RAG' }, null)], publishedAt: '2026-02-02T00:00:00Z',
     },
     {
       id: 'first', contentType: 'article', title: 'RAG débutant', level: 'beginner',
-      seriesName: 'Parcours RAG', episodeNumber: 1, publishedAt: '2026-02-01T00:00:00Z',
+      seriesMemberships: [membership({ ...TEST_SERIES, slug: 'parcours-rag', name: 'Parcours RAG' }, 1)], publishedAt: '2026-02-01T00:00:00Z',
     },
     {
       id: 'second', contentType: 'infographic', title: 'Documents RAG', level: 'intermediate',
-      seriesName: 'Parcours RAG', episodeNumber: 2, publishedAt: '2026-01-01T00:00:00Z',
+      seriesMemberships: [membership({ ...TEST_SERIES, slug: 'parcours-rag', name: 'Parcours RAG' }, 2)], publishedAt: '2026-01-01T00:00:00Z',
     },
   ]
 
@@ -366,15 +456,15 @@ test('combines topic with the existing resource filters without changing series 
   const resources = [
     {
       id: 'first', contentType: 'article', title: 'IA générative', theme: 'IA générative', level: 'beginner',
-      seriesName: 'Parcours IA', episodeNumber: 1, publishedAt: '2026-01-01T00:00:00Z',
+      seriesMemberships: [membership({ ...TEST_SERIES, slug: 'parcours-ia', name: 'Parcours IA' }, 1)], publishedAt: '2026-01-01T00:00:00Z',
     },
     {
       id: 'second', contentType: 'infographic', title: 'Utilisation de l’IA générative', theme: 'Utilisation de l’IA générative', level: 'beginner',
-      seriesName: 'Parcours IA', episodeNumber: 2, publishedAt: '2026-01-02T00:00:00Z',
+      seriesMemberships: [membership({ ...TEST_SERIES, slug: 'parcours-ia', name: 'Parcours IA' }, 2)], publishedAt: '2026-01-02T00:00:00Z',
     },
     {
       id: 'third', contentType: 'infographic', title: 'Prompting', theme: 'Prompting', level: 'advanced',
-      seriesName: 'Parcours IA', episodeNumber: 3, publishedAt: '2026-01-03T00:00:00Z',
+      seriesMemberships: [membership({ ...TEST_SERIES, slug: 'parcours-ia', name: 'Parcours IA' }, 3)], publishedAt: '2026-01-03T00:00:00Z',
     },
   ]
 
@@ -394,5 +484,17 @@ function createMixedCatalog() {
     articleCoverUrls: { 'article-2': 'signed:article-cover' },
     getInfographicImageUrl: (path) => `public:${path}`,
     calculateArticleReadingTime: () => 2,
+    seriesRows: [TEST_SERIES],
+    membershipRows: mixedPublicSeriesFixture.memberships,
   })
+}
+
+function membership(series, position) {
+  return {
+    membershipId: `${series.id}:${position ?? 'null'}`,
+    seriesId: series.id,
+    slug: series.slug,
+    name: series.name,
+    position,
+  }
 }
