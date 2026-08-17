@@ -18,6 +18,7 @@ import ArticleAssetField from '@/components/admin/resources/ArticleAssetField'
 import ArticlePreview from '@/components/admin/resources/ArticlePreview'
 import AdminResourcesNav from '@/components/admin/resources/AdminResourcesNav'
 import ResourceSeriesMembershipsField from '@/components/admin/resources/ResourceSeriesMembershipsField'
+import ResourceTopicMembershipsField from '@/components/admin/resources/ResourceTopicMembershipsField'
 import ResourceSocialPostsPanel from '@/components/admin/ResourceSocialPostsPanel'
 import Card from '@/components/ui/Card'
 import {
@@ -477,7 +478,6 @@ function AdminArticleFormPage() {
                     <Field label={t('admin.resourcesAi.articleForm.fields.title')} value={form.title} onChange={(value) => updateRoot('title', value)} />
                     <Field label={t('admin.resourcesAi.articleForm.fields.subtitle')} value={form.subtitle} onChange={(value) => updateRoot('subtitle', value)} />
                     <Field as="textarea" rows={3} label={t('admin.resourcesAi.articleForm.fields.summary')} value={form.summary} onChange={(value) => updateRoot('summary', value)} />
-                    <Field label={t('admin.resourcesAi.articleForm.fields.theme')} value={form.theme} onChange={(value) => updateRoot('theme', value)} />
                   </div>
                   <div className="mt-4 rounded-xl border border-accent/15 bg-accent/[0.04] p-4">
                     <Field
@@ -500,9 +500,13 @@ function AdminArticleFormPage() {
                   <ResourceSeriesMembershipsField resourceId={id} resourceType="article" />
                 </FormSection>
 
+                <FormSection number="4" title={t('admin.resourcesAi.topics.memberships.title')}>
+                  <ResourceTopicMembershipsField resourceId={id} resourceType="article" />
+                </FormSection>
+
                 <fieldset disabled={publishedLocked} className="space-y-6 disabled:opacity-80">
 
-                <FormSection number="4" title={t('admin.resourcesAi.articleForm.sections.learning')}>
+                <FormSection number="5" title={t('admin.resourcesAi.articleForm.sections.learning')}>
                   <div className="grid gap-6 lg:grid-cols-2">
                     <StringList
                       label={t('admin.resourcesAi.articleForm.fields.learningObjectives')}
@@ -524,7 +528,7 @@ function AdminArticleFormPage() {
                   </div>
                 </FormSection>
 
-                <FormSection number="5" title={t('admin.resourcesAi.articleForm.sections.markdown')}>
+                <FormSection number="6" title={t('admin.resourcesAi.articleForm.sections.markdown')}>
                   <Field
                     as="textarea"
                     rows={22}
@@ -536,7 +540,7 @@ function AdminArticleFormPage() {
                   />
                 </FormSection>
 
-                <FormSection number="6" title={t('admin.resourcesAi.articleForm.sections.media')}>
+                <FormSection number="7" title={t('admin.resourcesAi.articleForm.sections.media')}>
                   <ObjectListHeader
                     description={t('admin.resourcesAi.articleForm.media.help')}
                     onAdd={() => updateRoot('media', [...form.media, { sourceKeys: [], required: false }])}
@@ -611,7 +615,7 @@ function AdminArticleFormPage() {
                   )}
                 </FormSection>
 
-                <FormSection number="7" title={t('admin.resourcesAi.articleForm.sections.cover')}>
+                <FormSection number="8" title={t('admin.resourcesAi.articleForm.sections.cover')}>
                   <p className="mb-4 text-sm text-muted">{t('admin.resourcesAi.articleForm.cover.help')}</p>
                   <ArticleAssetField articleId={id} coverPath={coverPath} infographicPath={infographicPath} kind="cover" onChanged={refreshAssetState} onBusyChange={handleAssetBusyChange} t={t} url={coverPath ? assetUrls[coverPath] : null} />
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -623,7 +627,7 @@ function AdminArticleFormPage() {
                   </div>
                 </FormSection>
 
-                <FormSection number="8" title={t('admin.resourcesAi.articleForm.sections.infographic')}>
+                <FormSection number="9" title={t('admin.resourcesAi.articleForm.sections.infographic')}>
                   <p className="mb-4 text-sm leading-relaxed text-muted">{t('admin.resourcesAi.articleForm.infographic.help')}</p>
                   <ArticleAssetField
                     articleId={id}
@@ -649,7 +653,7 @@ function AdminArticleFormPage() {
                   </div>
                 </FormSection>
 
-                <FormSection number="9" title={t('admin.resourcesAi.articleForm.sections.sources')}>
+                <FormSection number="10" title={t('admin.resourcesAi.articleForm.sections.sources')}>
                   <ObjectListHeader
                     onAdd={() => updateRoot('sources', [...form.sources, { authors: [] }])}
                     addLabel={t('admin.resourcesAi.articleForm.sources.add')}
@@ -688,7 +692,7 @@ function AdminArticleFormPage() {
                   </div>
                 </FormSection>
 
-                <FormSection number="10" title={t('admin.resourcesAi.articleForm.sections.keywords')}>
+                <FormSection number="11" title={t('admin.resourcesAi.articleForm.sections.keywords')}>
                   <StringList
                     label={t('admin.resourcesAi.articleForm.fields.keywords')}
                     values={form.keywords}
@@ -698,7 +702,7 @@ function AdminArticleFormPage() {
                   />
                 </FormSection>
 
-                <FormSection number="11" title={t('admin.resourcesAi.articleForm.sections.seo')}>
+                <FormSection number="12" title={t('admin.resourcesAi.articleForm.sections.seo')}>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label={t('admin.resourcesAi.articleForm.fields.primaryQuery')} value={form.seo.primaryQuery || ''} onChange={(value) => updateNested('seo', 'primaryQuery', value)} />
                     <SelectField label={t('admin.resourcesAi.articleForm.fields.searchIntent')} value={form.seo.searchIntent || ''} options={SEARCH_INTENTS} onChange={(value) => updateNested('seo', 'searchIntent', value)} t={t} translationPrefix="admin.resourcesAi.articleForm.searchIntents" />
@@ -725,11 +729,11 @@ function AdminArticleFormPage() {
                   </div>
                 </FormSection>
 
-                <FormSection number="12" title={t('admin.resourcesAi.articleForm.sections.warnings')}>
+                <FormSection number="13" title={t('admin.resourcesAi.articleForm.sections.warnings')}>
                   <WarningsList warnings={warnings} t={t} />
                 </FormSection>
 
-                <FormSection number="13" title={t('admin.resourcesAi.articleForm.sections.preview')}>
+                <FormSection number="14" title={t('admin.resourcesAi.articleForm.sections.preview')}>
                   <ArticlePreview
                     assets={assets}
                     assetUrls={assetUrls}
@@ -744,7 +748,7 @@ function AdminArticleFormPage() {
                 </FormSection>
                 </fieldset>
 
-                <FormSection number="14" title={t('admin.resourcesAi.socialPosts.title')}>
+                <FormSection number="15" title={t('admin.resourcesAi.socialPosts.title')}>
                   <ResourceSocialPostsPanel
                     disabledReason={socialDisabledReason}
                     publicUrl={socialPublicUrl}
@@ -756,7 +760,7 @@ function AdminArticleFormPage() {
                   />
                 </FormSection>
 
-                <FormSection number="15" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
+                <FormSection number="16" title={t(`admin.resourcesAi.articleForm.sections.${publishedLocked ? 'publication' : 'save'}`)}>
                   <p className="text-sm leading-relaxed text-muted">
                     {publishedLocked ? t('admin.resourcesAi.articleForm.publishedReadOnly') : dirty && editing ? t('admin.resourcesAi.articleForm.messages.saveBeforePublish') : t('admin.resourcesAi.articleForm.draftOnly')}
                   </p>

@@ -8,6 +8,9 @@
 
 ---
 
+> **État historique.** Les prompts actifs de génération utilisent le titre, résumé,
+> niveau et message principal; `theme` n’est plus une donnée du modèle.
+
 ## 1. Rôle du document
 
 Ce guide encadre l’évolution **MVP 2.1** de la section Ressources IA.

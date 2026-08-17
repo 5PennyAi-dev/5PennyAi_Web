@@ -5,7 +5,6 @@ const KNOWN_PROPERTIES = new Set([
   'summary',
   'introduction',
   'imageAlt',
-  'theme',
   'level',
   'readingTimeMinutes',
   'series',
@@ -21,7 +20,6 @@ const STRING_FIELDS = {
   summary: 'summary',
   introduction: 'introduction',
   imageAlt: 'image_alt',
-  theme: 'theme',
   takeaway: 'takeaway',
 }
 
@@ -50,6 +48,8 @@ export function analyzeInfographicJson(jsonText) {
   const imported = []
   const warnings = []
   const unknown = Object.keys(data).filter((property) => !KNOWN_PROPERTIES.has(property))
+
+  if ('theme' in data) warnings.push({ path: 'theme', code: 'legacyThemeIgnored' })
 
   if ('schemaVersion' in data && data.schemaVersion !== 1) {
     warnings.push({ path: 'schemaVersion', code: 'unsupportedSchemaVersion' })

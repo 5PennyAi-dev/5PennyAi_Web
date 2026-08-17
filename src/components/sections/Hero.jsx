@@ -1,145 +1,117 @@
+import { useState } from 'react'
+import { ArrowRight, Search } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import Button from '@/components/ui/Button'
-import ShaderBackground from '@/components/ui/ShaderBackground'
-import useScrollReveal from '@/hooks/useScrollReveal'
+import { ResourcePreview } from '@/components/resources/ResourceCard'
+import {
+  buildHeroSearchDestination,
+  selectHeroResources,
+} from '@/lib/homepageCuration'
 
-export default function Hero() {
+const SERIES_DIRECTORY_PATH = '/ressources-ia?vue=series'
+
+export default function Hero({ catalog }) {
   const { t } = useTranslation()
-  const ref = useScrollReveal()
+  const navigate = useNavigate()
+  const [query, setQuery] = useState('')
+  const resources = selectHeroResources(catalog?.resources)
+  const starterSeries = catalog?.starterSeries || null
+
+  const starterPath = starterSeries
+    ? `/ressources-ia/series/${starterSeries.slug}`
+    : SERIES_DIRECTORY_PATH
+
+  const onSubmit = (event) => {
+    event.preventDefault()
+    navigate(buildHeroSearchDestination(query))
+  }
 
   return (
     <section
       id="hero"
-      ref={ref}
-      className="reveal relative min-h-screen flex items-center justify-center overflow-hidden bg-grain"
-      style={{
-        backgroundColor: '#0D2240',
-        backgroundImage:
-          'radial-gradient(ellipse 80% 60% at 70% 20%, rgba(221,135,55,0.18), transparent 60%), ' +
-          'radial-gradient(ellipse 70% 60% at 20% 80%, rgba(129,174,215,0.22), transparent 60%), ' +
-          'radial-gradient(ellipse 100% 100% at 50% 50%, #143054 0%, #0D2240 70%)',
-      }}
+      className="relative overflow-hidden bg-warm-gray pt-[68px]"
+      aria-labelledby="home-hero-title"
     >
-      <ShaderBackground />
+      <div className="pointer-events-none absolute inset-0 bg-dot-grid opacity-30" aria-hidden="true" />
+      <div className="relative mx-auto grid min-h-[650px] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:gap-16 lg:py-24">
+        <div className="max-w-2xl">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent-deep sm:text-xs">
+            {t('hero.overline')}
+          </p>
+          <h1
+            id="home-hero-title"
+            className="mt-5 max-w-[13ch] text-display text-[2.5rem] font-bold leading-[0.98] text-navy sm:text-5xl lg:text-6xl"
+          >
+            {t('hero.title')}
+          </h1>
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-navy/70 sm:text-lg">
+            {t('hero.description')}
+          </p>
 
-      <div className="absolute inset-0 bg-dot-grid-dark opacity-40 pointer-events-none" />
-
-      <svg
-        className="absolute inset-0 w-full h-full opacity-[0.05] pointer-events-none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <defs>
-          <pattern id="nodes" x="0" y="0" width="180" height="180" patternUnits="userSpaceOnUse">
-            <circle cx="10" cy="10" r="1.5" fill="white" />
-            <circle cx="90" cy="70" r="1" fill="white" />
-            <circle cx="170" cy="20" r="1.5" fill="white" />
-            <circle cx="40" cy="130" r="1" fill="white" />
-            <circle cx="130" cy="160" r="1.5" fill="white" />
-            <line x1="10" y1="10" x2="90" y2="70" stroke="white" strokeWidth="0.4" />
-            <line x1="90" y1="70" x2="170" y2="20" stroke="white" strokeWidth="0.4" />
-            <line x1="90" y1="70" x2="40" y2="130" stroke="white" strokeWidth="0.4" />
-            <line x1="40" y1="130" x2="130" y2="160" stroke="white" strokeWidth="0.4" />
-            <line x1="130" y1="160" x2="170" y2="20" stroke="white" strokeWidth="0.4" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#nodes)" />
-      </svg>
-
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-black/20 pointer-events-none" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-36 pb-24 md:pt-40 md:pb-32 z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div className="text-center lg:text-left reveal-left">
-            <div className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/[0.12] rounded-full px-4 py-1.5 mb-8 backdrop-blur-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_rgba(221,135,55,0.6)]" />
-              <span className="text-white/75 uppercase tracking-[0.2em] text-[11px] font-semibold">
-                {t('hero.overline')}
-              </span>
-            </div>
-
-            <h1 className="text-display text-[2.5rem] sm:text-[3rem] md:text-[3.5rem] lg:text-[3.75rem] font-bold text-white mb-4 leading-[1.05]">
-              {t('hero.name')}
-            </h1>
-
-            <p className="text-white/85 font-heading font-semibold text-lg md:text-xl lg:text-2xl mb-6 leading-snug max-w-xl mx-auto lg:mx-0">
-              {t('hero.role')}
-            </p>
-
-            <p className="text-steel text-base md:text-lg font-medium max-w-xl mx-auto lg:mx-0 mb-4 leading-snug">
-              {t('hero.specialization')}
-            </p>
-
-            <p className="text-white/65 text-base md:text-lg max-w-xl mx-auto lg:mx-0 mb-10 leading-[1.6]">
-              {t('hero.description')}
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3">
-              <Button to="/about" variant="primary" className="px-8 py-3.5 text-[15px]">
-                {t('hero.cta_primary')}
-              </Button>
-              <Button to="/portfolio/pennyseo" variant="ghost" className="px-8 py-3.5 text-[15px]">
-                {t('hero.cta_secondary')}
-              </Button>
-            </div>
-            <Link
-              to="/ressources-ia"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white/65 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white hover:decoration-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 focus-visible:ring-offset-navy-deep"
-            >
-              {t('hero.cta_resources')}
-              <ArrowRight size={14} aria-hidden="true" />
-            </Link>
-
-            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-0 reveal-metrics">
-              {(t('hero.metrics', { returnObjects: true }) || []).map((m, i, arr) => (
-                <div key={i} className="flex items-center">
-                  <div className="text-center px-6">
-                    <div className="text-white font-bold text-[1.75rem] md:text-[2rem] leading-none tracking-tight tnum">
-                      {m.value}
-                    </div>
-                    <div className="text-white/55 text-[12px] mt-1.5 leading-snug">
-                      {m.label}
-                    </div>
-                  </div>
-                  {i < arr.length - 1 && (
-                    <div className="hidden sm:block w-px h-10 bg-white/20" aria-hidden="true" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex justify-center lg:justify-end reveal-right">
-            <div
-              className="relative w-full max-w-lg lg:max-w-none"
-              style={{ perspective: '1200px' }}
-            >
-              <div
-                className="rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.03]"
-                style={{
-                  transform: 'rotateY(-5deg)',
-                  boxShadow: '0 24px 80px rgba(0, 0, 0, 0.35), 0 8px 32px rgba(0, 0, 0, 0.2)',
-                }}
+          <form className="mt-8 max-w-xl" onSubmit={onSubmit} role="search">
+            <label htmlFor="hero-search" className="sr-only">
+              {t('hero.searchLabel')}
+            </label>
+            <div className="flex items-center gap-2 rounded-2xl border border-navy/15 bg-white p-2 shadow-[var(--shadow-card)] focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/25">
+              <Search className="ml-2 shrink-0 text-navy/45" size={19} aria-hidden="true" />
+              <input
+                id="hero-search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={t('hero.searchPlaceholder')}
+                className="min-w-0 flex-1 bg-transparent px-1 py-2.5 text-sm text-navy placeholder:text-navy/45 focus:outline-none sm:text-base"
+              />
+              <button
+                type="submit"
+                className="shrink-0 rounded-xl bg-navy px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 sm:px-5"
               >
-                <div className="flex items-center gap-1.5 px-4 py-2.5 bg-white/[0.04] border-b border-white/[0.06]">
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                  <span className="ml-3 h-5 flex-1 max-w-[200px] rounded-full bg-white/[0.06]" />
-                </div>
-                <img
-                  src="/images/portfolio/dashboard-full.png"
-                  alt="PennySEO Dashboard"
-                  className="w-full block"
-                  loading="eager"
-                />
-              </div>
+                {t('hero.searchSubmit')}
+              </button>
             </div>
+          </form>
+
+          <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+            <Button to="/ressources-ia" variant="primary" className="px-6 py-3.5 text-[15px]">
+              {t('hero.cta_primary')}
+            </Button>
+            <Link
+              to={starterPath}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-3 text-sm font-bold text-navy/70 transition-colors hover:text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            >
+              {starterSeries ? t('hero.cta_secondary') : t('hero.cta_seriesFallback')}
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
           </div>
         </div>
+
+        {resources.length > 0 && (
+          <div className="relative mx-auto h-[245px] w-full max-w-xl sm:h-[320px] lg:h-[360px]" aria-label={t('hero.visualsLabel')}>
+            {resources.map((resource, index) => (
+              <Link
+                key={`${resource.contentType}:${resource.id}`}
+                to={resource.publicUrl}
+                aria-label={t('hero.visualLinkLabel', { title: resource.title })}
+                className={`group absolute block aspect-video w-[78%] overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-[var(--shadow-card-hover)] transition-transform duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 ${
+                  index === 0
+                    ? 'left-0 top-0 -rotate-2 group-hover:-translate-y-1 sm:left-[4%]'
+                    : 'bottom-0 right-0 rotate-2 group-hover:translate-y-1 sm:right-[2%]'
+                }`}
+              >
+                <ResourcePreview
+                  contentType={resource.contentType}
+                  sources={resource.thumbnailSources}
+                  t={t}
+                  loading="eager"
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
+                />
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy/75 to-transparent px-4 pb-3 pt-10 text-sm font-bold text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 motion-reduce:transition-none">
+                  {resource.title}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

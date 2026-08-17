@@ -86,11 +86,6 @@ export function buildSeriesThumbnailPrompt({ seriesName, episodes }) {
   const representativeTitles = (Array.isArray(episodes) ? episodes : [])
     .map((episode) => cleanEditorialValue(episode?.title))
     .filter(Boolean)
-  const dominantThemes = [...new Set(
-    (Array.isArray(episodes) ? episodes : [])
-      .map((episode) => cleanEditorialValue(episode?.theme))
-      .filter(Boolean),
-  )]
   const representedFormats = [...new Set(
     (Array.isArray(episodes) ? episodes : [])
       .map((episode) => getEpisodeContentType(episode))
@@ -103,9 +98,6 @@ export function buildSeriesThumbnailPrompt({ seriesName, episodes }) {
     `Nom :\n${safeSeriesName}`,
     representativeTitles.length > 0
       ? `Titres représentatifs :\n${representativeTitles.join(' | ')}`
-      : '',
-    dominantThemes.length > 0
-      ? `Thèmes dominants :\n${dominantThemes.join(' | ')}`
       : '',
     representedFormats.length > 0
       ? `Formats représentés :\n${representedFormats.join(' | ')}`

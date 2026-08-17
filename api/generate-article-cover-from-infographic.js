@@ -17,7 +17,7 @@ import {
 
 export const config = { maxDuration: 300 }
 const BUCKET = 'article-assets'
-const ARTICLE_COLUMNS = 'id, status, title, subtitle, summary, theme, level, takeaway, infographic_path, cover_path'
+const ARTICLE_COLUMNS = 'id, status, title, subtitle, summary, level, takeaway, infographic_path, cover_path'
 
 export default async function handler(req, res) {
   const startedAt = Date.now()

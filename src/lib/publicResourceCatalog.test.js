@@ -4,11 +4,14 @@ import {
   adaptArticleToPublicResource,
   adaptInfographicToPublicResource,
   adaptPromptToPublicResource,
+  attachResourceTopicMemberships,
   attachSeriesMemberships,
   buildResourceSearchText,
   filterPublicResources,
   fetchPublicSeriesMembershipRows,
   fetchPublicSeriesRows,
+  fetchPublicResourceTopicMembershipRows,
+  fetchPublicResourceTopicRows,
   getCatalogPaginationItems,
   getPublicResourceKey,
   getResourceSeriesDisplay,
@@ -208,6 +211,27 @@ test('attache zéro, une ou plusieurs séries sans dupliquer les ressources et i
   assert.equal(attached.find(({ id }) => id === 'article-shared').seriesMemberships.length, 2)
   assert.equal(attached.find(({ id }) => id === 'info-shared').seriesMemberships[0].position, null)
   assert.deepEqual(attached.find(({ id }) => id === 'prompt').seriesMemberships, [])
+})
+
+test('attaches one or several public topic memberships without touching prompts', () => {
+  const resources = [
+    { id: 'article-one', contentType: 'article', topicMemberships: [] },
+    { id: 'info-one', contentType: 'infographic', topicMemberships: [] },
+    { id: 'prompt-one', contentType: 'prompt', topicMemberships: [{ slug: 'invalid' }] },
+  ]
+  const attached = attachResourceTopicMemberships(resources, [
+    { id: 'language', slug: 'modeles-de-langage', name_fr: 'Modeles', name_en: 'Language models' },
+    { id: 'rag', slug: 'rag-recherche-semantique', name_fr: 'RAG', name_en: 'RAG' },
+  ], [
+    { id: 'topic-1', topic_id: 'language', article_id: 'article-one', infographic_id: null },
+    { id: 'topic-2', topic_id: 'rag', article_id: 'article-one', infographic_id: null },
+    { id: 'topic-3', topic_id: 'rag', infographic_id: 'info-one', article_id: null },
+  ])
+  assert.deepEqual(attached.find(({ id }) => id === 'article-one').topicMemberships.map(({ slug }) => slug), [
+    'modeles-de-langage', 'rag-recherche-semantique',
+  ])
+  assert.deepEqual(attached.find(({ id }) => id === 'info-one').topicMemberships.map(({ slug }) => slug), ['rag-recherche-semantique'])
+  assert.deepEqual(attached.find(({ id }) => id === 'prompt-one').topicMemberships, [])
 })
 
 test('présente une série unique, un résumé multi-séries et le membership filtré exact', () => {
@@ -466,17 +490,18 @@ test('normalizes search text and matches public resource fields', () => {
     title: 'Introduction au RAG',
     subtitle: 'Recherche augmentée',
     summary: 'Des documents utiles pour votre assistant.',
-    theme: 'IA générative',
+    topicMemberships: [{ nameFr: 'Modèles de langage', nameEn: 'Language models' }],
     seriesMemberships: [membership({ ...TEST_SERIES, name: 'Parcours découverte' }, 1)],
     keywords: ['embeddings', 'base vectorielle'],
   }
 
-  assert.equal(buildResourceSearchText(resource).includes('generative'), true)
-  for (const query of ['rag', 'augmentee', 'documents', 'generative', 'decouverte', 'vectorielle']) {
+  assert.equal(buildResourceSearchText(resource).includes('generative'), false)
+  for (const query of ['rag', 'augmentee', 'documents', 'modeles', 'decouverte', 'vectorielle']) {
     assert.equal(matchesResourceSearch(resource, query), true, query)
   }
   assert.equal(matchesResourceSearch(resource, 'rag documents'), true)
   assert.equal(matchesResourceSearch(resource, 'rag absent'), false)
+  assert.equal(matchesResourceSearch({ ...resource, theme: 'IA générative' }, 'generative'), false)
   assert.equal(matchesResourceSearch(resource, '   '), true)
 })
 
@@ -553,26 +578,45 @@ test('filters each valid level and excludes resources without a selected level',
 test('combines topic with the existing resource filters without changing series order', () => {
   const resources = [
     {
-      id: 'first', contentType: 'article', title: 'IA générative', theme: 'IA générative', level: 'beginner',
+      id: 'first', contentType: 'article', title: 'IA générative', theme: 'IA générative', level: 'beginner', topicMemberships: [{ slug: 'fondamentaux-ia' }],
       seriesMemberships: [membership({ ...TEST_SERIES, slug: 'parcours-ia', name: 'Parcours IA' }, 1)], publishedAt: '2026-01-01T00:00:00Z',
     },
     {
-      id: 'second', contentType: 'infographic', title: 'Utilisation de l’IA générative', theme: 'Utilisation de l’IA générative', level: 'beginner',
+      id: 'second', contentType: 'infographic', title: 'Utilisation de l’IA générative', theme: 'Utilisation de l’IA générative', level: 'beginner', topicMemberships: [{ slug: 'fondamentaux-ia' }],
       seriesMemberships: [membership({ ...TEST_SERIES, slug: 'parcours-ia', name: 'Parcours IA' }, 2)], publishedAt: '2026-01-02T00:00:00Z',
     },
     {
-      id: 'third', contentType: 'infographic', title: 'Prompting', theme: 'Prompting', level: 'advanced',
+      id: 'third', contentType: 'infographic', title: 'Prompting', theme: 'Prompting', level: 'advanced', topicMemberships: [{ slug: 'prompting-interaction' }],
       seriesMemberships: [membership({ ...TEST_SERIES, slug: 'parcours-ia', name: 'Parcours IA' }, 3)], publishedAt: '2026-01-03T00:00:00Z',
     },
   ]
 
   assert.deepEqual(filterPublicResources(resources, {
-    topic: 'ia-generative', query: 'ia', level: 'beginner', seriesSlug: 'parcours-ia',
+    topic: 'fondamentaux-ia', query: 'ia', level: 'beginner', seriesSlug: 'parcours-ia',
   }).map(({ id }) => id), ['first', 'second'])
   assert.deepEqual(filterPublicResources(resources, {
-    topic: 'ia-generative', format: RESOURCE_FORMATS.INFOGRAPHICS,
+    topic: 'fondamentaux-ia', format: RESOURCE_FORMATS.INFOGRAPHICS,
   }).map(({ id }) => id), ['second'])
-  assert.deepEqual(filterPublicResources(resources, { topic: 'prompting' }).map(({ id }) => id), ['third'])
+  assert.deepEqual(filterPublicResources(resources, { topic: 'prompting-interaction' }).map(({ id }) => id), ['third'])
+})
+
+test('targets public topic rows and membership rows without resource-level queries', async () => {
+  const calls = []
+  const client = {
+    from(table) {
+      return {
+        select(columns) { calls.push([table, 'select', columns]); return this },
+        eq(column, value) { calls.push([table, 'eq', column, value]); return this },
+        then(resolve) { return Promise.resolve({ data: [], error: null }).then(resolve) },
+      }
+    },
+  }
+  await fetchPublicResourceTopicRows(client)
+  await fetchPublicResourceTopicMembershipRows(client)
+  await fetchPublicResourceTopicMembershipRows(client, { resourceId: 'article-1', resourceType: 'article' })
+  assert.deepEqual(calls.filter(([, method]) => method === 'eq'), [
+    ['resource_topic_memberships', 'eq', 'article_id', 'article-1'],
+  ])
 })
 
 function createMixedCatalog() {

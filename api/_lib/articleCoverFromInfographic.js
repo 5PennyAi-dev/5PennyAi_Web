@@ -42,7 +42,6 @@ export function buildArticleCoverFromInfographicPrompt(article) {
     ['Titre exact', article?.title],
     ['Sous-titre', article?.subtitle],
     ['Résumé', article?.summary],
-    ['Thème', article?.theme],
     ['Niveau', article?.level],
     ['Message principal', article?.takeaway],
   ]

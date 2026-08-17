@@ -28,7 +28,12 @@ import {
   updateCatalogCriteria,
 } from '@/lib/publicResourceCatalog'
 import { selectFeaturedSeries } from '@/lib/resourceSeries'
-import { findResourceTopic, getAvailableResourceTopics } from '@/lib/resourceTopics'
+import {
+  findResourceTopic,
+  getAvailableResourceTopics,
+  getResourceTopicLabel,
+  resolveResourceTopicSlug,
+} from '@/lib/resourceTopics'
 import {
   isPromptCategory,
   PROMPT_CATEGORIES,
@@ -61,7 +66,10 @@ export default function ResourcesAI() {
     : normalizeResourceFormat(rawFormat, articles.length > 0, prompts.length > 0)
   const isPromptMode = selectedFormat === RESOURCE_FORMATS.PROMPTS
   const topics = useMemo(() => getAvailableResourceTopics(resources), [resources])
-  const selectedTopic = isSeriesView || isPromptMode ? null : findResourceTopic(resources, rawTopic)
+  const resolvedTopicKey = isSeriesView || isPromptMode
+    ? ''
+    : resolveResourceTopicSlug(resources, rawTopic)
+  const selectedTopic = isSeriesView || isPromptMode ? null : findResourceTopic(resources, resolvedTopicKey)
   const selectedTopicKey = selectedTopic?.key || ''
   const selectedCategory = isPromptMode && isPromptCategory(rawCategory) ? rawCategory : ''
   const selectedSeries = useMemo(
@@ -139,6 +147,13 @@ export default function ResourcesAI() {
 
   useEffect(() => {
     if (state !== 'ready') return
+    if (!isSeriesView && !isPromptMode && rawTopic && rawTopic !== resolvedTopicKey) {
+      const nextParams = new URLSearchParams(searchParams)
+      if (resolvedTopicKey) nextParams.set('sujet', resolvedTopicKey)
+      else nextParams.delete('sujet')
+      setSearchParams(nextParams, { replace: true })
+      return
+    }
     const { hasChanges, nextParams } = normalizeCatalogSearchParams(searchParams, {
       hasPublishedArticles: articles.length > 0,
       hasPublishedPrompts: prompts.length > 0,
@@ -150,8 +165,11 @@ export default function ResourcesAI() {
   }, [
     articles.length,
     isSeriesView,
+    isPromptMode,
     searchParams,
     selectedTopic,
+    resolvedTopicKey,
+    rawTopic,
     setSearchParams,
     state,
     prompts.length,
@@ -313,6 +331,7 @@ export default function ResourcesAI() {
                 isPromptMode={isPromptMode}
                 series={series}
                 topics={topics}
+                language={i18n.language}
                 t={t}
               />
 
@@ -326,6 +345,7 @@ export default function ResourcesAI() {
                     series: selectedSeries,
                     seriesSlug: selectedSeriesSlug,
                     category: selectedCategory,
+                    language: i18n.language,
                     t,
                   })}
                   onClearAll={clearResourceFilters}
@@ -366,6 +386,7 @@ export default function ResourcesAI() {
 function CatalogControls({
   hasPublishedArticles,
   hasPublishedPrompts,
+  language,
   isSeriesView,
   isPromptMode,
   onCategoryChange,
@@ -460,6 +481,7 @@ function CatalogControls({
                   onChange={onTopicChange}
                   selectedTopicKey={selectedTopicKey}
                   topics={topics}
+                  language={language}
                   t={t}
                 />
                 {showSeriesFilter && (
@@ -653,7 +675,7 @@ function LevelFilter({ onChange, selectedLevel, t }) {
   )
 }
 
-function TopicFilter({ onChange, selectedTopicKey, topics, t }) {
+function TopicFilter({ language, onChange, selectedTopicKey, topics, t }) {
   return (
     <div className="w-full">
       <label
@@ -671,7 +693,7 @@ function TopicFilter({ onChange, selectedTopicKey, topics, t }) {
         <option value="">{t('resourcesAi.catalog.allTopics')}</option>
         {topics.map((topic) => (
           <option key={topic.key} value={topic.key}>
-            {getTopicLabel(topic, t)}
+            {getTopicLabel(topic, language)}
           </option>
         ))}
       </select>
@@ -815,7 +837,7 @@ function CatalogPagination({ currentPage, onPageChange, t, totalPages }) {
   )
 }
 
-function getActiveResourceFilters({ category, format, level, query, series, seriesSlug, t, topic }) {
+function getActiveResourceFilters({ category, format, language, level, query, series, seriesSlug, t, topic }) {
   const filters = []
   if (normalizeSearchText(query)) {
     filters.push({
@@ -854,7 +876,7 @@ function getActiveResourceFilters({ category, format, level, query, series, seri
     })
   }
   if (topic) {
-    const label = getTopicLabel(topic, t)
+    const label = getTopicLabel(topic, language)
     filters.push({
       parameter: 'sujet',
       label,
@@ -872,8 +894,8 @@ function getActiveResourceFilters({ category, format, level, query, series, seri
   return filters
 }
 
-function getTopicLabel(topic, t) {
-  return topic?.labelKey ? t(topic.labelKey) : topic?.label || ''
+function getTopicLabel(topic, language) {
+  return getResourceTopicLabel(topic, language)
 }
 
 function FeaturedSeries({ series, t }) {

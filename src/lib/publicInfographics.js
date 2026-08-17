@@ -6,6 +6,9 @@ import { fetchPublishedPromptsForCatalog } from './publicPrompts.js'
 import { applyPublishedFilter } from './publicInfographicQuery.js'
 import { buildSeriesNavigationContexts, createSeriesSlug } from './resourceSeries.js'
 import {
+  attachResourceTopicMemberships,
+  fetchPublicResourceTopicMembershipRows,
+  fetchPublicResourceTopicRows,
   fetchPublicSeriesMembershipRows,
   fetchPublicSeriesRows,
   loadPublishedCatalog,
@@ -17,9 +20,9 @@ const BUCKET = 'infographics'
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const PUBLIC_COLUMNS =
-  'id, published_at, image_path, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, key_points, takeaway, keywords, sources'
+  'id, published_at, image_path, thumbnail_path, title, subtitle, summary, introduction, image_alt, level, reading_time_minutes, key_points, takeaway, keywords, sources'
 const PUBLIC_SHOWCASE_COLUMNS =
-  'id, published_at, image_path, thumbnail_path, title, summary, theme, level, reading_time_minutes'
+  'id, published_at, image_path, thumbnail_path, title, summary, level, reading_time_minutes'
 const DOWNLOADABLE_IMAGE_EXTENSIONS = new Set(['avif', 'gif', 'jpeg', 'jpg', 'png', 'webp'])
 
 export async function fetchPublishedInfographics(client = supabase) {
@@ -60,7 +63,16 @@ export async function fetchPublishedInfographic(id, client = supabase) {
   const { data, error } = await applyPublishedFilter(query).maybeSingle()
 
   if (error) throw error
-  return data || null
+  if (!data) return null
+  const [topicRows, topicMembershipRows] = await Promise.all([
+    fetchPublicResourceTopicRows(client),
+    fetchPublicResourceTopicMembershipRows(client, { resourceId: data.id, resourceType: 'infographic' }),
+  ])
+  return attachResourceTopicMemberships(
+    [{ ...data, contentType: 'infographic' }],
+    topicRows,
+    topicMembershipRows,
+  )[0]
 }
 
 export async function fetchSeriesThumbnailRows(slugs, client = supabase) {

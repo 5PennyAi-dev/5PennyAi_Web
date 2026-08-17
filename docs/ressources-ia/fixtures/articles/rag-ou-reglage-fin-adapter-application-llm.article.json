@@ -5,7 +5,6 @@
   "title": "RAG ou réglage fin : quelle approche choisir pour adapter une application fondée sur un LLM?",
   "subtitle": "Choisir entre connaissances récupérées, comportement appris et architecture hybride",
   "summary": "Le RAG ajoute des connaissances externes au contexte, tandis que le réglage fin adapte le comportement du modèle. Cet article compare leurs usages, leurs coûts, leur maintenance, leur traçabilité et leurs besoins d’évaluation.",
-  "theme": "IA générative",
   "level": "intermediate",
   "learningObjectives": [
     "Distinguer l’ajout de connaissances au contexte de la modification des paramètres d’un modèle.",

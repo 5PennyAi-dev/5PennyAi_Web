@@ -115,7 +115,6 @@ export function buildResourceThumbnailPrompt(resource) {
     ['Titre complet', title],
     ['Sous-titre ou accroche facultative', resource?.subtitle],
     ['Résumé', resource?.summary],
-    ['Thème', resource?.theme],
     ['Notions essentielles', formatKeyPoints(resource?.key_points)],
     ['Message principal', resource?.takeaway],
   ]

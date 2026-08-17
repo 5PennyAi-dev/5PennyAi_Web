@@ -1,6 +1,11 @@
 import { supabase } from './supabase.js'
 import { isArticleCoverPath, isArticleInfographicPath, isArticleMediaPath } from './articleAssetRules.js'
 import { slugifyArticle } from './articleSlug.js'
+import {
+  attachResourceTopicMemberships,
+  fetchPublicResourceTopicMembershipRows,
+  fetchPublicResourceTopicRows,
+} from './publicResourceCatalog.js'
 
 const ARTICLE_ASSETS_BUCKET = 'article-assets'
 const PUBLIC_CATALOG_COLUMNS = [
@@ -10,7 +15,6 @@ const PUBLIC_CATALOG_COLUMNS = [
   'language',
   'subtitle',
   'summary',
-  'theme',
   'level',
   'keywords',
   'content_markdown',
@@ -23,7 +27,6 @@ const PUBLIC_SHOWCASE_COLUMNS = [
   'slug',
   'title',
   'summary',
-  'theme',
   'level',
   'cover_path',
   'published_at',
@@ -35,7 +38,6 @@ const PUBLIC_COLUMNS = [
   'language',
   'subtitle',
   'summary',
-  'theme',
   'level',
   'learning_objectives',
   'prerequisites',
@@ -200,7 +202,15 @@ export async function loadPublishedArticleBySlug(
     }
   }
 
-  const article = sanitizePublishedArticle(row)
+  const [topicRows, topicMembershipRows] = await Promise.all([
+    fetchPublicResourceTopicRows(client),
+    fetchPublicResourceTopicMembershipRows(client, { resourceId: row.id, resourceType: 'article' }),
+  ])
+  const article = attachResourceTopicMemberships(
+    [{ ...sanitizePublishedArticle(row), contentType: 'article' }],
+    topicRows,
+    topicMembershipRows,
+  )[0]
   const coverPath = isArticleCoverPath(row.cover_path, row.id) ? row.cover_path : null
   return {
     state: 'found',
@@ -236,7 +246,6 @@ export function sanitizePublishedArticle(row = {}) {
     language: row.language,
     subtitle: row.subtitle,
     summary: row.summary,
-    theme: row.theme,
     level: row.level,
     learningObjectives: Array.isArray(row.learning_objectives) ? row.learning_objectives : [],
     prerequisites: Array.isArray(row.prerequisites) ? row.prerequisites : [],

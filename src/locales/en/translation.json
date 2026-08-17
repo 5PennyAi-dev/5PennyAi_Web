@@ -4,9 +4,16 @@
     "services": "Services",
     "expertise": "Expertise",
     "about": "Profile",
+    "aboutSite": "About",
     "portfolio": "Portfolio",
     "blog": "Blog",
     "resourcesAi": "AI Resources",
+    "resources": "Resources",
+    "series": "Series",
+    "prompts": "Prompts",
+    "search": "Search",
+    "menu": "Main menu",
+    "changeLanguage": "Change language",
     "faq": "FAQ",
     "contact": "Contact",
     "cta": "Book a call",
@@ -14,19 +21,90 @@
     "admin": "Admin"
   },
   "hero": {
-    "overline": "PERSONAL PORTFOLIO",
-    "name": "Christian Couillard",
-    "role": "Information Technology Professional",
-    "specialization": "Applied AI · Data · Automation",
-    "description": "With more than twenty years of experience in software development and analysis, I now focus on the practical use of artificial intelligence, data and automation. I design and experiment with solutions that turn real needs into useful tools.",
-    "cta_primary": "Explore my background",
-    "cta_secondary": "View PennySEO",
-    "cta_resources": "Explore AI Resources",
-    "metrics": [
-      { "value": "20+", "label": "Years in software delivery" },
-      { "value": "5", "label": "AI & Data certifications" },
-      { "value": "2+", "label": "Years in applied generative AI" }
-    ]
+    "overline": "RESOURCES TO UNDERSTAND AI",
+    "title": "Understand AI, one concept at a time.",
+    "description": "Clear, educational resources to understand how artificial intelligence works and use it more effectively.",
+    "searchLabel": "Search AI Resources",
+    "searchPlaceholder": "Search for a concept, topic or question…",
+    "searchSubmit": "Search",
+    "cta_primary": "Explore resources",
+    "cta_secondary": "Start with the basics",
+    "cta_seriesFallback": "View series",
+    "visualsLabel": "AI Resources to explore",
+    "visualLinkLabel": "Explore resource: {{title}}"
+  },
+  "homeStart": {
+    "eyebrow": "ORIENTATION",
+    "title": "Where should I start?",
+    "seriesFallback": "View series",
+    "discover": {
+      "title": "I’m discovering AI",
+      "description": "Start with the essential ideas to build clear foundations.",
+      "action": "Start with the basics"
+    },
+    "concept": {
+      "title": "I’m looking for a concept",
+      "description": "Explore resources by the topic that interests you.",
+      "action": "Explore topics"
+    },
+    "use": {
+      "title": "I want to use AI",
+      "description": "Use practical prompts to put AI into action.",
+      "action": "Explore prompts"
+    }
+  },
+  "homeStarterSeries": {
+    "eyebrow": "A GOOD PLACE TO START",
+    "title": "A good place to start",
+    "action": "Start the series",
+    "fallbackDescription": "Explore the available educational series.",
+    "fallbackAction": "View series"
+  },
+  "homeTopics": {
+    "eyebrow": "OPEN EXPLORATION",
+    "title": "Explore by topic",
+    "description": "Browse resources by the area that interests you most.",
+    "resourceCount_one": "{{count}} resource",
+    "resourceCount_other": "{{count}} resources",
+    "empty": "Topics will appear as soon as public resources are available."
+  },
+  "homeSeries": {
+    "eyebrow": "EDITORIAL COLLECTIONS",
+    "title": "Go deeper with series",
+    "description": "Explore sets of resources that develop one idea from several angles.",
+    "view": "View the series",
+    "viewLabel": "View the {{series}} series",
+    "loading": "Loading series…"
+  },
+  "homeDiscover": {
+    "eyebrow": "EDITORIAL SELECTION",
+    "title": "Discover",
+    "description": "A few resources from the library to help you continue exploring.",
+    "view": "View",
+    "viewLabel": "View: {{title}}",
+    "loading": "Loading selection…"
+  },
+  "homeFormats": {
+    "eyebrow": "LEARN YOUR WAY",
+    "title": "One idea, several ways to learn",
+    "description": "Choose the format that best helps you understand, visualize or take action.",
+    "items": {
+      "article": {
+        "title": "Go deeper",
+        "description": "Take the time to understand a concept and its nuances.",
+        "action": "View articles"
+      },
+      "infographic": {
+        "title": "Visualize",
+        "description": "Remember the essentials through a visual explanation.",
+        "action": "View infographics"
+      },
+      "prompt": {
+        "title": "Take action",
+        "description": "Use AI with prompts ready to adapt to your context.",
+        "action": "View prompts"
+      }
+    }
   },
   "comparison": {
     "overline": "WHY 5PENNYAI",
@@ -289,12 +367,35 @@
     "copyright": "© 2026 Christian Couillard. All rights reserved.",
     "made_with": "Based in Québec City, QC · Applied AI, data and automation",
     "tagline": "Information Technology Professional",
+    "brandTagline": "Understanding AI, one concept at a time.",
+    "navigationLabel": "Footer navigation",
+    "language": "Language",
+    "email": "Email",
+    "groups": {
+      "learn": "Learn",
+      "explore": "Explore",
+      "site": "5PennyAi"
+    },
+    "links": {
+      "articles": "Articles",
+      "infographics": "Infographics",
+      "projects": "Projects"
+    },
     "admin": "Admin"
+  },
+  "homeBehind": {
+    "eyebrow": "BEHIND 5PENNYAI",
+    "title": "A practical approach to AI",
+    "portraitAlt": "Portrait of Christian Couillard",
+    "description": "5PennyAi is built by Christian Couillard, an information technology professional working at the intersection of applied AI, data and automation. The project turns that experience into clear resources that make AI more understandable and concrete.",
+    "about": "About",
+    "projects": "View projects"
   },
   "seo": {
     "home": {
-      "title": "Christian Couillard — AI Solutions Engineer",
-      "description": "AI Solutions Engineer · Applied-AI builder. I design and ship end-to-end AI products — RAG, agents, automation. Based in Québec City."
+      "title": "Understand AI, one concept at a time | 5PennyAi",
+      "description": "Clear, educational resources to understand how artificial intelligence works and use it more effectively.",
+      "socialImageAlt": "5PennyAi — Resources to understand AI"
     },
     "blog": {
       "title": "Blog — 5PennyAi",
@@ -842,7 +943,7 @@
     "title": "AI Resources",
     "subtitle": "Clear, practical educational resources to help you better understand artificial intelligence.",
     "type": "Infographic",
-    "typeWithTheme": "Infographic · {{theme}}",
+    "typeWithTopic": "Infographic · {{topic}}",
     "formats": {
       "infographic": "Infographic",
       "article": "Article",
@@ -882,7 +983,7 @@
       "infographics": "Infographics",
       "articles": "Articles",
       "prompts": "Prompts",
-      "formatWithTheme": "{{format}} · {{theme}}",
+      "formatWithTopic": "{{format}} · {{topic}}",
       "filterLabel": "Series",
       "allSeries": "All series",
       "unknownSeries": "Series unavailable",
@@ -988,7 +1089,7 @@
     "article": {
       "breadcrumbLabel": "Breadcrumb",
       "type": "AI Resources · Article",
-      "typeWithTheme": "AI Resources · Article · {{theme}}",
+      "typeWithTopic": "AI Resources · Article · {{topic}}",
       "fallbackTitle": "Article",
       "coverUnavailable": "Cover unavailable",
       "readingTime_one": "{{count}} minute read",
@@ -1174,6 +1275,33 @@
           "invalidResourceType": "This resource type cannot be associated with a series."
         }
       },
+      "topics": {
+        "navLabel": "Topics",
+        "title": "Topics",
+        "subtitle": "Topics classify Articles and Infographics across the catalog. They are distinct from series and keywords.",
+        "add": "Add topic",
+        "loading": "Loading topics…",
+        "retry": "Try again",
+        "empty": "No topics exist yet.",
+        "edit": "Edit",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "deleted": "The topic was deleted. Resources were kept.",
+        "deleteTitle": "Delete “{{name}}”?",
+        "deleteEmpty": "Delete this empty topic?",
+        "deleteWithResources": "This topic is associated with {{count}} resource(s). Deleting it will remove those associations, but will not delete any resource. Delete the topic?",
+        "columns": { "nameFr": "French name", "nameEn": "English name", "slug": "Slug", "resources": "Associations", "published": "Published", "updated": "Last updated", "actions": "Actions" },
+        "errors": { "load": "Unable to load topics.", "save": "Unable to save this topic.", "delete": "Unable to delete this topic.", "notFound": "This topic was not found.", "forbidden": "Your session is not allowed to perform this operation.", "migrationRequired": "The relational topics migration must be applied.", "slugConflict": "This slug is already used by another topic." },
+        "memberships": { "title": "Associated topics", "loading": "Loading associated topics…", "empty": "This resource is not associated with any topic.", "saveFirst": "Save the resource before managing its topics.", "viewTopic": "View topic", "remove": "Remove", "add": "Associate with a topic", "topic": "Topic", "selectTopic": "Choose a topic", "associate": "Associate", "cancel": "Cancel", "allAssociated": "This resource is already associated with every available topic.", "errors": { "load": "Unable to load associated topics.", "create": "Unable to create this association.", "delete": "Unable to remove this association.", "notFound": "This association no longer exists.", "alreadyAssociated": "This resource is already associated with this topic.", "forbidden": "Your session is not allowed to perform this operation.", "migrationRequired": "The relational topics migration must be applied.", "invalidResourceType": "This resource type cannot be associated with a topic." } }
+      },
+      "topicForm": {
+        "back": "Back to topics", "newTitle": "New topic", "editTitle": "Edit topic", "loading": "Loading topic…", "saved": "The topic was saved.", "save": "Save", "saving": "Saving…", "cancel": "Cancel",
+        "slugHelp": "The slug is suggested from the French name and remains editable before creation.", "slugWarning": "Changing the slug may change the public filter URL when this taxonomy is used publicly.",
+        "sections": { "general": "General information", "descriptions": "Descriptions", "members": "Associated resources", "actions": "Actions" },
+        "fields": { "nameFr": "French name", "nameEn": "English name", "slug": "Slug", "descriptionFr": "French description", "descriptionEn": "English description" },
+        "members": { "empty": "No associated resources.", "untitled": "Untitled resource", "open": "Open", "remove": "Remove", "formats": { "article": "Article", "infographic": "Infographic" }, "statuses": { "draft": "Draft", "published": "Published" } },
+        "errors": { "load": "Unable to load this topic.", "save": "Unable to save this topic.", "notFound": "This topic was not found.", "nameFrRequired": "The French name is required.", "nameEnRequired": "The English name is required.", "slugRequired": "The slug is required.", "slugConflict": "This slug is already used by another topic.", "forbidden": "Your session is not allowed to perform this operation.", "migrationRequired": "The relational topics migration must be applied.", "membershipsLoad": "Unable to load this topic's resources.", "membershipDelete": "Unable to remove this resource from the topic.", "membershipNotFound": "This association was not found." }
+      },
       "prompts": {
         "navLabel": "Prompts",
         "title": "Prompt library",
@@ -1275,7 +1403,6 @@
         "columns": {
           "infographic": "Infographic",
           "title": "Title",
-          "theme": "Theme",
           "series": "Associated series",
           "episode": "Episode",
           "status": "Status",
@@ -1444,7 +1571,6 @@
           "title": "Title",
           "subtitle": "Subtitle",
           "summary": "Summary",
-          "theme": "Theme",
           "slug": "Technical slug",
           "slugHint": "Separate from the suggested SEO slug. Optional for a draft and normalized when saved.",
           "learningObjectives": "Learning objectives",
@@ -1663,6 +1789,7 @@
           },
           "warnings": {
             "legacySeriesIgnored": "series are now managed in the application; this file’s series information was not applied",
+            "legacyThemeIgnored": "the legacy theme field was ignored; topics are managed explicitly in administration",
             "unknownProperty": "unknown property ignored",
             "forbiddenProperty": "forbidden technical property ignored",
             "expectedInteger": "expected an integer; value ignored",
@@ -1688,7 +1815,6 @@
           "codes": {
             "missingTitle": "The title is missing.",
             "missingSummary": "The summary is missing.",
-            "missingTheme": "The theme is missing.",
             "unknownLanguage": "Language “{{value}}” is not recognized.",
             "unknownLevel": "Level “{{value}}” is not recognized.",
             "unexpectedContentType": "Type “{{value}}” is not article.",
@@ -1802,7 +1928,6 @@
           "summary": "Summary",
           "introduction": "Introduction",
           "imageAlt": "Alternative text",
-          "theme": "Theme",
           "level": "Level",
           "readingTime": "Reading time in minutes",
           "pointTitle": "Point title",
@@ -1940,6 +2065,7 @@
           },
           "warnings": {
             "legacySeriesIgnored": "series are now managed in the application; this file’s series information was not applied",
+            "legacyThemeIgnored": "the legacy theme field was ignored; topics are managed explicitly in administration",
             "unsupportedSchemaVersion": "version is outside v1 support; other recognized properties were still analyzed",
             "expectedString": "expected a string; value ignored",
             "invalidLevel": "expected beginner, intermediate, or advanced; value ignored",

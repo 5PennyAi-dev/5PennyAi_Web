@@ -15,6 +15,7 @@ import {
 } from '@/lib/articleSeo'
 import { loadPublishedArticleBySlug } from '@/lib/publicArticles'
 import { loadPublishedSeriesNavigation } from '@/lib/publicInfographics'
+import { getResourceTopicMembershipLabels } from '@/lib/resourceTopics'
 
 const RESOURCES_PATH = '/ressources-ia'
 
@@ -74,6 +75,7 @@ export function ArticleContent({ result, seriesContexts, t, locale }) {
   const publishedDate = formatDate(article.publishedAt, locale)
   const level = article.level ? t(`resourcesAi.levels.${article.level}`, { defaultValue: article.level }) : ''
   const series = formatSeriesContexts(seriesContexts, t)
+  const topicLabel = getResourceTopicMembershipLabels(article, locale).join(' · ')
 
   return (
     <>
@@ -113,7 +115,7 @@ export function ArticleContent({ result, seriesContexts, t, locale }) {
 
           <header className="mx-auto max-w-3xl text-center">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent">
-              {article.theme ? t('resourcesAi.article.typeWithTheme', { theme: article.theme }) : t('resourcesAi.article.type')}
+              {topicLabel ? t('resourcesAi.article.typeWithTopic', { topic: topicLabel }) : t('resourcesAi.article.type')}
             </p>
             <h1 className="text-display mt-4 text-4xl font-bold text-navy md:text-5xl">{title}</h1>
             {article.subtitle && <p className="mt-5 text-lg leading-relaxed text-muted md:text-xl">{article.subtitle}</p>}

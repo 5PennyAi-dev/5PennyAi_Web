@@ -22,7 +22,7 @@ const INFOGRAPHICS_PATH = '/admin/ressources-ia/infographies'
 const NEW_INFOGRAPHIC_PATH = `${INFOGRAPHICS_PATH}/nouvelle`
 const BUCKET = 'infographics'
 const LIST_COLUMNS =
-  'id, status, title, theme, updated_at, image_path, image_metadata, thumbnail_path'
+  'id, status, title, updated_at, image_path, image_metadata, thumbnail_path'
 
 export default function AdminInfographics() {
   return (
@@ -283,11 +283,10 @@ function InfographicList({ infographics, locale, onDelete, t }) {
   return (
     <>
       <div className="hidden overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm md:block">
-        <div className="min-w-[1080px]">
-          <div className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(110px,0.8fr)_minmax(190px,1fr)_100px_110px_220px] items-center gap-3 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
+        <div className="min-w-[960px]">
+          <div className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(190px,1fr)_100px_110px_220px] items-center gap-3 border-b border-gray-200 bg-surface px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-gray-400">
           <span>{t('admin.resourcesAi.infographics.columns.infographic')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.title')}</span>
-          <span>{t('admin.resourcesAi.infographics.columns.theme')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.series')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.status')}</span>
           <span>{t('admin.resourcesAi.infographics.columns.updated')}</span>
@@ -298,11 +297,10 @@ function InfographicList({ infographics, locale, onDelete, t }) {
           {infographics.map((infographic) => (
             <li
               key={infographic.id}
-              className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(110px,0.8fr)_minmax(190px,1fr)_100px_110px_220px] items-center gap-3 px-5 py-4"
+              className="grid grid-cols-[76px_minmax(180px,1.4fr)_minmax(190px,1fr)_100px_110px_220px] items-center gap-3 px-5 py-4"
             >
               <InfographicThumbnail infographic={infographic} t={t} />
               <InfographicIdentity infographic={infographic} t={t} />
-              <p className="text-sm text-navy/75">{infographic.theme || '—'}</p>
               <p className="truncate text-sm text-navy/75">{formatSeries(infographic, t) || '\u2014'}</p>
               <StatusBadge status={infographic.status} t={t} />
               <time
@@ -335,11 +333,6 @@ function InfographicList({ infographics, locale, onDelete, t }) {
                 )}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <StatusBadge status={infographic.status} t={t} />
-                  {infographic.theme && (
-                    <span className="rounded-md bg-lavender/40 px-2 py-0.5 text-xs text-navy/70">
-                      {infographic.theme}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>

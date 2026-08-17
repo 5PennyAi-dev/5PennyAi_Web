@@ -8,6 +8,9 @@
 
 ---
 
+> **État historique.** Les générateurs actifs ne lisent plus `theme`; consulter le
+> guide Taxonomie des sujets Ressources IA pour l’architecture finale.
+
 ## 1. Rôle du document
 
 Ce guide encadre l’évolution **MVP 4.0** de la section Ressources IA.

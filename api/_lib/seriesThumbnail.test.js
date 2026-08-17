@@ -98,8 +98,8 @@ test('construit le prompt versionné sans données techniques, niveau ni nombre 
   const prompt = buildSeriesThumbnailPrompt({
     seriesName: 'Les fondamentaux de l’IA générative',
     episodes: [
-      { title: 'Comprendre le RAG', theme: 'IA générative', level: 'beginner', status: 'published' },
-      { title: 'Utiliser les agents', theme: 'Agents' },
+      { title: 'Comprendre le RAG', level: 'beginner', status: 'published' },
+      { title: 'Utiliser les agents' },
     ],
   })
   assert.equal(SERIES_THUMBNAIL_PROMPT_VERSION, 'series-thumbnail-skill-v1')
@@ -252,7 +252,6 @@ function makeEpisodes(count) {
     published_at: `2026-01-${String(index + 1).padStart(2, '0')}T00:00:00Z`,
     seriesMemberships: [{ seriesId: 'series-1', slug: 'serie-test', name: 'Série test', position: index + 1 }],
     title: `Épisode ${index + 1}`,
-    theme: index % 2 ? 'Agents' : 'IA générative',
     thumbnail_path: `thumbnails/infographics/${IDS[index]}/thumbnail.webp`,
     image_path: `${IDS[index]}/original.webp`,
     contentType: 'infographic',
@@ -266,7 +265,6 @@ function makeArticleEpisodes(count) {
     published_at: null,
     seriesMemberships: [{ seriesId: 'series-1', slug: 'serie-test', name: 'Série test', position: index + 1 }],
     title: `Article ${index + 1}`,
-    theme: index % 2 ? 'Agents' : 'IA générative',
     cover_path: `articles/${IDS[index]}/cover/223e4567-e89b-42d3-a456-42661417400${index}.webp`,
     contentType: 'article',
   }))

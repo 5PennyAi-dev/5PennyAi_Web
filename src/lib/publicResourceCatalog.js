@@ -35,10 +35,10 @@ export function adaptInfographicToPublicResource(row = {}, { getImageUrl = () =>
     title: row.title,
     subtitle: cleanText(row.subtitle),
     summary: row.summary,
-    theme: row.theme,
     level: row.level,
     keywords: cleanStringArray(row.keywords),
     seriesMemberships: [],
+    topicMemberships: [],
     publishedAt: row.published_at,
     readingTimeMinutes: row.reading_time_minutes,
     thumbnailUrl: thumbnailSources[0]?.url || null,
@@ -58,10 +58,10 @@ export function adaptArticleToPublicResource(row = {}, { coverUrl = null, readin
     title: row.title,
     subtitle: cleanText(row.subtitle),
     summary: row.summary,
-    theme: row.theme,
     level: row.level,
     keywords: cleanStringArray(row.keywords),
     seriesMemberships: [],
+    topicMemberships: [],
     publishedAt: row.published_at,
     readingTimeMinutes: readingTime(row.content_markdown),
     thumbnailUrl: coverUrl || null,
@@ -89,6 +89,7 @@ export function adaptPromptToPublicResource(row = {}, { thumbnailUrl = null } = 
     contexts: cleanStringArray(row.contexts),
     keywords: cleanStringArray(row.keywords),
     seriesMemberships: [],
+    topicMemberships: [],
   }
 }
 
@@ -102,6 +103,8 @@ export function mergePublicResources({
   calculateArticleReadingTime = () => null,
   seriesRows = [],
   membershipRows = [],
+  topicRows = [],
+  topicMembershipRows = [],
 } = {}) {
   const infographics = publishedRows(infographicRows).map((row) =>
     adaptInfographicToPublicResource(row, { getImageUrl: getInfographicImageUrl }))
@@ -115,10 +118,15 @@ export function mergePublicResources({
       thumbnailUrl: promptThumbnailUrls[row.id] || null,
     }))
 
-  const attachedResources = attachSeriesMemberships(
+  const resourcesWithSeries = attachSeriesMemberships(
     [...infographics, ...articles, ...prompts],
     seriesRows,
     membershipRows,
+  )
+  const attachedResources = attachResourceTopicMemberships(
+    resourcesWithSeries,
+    topicRows,
+    topicMembershipRows,
   )
   const byKey = new Map(attachedResources.map((resource) => [getPublicResourceKey(resource), resource]))
   const withMemberships = (items) => items.map((resource) => byKey.get(getPublicResourceKey(resource)))
@@ -159,6 +167,37 @@ export function attachSeriesMemberships(resources, seriesRows, membershipRows) {
     seriesMemberships: resource?.contentType === 'prompt'
       ? []
       : sortMemberships(membershipsByResource.get(getPublicResourceKey(resource)) || []),
+  }))
+}
+
+export function attachResourceTopicMemberships(resources, topicRows, membershipRows) {
+  const topicsById = new Map((Array.isArray(topicRows) ? topicRows : [])
+    .filter((topic) => cleanText(topic?.id) && cleanText(topic?.slug))
+    .map((topic) => [topic.id, topic]))
+  const membershipsByResource = new Map()
+
+  for (const row of Array.isArray(membershipRows) ? membershipRows : []) {
+    const topic = topicsById.get(row?.topic_id)
+    const resourceKey = membershipResourceKey(row)
+    if (!topic || !resourceKey) continue
+    const memberships = membershipsByResource.get(resourceKey) || []
+    if (!memberships.some(({ topicId }) => topicId === topic.id)) {
+      memberships.push({
+        membershipId: row.id,
+        topicId: topic.id,
+        slug: cleanText(topic.slug),
+        nameFr: cleanText(topic.name_fr),
+        nameEn: cleanText(topic.name_en),
+      })
+    }
+    membershipsByResource.set(resourceKey, memberships)
+  }
+
+  return (Array.isArray(resources) ? resources : []).map((resource) => ({
+    ...resource,
+    topicMemberships: resource?.contentType === 'prompt'
+      ? []
+      : sortTopicMemberships(membershipsByResource.get(getPublicResourceKey(resource)) || []),
   }))
 }
 
@@ -338,8 +377,8 @@ export function buildResourceSearchText(resource = {}, promptTaxonomyLabels = []
     resource?.title,
     resource?.subtitle,
     resource?.summary,
-    resource?.theme,
     ...(resource?.seriesMemberships || []).map((membership) => membership.name),
+    ...(resource?.topicMemberships || []).flatMap((membership) => [membership.nameFr, membership.nameEn]),
     resource?.category,
     ...cleanStringArray(resource?.contexts),
     ...cleanStringArray(resource?.keywords),
@@ -448,6 +487,28 @@ export async function fetchPublicSeriesMembershipRows(
   return data || []
 }
 
+export async function fetchPublicResourceTopicRows(client) {
+  const { data, error } = await client
+    .from('resource_topics')
+    .select('id, slug, name_fr, name_en')
+  if (error) throw error
+  return data || []
+}
+
+export async function fetchPublicResourceTopicMembershipRows(
+  client,
+  { resourceId = '', resourceType = '' } = {},
+) {
+  let query = client
+    .from('resource_topic_memberships')
+    .select('id, topic_id, article_id, infographic_id')
+  if (resourceId && resourceType === 'article') query = query.eq('article_id', resourceId)
+  if (resourceId && resourceType === 'infographic') query = query.eq('infographic_id', resourceId)
+  const { data, error } = await query
+  if (error) throw error
+  return data || []
+}
+
 export async function loadPublishedCatalog({
   client,
   fetchInfographics,
@@ -457,14 +518,18 @@ export async function loadPublishedCatalog({
   calculateArticleReadingTime,
   fetchSeries = fetchPublicSeriesRows,
   fetchMemberships = fetchPublicSeriesMembershipRows,
+  fetchTopics = fetchPublicResourceTopicRows,
+  fetchTopicMemberships = fetchPublicResourceTopicMembershipRows,
   logger = console,
 }) {
-  const [infographicRows, articleResult, promptResult, seriesRows, membershipRows] = await Promise.all([
+  const [infographicRows, articleResult, promptResult, seriesRows, membershipRows, topicRows, topicMembershipRows] = await Promise.all([
     fetchInfographics(client),
     fetchArticles(client, { logger }),
     fetchPrompts(client, { logger }),
     fetchSeries(client),
     fetchMemberships(client),
+    fetchTopics(client),
+    fetchTopicMemberships(client),
   ])
   const articleRows = Array.isArray(articleResult) ? articleResult : articleResult?.rows || []
   const articleCoverUrls = Array.isArray(articleResult) ? {} : articleResult?.coverUrls || {}
@@ -480,8 +545,10 @@ export async function loadPublishedCatalog({
     calculateArticleReadingTime,
     seriesRows,
     membershipRows,
+    topicRows,
+    topicMembershipRows,
   })
-  return { ...catalog, seriesRows, membershipRows }
+  return { ...catalog, seriesRows, membershipRows, topicRows, topicMembershipRows }
 }
 
 function publishedRows(rows) {
@@ -519,6 +586,15 @@ function normalizeMembershipPosition(value) {
 function sortMemberships(memberships) {
   return [...memberships].sort((left, right) => (
     left.name.localeCompare(right.name, undefined, { sensitivity: 'base' })
+    || left.slug.localeCompare(right.slug)
+    || String(left.membershipId).localeCompare(String(right.membershipId))
+  ))
+}
+
+function sortTopicMemberships(memberships) {
+  return [...memberships].sort((left, right) => (
+    left.nameFr.localeCompare(right.nameFr, 'fr', { sensitivity: 'base' })
+    || left.nameEn.localeCompare(right.nameEn, 'en', { sensitivity: 'base' })
     || left.slug.localeCompare(right.slug)
     || String(left.membershipId).localeCompare(String(right.membershipId))
   ))

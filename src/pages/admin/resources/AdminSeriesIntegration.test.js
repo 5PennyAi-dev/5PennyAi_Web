@@ -41,12 +41,14 @@ test('le slug est proposé à la création puis verrouillé en modification', ()
 test('place les séries associées à la section 3 et conserve une numérotation continue', () => {
   const generalSection = articleFormSource.indexOf('<FormSection number="2"')
   const membershipsSection = articleFormSource.indexOf('<FormSection number="3"')
-  const learningSection = articleFormSource.indexOf('<FormSection number="4"')
+  const topicsSection = articleFormSource.indexOf('<FormSection number="4"')
+  const learningSection = articleFormSource.indexOf('<FormSection number="5"')
 
   assert.ok(generalSection < membershipsSection)
-  assert.ok(membershipsSection < learningSection)
-  for (let number = 1; number <= 15; number += 1) {
+  assert.ok(membershipsSection < topicsSection)
+  assert.ok(topicsSection < learningSection)
+  for (let number = 1; number <= 16; number += 1) {
     assert.match(articleFormSource, new RegExp(`<FormSection number="${number}"`))
   }
-  assert.doesNotMatch(articleFormSource, /<FormSection number="16"/)
+  assert.doesNotMatch(articleFormSource, /<FormSection number="17"/)
 })

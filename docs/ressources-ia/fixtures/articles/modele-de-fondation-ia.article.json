@@ -5,7 +5,6 @@
   "title": "Qu’est-ce qu’un modèle de fondation?",
   "subtitle": "Un socle réutilisable pour plusieurs usages de l’intelligence artificielle",
   "summary": "Découvrez comment un modèle préentraîné sur des données variées peut servir de base à plusieurs usages, avec ou sans adaptation de ses paramètres.",
-  "theme": "Fondements de l’intelligence artificielle",
   "level": "beginner",
   "learningObjectives": [
     "Définir ce qu’est un modèle de fondation et expliquer pourquoi il sert de socle à plusieurs usages.",

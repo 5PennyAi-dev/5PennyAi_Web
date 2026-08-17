@@ -8,6 +8,10 @@
 
 ---
 
+> **État historique.** L’architecture actuelle est définie par le guide Taxonomie
+> des sujets Ressources IA. Le champ `theme` a été retiré : les Topics sont gérés
+> dans l’administration et les keywords servent à la recherche.
+
 ## 1. Rôle du document
 
 Ce guide encadre l’ajout des **articles éducatifs** à la section Ressources IA.

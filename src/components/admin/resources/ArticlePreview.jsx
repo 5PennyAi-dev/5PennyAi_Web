@@ -38,7 +38,7 @@ export default function ArticlePreview({ assets = [], assetUrls = {}, coverUrl, 
           </div>
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-steel">
-              {[form.theme, levelLabel].filter(Boolean).join(' · ')}
+              {levelLabel}
             </p>
             <h2 className="mt-2 font-heading text-2xl font-bold text-navy sm:text-3xl">
               {form.title || t('admin.resourcesAi.articleForm.preview.untitled')}

@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { ArrowRight, BookOpenText, Clock3, Image as ImageIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { getResourceSeriesDisplay } from '@/lib/publicResourceCatalog'
+import { getResourceTopicMembershipLabels } from '@/lib/resourceTopics'
 
 export default function ResourceCard({ resource, selectedSeriesSlug = '', showSeriesName = true, t }) {
+  const { i18n } = useTranslation()
   const title = resource.title || formatFallbackTitle(resource, t)
   const { additionalCount, membership, position } = getResourceSeriesDisplay(
     resource,
@@ -16,8 +19,9 @@ export default function ResourceCard({ resource, selectedSeriesSlug = '', showSe
     : ''
   const hasSeriesHeader = Boolean((showSeriesName && seriesName) || episodeLabel)
   const formatLabel = t(`resourcesAi.formats.${resource.contentType}`)
-  const typeLabel = resource.theme
-    ? t('resourcesAi.catalog.formatWithTheme', { format: formatLabel, theme: resource.theme })
+  const topicLabel = getResourceTopicMembershipLabels(resource, i18n.language).join(' · ')
+  const typeLabel = topicLabel
+    ? t('resourcesAi.catalog.formatWithTopic', { format: formatLabel, topic: topicLabel })
     : formatLabel
 
   return (
@@ -95,7 +99,13 @@ export default function ResourceCard({ resource, selectedSeriesSlug = '', showSe
   )
 }
 
-export function ResourcePreview({ contentType, sources, t }) {
+export function ResourcePreview({
+  contentType,
+  sources,
+  t,
+  loading = 'lazy',
+  fetchPriority,
+}) {
   const [sourceIndex, setSourceIndex] = useState(0)
   const source = Array.isArray(sources) ? sources[sourceIndex] : null
 
@@ -118,8 +128,9 @@ export function ResourcePreview({ contentType, sources, t }) {
       src={source.url}
       alt=""
       className={`h-full w-full ${source.kind === 'thumbnail' ? 'object-contain object-center' : 'object-cover object-center'}`}
-      loading="lazy"
       decoding="async"
+      loading={loading}
+      fetchPriority={fetchPriority}
       onError={() => setSourceIndex((index) => index + 1)}
     />
   )

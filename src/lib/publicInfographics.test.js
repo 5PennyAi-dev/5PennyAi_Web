@@ -70,7 +70,7 @@ test('la requête d’accueil limite les colonnes et filtre les publications', a
   ])
 })
 
-test('charge séries et memberships en deux requêtes globales sans N+1', async () => {
+test('charges series and topic memberships in global queries without N+1', async () => {
   const calls = []
   const result = await loadPublishedCatalog({
     client: {},
@@ -85,9 +85,18 @@ test('charge séries et memberships en deux requêtes globales sans N+1', async 
       calls.push('memberships')
       return [{ id: 'm1', series_id: 'alpha', infographic_id: 'one', position: 1 }]
     },
+    fetchTopics: async () => {
+      calls.push('topics')
+      return [{ id: 'topic-alpha', slug: 'fondamentaux-ia', name_fr: 'Fondamentaux', name_en: 'AI fundamentals' }]
+    },
+    fetchTopicMemberships: async () => {
+      calls.push('topic-memberships')
+      return [{ id: 'tm1', topic_id: 'topic-alpha', infographic_id: 'one' }]
+    },
   })
-  assert.deepEqual(calls, ['series', 'memberships'])
+  assert.deepEqual(calls, ['series', 'memberships', 'topics', 'topic-memberships'])
   assert.equal(result.infographics[0].seriesMemberships[0].slug, 'serie-alpha')
+  assert.equal(result.infographics[0].topicMemberships[0].slug, 'fondamentaux-ia')
   assert.equal(result.series.length, 1)
 })
 

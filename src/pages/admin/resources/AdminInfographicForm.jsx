@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import AdminGuard from '@/components/admin/AdminGuard'
 import InfographicThumbnailField from '@/components/admin/resources/InfographicThumbnailField'
 import ResourceSeriesMembershipsField from '@/components/admin/resources/ResourceSeriesMembershipsField'
+import ResourceTopicMembershipsField from '@/components/admin/resources/ResourceTopicMembershipsField'
 import ResourceSocialPostsPanel from '@/components/admin/ResourceSocialPostsPanel'
 import {
   hasInfographicMetadata,
@@ -43,7 +44,6 @@ const IMPORT_FIELD_TRANSLATION_KEYS = {
   summary: 'fields.summary',
   introduction: 'fields.introduction',
   imageAlt: 'fields.imageAlt',
-  theme: 'fields.theme',
   level: 'fields.level',
   readingTimeMinutes: 'fields.readingTime',
   keyPoints: 'sections.keyPoints',
@@ -52,7 +52,7 @@ const IMPORT_FIELD_TRANSLATION_KEYS = {
   sources: 'sections.sources',
 }
 const EDIT_COLUMNS =
-  'id, status, published_at, image_path, image_metadata, thumbnail_path, title, subtitle, summary, introduction, image_alt, theme, level, reading_time_minutes, key_points, takeaway, keywords, sources'
+  'id, status, published_at, image_path, image_metadata, thumbnail_path, title, subtitle, summary, introduction, image_alt, level, reading_time_minutes, key_points, takeaway, keywords, sources'
 
 const EMPTY_FORM = {
   title: '',
@@ -60,7 +60,6 @@ const EMPTY_FORM = {
   summary: '',
   introduction: '',
   image_alt: '',
-  theme: '',
   level: '',
   reading_time_minutes: '',
   key_points: [],
@@ -756,11 +755,6 @@ function AdminInfographicFormPage() {
               title={t('admin.resourcesAi.infographicForm.sections.classification')}
             >
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  label={t('admin.resourcesAi.infographicForm.fields.theme')}
-                  value={form.theme}
-                  onChange={(value) => updateField('theme', value)}
-                />
                 <SelectField
                   label={t('admin.resourcesAi.infographicForm.fields.level')}
                   value={form.level}
@@ -788,6 +782,13 @@ function AdminInfographicFormPage() {
               title={t('admin.resourcesAi.memberships.title')}
             >
               <ResourceSeriesMembershipsField resourceId={resourceId} resourceType="infographic" />
+            </FormSection>
+
+            <FormSection
+              number="7"
+              title={t('admin.resourcesAi.topics.memberships.title')}
+            >
+              <ResourceTopicMembershipsField resourceId={resourceId} resourceType="infographic" />
             </FormSection>
 
             <RepeatableSection
@@ -1423,7 +1424,6 @@ function toFormState(data) {
     summary: data.summary || '',
     introduction: data.introduction || '',
     image_alt: data.image_alt || '',
-    theme: data.theme || '',
     level: ['beginner', 'intermediate', 'advanced'].includes(data.level) ? data.level : '',
     reading_time_minutes: data.reading_time_minutes?.toString() || '',
     key_points: Array.isArray(data.key_points) ? data.key_points : [],
@@ -1440,7 +1440,6 @@ function toDatabasePayload(form) {
     summary: emptyToNull(form.summary),
     introduction: emptyToNull(form.introduction),
     image_alt: emptyToNull(form.image_alt),
-    theme: emptyToNull(form.theme),
     level: emptyToNull(form.level),
     reading_time_minutes: optionalInteger(form.reading_time_minutes),
     key_points: form.key_points,

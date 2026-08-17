@@ -5,7 +5,6 @@
   "title": "Comment évaluer la récupération dans un système RAG?",
   "subtitle": "Construire un jeu de test, choisir les bonnes métriques et détecter les régressions",
   "summary": "Apprenez à évaluer rigoureusement le composant de récupération d’un système RAG avec des requêtes annotées, Precision@k, Recall@k, Hit Rate@k, MRR et nDCG.",
-  "theme": "Systèmes RAG",
   "level": "advanced",
   "learningObjectives": [
     "Construire une collection de test associant des requêtes à des passages pertinents attendus.",

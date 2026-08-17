@@ -8,6 +8,9 @@
 
 ---
 
+> **État historique.** Les Prompts restent hors Topics et ne disposent pas de
+> `theme`; leur classification demeure `category` et `contexts`.
+
 ## 1. Rôle du document
 
 Ce guide encadre l’ajout d’une **bibliothèque de prompts réutilisables** à la section Ressources IA de 5PennyAi.

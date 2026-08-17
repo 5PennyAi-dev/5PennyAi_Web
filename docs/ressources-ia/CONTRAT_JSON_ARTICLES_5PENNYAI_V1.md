@@ -33,6 +33,11 @@ Le JSON ne contient aucun fichier binaire et ne publie jamais directement l’ar
 
 ---
 
+La classification est gérée dans l’administration : le JSON ne contient ni `topic`, ni
+`topics`, ni memberships. Les `keywords` restent des termes de recherche libres. Un
+ancien champ `theme` est accepté pour compatibilité, ignoré et signalé sans modifier
+les memberships.
+
 ## 2. Principe fondamental
 
 > Le JSON prépare l’article, mais Christian conserve toujours le contrôle de sa révision, de ses médias, de son enregistrement et de sa publication.
@@ -79,7 +84,6 @@ Le générateur d’articles doit normalement produire un paquet beaucoup plus c
 - `title`;
 - `subtitle`;
 - `summary`;
-- `theme`;
 - `level`;
 - `contentMarkdown`;
 - `sources`;
@@ -100,7 +104,6 @@ Cette exigence concerne le comportement attendu du générateur. Elle ne transfo
   "title": "Comment fonctionne le RAG?",
   "subtitle": "Relier un modèle de langage à des connaissances externes",
   "summary": "Découvrez comment un système RAG recherche des passages pertinents avant de les transmettre à un modèle de langage pour produire une réponse mieux fondée.",
-  "theme": "IA générative",
   "level": "beginner",
   "learningObjectives": [
     "Comprendre pourquoi un système RAG utilise une source de connaissances externe.",
@@ -313,25 +316,6 @@ Utilisation :
 Le résumé est distinct de l’introduction contenue dans `contentMarkdown`.
 
 Il doit pouvoir être compris sans lire l’article complet.
-
-### 4.7 `theme`
-
-Type attendu :
-
-```text
-chaîne de caractères
-```
-
-Le contrat n’impose pas une taxonomie fermée dans la v1.
-
-Le générateur doit produire un thème :
-
-- court;
-- compréhensible;
-- cohérent avec les thèmes déjà utilisés;
-- non promotionnel.
-
-Une harmonisation ou une taxonomie contrôlée pourra être ajoutée plus tard si l’utilisation réelle le justifie.
 
 ### 4.8 `level`
 
@@ -1385,7 +1369,6 @@ Le générateur doit vérifier que les éléments suivants décrivent le même a
 - titre;
 - sous-titre;
 - résumé;
-- thème;
 - niveau;
 - objectifs;
 - contenu Markdown;
@@ -1505,7 +1488,6 @@ Les validations éditoriales assistent Christian sans prendre la décision à sa
 - résumé absent;
 - contenu Markdown vide;
 - niveau inconnu;
-- thème absent;
 - article très court;
 - article très long;
 - aucun objectif d’apprentissage;
@@ -1547,7 +1529,6 @@ Même dans ces cas, le formulaire existant ne doit pas être effacé.
 | `title` | Afficher `Article` |
 | `subtitle` | Masquer la ligne |
 | `summary` | Masquer le résumé de la carte |
-| `theme` | Afficher seulement le type `Article` |
 | `level` | Masquer le niveau |
 | `learningObjectives` | Masquer la section |
 | `prerequisites` | Masquer la section |
@@ -1619,7 +1600,6 @@ Il produira plusieurs avertissements éditoriaux, mais aucune erreur bloquante.
   "title": "Entraînement et inférence : quelles différences?",
   "subtitle": "Deux phases distinctes dans la vie d’un modèle",
   "summary": "Comparez la phase pendant laquelle un modèle apprend à celle pendant laquelle il est utilisé.",
-  "theme": "Apprentissage automatique",
   "level": "beginner",
   "contentMarkdown": "L’entraînement et l’inférence répondent à deux objectifs différents.\n\n## Comparaison\n\n| Aspect | Entraînement | Inférence |\n|---|---|---|\n| Objectif | Ajuster les paramètres | Utiliser les paramètres appris |\n| Entrée | Données d’apprentissage | Nouvelle entrée |\n| Coût | Généralement élevé | Généralement plus faible |\n\n## Conclusion\n\nL’entraînement permet au modèle d’apprendre à partir d’exemples. L’inférence utilise ensuite ce qui a été appris.",
   "media": [],

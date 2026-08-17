@@ -45,7 +45,6 @@ const ROOT_PROPERTIES = new Set([
   'title',
   'subtitle',
   'summary',
-  'theme',
   'level',
   'series',
   'learningObjectives',
@@ -63,7 +62,6 @@ const STRING_ROOT_FIELDS = [
   'title',
   'subtitle',
   'summary',
-  'theme',
   'takeaway',
   'contentMarkdown',
 ]
@@ -121,6 +119,7 @@ export function analyzeArticleJson(jsonText) {
   }
 
   collectRootProperties(data, context)
+  if ('theme' in data) context.warnings.push({ path: 'theme', code: 'legacyThemeIgnored' })
   analyzeSchemaVersion(data, context)
   analyzeControlledString(data, 'contentType', context, (value) => value === 'article', 'unexpectedContentType')
   analyzeControlledString(data, 'language', context, (value) => LANGUAGES.has(value), 'unknownLanguage')

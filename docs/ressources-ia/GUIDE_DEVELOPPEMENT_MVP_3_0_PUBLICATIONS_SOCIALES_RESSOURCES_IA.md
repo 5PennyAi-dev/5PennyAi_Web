@@ -8,6 +8,9 @@
 
 ---
 
+> **État historique.** L’architecture actuelle retire `theme` des ressources ; les
+> générateurs actifs utilisent les données éditoriales encore disponibles.
+
 ## 1. Rôle du document
 
 Ce guide encadre l’évolution **MVP 3.0** de la section Ressources IA.

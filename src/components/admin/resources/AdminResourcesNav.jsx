@@ -1,5 +1,5 @@
 import { createElement } from 'react'
-import { BookOpenText, Images, Layers3, Sparkles } from 'lucide-react'
+import { BookOpenText, Images, Layers3, Sparkles, Tags } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Card from '@/components/ui/Card'
@@ -28,6 +28,12 @@ const ITEMS = [
     to: '/admin/ressources-ia/series',
     icon: Layers3,
     labelKey: 'admin.resourcesAi.series.navLabel',
+  },
+  {
+    key: 'topics',
+    to: '/admin/ressources-ia/sujets',
+    icon: Tags,
+    labelKey: 'admin.resourcesAi.topics.navLabel',
   },
 ]
 

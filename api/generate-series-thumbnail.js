@@ -21,9 +21,9 @@ export const config = { maxDuration: 300 }
 const ADMIN_EMAIL = 'christian.couillard@5pennyai.com'
 const BUCKET = 'infographics'
 const INFOGRAPHIC_EPISODE_COLUMNS =
-  'id, status, published_at, image_path, thumbnail_path, title, summary, theme, level'
+  'id, status, published_at, image_path, thumbnail_path, title, summary, level'
 const ARTICLE_EPISODE_COLUMNS =
-  'id, status, published_at, cover_path, title, summary, theme, level'
+  'id, status, published_at, cover_path, title, summary, level'
 
 export async function authorizeSeriesThumbnailRequest(req, supabase, adminEmail = ADMIN_EMAIL) {
   const header = req.headers?.authorization || req.headers?.Authorization || ''

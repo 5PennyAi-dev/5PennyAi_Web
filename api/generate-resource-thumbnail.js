@@ -18,7 +18,7 @@ export const config = { maxDuration: 300 }
 const ADMIN_EMAIL = 'christian.couillard@5pennyai.com'
 const BUCKET = 'infographics'
 const RESOURCE_COLUMNS =
-  'id, image_path, thumbnail_path, title, subtitle, summary, theme, key_points, takeaway'
+  'id, image_path, thumbnail_path, title, subtitle, summary, key_points, takeaway'
 
 export async function authorizeResourceThumbnailRequest(req, supabase, adminEmail = ADMIN_EMAIL) {
   const header = req.headers?.authorization || req.headers?.Authorization || ''

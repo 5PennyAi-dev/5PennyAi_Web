@@ -23,7 +23,6 @@ export function getArticleWarnings(form, assetState = {}) {
 
   if (!hasText(form.title)) add('title', 'missingTitle')
   if (!hasText(form.summary)) add('summary', 'missingSummary')
-  if (!hasText(form.theme)) add('theme', 'missingTheme')
   if (hasText(form.language) && !LANGUAGES.has(form.language)) {
     add('language', 'unknownLanguage', { value: form.language })
   }

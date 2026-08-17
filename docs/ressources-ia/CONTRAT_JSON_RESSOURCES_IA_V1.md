@@ -10,6 +10,11 @@ Ce contrat est volontairement simple et permissif. Il peut évoluer avec le MVP.
 
 ---
 
+La classification par Sujets est gérée explicitement dans l’administration : aucun
+champ `topic`, `topics` ou membership ne fait partie du JSON. Les `keywords` sont
+réservés à la recherche. Un ancien champ `theme` reste importable pour compatibilité,
+mais est ignoré et signalé sans modifier les memberships.
+
 ## Principe fondamental
 
 > Le JSON aide à remplir le formulaire, mais ne décide jamais si une infographie peut être enregistrée ou publiée.
@@ -50,7 +55,6 @@ Le JSON peut décrire :
 - le résumé destiné à la carte publique;
 - l’introduction destinée à la page détaillée;
 - le texte alternatif de l’image;
-- le thème;
 - le niveau;
 - le temps de consultation;
 - les points essentiels;
@@ -76,7 +80,6 @@ La structure suivante montre toutes les propriétés prévues. Elles ne sont pas
   "summary": "Découvrez comment plusieurs agents spécialisés collaborent dans un processus commun.",
   "introduction": "Une solution multi-agent répartit un problème entre plusieurs agents possédant des responsabilités différentes. Un mécanisme d’orchestration coordonne leur travail.",
   "imageAlt": "Infographie expliquant comment un orchestrateur coordonne plusieurs agents spécialisés, leurs outils et une mémoire partagée.",
-  "theme": "Agents IA",
   "level": "intermediate",
   "readingTimeMinutes": 5,
   "keyPoints": [
@@ -224,26 +227,6 @@ Utilisation :
 - accessibilité.
 
 Si la valeur est absente, l’application peut utiliser une description neutre fondée sur le titre disponible.
-
----
-
-## `theme`
-
-Type attendu : chaîne de caractères.
-
-Exemple :
-
-```json
-"theme": "Agents IA"
-```
-
-Utilisation :
-
-- liste d’administration;
-- carte publique;
-- page détaillée.
-
-Le contrat n’impose pas une liste fermée de thèmes. Le GPT peut produire un thème pertinent en français.
 
 ---
 
@@ -518,7 +501,6 @@ Le site public affiche uniquement les sections qui contiennent une valeur utilis
 | Résumé | Masquer le résumé de la carte |
 | Introduction | Commencer directement par l’image ou la section suivante |
 | Texte alternatif | Utiliser une description neutre |
-| Thème | Afficher seulement le type `Infographie` |
 | Niveau | Masquer le niveau |
 | Temps | Masquer la durée |
 | Points essentiels | Masquer la section |
@@ -563,7 +545,6 @@ Cette convention facilite l’importation, mais l’application ne doit pas dép
   "summary": "Découvrez comment plusieurs agents spécialisés collaborent dans un processus commun.",
   "introduction": "Une solution multi-agent répartit un problème entre plusieurs agents possédant des responsabilités différentes. Un mécanisme d’orchestration coordonne leur travail.",
   "imageAlt": "Infographie expliquant comment un orchestrateur coordonne plusieurs agents spécialisés, leurs outils et une mémoire partagée.",
-  "theme": "Agents IA",
   "level": "intermediate",
   "readingTimeMinutes": 5,
   "keyPoints": [

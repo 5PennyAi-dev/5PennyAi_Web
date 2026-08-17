@@ -40,7 +40,7 @@ test('valide UUID, appartenance du chemin, MIME, signature, taille et décodage 
 test('construit le prompt versionné avec le titre exact et seulement les données éditoriales minimales', () => {
   const title = 'L’IA : utile, mais jusqu’où?'
   const prompt = buildArticleCoverFromInfographicPrompt({
-    title, subtitle: 'Sous-titre', summary: 'Résumé', theme: 'IA', level: 'beginner', takeaway: 'À retenir',
+    title, subtitle: 'Sous-titre', summary: 'Résumé', level: 'beginner', takeaway: 'À retenir',
     content_markdown: 'SECRET MARKDOWN', sources: [{ url: 'https://secret.example' }], seo: { primaryQuery: 'SECRET SEO' },
   })
   assert.equal(ARTICLE_COVER_PROMPT_VERSION, 'article-cover-from-infographic-v1')
@@ -113,7 +113,7 @@ function createDependencies({ article = undefined, downloadError, failure, remov
   let activeCover = OLD_COVER_PATH
   const events = []
   const defaultArticle = {
-    id: ARTICLE_ID, status: 'draft', title: 'Titre exact', subtitle: 'Sous-titre', summary: 'Résumé', theme: 'IA', level: 'beginner', takeaway: 'Message',
+    id: ARTICLE_ID, status: 'draft', title: 'Titre exact', subtitle: 'Sous-titre', summary: 'Résumé', level: 'beginner', takeaway: 'Message',
     infographic_path: INFOGRAPHIC_PATH, cover_path: OLD_COVER_PATH,
   }
   return {

@@ -38,7 +38,6 @@ test('construit le prompt v3 avec la référence, une composition libre et les m
     title: 'Comprendre le RAG',
     subtitle: 'Des réponses mieux ancrées',
     summary: 'Recherche puis génération.',
-    theme: 'IA générative',
     key_points: [{ title: 'Chercher', description: 'Trouver le bon contexte' }],
     takeaway: 'La qualité du contexte compte.',
     sources: [{ title: 'Interdit', url: 'https://example.com' }],

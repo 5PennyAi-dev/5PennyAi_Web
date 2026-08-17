@@ -13,6 +13,7 @@ import {
   loadPublishedSeriesNavigation,
 } from '@/lib/publicInfographics'
 import { buildInfographicSeoData } from '@/lib/infographicSeo'
+import { getResourceTopicMembershipLabels } from '@/lib/resourceTopics'
 
 const RESOURCES_PATH = '/ressources-ia'
 const SERIES_PATH = '/ressources-ia/series'
@@ -24,7 +25,7 @@ export default function InfographicDetail() {
 }
 
 function InfographicDetailById({ id }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [infographic, setInfographic] = useState(null)
   const [seriesContexts, setSeriesContexts] = useState([])
   const [state, setState] = useState('loading')
@@ -68,12 +69,13 @@ function InfographicDetailById({ id }) {
       key={infographic.id}
       infographic={infographic}
       seriesContexts={seriesContexts}
+      language={i18n.language}
       t={t}
     />
   )
 }
 
-function InfographicContent({ infographic, seriesContexts, t }) {
+function InfographicContent({ infographic, language, seriesContexts, t }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [imageFailed, setImageFailed] = useState(false)
   const title = infographic.title || t('resourcesAi.type')
@@ -85,6 +87,7 @@ function InfographicContent({ infographic, seriesContexts, t }) {
   const series = formatSeriesContexts(seriesContexts, t)
   const keyPoints = usableKeyPoints(infographic.key_points)
   const sources = usableSources(infographic.sources)
+  const topicLabel = getResourceTopicMembershipLabels(infographic, language).join(' · ')
 
   return (
     <>
@@ -142,8 +145,8 @@ function InfographicContent({ infographic, seriesContexts, t }) {
 
           <header className="mx-auto max-w-3xl text-center">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent">
-              {infographic.theme
-                ? t('resourcesAi.typeWithTheme', { theme: infographic.theme })
+              {topicLabel
+                ? t('resourcesAi.typeWithTopic', { topic: topicLabel })
                 : t('resourcesAi.type')}
             </p>
             <h1 className="text-display mt-4 text-4xl font-bold text-navy md:text-5xl">{title}</h1>

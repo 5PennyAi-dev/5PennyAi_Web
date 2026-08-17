@@ -172,7 +172,6 @@ function buildEditorialInput(context, platform, correction) {
     `Langue : ${context.language}`,
     `Titre : ${context.title}`,
     context.subtitle ? `Sous-titre : ${context.subtitle}` : '',
-    context.theme ? `Thème : ${context.theme}` : '',
     context.level ? `Niveau : ${context.level}` : '',
     `Idée principale : ${context.mainIdea}`,
     context.supportingContext ? `Contexte d’appui : ${context.supportingContext}` : '',

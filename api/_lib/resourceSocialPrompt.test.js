@@ -14,7 +14,6 @@ const CONTEXT = Object.freeze({
   language: 'fr',
   title: 'Comprendre le RAG',
   subtitle: '',
-  theme: 'IA générative',
   level: 'beginner',
   mainIdea: 'Le contexte récupéré soutient la génération.',
   supportingContext: 'La récupération précède la réponse.',

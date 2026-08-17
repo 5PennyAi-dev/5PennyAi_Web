@@ -51,6 +51,7 @@ test('transforme le formulaire en payload de brouillon et normalise seulement le
   assert.equal('infographic_path' in payload, false)
   assert.equal('series_name' in payload, false)
   assert.equal('episode_number' in payload, false)
+  assert.equal('theme' in payload, false)
   assert.equal(payload.seo.searchIntent, 'commercial')
 })
 

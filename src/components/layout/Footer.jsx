@@ -1,118 +1,69 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { Mail } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
-
-function LinkedinIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-      <rect width="4" height="12" x="2" y="9" />
-      <circle cx="4" cy="4" r="2" />
-    </svg>
-  )
-}
-
-function FacebookIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-    </svg>
-  )
-}
-
-
-const footerLinks = [
-  { key: 'nav.about', to: '/about' },
-  { key: 'nav.portfolio', to: '/portfolio' },
-  { key: 'nav.resourcesAi', to: '/ressources-ia' },
-  { key: 'nav.contact', to: '/contact' },
-]
+import { FOOTER_NAVIGATION } from '@/lib/footerNavigation'
 
 const linkClass =
-  'text-white/55 hover:text-white text-[14px] font-medium transition-colors duration-200'
-
-function FooterLink({ link, children }) {
-  if (link.to) {
-    return <Link to={link.to} className={linkClass}>{children}</Link>
-  }
-  return <a href={link.href} className={linkClass}>{children}</a>
-}
+  'text-sm font-medium text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-navy'
 
 export default function Footer() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const toggleLang = () => i18n.changeLanguage(i18n.language === 'fr' ? 'en' : 'fr')
 
   return (
     <footer
-      className="text-white relative overflow-hidden bg-grain"
+      className="relative overflow-hidden bg-grain text-white"
       style={{
         backgroundColor: '#0D2240',
         backgroundImage:
           'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(20,48,84,0.6), transparent 70%)',
       }}
     >
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="grid md:grid-cols-12 gap-10 md:gap-12 items-start">
-          {/* Brand */}
-          <div className="md:col-span-5">
-            <Link to="/" className="inline-block">
+      <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
+        <div className="grid gap-10 md:grid-cols-12 md:gap-8 lg:gap-12">
+          <div className="md:col-span-4">
+            <Link to="/" className="inline-block" aria-label="5PennyAi">
               <Logo variant="dark" height={28} />
             </Link>
-            <p className="text-white/35 text-[11px] uppercase tracking-[0.18em] font-bold mt-5">
-              {t('footer.tagline')}
-            </p>
-            <p className="text-white/45 text-[14px] mt-2 max-w-xs leading-relaxed">
-              {t('footer.made_with')}
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/65">
+              {t('footer.brandTagline')}
             </p>
           </div>
 
-          {/* Links */}
-          <nav className="md:col-span-4">
-            <p className="text-white/35 text-[11px] uppercase tracking-[0.18em] font-bold mb-5">
-              Navigation
-            </p>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-              {footerLinks.map((link) => (
-                <FooterLink key={link.key} link={link}>
-                  {t(link.key)}
-                </FooterLink>
-              ))}
+          <nav className="grid grid-cols-2 gap-x-7 gap-y-9 md:col-span-7 md:grid-cols-3 md:gap-x-8" aria-label={t('footer.navigationLabel')}>
+            {FOOTER_NAVIGATION.map((group) => (
+              <div key={group.key}>
+                <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-white/40">
+                  {t(`footer.groups.${group.key}`)}
+                </p>
+                <ul className="space-y-3">
+                  {group.links.map((link) => (
+                    <li key={link.to}>
+                      <Link to={link.to} className={linkClass}>{t(link.key)}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            <div className="col-span-2 md:col-span-1">
+              <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-white/40">{t('footer.language')}</p>
+              <button type="button" onClick={toggleLang} className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold tracking-wide text-white/75 transition-colors hover:border-white/45 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-navy" aria-label={t('nav.changeLanguage')}>
+                {t('nav.lang_toggle')}
+              </button>
             </div>
           </nav>
-
-          {/* Social */}
-          <div className="md:col-span-3">
-            <p className="text-white/35 text-[11px] uppercase tracking-[0.18em] font-bold mb-5">
-              Contact
-            </p>
-            <div className="flex items-center gap-3">
-              {[
-                { icon: <LinkedinIcon />, href: t('home_contact.linkedin_url'), label: 'LinkedIn' },
-                { icon: <FacebookIcon />, href: 'https://www.facebook.com/profile.php?id=61576445489064', label: 'Facebook' },
-                { icon: <Mail size={18} aria-hidden="true" />, href: 'mailto:christian.couillard@gmail.com', label: 'Email' },
-              ].map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target={social.href.startsWith('http') ? '_blank' : undefined}
-                  rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-accent hover:border-accent/40 hover:bg-white/[0.04] transition-all duration-200"
-                  aria-label={social.label}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
-          </div>
         </div>
 
-        <div className="mt-14 pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
-          <p className="text-white/35 text-xs tnum">
-            {t('footer.copyright')}
-          </p>
+        <div className="mt-12 flex flex-col gap-4 border-t border-white/[0.08] pt-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
+          <p className="tnum">{t('footer.copyright')}</p>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <a href={t('home_contact.linkedin_url')} target="_blank" rel="noopener noreferrer" className={linkClass}>LinkedIn</a>
+            <a href="https://www.facebook.com/profile.php?id=61576445489064" target="_blank" rel="noopener noreferrer" className={linkClass}>Facebook</a>
+            <a href={`mailto:${t('home_contact.email')}`} className={linkClass}>{t('footer.email')}</a>
+          </div>
           <Link
             to="/admin/ressources-ia/infographies"
-            className="text-white/25 hover:text-white/60 text-[11px] uppercase tracking-[0.14em] font-bold transition-colors"
+            className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/35 transition-colors hover:text-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-navy"
           >
             {t('footer.admin')}
           </Link>

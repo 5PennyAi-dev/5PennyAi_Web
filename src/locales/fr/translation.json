@@ -4,9 +4,16 @@
     "services": "Services",
     "expertise": "Expertise",
     "about": "Profil",
+    "aboutSite": "À propos",
     "portfolio": "Portfolio",
     "blog": "Blog",
     "resourcesAi": "Ressources IA",
+    "resources": "Ressources",
+    "series": "Séries",
+    "prompts": "Prompts",
+    "search": "Recherche",
+    "menu": "Menu principal",
+    "changeLanguage": "Changer de langue",
     "faq": "FAQ",
     "contact": "Contact",
     "cta": "Réserver un appel",
@@ -14,19 +21,90 @@
     "admin": "Admin"
   },
   "hero": {
-    "overline": "PORTFOLIO PERSONNEL",
-    "name": "Christian Couillard",
-    "role": "Professionnel en technologies de l’information",
-    "specialization": "IA appliquée · Données · Automatisation",
-    "description": "Fort de plus de vingt ans d’expérience en développement et en analyse, je me spécialise aujourd’hui dans l’utilisation concrète de l’intelligence artificielle, des données et de l’automatisation. Je conçois et j’expérimente des solutions qui transforment des besoins réels en outils utiles.",
-    "cta_primary": "Découvrir mon parcours",
-    "cta_secondary": "Voir PennySEO",
-    "cta_resources": "Explorer les Ressources IA",
-    "metrics": [
-      { "value": "20+", "label": "Années en livraison logicielle" },
-      { "value": "5", "label": "Certifications IA & Data" },
-      { "value": "2+", "label": "Années en IA générative appliquée" }
-    ]
+    "overline": "RESSOURCES POUR COMPRENDRE L’IA",
+    "title": "Comprendre l’IA, un concept à la fois.",
+    "description": "Des ressources claires et pédagogiques pour comprendre comment fonctionne l’intelligence artificielle et mieux l’utiliser.",
+    "searchLabel": "Rechercher dans les Ressources IA",
+    "searchPlaceholder": "Rechercher un concept, un sujet ou une question…",
+    "searchSubmit": "Rechercher",
+    "cta_primary": "Explorer les ressources",
+    "cta_secondary": "Commencer par les bases",
+    "cta_seriesFallback": "Voir les séries",
+    "visualsLabel": "Ressources IA à découvrir",
+    "visualLinkLabel": "Découvrir la ressource : {{title}}"
+  },
+  "homeStart": {
+    "eyebrow": "ORIENTATION",
+    "title": "Par où commencer?",
+    "seriesFallback": "Voir les séries",
+    "discover": {
+      "title": "Je découvre l’IA",
+      "description": "Commencez avec les notions essentielles pour bâtir des repères clairs.",
+      "action": "Commencer par les bases"
+    },
+    "concept": {
+      "title": "Je cherche un concept",
+      "description": "Explorez les ressources selon le domaine qui vous intéresse.",
+      "action": "Explorer les sujets"
+    },
+    "use": {
+      "title": "Je veux utiliser l’IA",
+      "description": "Appuyez-vous sur des prompts pratiques pour passer à l’action.",
+      "action": "Explorer les prompts"
+    }
+  },
+  "homeStarterSeries": {
+    "eyebrow": "UN BON POINT DE DÉPART",
+    "title": "Un bon point de départ",
+    "action": "Commencer la série",
+    "fallbackDescription": "Explorez les séries pédagogiques disponibles.",
+    "fallbackAction": "Voir les séries"
+  },
+  "homeTopics": {
+    "eyebrow": "EXPLORATION LIBRE",
+    "title": "Explorer par sujet",
+    "description": "Parcourez les ressources selon le domaine qui vous intéresse le plus.",
+    "resourceCount_one": "{{count}} ressource",
+    "resourceCount_other": "{{count}} ressources",
+    "empty": "Les sujets seront affichés dès que des ressources publiques seront disponibles."
+  },
+  "homeSeries": {
+    "eyebrow": "COLLECTIONS ÉDITORIALES",
+    "title": "Approfondir avec les séries",
+    "description": "Explorez des ensembles de ressources qui développent une même idée sous plusieurs angles.",
+    "view": "Voir la série",
+    "viewLabel": "Voir la série {{series}}",
+    "loading": "Chargement des séries…"
+  },
+  "homeDiscover": {
+    "eyebrow": "SÉLECTION ÉDITORIALE",
+    "title": "À découvrir",
+    "description": "Quelques ressources choisies dans la bibliothèque pour poursuivre votre exploration.",
+    "view": "Consulter",
+    "viewLabel": "Consulter : {{title}}",
+    "loading": "Chargement de la sélection…"
+  },
+  "homeFormats": {
+    "eyebrow": "APPRENDRE À SON RYTHME",
+    "title": "Une idée, plusieurs façons d’apprendre",
+    "description": "Choisissez le format qui vous aide le mieux à comprendre, visualiser ou passer à l’action.",
+    "items": {
+      "article": {
+        "title": "Approfondir",
+        "description": "Prenez le temps de comprendre un concept et ses nuances.",
+        "action": "Voir les articles"
+      },
+      "infographic": {
+        "title": "Visualiser",
+        "description": "Retenez l’essentiel grâce à une explication visuelle.",
+        "action": "Voir les infographies"
+      },
+      "prompt": {
+        "title": "Agir",
+        "description": "Utilisez l’IA avec des prompts prêts à adapter à votre contexte.",
+        "action": "Voir les prompts"
+      }
+    }
   },
   "comparison": {
     "overline": "POURQUOI 5PENNYAI",
@@ -289,12 +367,35 @@
     "copyright": "© 2026 Christian Couillard. Tous droits réservés.",
     "made_with": "Basé à Québec, QC · IA appliquée, données et automatisation",
     "tagline": "Professionnel en technologies de l’information",
+    "brandTagline": "Comprendre l’IA, un concept à la fois.",
+    "navigationLabel": "Navigation du pied de page",
+    "language": "Langue",
+    "email": "Courriel",
+    "groups": {
+      "learn": "Apprendre",
+      "explore": "Explorer",
+      "site": "5PennyAi"
+    },
+    "links": {
+      "articles": "Articles",
+      "infographics": "Infographies",
+      "projects": "Projets"
+    },
     "admin": "Admin"
+  },
+  "homeBehind": {
+    "eyebrow": "DERRIÈRE 5PENNYAI",
+    "title": "Une approche concrète de l’IA",
+    "portraitAlt": "Portrait de Christian Couillard",
+    "description": "5PennyAi est construit par Christian Couillard, professionnel en technologies de l’information travaillant à l’intersection de l’IA appliquée, des données et de l’automatisation. Le projet transforme cette expérience en ressources claires pour rendre l’IA plus compréhensible et concrète.",
+    "about": "À propos",
+    "projects": "Voir les projets"
   },
   "seo": {
     "home": {
-      "title": "Christian Couillard — AI Solutions Engineer",
-      "description": "AI Solutions Engineer · Builder IA appliquée. Je construis et déploie des produits IA de bout en bout — RAG, agents, automatisation. Basé à Québec."
+      "title": "Comprendre l’IA, un concept à la fois | 5PennyAi",
+      "description": "Des ressources claires et pédagogiques pour comprendre comment fonctionne l’intelligence artificielle et mieux l’utiliser.",
+      "socialImageAlt": "5PennyAi — Ressources pour comprendre l’IA"
     },
     "blog": {
       "title": "Blog — 5PennyAi",
@@ -842,7 +943,7 @@
     "title": "Ressources IA",
     "subtitle": "Des ressources pédagogiques claires et pratiques pour mieux comprendre l'intelligence artificielle.",
     "type": "Infographie",
-    "typeWithTheme": "Infographie · {{theme}}",
+    "typeWithTopic": "Infographie · {{topic}}",
     "formats": {
       "infographic": "Infographie",
       "article": "Article",
@@ -882,7 +983,7 @@
       "infographics": "Infographies",
       "articles": "Articles",
       "prompts": "Prompts",
-      "formatWithTheme": "{{format}} · {{theme}}",
+      "formatWithTopic": "{{format}} · {{topic}}",
       "filterLabel": "Série",
       "allSeries": "Toutes les séries",
       "unknownSeries": "Série non disponible",
@@ -988,7 +1089,7 @@
     "article": {
       "breadcrumbLabel": "Fil d’Ariane",
       "type": "Ressources IA · Article",
-      "typeWithTheme": "Ressources IA · Article · {{theme}}",
+      "typeWithTopic": "Ressources IA · Article · {{topic}}",
       "fallbackTitle": "Article",
       "coverUnavailable": "Couverture non disponible",
       "readingTime_one": "{{count}} minute de lecture",
@@ -1175,6 +1276,55 @@
           "invalidResourceType": "Ce type de ressource ne peut pas être associé à une série."
         }
       },
+      "topics": {
+        "navLabel": "Sujets",
+        "title": "Sujets",
+        "subtitle": "Les sujets classent transversalement les Articles et Infographies. Ils sont distincts des séries et des mots-clés.",
+        "add": "Ajouter un sujet",
+        "loading": "Chargement des sujets…",
+        "retry": "Réessayer",
+        "empty": "Aucun sujet n'existe encore.",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "cancel": "Annuler",
+        "deleted": "Le sujet a été supprimé. Les ressources ont été conservées.",
+        "deleteTitle": "Supprimer « {{name}} »?",
+        "deleteEmpty": "Supprimer ce sujet vide?",
+        "deleteWithResources": "Ce sujet est associé à {{count}} ressource(s). Le supprimer retirera ces associations, mais ne supprimera aucune ressource. Supprimer le sujet?",
+        "columns": { "nameFr": "Nom FR", "nameEn": "Nom EN", "slug": "Slug", "resources": "Associations", "published": "Publiées", "updated": "Modification", "actions": "Actions" },
+        "errors": { "load": "Impossible de charger les sujets.", "save": "Impossible d'enregistrer ce sujet.", "delete": "Impossible de supprimer ce sujet.", "notFound": "Ce sujet est introuvable.", "forbidden": "Votre session n'autorise pas cette opération.", "migrationRequired": "La migration relationnelle des sujets doit être appliquée.", "slugConflict": "Ce slug est déjà utilisé par un autre sujet." },
+        "memberships": {
+          "title": "Sujets associés",
+          "loading": "Chargement des sujets associés…",
+          "empty": "Cette ressource n’est associée à aucun sujet.",
+          "saveFirst": "Enregistrez d’abord la ressource pour gérer ses sujets.",
+          "viewTopic": "Voir le sujet",
+          "remove": "Retirer",
+          "add": "Associer à un sujet",
+          "topic": "Sujet",
+          "selectTopic": "Choisir un sujet",
+          "associate": "Associer",
+          "cancel": "Annuler",
+          "allAssociated": "Cette ressource est déjà associée à tous les sujets disponibles.",
+          "errors": { "load": "Impossible de charger les sujets associés.", "create": "Impossible de créer cette association.", "delete": "Impossible de retirer cette association.", "notFound": "Cette association n'existe plus.", "alreadyAssociated": "Cette ressource est déjà associée à ce sujet.", "forbidden": "Votre session n'autorise pas cette opération.", "migrationRequired": "La migration relationnelle des sujets doit être appliquée.", "invalidResourceType": "Ce type de ressource ne peut pas être associé à un sujet." }
+        }
+      },
+      "topicForm": {
+        "back": "Retour aux sujets",
+        "newTitle": "Nouveau sujet",
+        "editTitle": "Modifier le sujet",
+        "loading": "Chargement du sujet…",
+        "saved": "Le sujet a été enregistré.",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "cancel": "Annuler",
+        "slugHelp": "Le slug est proposé depuis le nom français et reste modifiable avant la création.",
+        "slugWarning": "Modifier le slug pourra changer l’URL du filtre public lorsque cette taxonomie sera utilisée publiquement.",
+        "sections": { "general": "Informations générales", "descriptions": "Descriptions", "members": "Ressources associées", "actions": "Actions" },
+        "fields": { "nameFr": "Nom français", "nameEn": "Nom anglais", "slug": "Slug", "descriptionFr": "Description française", "descriptionEn": "Description anglaise" },
+        "members": { "empty": "Aucune ressource associée.", "untitled": "Ressource sans titre", "open": "Ouvrir", "remove": "Retirer", "formats": { "article": "Article", "infographic": "Infographie" }, "statuses": { "draft": "Brouillon", "published": "Publié" } },
+        "errors": { "load": "Impossible de charger ce sujet.", "save": "Impossible d'enregistrer ce sujet.", "notFound": "Ce sujet est introuvable.", "nameFrRequired": "Le nom français est requis.", "nameEnRequired": "Le nom anglais est requis.", "slugRequired": "Le slug est requis.", "slugConflict": "Ce slug est déjà utilisé par un autre sujet.", "forbidden": "Votre session n'autorise pas cette opération.", "migrationRequired": "La migration relationnelle des sujets doit être appliquée.", "membershipsLoad": "Impossible de charger les ressources de ce sujet.", "membershipDelete": "Impossible de retirer cette ressource du sujet.", "membershipNotFound": "Cette association est introuvable." }
+      },
       "prompts": {
         "navLabel": "Prompts",
         "title": "Bibliothèque de prompts",
@@ -1359,7 +1509,6 @@
         "columns": {
           "infographic": "Infographie",
           "title": "Titre",
-          "theme": "Thème",
           "series": "Séries associées",
           "episode": "Épisode",
           "status": "Statut",
@@ -1528,7 +1677,6 @@
           "title": "Titre",
           "subtitle": "Sous-titre",
           "summary": "Résumé",
-          "theme": "Thème",
           "slug": "Slug technique",
           "slugHint": "Distinct du slug suggéré SEO. Facultatif pour un brouillon et normalisé lors de la sauvegarde.",
           "learningObjectives": "Objectifs d’apprentissage",
@@ -1747,6 +1895,7 @@
           },
           "warnings": {
             "legacySeriesIgnored": "les séries sont maintenant gérées dans l’application; les informations de série de ce fichier n’ont pas été appliquées",
+            "legacyThemeIgnored": "le champ legacy theme a été ignoré; les sujets sont gérés explicitement dans l’administration",
             "unknownProperty": "propriété inconnue ignorée",
             "forbiddenProperty": "propriété technique interdite ignorée",
             "expectedInteger": "nombre entier attendu; valeur ignorée",
@@ -1772,7 +1921,6 @@
           "codes": {
             "missingTitle": "Le titre est absent.",
             "missingSummary": "Le résumé est absent.",
-            "missingTheme": "Le thème est absent.",
             "unknownLanguage": "La langue « {{value}} » n’est pas reconnue.",
             "unknownLevel": "Le niveau « {{value}} » n’est pas reconnu.",
             "unexpectedContentType": "Le type « {{value}} » n’est pas article.",
@@ -1886,7 +2034,6 @@
           "summary": "Résumé",
           "introduction": "Introduction",
           "imageAlt": "Texte alternatif",
-          "theme": "Thème",
           "level": "Niveau",
           "readingTime": "Temps de consultation en minutes",
           "pointTitle": "Titre du point",
@@ -2024,6 +2171,7 @@
           },
           "warnings": {
             "legacySeriesIgnored": "les séries sont maintenant gérées dans l’application; les informations de série de ce fichier n’ont pas été appliquées",
+            "legacyThemeIgnored": "le champ legacy theme a été ignoré; les sujets sont gérés explicitement dans l’administration",
             "unsupportedSchemaVersion": "version absente de la prise en charge v1; les autres propriétés reconnues ont tout de même été analysées",
             "expectedString": "chaîne de caractères attendue; valeur ignorée",
             "invalidLevel": "niveau attendu : beginner, intermediate ou advanced; valeur ignorée",
