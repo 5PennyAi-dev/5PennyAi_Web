@@ -4,10 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Button from '@/components/ui/Button'
 import { ResourcePreview } from '@/components/resources/ResourceCard'
-import {
-  buildHeroSearchDestination,
-  selectHeroResources,
-} from '@/lib/homepageCuration'
+import { buildHeroSearchDestination } from '@/lib/homepageCuration'
 
 const SERIES_DIRECTORY_PATH = '/ressources-ia?vue=series'
 
@@ -15,7 +12,7 @@ export default function Hero({ catalog }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const resources = selectHeroResources(catalog?.resources)
+  const resources = catalog?.heroResources || []
   const starterSeries = catalog?.starterSeries || null
 
   const starterPath = starterSeries
@@ -92,11 +89,7 @@ export default function Hero({ catalog }) {
                 key={`${resource.contentType}:${resource.id}`}
                 to={resource.publicUrl}
                 aria-label={t('hero.visualLinkLabel', { title: resource.title })}
-                className={`group absolute block aspect-video w-[78%] overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-[var(--shadow-card-hover)] transition-transform duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 ${
-                  index === 0
-                    ? 'left-0 top-0 -rotate-2 group-hover:-translate-y-1 sm:left-[4%]'
-                    : 'bottom-0 right-0 rotate-2 group-hover:translate-y-1 sm:right-[2%]'
-                }`}
+                className={`group absolute block aspect-video overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-[var(--shadow-card-hover)] transition-transform duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 ${heroCardClassName(index)}`}
               >
                 <ResourcePreview
                   contentType={resource.contentType}
@@ -115,4 +108,16 @@ export default function Hero({ catalog }) {
       </div>
     </section>
   )
+}
+
+function heroCardClassName(index) {
+  if (index === 0) {
+    return 'left-0 top-0 z-10 w-[78%] -rotate-2 group-hover:-translate-y-1 sm:left-[4%] lg:left-[1%] lg:top-7 lg:w-[64%] lg:-rotate-[5deg]'
+  }
+
+  if (index === 1) {
+    return 'bottom-0 right-0 z-20 w-[78%] rotate-2 group-hover:translate-y-1 sm:right-[2%] lg:right-[2%] lg:top-1 lg:w-[66%] lg:rotate-[4deg]'
+  }
+
+  return 'bottom-0 left-[15%] z-30 hidden w-[70%] rotate-[1deg] group-hover:-translate-y-1 lg:block'
 }

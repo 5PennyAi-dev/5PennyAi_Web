@@ -5,9 +5,12 @@ import { useTranslation } from 'react-i18next'
 import { ResourcePreview } from '@/components/resources/ResourceCard'
 import { selectDiscoverResources } from '@/lib/homepageCuration'
 
-export default function HomeDiscover({ resources, status }) {
+export default function HomeDiscover({ resources, excludedResources, status }) {
   const { t } = useTranslation()
-  const selected = useMemo(() => selectDiscoverResources(resources), [resources])
+  const selected = useMemo(
+    () => selectDiscoverResources(resources, { excludedResources }),
+    [resources, excludedResources],
+  )
 
   if (status === 'ready' && selected.length === 0) return null
 

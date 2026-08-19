@@ -28,15 +28,31 @@ test('buildHeroSearchDestination omits an empty query parameter', () => {
   assert.equal(buildHeroSearchDestination('   '), '/ressources-ia')
 })
 
-test('selectHeroResources keeps configured published resources and ignores unavailable entries', () => {
+test('selectHeroResources selects up to three distinct published resources with usable assets', () => {
   const article = resource('article-1', 'article', '/ressources-ia/articles/llm')
   const infographic = resource('infographic-1', 'infographic', '/ressources-ia/infographies/1')
+  const prompt = resource('prompt-1', 'prompt', '/ressources-ia/prompts/explain')
+  const noImage = resource('article-2', 'article', '/ressources-ia/articles/no-image', false)
+  const draft = { ...resource('article-draft', 'article', '/ressources-ia/articles/draft'), status: 'draft' }
+  const duplicate = { ...article }
+
+  const selected = selectHeroResources(
+    [article, infographic, prompt, noImage, draft, duplicate],
+    { random: () => 0 },
+  )
+
+  assert.deepEqual(selected, [infographic, prompt, article])
+  assert.equal(new Set(selected.map(({ contentType, id }) => `${contentType}:${id}`)).size, 3)
+  assert.ok(selected.every((item) => item.status !== 'draft'))
+  assert.ok(selected.every((item) => item.thumbnailSources.length > 0))
+})
+
+test('selectHeroResources returns fewer cards when fewer eligible resources are available', () => {
+  const article = resource('article-1', 'article', '/ressources-ia/articles/llm')
   const noImage = resource('article-2', 'article', '/ressources-ia/articles/no-image', false)
 
-  assert.deepEqual(
-    selectHeroResources([article, infographic, noImage], [noImage.publicUrl, article.publicUrl]),
-    [article, infographic],
-  )
+  assert.deepEqual(selectHeroResources([article, noImage], { random: () => 0 }), [article])
+  assert.deepEqual(selectHeroResources([], { random: () => 0 }), [])
 })
 
 test('resolveStarterSeries resolves only the explicitly curated public series with published members', () => {
@@ -82,14 +98,14 @@ test('selectFeaturedSeries keeps curated order, omits invalid series, and fills 
   )
 })
 
-test('selectDiscoverResources returns five distinct resources, excludes Hero resources, and preserves format diversity', () => {
+test('selectDiscoverResources returns five distinct resources, excludes all three Hero resources, and preserves format diversity', () => {
   const candidates = [
     ...Array.from({ length: 4 }, (_, index) => resource(`article-${index}`, 'article', `/ressources-ia/articles/${index}`)),
     ...Array.from({ length: 3 }, (_, index) => resource(`infographic-${index}`, 'infographic', `/ressources-ia/infographies/${index}`)),
     ...Array.from({ length: 3 }, (_, index) => resource(`prompt-${index}`, 'prompt', `/ressources-ia/prompts/${index}`)),
   ]
   const sourceSnapshot = structuredClone(candidates)
-  const excludedResources = [candidates[0], candidates[4]]
+  const excludedResources = [candidates[0], candidates[4], candidates[7]]
 
   const selected = selectDiscoverResources(candidates, {
     excludedResources,

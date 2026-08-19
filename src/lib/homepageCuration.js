@@ -13,14 +13,6 @@ export const FEATURED_SERIES_SLUGS = [
   'developper-avec-les-assistants-ia',
 ]
 
-// These public URLs are an editorial choice, not data from the visual mockup.
-// They are resolved against the published catalog at runtime so unpublished or
-// deleted resources can never be shown by the hero.
-export const HERO_RESOURCE_URLS = [
-  '/ressources-ia/articles/qu-est-ce-qu-un-llm',
-  '/ressources-ia/infographies/f8b84d2a-93a4-46ae-b750-601fe85696d7',
-]
-
 export function buildHeroSearchDestination(query) {
   const value = typeof query === 'string' ? query.trim() : ''
   if (!value) return RESOURCES_PATH
@@ -29,29 +21,19 @@ export function buildHeroSearchDestination(query) {
   return `${RESOURCES_PATH}?${params.toString()}`
 }
 
-export function selectHeroResources(resources, configuredUrls = HERO_RESOURCE_URLS) {
+export function selectHeroResources(resources, { count = 3, random = Math.random } = {}) {
+  const limit = Math.min(3, Number.isInteger(count) && count > 0 ? count : 3)
+  const identities = new Set()
   const eligible = (Array.isArray(resources) ? resources : [])
-    .filter((resource) => resource?.publicUrl && hasUsableThumbnail(resource))
+    .filter((resource) => isEligibleResource(resource) && hasUsableThumbnail(resource))
+    .filter((resource) => {
+      const identity = resourceIdentity(resource)
+      if (identities.has(identity)) return false
+      identities.add(identity)
+      return true
+    })
 
-  const selected = configuredUrls
-    .map((url) => eligible.find((resource) => resource.publicUrl === url))
-    .filter(Boolean)
-
-  // A deterministic fallback preserves the public-only constraint while
-  // avoiding a chronological "latest resources" selection.
-  const fallback = [...eligible].sort((left, right) => (
-    String(left.publicUrl).localeCompare(String(right.publicUrl))
-  ))
-  for (const resource of fallback) {
-    if (selected.length >= 2) break
-    if (!selected.some((item) => item.contentType === resource.contentType)) selected.push(resource)
-  }
-  for (const resource of fallback) {
-    if (selected.length >= 2) break
-    if (!selected.includes(resource)) selected.push(resource)
-  }
-
-  return selected.slice(0, 2)
+  return shuffle(eligible, random).slice(0, limit)
 }
 
 export function resolveStarterSeries(series, configuredSlug = STARTER_SERIES_SLUG) {

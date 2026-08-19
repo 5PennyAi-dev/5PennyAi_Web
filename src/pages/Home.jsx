@@ -10,7 +10,7 @@ import HomeDiscover from '@/components/sections/HomeDiscover'
 import HomeBehind from '@/components/sections/HomeBehind'
 import { buildDefaultSocialImageUrl, buildSiteUrl } from '@/lib/siteConfig'
 import { fetchPublishedCatalog } from '@/lib/publicInfographics'
-import { resolveStarterSeries } from '@/lib/homepageCuration'
+import { resolveStarterSeries, selectHeroResources } from '@/lib/homepageCuration'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -22,9 +22,14 @@ export default function Home() {
     fetchPublishedCatalog()
       .then((catalog) => {
         if (cancelled) return
+        const heroResources = selectHeroResources(catalog.resources)
         setCatalogState({
           status: 'ready',
-          catalog: { ...catalog, starterSeries: resolveStarterSeries(catalog.series) },
+          catalog: {
+            ...catalog,
+            heroResources,
+            starterSeries: resolveStarterSeries(catalog.series),
+          },
         })
       })
       .catch(() => {
@@ -65,7 +70,11 @@ export default function Home() {
       />
       <HomeTopics resources={catalogState.catalog?.resources} status={catalogState.status} />
       <HomeSeries series={catalogState.catalog?.series} status={catalogState.status} />
-      <HomeDiscover resources={catalogState.catalog?.resources} status={catalogState.status} />
+      <HomeDiscover
+        resources={catalogState.catalog?.resources}
+        excludedResources={catalogState.catalog?.heroResources}
+        status={catalogState.status}
+      />
       <HomeBehind />
     </>
   )
