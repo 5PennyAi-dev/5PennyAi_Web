@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Analytics } from '@vercel/analytics/react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Home from '@/pages/Home'
@@ -27,6 +28,7 @@ import AdminSeriesForm from '@/pages/admin/resources/AdminSeriesForm'
 import AdminTopics from '@/pages/admin/resources/AdminTopics'
 import AdminTopicForm from '@/pages/admin/resources/AdminTopicForm'
 import { initCal } from '@/lib/cal'
+import { filterAnalyticsEvent } from '@/lib/analytics'
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -60,6 +62,7 @@ function App() {
 
   return (
     <>
+      <Analytics beforeSend={filterAnalyticsEvent} />
       <ScrollToTop />
       <Navbar />
       <main>
